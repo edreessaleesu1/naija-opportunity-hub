@@ -1,1 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>Naija Opportunity Hub | Discover Opportunities</title>
+
+  <meta name="description" content="Discover scholarships, jobs, internships, grants, fellowships and career development opportunities for Nigerians.">
+
+  <meta name="theme-color" content="#087443">
+
+  <style>
+    :root {
+      --green: #087443;
+      --dark-green: #064d30;
+      --light-green: #e9f7ef;
+      --gold: #f5b942;
+      --dark: #17231d;
+      --muted: #65736b;
+      --white: #ffffff;
+      --background: #f7faf8;
+      --border: #e2eae5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--background);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button,
+    select {
+      cursor: pointer;
+    }
+
+    .container {
+      width: min(1120px, 92%);
+      margin: auto;
+    }
+
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar {
+      min-height: 76px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--dark-green);
+    }
+
+    .brand-icon {
+      background: var(--green);
+      color: white;
+      width: 43px;
+      height: 43px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 23px;
+    }
+
+    .brand span small {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 1.6px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav-links a:hover {
+      color: var(--green);
+    }
+
+    .nav-cta,
+    .primary-btn {
+      background: var(--green);
+      color: white;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .nav-cta:hover,
+    .primary-btn:hover {
+      background: var(--dark-green);
+    }
+
+    .hero {
+      background:
+        radial-gradient(circle at 90% 10%, #238b5c 0, transparent 30%),
+        linear-gradient(120deg, #064d30, #087443);
+      color: white;
+      padding: 85px 0 75px;
+    }
+
+    .hero-content {
+      max-width: 790px;
+      margin: auto;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 7px 13px;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 30px;
+      background: rgba(255,255,255,.08);
+      font-size: 13px;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      font-size: clamp(35px, 5vw, 59px);
+      line-height: 1.12;
+      margin-bottom: 22px;
+      letter-spacing: -1.5px;
+    }
+
+    .hero h1 span {
+      color: var(--gold);
+    }
+
+    .hero p {
+      max-width: 640px;
+      margin: 0 auto 30px;
+      color: #e0f1e7;
+      font-size: 17px;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      padding: 9px;
+      background: white;
+      border-radius: 12px;
+      max-width: 720px;
+      margin: auto;
+      box-shadow: 0 12px 35px rgba(0,0,0,.15);
+    }
+
+    .search-box input,
+    .search-box select {
+      min-width: 0;
+      border: none;
+      outline: none;
+      padding: 12px;
+      color: var(--dark);
+      background: white;
+    }
+
+    .search-box input {
+      flex: 1;
+    }
+
+    .search-box select {
+      max-width: 175px;
+      border-left: 1px solid var(--border);
+    }
+
+    .search-box button {
+      background: var(--gold);
+      color: #263126;
+      border: none;
+      padding: 12px 23px;
+      border-radius: 8px;
+      font-weight: 800;
+    }
+
+    .hero-note {
+      font-size: 12px !important;
+      margin-top: 18px !important;
+      margin-bottom: 0 !important;
+    }
+
+    .stats {
+      background: white;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      text-align: center;
+      padding: 25px 0;
+      gap: 20px;
+    }
+
+    .stat strong {
+      display: block;
+      color: var(--green);
+      font-size: 23px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    section {
+      padding: 65px 0;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+      font-weight: 800;
+      font-size: 11px;
+      margin-bottom: 7px;
+    }
+
+    .section-heading h2 {
+      font-size: clamp(26px, 3vw, 34px);
+      line-height: 1.25;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .text-link {
+      color: var(--green);
+      font-weight: 700;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .category-card {
+      padding: 25px 20px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .category-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(0,0,0,.06);
+    }
+
+    .category-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      background: var(--light-green);
+      border-radius: 12px;
+      font-size: 25px;
+      margin-bottom: 16px;
+    }
+
+    .category-card h3 {
+      font-size: 17px;
+      margin-bottom: 7px;
+    }
+
+    .category-card p {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .opportunities {
+      background: #eef5f0;
+    }
+
+    .opportunity-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .opportunity-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 23px;
+      display: flex;
+      flex-direction: column;
+      min-height: 265px;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 17px;
+    }
+
+    .tag {
+      background: var(--light-green);
+      color: var(--dark-green);
+      padding: 5px 9px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .tag.gold {
+      background: #fff3d6;
+      color: #865c00;
+    }
+
+    .card-type {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .opportunity-card h3 {
+      font-size: 18px;
+      line-height: 1.4;
+      margin-bottom: 9px;
+    }
+
+    .opportunity-card .description {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .card-meta {
+      margin-top: auto;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .deadline {
+      color: #9a5b00;
+      font-weight: 700;
+    }
+
+    .apply-link {
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      background: white;
+      padding: 30px;
+      text-align: center;
+      border-radius: 12px;
+      color: var(--muted);
+    }
+
+    .career {
+      background: white;
+    }
+
+    .career-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 55px;
+    }
+
+    .career-copy h2 {
+      font-size: clamp(28px, 3vw, 39px);
+      line-height: 1.2;
+      margin-bottom: 18px;
+    }
+
+    .career-copy > p {
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .career-list {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+
+    .career-list li {
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .career-list li::before {
+      content: "✓";
+      display: inline-grid;
+      place-items: center;
+      background: var(--light-green);
+      color: var(--green);
+      width: 23px;
+      height: 23px;
+      border-radius: 50%;
+      font-weight: 800;
+      margin-right: 10px;
+    }
+
+    .service-panel {
+      background: var(--light-green);
+      padding: 28px;
+      border-radius: 16px;
+    }
+
+    .service-panel h3 {
+      margin-bottom: 18px;
+      font-size: 20px;
+    }
+
+    .service-item {
+      background: white;
+      border: 1px solid #dcece1;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .service-icon {
+      font-size: 25px;
+    }
+
+    .service-item h4 {
+      font-size: 14px;
+    }
+
+    .service-item p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .service-price {
+      margin-left: auto;
+      color: var(--green);
+      font-weight: 800;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .how-it-works {
+      background: var(--background);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+    }
+
+    .step {
+      padding: 25px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .step-number {
+      background: var(--green);
+      color: white;
+      border-radius: 10px;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .step h3 {
+      margin-bottom: 8px;
+      font-size: 17px;
+    }
+
+    .step p {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .cta-section {
+      padding: 15px 0 70px;
+    }
+
+    .cta-box {
+      background: linear-gradient(120deg, #064d30, #087443);
+      border-radius: 18px;
+      padding: 45px 25px;
+      text-align: center;
+      color: white;
+    }
+
+    .cta-box h2 {
+      font-size: clamp(25px, 3vw, 34px);
+      margin-bottom: 12px;
+    }
+
+    .cta-box p {
+      color: #e0f1e7;
+      margin-bottom: 23px;
+    }
+
+    .gold-btn {
+      display: inline-block;
+      padding: 13px 22px;
+      background: var(--gold);
+      color: #263126;
+      border-radius: 8px;
+      font-weight: 800;
+    }
+
+    footer {
+      background: #10251a;
+      color: white;
+      padding: 45px 0 20px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 35px;
+      margin-bottom: 30px;
+    }
+
+    .footer-about p {
+      color: #c1d2c7;
+      font-size: 13px;
+      max-width: 390px;
+      margin-top: 14px;
+    }
+
+    footer h4 {
+      margin-bottom: 13px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      font-size: 13px;
+      color: #c1d2c7;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .footer-bottom {
+      padding-top: 18px;
+      border-top: 1px solid #345040;
+      color: #c1d2c7;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .notice {
+      background: #fff7df;
+      color: #6e5100;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 22px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 850px) {
+      .nav-links {
+        gap: 12px;
+        font-size: 12px;
+      }
+
+      .categories {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .opportunity-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .career-layout {
+        gap: 30px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .navbar {
+        min-height: 68px;
+        flex-wrap: wrap;
+        padding: 12px 0;
+      }
+
+      .brand {
+        font-size: 16px;
+      }
+
+      .brand-icon {
+        width: 38px;
+        height: 38px;
+      }
+
+      .nav-links {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+        padding-bottom: 5px;
+      }
+
+      .nav-links a {
+        font-size: 11px;
+      }
+
+      .nav-cta {
+        padding: 8px 10px;
+      }
+
+      .hero {
+        padding: 60px 0 50px;
+      }
+
+      .hero p {
+        font-size: 15px;
+      }
+
+      .search-box {
+        flex-direction: column;
+      }
+
+      .search-box input,
+      .search-box select {
+        width: 100%;
+        max-width: none;
+        border-left: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .search-box button {
+        width: 100%;
+      }
+
+      .stats-grid {
+        gap: 8px;
+      }
+
+      .stat strong {
+        font-size: 19px;
+      }
+
+      .stat span {
+        font-size: 11px;
+      }
+
+      section {
+        padding: 48px 0;
+      }
+
+      .section-heading {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .categories,
+      .opportunity-grid,
+      .career-layout,
+      .steps,
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .category-card {
+        padding: 20px;
+      }
+
+      .career-layout {
+        gap: 25px;
+      }
+
+      .service-panel {
+        padding: 18px;
+      }
+
+      .service-item {
+        padding: 12px;
+      }
+
+      .service-price {
+        font-size: 11px;
+      }
+
+      .footer-grid {
+        gap: 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="container navbar">
+      <a class="brand" href="#home" aria-label="Naija Opportunity Hub home">
+        <div class="brand-icon">N</div>
+        <span>
+          NAIJA OPPORTUNITY HUB
+          <small>DISCOVER. APPLY. GROW.</small>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#home">Home</a>
+        <a href="#categories">Categories</a>
+        <a href="#opportunities">Opportunities</a>
+        <a href="#career-kit">Career Kit</a>
+        <a class="nav-cta" href="#contact">Get Started</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero-content">
+        <span class="badge">🇳🇬 Your future starts with the right opportunity</span>
+
+        <h1>
+          Discover Opportunities.<br>
+          <span>Build Your Future.</span>
+        </h1>
+
+        <p>
+          Find scholarships, jobs, internships, grants and training
+          programmes in one place. Your next big opportunity could be
+          closer than you think.
+        </p>
+
+        <form class="search-box" id="searchForm">
+          <input
+            type="search"
+            id="searchInput"
+            placeholder="Search scholarships, jobs, grants..."
+            aria-label="Search opportunities"
+          >
+
+          <select id="categoryFilter" aria-label="Filter by category">
+            <option value="all">All categories</option>
+            <option value="scholarship">Scholarships</option>
+            <option value="job">Jobs</option>
+            <option value="internship">Internships</option>
+            <option value="grant">Grants</option>
+            <option value="training">Training</option>
+          </select>
+
+          <button type="submit">Find Opportunities</button>
+        </form>
+
+        <p class="hero-note">
+          Explore opportunities from official sources. Always verify
+          eligibility and deadlines before applying.
+        </p>
+      </div>
+    </section>
+
+    <div class="stats">
+      <div class="container stats-grid">
+        <div class="stat">
+          <strong>One Hub</strong>
+          <span>Multiple opportunity categories</span>
+        </div>
+        <div class="stat">
+          <strong>Free Access</strong>
+          <span>Browse opportunities without a fee</span>
+        </div>
+        <div class="stat">
+          <strong>Your Future</strong>
+          <span>Take your next step with confidence</span>
+        </div>
+      </div>
+    </div>
+
+    <section id="categories">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Explore possibilities</div>
+            <h2>What opportunity are you looking for?</h2>
+            <p>Start with a category that matches your goals.</p>
+          </div>
+        </div>
+
+        <div class="categories">
+          <a href="#opportunities" class="category-card" data-category="scholarship">
+            <div class="category-icon">🎓</div>
+            <h3>Scholarships</h3>
+            <p>Discover funding opportunities for your education.</p>
+          </a>
+
+          <a href="#opportunities" class="category-card" data-category="job">
+            <div class="category-icon">💼</div>
+            <h3>Jobs</h3>
+            <p>Explore employment and graduate opportunities.</p>
+          </a>
+
+          <a href="#opportunities" class="category-card" data-category="internship">
+            <div class="category-icon">🌱</div>
+            <h3>Internships</h3>
+            <p>Gain experience and develop valuable skills.</p>
+          </a>
+
+          <a href="#opportunities" class="category-card" data-category="grant">
+            <div class="category-icon">🚀</div>
+            <h3>Grants & Fellowships</h3>
+            <p>Find funding and programmes that support your ideas.</p>
+          </a>
+
+          <a href="#opportunities" class="category-card" data-category="training">
+            <div class="category-icon">🧠</div>
+            <h3>Free Training</h3>
+            <p>Build practical skills for work and business.</p>
+          </a>
+
+          <a href="#career-kit" class="category-card">
+            <div class="category-icon">📄</div>
+            <h3>Career Development</h3>
+            <p>Prepare a stronger CV and application.</p>
+          </a>
+
+          <a href="#opportunities" class="category-card" data-category="grant">
+            <div class="category-icon">🌍</div>
+            <h3>Youth Programmes</h3>
+            <p>Explore leadership and empowerment initiatives.</p>
+          </a>
+
+          <a href="#career-kit" class="category-card">
+            <div class="category-icon">⭐</div>
+            <h3>Career Kit</h3>
+            <p>Get practical support for your next application.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="opportunities" id="opportunities">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Your next step starts here</div>
+            <h2>Explore Opportunities</h2>
+            <p>Our sample listings will be replaced with verified opportunities before launch.</p>
+          </div>
+          <a class="text-link" href="#contact">Suggest an opportunity →</a>
+        </div>
+
+        <div class="notice">
+          <strong>Preview notice:</strong> The cards below are demonstration
+          examples, not confirmed live openings. Do not rely on their
+          deadlines or apply through them.
+        </div>
+
+        <div class="opportunity-grid" id="opportunityGrid">
+          <article class="opportunity-card" data-type="scholarship">
+            <div class="card-top">
+              <span class="tag">Scholarship</span>
+              <span class="card-type">Education</span>
+            </div>
+            <h3>Undergraduate Scholarship Opportunity</h3>
+            <p class="description">
+              A demonstration listing showing how students will discover
+              scholarship eligibility and application information.
+            </p>
+            <div class="card-meta">
+              <span class="deadline">Demo listing</span>
+              <a class="apply-link" href="#contact">Details →</a>
+            </div>
+          </article>
+
+          <article class="opportunity-card" data-type="job">
+            <div class="card-top">
+              <span class="tag">Job</span>
+              <span class="card-type">Employment</span>
+            </div>
+            <h3>Graduate Trainee Programme</h3>
+            <p class="description">
+              A demonstration listing for an entry-level career opportunity.
+              Actual vacancies will be independently checked.
+            </p>
+            <div class="card-meta">
+              <span class="deadline">Demo listing</span>
+              <a class="apply-link" href="#contact">Details →</a>
+            </div>
+          </article>
+
+          <article class="opportunity-card" data-type="training">
+            <div class="card-top">
+              <span class="tag gold">Training</span>
+              <span class="card-type">Skills</span>
+            </div>
+            <h3>Digital Skills Training Programme</h3>
+            <p class="description">
+              A demonstration listing for digital skills and professional
+              development programmes.
+            </p>
+            <div class="card-meta">
+              <span class="deadline">Demo listing</span>
+              <a class="apply-link" href="#contact">Details →</a>
+            </div>
+          </article>
+
+          <article class="opportunity-card" data-type="internship">
+            <div class="card-top">
+              <span class="tag">Internship</span>
+              <span class="card-type">Experience</span>
+            </div>
+            <h3>Graduate Internship Programme</h3>
+            <p class="description">
+              A demonstration listing for internships that help applicants
+              develop workplace experience.
+            </p>
+            <div class="card-meta">
+              <span class="deadline">Demo listing</span>
+              <a class="apply-link" href="#contact">Details →</a>
+            </div>
+          </article>
+
+          <article class="opportunity-card" data-type="grant">
+            <div class="card-top">
+              <span class="tag">Grant</span>
+              <span class="card-type">Entrepreneurship</span>
+            </div>
+            <h3>Youth Enterprise Funding</h3>
+            <p class="description">
+              A demonstration listing for youth enterprise funding and
+              business development initiatives.
+            </p>
+            <div class="card-meta">
+              <span class="deadline">Demo listing</span>
+              <a class="apply-link" href="#contact">Details →</a>
+            </div>
+          </article>
+
+          <article class="opportunity-card" data-type="scholarship">
+            <div class="card-top">
+              <span class="tag">Fellowship</span>
+              <span class="card-type">Leadership</span>
+            </div>
+            <h3>Youth Leadership Fellowship</h3>
+            <p class="description">
+              A demonstration listing for leadership, civic engagement and
+              professional development programmes.
+            </p>
+            <div class="card-meta">
+              <span class="deadline">Demo listing</span>
+              <a class="apply-link" href="#contact">Details →</a>
+            </div>
+          </article>
+        </div>
+
+        <p id="noResults" hidden style="text-align:center;padding:30px;">
+          No matching demonstration listings. Try another search.
+        </p>
+      </div>
+    </section>
+
+    <section class="career" id="career-kit">
+      <div class="container career-layout">
+        <div class="career-copy">
+          <div class="eyebrow">Your career advantage</div>
+          <h2>Don't just find opportunities. Prepare to win them.</h2>
+          <p>
+            The right opportunity is only part of the journey. Present
+            your qualifications professionally and prepare a stronger
+            application with our Career Kit.
+          </p>
+
+          <ul class="career-list">
+            <li>Professional CV creation and redesign</li>
+            <li>Tailored cover letters</li>
+            <li>CV review and improvement</li>
+            <li>Application preparation guidance</li>
+          </ul>
+
+          <a class="primary-btn" href="#contact">Ask About Career Services</a>
+        </div>
+
+        <div class="service-panel">
+          <h3>Career Kit Services</h3>
+
+          <div class="service-item">
+            <div class="service-icon">📄</div>
+            <div>
+              <h4>Professional CV</h4>
+              <p>A CV tailored to your experience and goals.</p>
+            </div>
+            <span class="service-price">Price on request</span>
+          </div>
+
+          <div class="service-item">
+            <div class="service-icon">✉️</div>
+            <div>
+              <h4>Cover Letter</h4>
+              <p>A targeted application letter.</p>
+            </div>
+            <span class="service-price">Price on request</span>
+          </div>
+
+          <div class="service-item">
+            <div class="service-icon">🔍</div>
+            <div>
+              <h4>CV Review</h4>
+              <p>Identify areas for improvement.</p>
+            </div>
+            <span class="service-price">Price on request</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Simple and practical</div>
+            <h2>How Naija Opportunity Hub works</h2>
+            <p>Three steps to help you move forward.</p>
+          </div>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">01</div>
+            <h3>Discover</h3>
+            <p>Search for opportunities that match your interests and qualifications.</p>
+          </div>
+
+          <div class="step">
+            <div class="step-number">02</div>
+            <h3>Check the Details</h3>
+            <p>Review eligibility, deadlines and official application instructions.</p>
+          </div>
+
+          <div class="step">
+            <div class="step-number">03</div>
+            <h3>Prepare & Apply</h3>
+            <p>Follow the official application process and use our Career Kit if needed.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section" id="contact">
+      <div class="container">
+        <div class="cta-box">
+          <h2>Your next opportunity could change everything.</h2>
+          <p>
+            Have a question, need career support, or know about an
+            opportunity we should feature?
+          </p>
+          <a class="gold-btn" href="mailto:hello@naijaopportunityhub.com?subject=Naija%20Opportunity%20Hub%20Enquiry">
+            Contact Our Team
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <a class="brand" href="#home" style="color:white;">
+            <div class="brand-icon">N</div>
+            <span>
+              NAIJA OPPORTUNITY HUB
+              <small style="color:#c1d2c7;">DISCOVER. APPLY. GROW.</small>
+            </span>
+          </a>
+          <p>
+            Helping Nigerians discover educational, career and
+            entrepreneurial opportunities through accessible information
+            and practical career support.
+          </p>
+        </div>
+
+        <div>
+          <h4>Explore</h4>
+          <div class="footer-links">
+            <a href="#categories">Categories</a>
+            <a href="#opportunities">Opportunities</a>
+            <a href="#career-kit">Career Kit</a>
+          </div>
+        </div>
+
+        <div>
+          <h4>Information</h4>
+          <div class="footer-links">
+            <a href="#contact">Contact</a>
+            <a href="#home">About Our Mission</a>
+            <a href="#opportunities">Submit an Opportunity</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        © <span id="year"></span> Naija Opportunity Hub.
+        All rights reserved.
+        <br>
+        Always verify opportunities through their official sources.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const searchForm = document.getElementById("searchForm");
+    const searchInput = document.getElementById("searchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const opportunityCards = Array.from(
+      document.querySelectorAll(".opportunity-card")
+    );
+    const noResults = document.getElementById("noResults");
+
+    function filterOpportunities() {
+      const query = searchInput.value.trim().toLowerCase();
+      const category = categoryFilter.value;
+      let visibleCount = 0;
+
+      opportunityCards.forEach((card) => {
+        const text = card.textContent.toLowerCase();
+        const type = card.dataset.type;
+
+        const matchesText = text.includes(query);
+        const matchesCategory = category === "all" || type === category;
+        const visible = matchesText && matchesCategory;
+
+        card.hidden = !visible;
+
+        if (visible) {
+          visibleCount++;
+        }
+      });
+
+      noResults.hidden = visibleCount !== 0;
+    }
+
+    searchForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      filterOpportunities();
+
+      document.getElementById("opportunities").scrollIntoView({
+        behavior: "smooth"
+      });
+    });
+
+    searchInput.addEventListener("input", filterOpportunities);
+    categoryFilter.addEventListener("change", filterOpportunities);
+
+    document.querySelectorAll("[data-category]").forEach((link) => {
+      link.addEventListener("click", () => {
+        searchInput.value = "";
+        categoryFilter.value = link.dataset.category;
+        filterOpportunities();
+      });
+    });
+
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+  </script>
+
+</body>
+  </html>
