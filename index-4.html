@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#087443">
+  <meta name="description" content="Discover scholarships, jobs, internships, grants, fellowships and training opportunities for Nigerian students and graduates.">
+  <title>Naija Opportunity Hub | Discover Opportunities. Build Your Future.</title>
+  <style>
+    :root {
+      --green: #087443;
+      --green-dark: #075b36;
+      --green-light: #e8f5ee;
+      --ink: #17251d;
+      --muted: #65736b;
+      --line: #dce7df;
+      --surface: #ffffff;
+      --bg: #f5f8f6;
+      --gold: #f5b942;
+      --shadow: 0 10px 28px rgba(17, 55, 34, .08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+    button, .button { cursor: pointer; }
+    .wrap { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 850; letter-spacing: -.4px; }
+    .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; background: var(--green); color: white; font-size: 1.15rem; }
+    .brand small { display: block; color: var(--muted); font-size: .7rem; font-weight: 600; letter-spacing: .2px; }
+    .navlinks { display: flex; gap: 22px; align-items: center; }
+    .navlinks a { text-decoration: none; font-weight: 650; font-size: .92rem; }
+    .navlinks a:hover { color: var(--green); }
+    .menu-btn { display: none; border: 1px solid var(--line); border-radius: 10px; background: white; padding: 8px 12px; }
+    .hero { background: linear-gradient(135deg, #073f2a 0%, #087443 58%, #15935a 100%); color: white; padding: 68px 0 58px; }
+    .hero-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 35px; align-items: center; }
+    .eyebrow { text-transform: uppercase; letter-spacing: 1.7px; font-size: .76rem; font-weight: 800; color: #c8f1d8; }
+    h1 { font-size: clamp(2.25rem, 5vw, 4rem); line-height: 1.08; letter-spacing: -1.7px; margin: 14px 0 18px; }
+    .hero p { color: #e2f5e9; max-width: 650px; font-size: 1.08rem; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 25px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 12px; padding: 12px 18px; text-decoration: none; font-weight: 800; }
+    .button-primary { background: var(--gold); color: #302309; }
+    .button-light { background: white; color: var(--green-dark); }
+    .button-outline { border: 1px solid var(--line); background: white; color: var(--ink); }
+    .hero-card { border: 1px solid rgba(255,255,255,.22); border-radius: 22px; padding: 25px; background: rgba(255,255,255,.10); box-shadow: 0 20px 50px rgba(0,0,0,.12); }
+    .hero-card h2 { margin: 0 0 14px; font-size: 1.1rem; }
+    .hero-stat { display: flex; align-items: center; gap: 13px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.18); }
+    .hero-stat:last-child { border-bottom: 0; }
+    .stat-icon { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; background: rgba(255,255,255,.15); font-size: 1.2rem; }
+    .hero-stat strong { display: block; }
+    .hero-stat span { font-size: .86rem; color: #d7f0e1; }
+    main { padding: 38px 0 70px; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin-bottom: 20px; }
+    .section-head h2 { margin: 0; font-size: clamp(1.55rem, 3vw, 2rem); letter-spacing: -.6px; }
+    .section-head p { color: var(--muted); margin: 6px 0 0; }
+    .categories { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin: 20px 0 38px; }
+    .category { border: 1px solid var(--line); background: white; border-radius: 15px; padding: 16px 10px; text-align: center; color: var(--ink); transition: .15s; }
+    .category:hover, .category.active { border-color: var(--green); background: var(--green-light); transform: translateY(-2px); }
+    .category span { display: block; font-size: 1.5rem; margin-bottom: 5px; }
+    .category strong { font-size: .84rem; }
+    .filters { display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; gap: 10px; margin-bottom: 17px; }
+    .field { width: 100%; border: 1px solid var(--line); background: white; color: var(--ink); border-radius: 12px; padding: 12px 13px; min-width: 0; }
+    .field:focus { outline: 2px solid #a6d9bb; border-color: var(--green); }
+    .results-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: var(--muted); font-size: .9rem; margin-bottom: 15px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { background: white; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; min-height: 315px; box-shadow: 0 3px 12px rgba(17,55,34,.025); }
+    .card-top { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
+    .badge { display: inline-flex; border-radius: 999px; padding: 5px 9px; background: var(--green-light); color: var(--green-dark); font-size: .75rem; font-weight: 800; }
+    .bookmark { border: 1px solid var(--line); border-radius: 10px; background: white; padding: 7px 9px; }
+    .bookmark.saved { color: var(--green); background: var(--green-light); border-color: #b8dec6; }
+    .card h3 { margin: 14px 0 5px; font-size: 1.13rem; line-height: 1.35; }
+    .org { color: var(--muted); font-weight: 650; font-size: .88rem; }
+    .card-desc { color: #526159; font-size: .9rem; margin: 13px 0; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); font-size: .82rem; margin-top: auto; padding-top: 8px; }
+    .card-actions { display: flex; gap: 9px; margin-top: 17px; }
+    .card-actions .button { flex: 1; padding: 10px 12px; font-size: .88rem; }
+    .empty { grid-column: 1 / -1; background: white; border: 1px dashed #bfd1c5; border-radius: var(--radius); padding: 35px 20px; text-align: center; color: var(--muted); }
+    .notice { background: #fff8e8; color: #765315; border: 1px solid #f3dfac; padding: 13px 15px; border-radius: 12px; font-size: .88rem; margin: 15px 0 20px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 44px; }
+    .panel { border: 1px solid var(--line); border-radius: var(--radius); background: white; padding: 24px; }
+    .panel h2 { margin: 0 0 8px; font-size: 1.35rem; }
+    .panel p { color: var(--muted); }
+    .price-list { display: grid; gap: 10px; margin: 17px 0; }
+    .price-row { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .price-row:last-child { border-bottom: 0; }
+    .price-row strong { color: var(--green-dark); white-space: nowrap; }
+    .tracker-list { display: grid; gap: 10px; margin-top: 15px; }
+    .tracker-item { border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+    .tracker-item strong { display: block; font-size: .92rem; }
+    .tracker-item small { color: var(--muted); }
+    .tracker-item select { width: auto; max-width: 135px; padding: 7px; }
+    .footer { background: #102b1d; color: #dcebe1; padding: 30px 0; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+    .footer p { margin: 5px 0; color: #b8cfc0; font-size: .88rem; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #163d29; color: white; padding: 12px 18px; border-radius: 12px; box-shadow: var(--shadow); z-index: 50; display: none; max-width: calc(100% - 28px); }
+    .toast.show { display: block; }
+    .small-muted { color: var(--muted); font-size: .82rem; }
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-card { max-width: 600px; }
+      .categories { grid-template-columns: repeat(3, 1fr); }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .filters { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .wrap { width: min(100% - 24px, 1120px); }
+      .nav { min-height: 64px; }
+      .menu-btn { display: block; }
+      .navlinks { display: none; position: absolute; left: 0; right: 0; top: 64px; padding: 15px 18px 20px; background: white; border-bottom: 1px solid var(--line); flex-direction: column; align-items: stretch; gap: 14px; }
+      .navlinks.open { display: flex; }
+      .hero { padding: 48px 0 42px; }
+      .hero-card { padding: 18px; }
+      main { padding-top: 28px; }
+      .categories { gap: 8px; }
+      .category { padding: 13px 6px; }
+      .category strong { font-size: .76rem; }
+      .filters { grid-template-columns: 1fr; }
+      .grid, .two-col { grid-template-columns: 1fr; }
+      .section-head { align-items: start; flex-direction: column; }
+      .results-line { align-items: start; flex-direction: column; }
+      .card { min-height: 0; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#home" aria-label="Naija Opportunity Hub home">
+      <span class="brand-mark">NO</span>
+      <span>Naija Opportunity Hub<small>Discover Opportunities. Build Your Future.</small></span>
+    </a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-label="Toggle navigation">☰ Menu</button>
+    <nav class="navlinks" id="navLinks">
+      <a href="#opportunities">Opportunities</a>
+      <a href="#career-kit">Career Kit</a>
+      <a href="#tracker">My Tracker</a>
+      <a href="#about">About</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" id="home">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Your next opportunity starts here</div>
+      <h1>Find opportunities.<br>Move your future forward.</h1>
+      <p>Explore scholarships, jobs, internships, grants, fellowships and training opportunities selected for Nigerian students, graduates and young professionals.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="#opportunities">Explore opportunities →</a>
+        <a class="button button-light" href="#career-kit">Build your career kit</a>
+      </div>
+    </div>
+    <div class="hero-card" aria-label="What you can do on the platform">
+      <h2>One hub. More possibilities.</h2>
+      <div class="hero-stat"><div class="stat-icon">🎓</div><div><strong>Scholarships & fellowships</strong><span>Find learning and funding opportunities</span></div></div>
+      <div class="hero-stat"><div class="stat-icon">💼</div><div><strong>Jobs & internships</strong><span>Take the next step in your career</span></div></div>
+      <div class="hero-stat"><div class="stat-icon">🧰</div><div><strong>Career support</strong><span>Get help with CVs and cover letters</span></div></div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <section id="opportunities">
+    <div class="section-head">
+      <div><h2>Explore opportunities</h2><p>Search by title, organisation, location or keyword.</p></div>
+      <a class="button button-outline" href="#tracker">View my tracker</a>
+    </div>
+
+    <div class="categories" id="categoryButtons">
+      <button class="category active" data-category="All"><span>🌍</span><strong>All</strong></button>
+      <button class="category" data-category="Scholarship"><span>🎓</span><strong>Scholarships</strong></button>
+      <button class="category" data-category="Job"><span>💼</span><strong>Jobs</strong></button>
+      <button class="category" data-category="Internship"><span>🧑‍💻</span><strong>Internships</strong></button>
+      <button class="category" data-category="Grant"><span>💰</span><strong>Grants</strong></button>
+      <button class="category" data-category="Training"><span>📚</span><strong>Training</strong></button>
+    </div>
+
+    <div class="filters">
+      <input class="field" id="searchInput" type="search" placeholder="Search opportunities..." aria-label="Search opportunities">
+      <select class="field" id="categoryFilter" aria-label="Filter by category">
+        <option value="All">All categories</option><option>Scholarship</option><option>Job</option><option>Internship</option><option>Grant</option><option>Training</option><option>Fellowship</option>
+      </select>
+      <select class="field" id="sortFilter" aria-label="Sort opportunities">
+        <option value="newest">Newest first</option><option value="deadline">Deadline soonest</option><option value="title">Title A–Z</option>
+      </select>
+      <button class="button button-outline" id="clearFilters">Clear filters</button>
+    </div>
+
+    <div class="notice" id="dataNotice"><strong>Important:</strong> Sample cards are demonstrations, not confirmed live opportunities. Always verify details and deadlines on the official source before applying.</div>
+    <div class="results-line"><span id="resultsCount">Loading opportunities…</span><span id="dataStatus">Connecting to opportunity database…</span></div>
+    <div class="grid" id="opportunityGrid" aria-live="polite"></div>
+  </section>
+
+  <section class="two-col">
+    <div class="panel" id="career-kit">
+      <h2>Career Kit</h2>
+      <p>Present your skills clearly and apply with confidence. These are proposed service prices; ordering and payment are not yet connected to this website.</p>
+      <div class="price-list">
+        <div class="price-row"><span>CV review</span><strong>₦2,000</strong></div>
+        <div class="price-row"><span>Professional CV preparation</span><strong>₦5,000</strong></div>
+        <div class="price-row"><span>CV + cover letter package</span><strong>₦7,000</strong></div>
+      </div>
+      <p class="small-muted">For now, this section displays the service options only. Contact and checkout will be connected after the core platform is tested.</p>
+      <a class="button button-primary" href="#about">Learn about the hub</a>
+    </div>
+    <div class="panel" id="tracker">
+      <h2>My application tracker</h2>
+      <p>Track opportunities you have saved and update your application status. Your tracker is stored in this browser on this device.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:9px">
+        <button class="button button-outline" id="exportTracker">Export tracker CSV</button>
+        <button class="button button-outline" id="clearTracker">Clear tracker</button>
+      </div>
+      <div class="tracker-list" id="trackerList"></div>
+      <p class="small-muted">Tracker data is local to this browser and is not synced to an online account.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="about" style="margin-top:18px">
+    <h2>About Naija Opportunity Hub</h2>
+    <p>Naija Opportunity Hub aims to make it easier for Nigerian students and graduates to discover opportunities and prepare stronger applications. We aim to share useful listings and direct users to official application sources.</p>
+    <p class="small-muted">Please verify eligibility, deadlines, fees and application instructions with the original organisation. Never pay an unverified person who promises to secure an opportunity for you.</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div><strong>Naija Opportunity Hub</strong><p>Discover Opportunities. Build Your Future.</p></div>
+    <div><p>Built to help Nigerian students and graduates take their next step.</p><p>© <span id="year"></span> Naija Opportunity Hub</p></div>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  "use strict";
+
+  // Supabase browser configuration.
+  // Project URL is already added. Paste ONLY your new publishable key below.
+  // Never put a Supabase secret/service-role key in this public HTML file.
+  const SUPABASE_URL = "https://djxornmwvkauhkcuhgxc.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_NEW_PUBLISHABLE_KEY_HERE";
+
+  const sampleOpportunities = [
+    {
+      id: "demo-1", title: "Scholarship search starter", organisation: "Demonstration listing",
+      category: "Scholarship", location: "Nigeria / International", eligibility: "Check the official programme requirements",
+      description: "A demonstration card showing how scholarship opportunities will appear once verified listings are added.",
+      deadline: "", url: "https://www.google.com/search?q=official+scholarships+for+Nigerian+students", verified: false, demo: true
+    },
+    {
+      id: "demo-2", title: "Graduate job search starter", organisation: "Demonstration listing",
+      category: "Job", location: "Nigeria", eligibility: "Depends on the employer and role",
+      description: "A demonstration card. Use official employer career pages to find current vacancies and confirm application details.",
+      deadline: "", url: "https://www.google.com/search?q=official+graduate+jobs+Nigeria", verified: false, demo: true
+    },
+    {
+      id: "demo-3", title: "Internship search starter", organisation: "Demonstration listing",
+      category: "Internship", location: "Nigeria", eligibility: "Depends on the programme",
+      description: "A demonstration card for internship listings. Always check the host organisation's official website.",
+      deadline: "", url: "https://www.google.com/search?q=official+internships+Nigeria", verified: false, demo: true
+    },
+    {
+      id: "demo-4", title: "Grant search starter", organisation: "Demonstration listing",
+      category: "Grant", location: "Nigeria / International", eligibility: "Depends on the grant provider",
+      description: "A demonstration card for grants. Confirm the provider, eligibility and any fees through official sources.",
+      deadline: "", url: "https://www.google.com/search?q=official+grants+Nigeria", verified: false, demo: true
+    },
+    {
+      id: "demo-5", title: "Free training search starter", organisation: "Demonstration listing",
+      category: "Training", location: "Online / Nigeria", eligibility: "Check the training provider's requirements",
+      description: "A demonstration card for training programmes and skills courses.",
+      deadline: "", url: "https://www.google.com/search?q=official+free+online+training+Nigeria", verified: false, demo: true
+    },
+    {
+      id: "demo-6", title: "Fellowship search starter", organisation: "Demonstration listing",
+      category: "Fellowship", location: "Nigeria / International", eligibility: "Depends on the fellowship",
+      description: "A demonstration card for fellowships. Confirm current dates and requirements with the programme owner.",
+      deadline: "", url: "https://www.google.com/search?q=official+fellowships+for+Nigerians", verified: false, demo: true
+    }
+  ];
+
+  const STORAGE = {
+    bookmarks: "noh_bookmarks_v1",
+    tracker: "noh_tracker_v1"
+  };
+  let opportunities = [...sampleOpportunities];
+  let activeCategory = "All";
+  let supabaseClient = null;
+
+  const $ = (id) => document.getElementById(id);
+  const readJSON = (key, fallback) => {
+    try { const value = JSON.parse(localStorage.getItem(key)); return value ?? fallback; }
+    catch { return fallback; }
+  };
+  const getBookmarks = () => readJSON(STORAGE.bookmarks, []);
+  const saveBookmarks = (items) => localStorage.setItem(STORAGE.bookmarks, JSON.stringify(items));
+  const getTracker = () => readJSON(STORAGE.tracker, []);
+  const saveTracker = (items) => localStorage.setItem(STORAGE.tracker, JSON.stringify(items));
+  const escapeHTML = (value) => String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[ch]));
+  const safeURL = (value) => {
+    try {
+      const u = new URL(value);
+      return ["https:", "http:"].includes(u.protocol) ? u.href : "";
+    } catch { return ""; }
+  };
+  function showToast(message) {
+    const toast = $("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove("show"), 3500);
+  }
+  function formatDate(date) {
+    if (!date) return "Check official source";
+    const parsed = new Date(date + (String(date).length === 10 ? "T00:00:00" : ""));
+    return Number.isNaN(parsed.getTime()) ? "Check official source" :
+      parsed.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
+  }
+  function renderOpportunities() {
+    const query = $("searchInput").value.trim().toLowerCase();
+    const category = $("categoryFilter").value;
+    let filtered = opportunities.filter(item => {
+      const text = [item.title, item.organisation, item.category, item.location, item.description, item.eligibility].join(" ").toLowerCase();
+      const matchesQuery = !query || text.includes(query);
+      const matchesCategory = category === "All" || item.category.toLowerCase() === category.toLowerCase();
+      const matchesButton = activeCategory === "All" || item.category.toLowerCase() === activeCategory.toLowerCase();
+      return matchesQuery && matchesCategory && matchesButton;
+    });
+    const sort = $("sortFilter").value;
+    if (sort === "title") filtered.sort((a,b) => a.title.localeCompare(b.title));
+    if (sort === "deadline") filtered.sort((a,b) => {
+      if (!a.deadline) return 1; if (!b.deadline) return -1;
+      return new Date(a.deadline) - new Date(b.deadline);
+    });
+    if (sort === "newest") filtered.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+    $("resultsCount").textContent = `${filtered.length} opportunit${filtered.length === 1 ? "y" : "ies"} shown`;
+    const grid = $("opportunityGrid");
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="empty"><h3>No matching opportunities</h3><p>Try a different keyword or clear the filters.</p></div>';
+      return;
+    }
+    const bookmarks = getBookmarks();
+    grid.innerHTML = filtered.map(item => {
+      const saved = bookmarks.includes(String(item.id));
+      const link = safeURL(item.url);
+      const badgeText = item.verified ? "Source checked" : (item.demo ? "Demo card" : "Check source");
+      return `<article class="card">
+        <div class="card-top"><span class="badge">${escapeHTML(item.category || "Opportunity")}</span>
+        <button class="bookmark ${saved ? "saved" : ""}" data-bookmark="${escapeHTML(item.id)}" aria-label="${saved ? "Remove bookmark" : "Save bookmark"}">${saved ? "★ Saved" : "☆ Save"}</button></div>
+        <h3>${escapeHTML(item.title)}</h3>
+        <div class="org">${escapeHTML(item.organisation || "Organisation not specified")}</div>
+        <p class="card-desc">${escapeHTML(item.description || "Visit the official source for full details.")}</p>
+        <div class="meta"><span>📍 ${escapeHTML(item.location || "Location not specified")}</span><span>🗓️ Deadline: ${escapeHTML(formatDate(item.deadline))}</span></div>
+        <div class="meta"><span>${item.verified ? "✓ " : "ℹ️ "}${escapeHTML(badgeText)}</span></div>
+        <div class="card-actions">
+          ${link ? `<a class="button button-primary" href="${escapeHTML(link)}" target="_blank" rel="noopener noreferrer">View source ↗</a>` : '<span class="button button-outline">Source not added</span>'}
+          <button class="button button-outline" data-track="${escapeHTML(item.id)}">Track</button>
+        </div>
+      </article>`;
+    }).join("");
+  }
+  function renderTracker() {
+    const tracker = getTracker();
+    const list = $("trackerList");
+    if (!tracker.length) {
+      list.innerHTML = '<div class="empty"><strong>Your tracker is empty.</strong><p>Tap “Track” on an opportunity to add it here.</p></div>';
+      return;
+    }
+    list.innerHTML = tracker.map(item => `<div class="tracker-item">
+      <div><strong>${escapeHTML(item.title)}</strong><small>${escapeHTML(item.organisation || "")}</small></div>
+      <select data-status="${escapeHTML(item.id)}" aria-label="Application status for ${escapeHTML(item.title)}">
+        ${["Interested","Preparing","Applied","Interview","Successful","Unsuccessful"].map(status => `<option ${item.status === status ? "selected" : ""}>${status}</option>`).join("")}
+      </select>
+      <button class="bookmark" data-remove-track="${escapeHTML(item.id)}" aria-label="Remove from tracker">✕</button>
+    </div>`).join("");
+  }
+  function trackOpportunity(id) {
+    const item = opportunities.find(op => String(op.id) === String(id));
+    if (!item) return;
+    const tracker = getTracker();
+    if (tracker.some(row => String(row.id) === String(id))) {
+      showToast("This opportunity is already in your tracker.");
+      return;
+    }
+    tracker.unshift({ id: String(item.id), title: item.title, organisation: item.organisation, status: "Interested", addedAt: new Date().toISOString() });
+    saveTracker(tracker);
+    renderTracker();
+    showToast("Added to your application tracker.");
+  }
+  function exportCSV() {
+    const tracker = getTracker();
+    if (!tracker.length) { showToast("Your tracker is empty."); return; }
+    const rows = [["Title","Organisation","Status","Added on"], ...tracker.map(x => [x.title, x.organisation, x.status, x.addedAt])];
+    const csv = rows.map(row => row.map(value => `"${String(value ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "naija-opportunity-tracker.csv"; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function loadSupabaseOpportunities() {
+    const key = SUPABASE_PUBLISHABLE_KEY.trim();
+    if (!key || key === "PASTE_YOUR_NEW_PUBLISHABLE_KEY_HERE") {
+      $("dataStatus").textContent = "Database key not added yet";
+      $("dataNotice").innerHTML = "<strong>Setup needed:</strong> Add your new Supabase publishable key in the code before publishing. The cards currently shown are demonstration cards, not verified listings.";
+      renderOpportunities();
+      return;
+    }
+    if (!window.supabase || typeof window.supabase.createClient !== "function") {
+      $("dataStatus").textContent = "Database library did not load";
+      renderOpportunities();
+      return;
+    }
+    try {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, key);
+      const { data, error } = await supabaseClient
+        .from("opportunities")
+        .select("id,title,organization,category,description,eligibility,location,application_url,source_url,deadline,status,verified_at,created_at")
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      if (Array.isArray(data) && data.length) {
+        opportunities = data.map(item => ({
+          id: String(item.id),
+          title: item.title || "Untitled opportunity",
+          organisation: item.organization || "Organisation not specified",
+          category: item.category || "Opportunity",
+          location: item.location || "Nigeria",
+          eligibility: item.eligibility || "Check official requirements",
+          description: item.description || "Visit the official source for full details.",
+          deadline: item.deadline || "",
+          url: item.application_url || item.source_url || "",
+          verified: Boolean(item.verified_at),
+          created_at: item.created_at || ""
+        }));
+        $("dataNotice").innerHTML = "<strong>Reminder:</strong> Listings are loaded from the database. Check each official source to confirm eligibility and deadlines before applying.";
+        $("dataStatus").textContent = "Connected · published database listings loaded";
+      } else {
+        $("dataStatus").textContent = "Connected · no published listings yet";
+        $("dataNotice").innerHTML = "<strong>Database connected:</strong> No published opportunities have been added yet, so demonstration cards are shown. They are not confirmed live opportunities.";
+      }
+      renderOpportunities();
+      renderTracker();
+    } catch (error) {
+      console.error("Supabase connection error:", error);
+      $("dataStatus").textContent = "Could not connect to database";
+      $("dataNotice").innerHTML = "<strong>Connection issue:</strong> Demonstration cards are shown for now. Check that the Project URL and publishable key are correct and that the public read policy allows published opportunities.";
+      renderOpportunities();
+    }
+  }
+
+  $("menuBtn").addEventListener("click", () => {
+    const nav = $("navLinks");
+    const isOpen = nav.classList.toggle("open");
+    $("menuBtn").setAttribute("aria-expanded", String(isOpen));
+  });
+  $("navLinks").querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
+    $("navLinks").classList.remove("open");
+    $("menuBtn").setAttribute("aria-expanded", "false");
+  }));
+  ["searchInput","categoryFilter","sortFilter"].forEach(id => $(id).addEventListener(id === "searchInput" ? "input" : "change", renderOpportunities));
+  $("clearFilters").addEventListener("click", () => {
+    $("searchInput").value = ""; $("categoryFilter").value = "All"; $("sortFilter").value = "newest";
+    activeCategory = "All";
+    document.querySelectorAll(".category").forEach(btn => btn.classList.toggle("active", btn.dataset.category === "All"));
+    renderOpportunities();
+  });
+  $("categoryButtons").addEventListener("click", event => {
+    const button = event.target.closest("[data-category]");
+    if (!button) return;
+    activeCategory = button.dataset.category;
+    $("categoryFilter").value = "All";
+    document.querySelectorAll(".category").forEach(btn => btn.classList.toggle("active", btn === button));
+    renderOpportunities();
+  });
+  $("opportunityGrid").addEventListener("click", event => {
+    const bookmarkButton = event.target.closest("[data-bookmark]");
+    if (bookmarkButton) {
+      const id = String(bookmarkButton.dataset.bookmark);
+      const bookmarks = getBookmarks();
+      saveBookmarks(bookmarks.includes(id) ? bookmarks.filter(x => x !== id) : [...bookmarks, id]);
+      renderOpportunities();
+      showToast(bookmarks.includes(id) ? "Bookmark removed." : "Opportunity saved.");
+      return;
+    }
+    const trackButton = event.target.closest("[data-track]");
+    if (trackButton) trackOpportunity(trackButton.dataset.track);
+  });
+  $("trackerList").addEventListener("change", event => {
+    const select = event.target.closest("[data-status]");
+    if (!select) return;
+    const tracker = getTracker();
+    const item = tracker.find(row => String(row.id) === String(select.dataset.status));
+    if (item) { item.status = select.value; saveTracker(tracker); showToast("Application status updated."); }
+  });
+  $("trackerList").addEventListener("click", event => {
+    const button = event.target.closest("[data-remove-track]");
+    if (!button) return;
+    saveTracker(getTracker().filter(row => String(row.id) !== String(button.dataset.removeTrack)));
+    renderTracker(); showToast("Removed from tracker.");
+  });
+  $("exportTracker").addEventListener("click", exportCSV);
+  $("clearTracker").addEventListener("click", () => {
+    if (!getTracker().length) { showToast("Your tracker is already empty."); return; }
+    if (confirm("Clear all items from your application tracker on this device?")) {
+      saveTracker([]); renderTracker(); showToast("Tracker cleared.");
+    }
+  });
+
+  $("year").textContent = new Date().getFullYear();
+  renderOpportunities();
+  renderTracker();
+  loadSupabaseOpportunities();
+})();
+</script>
+</body>
+</html>
