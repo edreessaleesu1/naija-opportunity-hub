@@ -3,505 +3,592 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#087443">
+  <meta name="theme-color" content="#086b45">
 
-  <meta name="description" content="Discover scholarships, jobs, internships, grants, fellowships and training opportunities for Nigerian students and graduates.">
-
-  <meta name="robots" content="index, follow">
   <title>Naija Opportunity Hub | Discover Opportunities. Build Your Future.</title>
 
-  <link rel="icon" href="./naija-opportunity-hub-logo.png">
-  <link rel="preconnect" href="https://images.unsplash.com">
+  <meta name="description" content="Discover scholarships, jobs, internships, grants, fellowships and training opportunities for Nigerian students, graduates and young professionals.">
+
+  <meta name="keywords" content="Nigeria scholarships, jobs in Nigeria, internships, grants, fellowships, graduate opportunities, career development">
+
+  <meta name="author" content="Naija Opportunity Hub">
+
+  <link rel="icon" type="image/png" href="./naija-opportunity-hub-logo.png">
   <link rel="stylesheet" href="./style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./script.js?v=3" defer></script>
 </head>
 
 <body>
 
-<!-- ================= HEADER & NAVIGATION ================= -->
-<header class="site-header">
-  <div class="wrap nav">
-
-    <a class="brand" href="#home" aria-label="Naija Opportunity Hub Home">
-      <img
-        src="./naija-opportunity-hub-logo.png"
-        alt="Naija Opportunity Hub logo"
-        width="52"
-        height="52"
-      >
-
-      <span>
-        Naija Opportunity Hub
-        <small>Discover Opportunities. Build Your Future.</small>
-      </span>
-    </a>
-
-    <button
-      class="menu-btn"
-      id="menuBtn"
-      type="button"
-      aria-expanded="false"
-      aria-controls="navLinks"
-      aria-label="Toggle navigation"
-    >
-      ☰ Menu
-    </button>
-
-    <nav class="navlinks" id="navLinks" aria-label="Main navigation">
-      <a href="#home" aria-current="page">Home</a>
-      <a href="#opportunities">Opportunities</a>
-      <a href="#career-kit">Career Kit</a>
-      <a href="#tracker">My Tracker</a>
-      <a href="#about">About</a>
-    </nav>
-
-  </div>
-</header>
-
-
-<!-- ================= HERO SECTION ================= -->
-<section class="hero" id="home">
-  <div class="wrap hero-grid">
-
-    <div class="hero-content">
-
-      <span class="eyebrow">
-        YOUR FUTURE STARTS WITH ONE OPPORTUNITY
-      </span>
-
-      <h1>
-        Discover opportunities.<br>
-        <span>Build your future.</span>
-      </h1>
-
-      <p>
-        Your destination for scholarships, jobs, internships, grants,
-        fellowships and training opportunities for Nigerian students,
-        graduates and young professionals.
-      </p>
-
-      <div class="hero-actions">
-        <a class="button button-primary" href="#opportunities">
-          Explore Opportunities →
-        </a>
-
-        <a class="button button-light" href="#career-kit">
-          Explore Career Kit
-        </a>
-      </div>
-
-      <div class="hero-points">
-        <span>✓ Multiple opportunity categories</span>
-        <span>✓ Links to application sources</span>
-        <span>✓ Personal application tracker</span>
-      </div>
-
-    </div>
-
-    <div class="hero-visual">
-      <img
-        src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=85"
-        alt="University students learning and working together"
-        fetchpriority="high"
-      >
-
-      <div class="hero-image-caption">
-        <span class="caption-icon">🎓</span>
-        <div>
-          <strong>Your next chapter begins here</strong>
-          <small>Learn. Apply. Grow.</small>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-
-<!-- ================= OPPORTUNITY CATEGORIES ================= -->
-<section class="wrap quick-categories" aria-label="Opportunity categories">
-
-  <div class="section-intro">
-    <span class="eyebrow">EXPLORE YOUR OPTIONS</span>
-    <h2>What opportunity are you looking for?</h2>
-    <p>Choose a category and start exploring.</p>
-  </div>
-
-  <div class="categories" id="categoryButtons">
-
-    <button class="category active" type="button" data-category="All">
-      <span>🌍</span>
-      <strong>All</strong>
-    </button>
-
-    <button class="category" type="button" data-category="Scholarship">
-      <span>🎓</span>
-      <strong>Scholarships</strong>
-    </button>
-
-    <button class="category" type="button" data-category="Job">
-      <span>💼</span>
-      <strong>Jobs</strong>
-    </button>
-
-    <button class="category" type="button" data-category="Internship">
-      <span>🧑‍💻</span>
-      <strong>Internships</strong>
-    </button>
-
-    <button class="category" type="button" data-category="Grant">
-      <span>💰</span>
-      <strong>Grants</strong>
-    </button>
-
-    <button class="category" type="button" data-category="Training">
-      <span>📚</span>
-      <strong>Training</strong>
-    </button>
-
-    <button class="category" type="button" data-category="Fellowship">
-      <span>🚀</span>
-      <strong>Fellowships</strong>
-    </button>
-
-  </div>
-</section>
-
-
-<!-- ================= OPPORTUNITIES ================= -->
-<main class="wrap main-content">
-
-  <section id="opportunities">
-
-    <div class="section-head">
-      <div>
-        <span class="eyebrow">FIND YOUR NEXT STEP</span>
-        <h2>Explore opportunities</h2>
-        <p>Search by opportunity title, organisation, location or keyword.</p>
-      </div>
-
-      <a class="button button-outline" href="#tracker">
-        My Tracker →
-      </a>
-    </div>
-
-    <div class="filters">
-
-      <input
-        class="field"
-        id="searchInput"
-        type="search"
-        placeholder="Search scholarships, jobs, grants..."
-        aria-label="Search opportunities"
-      >
-
-      <select class="field" id="categoryFilter" aria-label="Filter by category">
-        <option value="All">All categories</option>
-        <option value="Scholarship">Scholarship</option>
-        <option value="Job">Job</option>
-        <option value="Internship">Internship</option>
-        <option value="Grant">Grant</option>
-        <option value="Training">Training</option>
-        <option value="Fellowship">Fellowship</option>
-      </select>
-
-      <select class="field" id="sortFilter" aria-label="Sort opportunities">
-        <option value="newest">Newest first</option>
-        <option value="deadline">Deadline soonest</option>
-        <option value="title">Title A–Z</option>
-      </select>
-
-      <button class="button button-outline" id="clearFilters" type="button">
-        Clear filters
-      </button>
-
-    </div>
-
-    <div class="notice" id="dataNotice">
-      <strong>Stay informed:</strong>
-      Always confirm eligibility, deadlines and application instructions
-      on the organisation's official website. Demonstration listings are
-      not confirmed live opportunities.
-    </div>
-
-    <div class="results-line">
-      <span id="resultsCount">Loading opportunities…</span>
-      <span id="dataStatus" role="status">Connecting to opportunity database…</span>
-    </div>
-
-    <div class="grid" id="opportunityGrid" aria-live="polite"></div>
-
-  </section>
-
-
-  <!-- ================= PHOTO SHOWCASE ================= -->
-  <section class="showcase-section" aria-labelledby="showcaseTitle">
-
-    <div class="section-head">
-      <div>
-        <span class="eyebrow">DREAM BIGGER</span>
-        <h2 id="showcaseTitle">Your ambition deserves an opportunity</h2>
-        <p>Build your skills, discover new possibilities and keep moving forward.</p>
-      </div>
-    </div>
-
-    <div class="showcase-grid">
-
-      <article class="showcase-card">
-        <img
-          src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80"
-          alt="Graduates celebrating an academic milestone"
-          loading="lazy"
-        >
-        <div class="showcase-caption">
-          <span>🎓</span>
-          <h3>Invest in your education</h3>
-          <p>Explore learning and scholarship opportunities.</p>
-        </div>
-      </article>
-
-      <article class="showcase-card">
-        <img
-  src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80"
-  alt="University students learning and working together"
-  loading="lazy"
-  onerror="this.onerror=null;this.src='https://placehold.co/800x500/087443/ffffff?text=Education+and+Scholarships';"
->
-        <div class="showcase-caption">
-          <span>💼</span>
-          <h3>Grow your career</h3>
-          <p>Find opportunities to develop your professional skills.</p>
-        </div>
-      </article>
-
-      <article class="showcase-card">
-        <img
-          src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80"
-          alt="Person working on a laptop to build digital skills"
-          loading="lazy"
-        >
-        <div class="showcase-caption">
-          <span>🚀</span>
-          <h3>Build new skills</h3>
-          <p>Discover training and practical learning opportunities.</p>
-        </div>
-      </article>
-
-    </div>
-
-    <p class="small-muted">
-      Illustrative photographs. Images are hosted externally and require
-      an internet connection.
-    </p>
-
-  </section>
-
-
-  <!-- ================= CAREER KIT & TRACKER ================= -->
-  <section class="two-col">
-
-    <div class="panel career-panel" id="career-kit">
-
-      <span class="eyebrow">PRESENT YOUR BEST SELF</span>
-      <h2>Career Kit</h2>
-
-      <p>
-        Make a stronger first impression with clear, professional
-        application documents tailored to your goals.
-      </p>
-
-      <div class="price-list">
-
-        <div class="price-row">
-          <span>CV review</span>
-          <strong>₦2,000</strong>
-        </div>
-
-        <div class="price-row">
-          <span>Professional CV preparation</span>
-          <strong>₦5,000</strong>
-        </div>
-
-        <div class="price-row">
-          <span>CV + cover letter package</span>
-          <strong>₦7,000</strong>
-        </div>
-
-      </div>
-
-      <p class="small-muted">
-        These are proposed prices. Online ordering and payment are not
-        yet available.
-      </p>
-
-      <a class="button button-primary" href="#about">
-        Learn about our platform
-      </a>
-
-    </div>
-
-
-    <div class="panel tracker-panel" id="tracker">
-
-      <span class="eyebrow">KEEP YOUR APPLICATIONS ORGANISED</span>
-      <h2>My application tracker</h2>
-
-      <p>
-        Keep track of opportunities you save and monitor your application
-        progress from this device.
-      </p>
-
-      <div class="tracker-actions">
-        <button class="button button-outline" id="exportTracker" type="button">
-          Export tracker CSV
-        </button>
-
-        <button class="button button-outline" id="clearTracker" type="button">
-          Clear tracker
-        </button>
-      </div>
-
-      <div class="tracker-list" id="trackerList"></div>
-
-      <p class="small-muted">
-        Tracker information is stored in this browser. It is not currently
-        synchronised with an online account.
-      </p>
-
-    </div>
-
-  </section>
-
-
-  <!-- ================= WHY USE THE HUB ================= -->
-  <section class="trust-section">
-
-    <div class="section-intro">
-      <span class="eyebrow">A SMARTER WAY TO SEARCH</span>
-      <h2>Make your next move with confidence</h2>
-      <p>Useful tools to help you organise your opportunity search.</p>
-    </div>
-
-    <div class="trust-grid">
-
-      <article class="trust-card">
-        <div class="trust-icon">🔎</div>
-        <h3>Discover</h3>
-        <p>Explore opportunities across different categories in one place.</p>
-      </article>
-
-      <article class="trust-card">
-        <div class="trust-icon">📝</div>
-        <h3>Prepare</h3>
-        <p>Use career support services to improve your application documents.</p>
-      </article>
-
-      <article class="trust-card">
-        <div class="trust-icon">📌</div>
-        <h3>Stay organised</h3>
-        <p>Record the opportunities you are interested in and track your progress.</p>
-      </article>
-
-      <article class="trust-card">
-        <div class="trust-icon">🛡️</div>
-        <h3>Verify before applying</h3>
-        <p>Check official sources, eligibility requirements and deadlines before acting.</p>
-      </article>
-
-    </div>
-
-  </section>
-
-
-  <!-- ================= ABOUT ================= -->
-  <section class="panel about-panel" id="about">
-
-    <span class="eyebrow">ABOUT US</span>
-    <h2>About Naija Opportunity Hub</h2>
-
-    <p>
-      Naija Opportunity Hub aims to help Nigerian students, graduates
-      and young professionals discover opportunities and prepare stronger
-      applications. Our goal is to make opportunity discovery simpler,
-      more organised and more accessible.
-    </p>
-
-    <p>
-      We aim to direct users to original application sources so they can
-      review the requirements and make informed decisions.
-    </p>
-
-    <div class="notice">
-      <strong>Your safety matters:</strong>
-      Be cautious of anyone demanding suspicious fees or guaranteeing
-      a scholarship, job or grant. Verify offers directly with the
-      responsible organisation before sharing personal information or money.
-    </div>
-
-  </section>
-
-</main>
-
-
-<!-- ================= FOOTER ================= -->
-<footer class="footer">
-
-  <div class="wrap footer-grid">
-
-    <div class="footer-brand">
-      <a class="brand" href="#home">
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="wrap nav">
+
+      <a class="brand" href="#home" aria-label="Naija Opportunity Hub homepage">
         <img
           src="./naija-opportunity-hub-logo.png"
-          alt=""
-          width="44"
-          height="44"
-          loading="lazy"
+          alt="Naija Opportunity Hub logo"
+          class="brand-logo"
         >
 
-        <span>
-          Naija Opportunity Hub
-          <small>Discover Opportunities. Build Your Future.</small>
+        <span class="brand-copy">
+          <span class="brand-name">Naija Opportunity Hub</span>
+          <span class="brand-tagline">Discover Opportunities. Build Your Future.</span>
         </span>
       </a>
 
-      <p>
-        Helping Nigerian students and graduates discover their next step.
-      </p>
+      <button
+        class="menu-toggle"
+        id="menuBtn"
+        type="button"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="navLinks"
+      >
+        <span class="menu-icon" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+        <span class="menu-label">Menu</span>
+      </button>
+
+      <nav class="navlinks" id="navLinks" aria-label="Main navigation">
+        <a href="#home">Home</a>
+        <a href="#opportunities">Opportunities</a>
+        <a href="#career-kit">Career Kit</a>
+        <a href="#tracker">My Tracker</a>
+        <a href="#about">About</a>
+      </nav>
+
     </div>
+  </header>
 
-    <div class="footer-links">
-      <h3>Explore</h3>
-      <a href="#home">Home</a>
-      <a href="#opportunities">Opportunities</a>
-      <a href="#career-kit">Career Kit</a>
-      <a href="#tracker">My Tracker</a>
-    </div>
 
-    <div class="footer-links">
-      <h3>Important</h3>
-      <a href="#about">About us</a>
-      <a href="#about">Safety guidance</a>
-      <a href="#opportunities">Browse opportunities</a>
-    </div>
+  <main>
 
-  </div>
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <div class="wrap hero-grid">
 
-  <div class="footer-bottom">
+        <div class="hero-content">
+
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            YOUR FUTURE STARTS WITH ONE OPPORTUNITY
+          </div>
+
+          <h1>
+            Discover opportunities.<br>
+            <span>Build your future.</span>
+          </h1>
+
+          <p class="hero-description">
+            Your destination for scholarships, jobs, internships, grants,
+            fellowships and training opportunities for Nigerian students,
+            graduates and young professionals.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#opportunities" class="button button-primary">
+              Explore Opportunities <span aria-hidden="true">→</span>
+            </a>
+
+            <a href="#career-kit" class="button button-secondary">
+              Explore Career Kit
+            </a>
+          </div>
+
+          <ul class="hero-benefits">
+            <li>
+              <span class="check-icon" aria-hidden="true">✓</span>
+              Multiple opportunity categories
+            </li>
+            <li>
+              <span class="check-icon" aria-hidden="true">✓</span>
+              Links to application sources
+            </li>
+            <li>
+              <span class="check-icon" aria-hidden="true">✓</span>
+              Personal application tracker
+            </li>
+          </ul>
+
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-image-frame">
+            <img
+              src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1000&q=85"
+              alt="Books and a welcoming study environment"
+              class="hero-image"
+              fetchpriority="high"
+            >
+          </div>
+
+          <div class="floating-card floating-card-top">
+            <span class="floating-icon" aria-hidden="true">✦</span>
+            <span>
+              <strong>New possibilities</strong>
+              <small>Start your next chapter</small>
+            </span>
+          </div>
+
+          <div class="floating-card floating-card-bottom">
+            <span class="floating-icon gold-icon" aria-hidden="true">✓</span>
+            <span>
+              <strong>Stay organised</strong>
+              <small>Track your applications</small>
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- CATEGORY SHORTCUTS -->
+    <section class="quick-categories">
+      <div class="wrap">
+
+        <div class="section-intro">
+          <span class="section-kicker">FIND YOUR NEXT STEP</span>
+          <h2>What opportunity are you looking for?</h2>
+          <p>Choose a category to explore opportunities that match your goals.</p>
+        </div>
+
+        <div class="category-list" id="categoryButtons">
+
+          <button class="category" type="button" data-category="Scholarship">
+            <span class="category-icon" aria-hidden="true">🎓</span>
+            <span>Scholarships</span>
+          </button>
+
+          <button class="category" type="button" data-category="Job">
+            <span class="category-icon" aria-hidden="true">💼</span>
+            <span>Jobs</span>
+          </button>
+
+          <button class="category" type="button" data-category="Internship">
+            <span class="category-icon" aria-hidden="true">🚀</span>
+            <span>Internships</span>
+          </button>
+
+          <button class="category" type="button" data-category="Grant">
+            <span class="category-icon" aria-hidden="true">💰</span>
+            <span>Grants</span>
+          </button>
+
+          <button class="category" type="button" data-category="Fellowship">
+            <span class="category-icon" aria-hidden="true">🌍</span>
+            <span>Fellowships</span>
+          </button>
+
+          <button class="category" type="button" data-category="Training">
+            <span class="category-icon" aria-hidden="true">📚</span>
+            <span>Training</span>
+          </button>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- OPPORTUNITIES -->
+    <section class="opportunities-section" id="opportunities">
+      <div class="wrap main-content">
+
+        <div class="section-head">
+          <div>
+            <span class="section-kicker">YOUR NEXT OPPORTUNITY</span>
+            <h2>Explore opportunities</h2>
+            <p>Discover possibilities to learn, grow and advance your career.</p>
+          </div>
+
+          <div class="results-badge" id="resultsCount">
+            Finding opportunities...
+          </div>
+        </div>
+
+        <div class="filters">
+
+          <div class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input
+              type="search"
+              id="searchInput"
+              placeholder="Search scholarships, jobs, grants..."
+              aria-label="Search opportunities"
+            >
+          </div>
+
+          <label class="filter-control">
+            <span class="sr-only">Filter by category</span>
+            <select id="categoryFilter">
+              <option value="All">All categories</option>
+              <option value="Scholarship">Scholarships</option>
+              <option value="Job">Jobs</option>
+              <option value="Internship">Internships</option>
+              <option value="Grant">Grants</option>
+              <option value="Fellowship">Fellowships</option>
+              <option value="Training">Training</option>
+            </select>
+          </label>
+
+          <label class="filter-control">
+            <span class="sr-only">Sort opportunities</span>
+            <select id="sortFilter">
+              <option value="newest">Newest first</option>
+              <option value="deadline">Closing date</option>
+              <option value="title">Title A–Z</option>
+            </select>
+          </label>
+
+          <button class="button button-outline" id="clearFilters" type="button">
+            Clear filters
+          </button>
+
+        </div>
+
+        <div class="data-notice" id="dataNotice" hidden></div>
+
+        <div class="data-status" id="dataStatus" aria-live="polite"></div>
+
+        <div class="opportunity-grid" id="opportunityGrid">
+          <div class="loading-card">Loading opportunities...</div>
+        </div>
+
+        <p class="disclaimer">
+          Always confirm eligibility, deadlines and application requirements
+          on the official source before applying.
+        </p>
+
+      </div>
+    </section>
+
+
+    <!-- FEATURE SHOWCASE -->
+    <section class="showcase-section">
+      <div class="wrap showcase-grid">
+
+        <div class="showcase-image">
+          <img
+            src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=85"
+            alt="A person studying and preparing written work"
+            loading="lazy"
+          >
+
+          <div class="showcase-caption">
+            <span class="caption-mark" aria-hidden="true">✦</span>
+            <span>
+              <strong>Your goals matter.</strong>
+              <small>Take the next step with confidence.</small>
+            </span>
+          </div>
+        </div>
+
+        <div class="showcase-copy">
+          <span class="section-kicker">MORE THAN OPPORTUNITY LISTINGS</span>
+
+          <h2>Build skills. Prepare confidently. Move forward.</h2>
+
+          <p>
+            Finding an opportunity is only the beginning. Prepare your
+            application, organise your deadlines and take practical steps
+            towards your career goals.
+          </p>
+
+          <a href="#career-kit" class="text-link">
+            Discover the Career Kit <span aria-hidden="true">→</span>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- CAREER KIT -->
+    <section class="career-section" id="career-kit">
+      <div class="wrap">
+
+        <div class="section-intro">
+          <span class="section-kicker">YOUR CAREER TOOLBOX</span>
+          <h2>Present yourself with confidence</h2>
+          <p>
+            Practical career support to help you prepare stronger applications.
+          </p>
+        </div>
+
+        <div class="career-grid">
+
+          <article class="panel career-panel">
+            <div class="service-icon" aria-hidden="true">📄</div>
+            <span class="service-label">CAREER ESSENTIAL</span>
+            <h3>Professional CV</h3>
+            <p>
+              Create a clear, professional CV that highlights your education,
+              skills, experience and achievements.
+            </p>
+            <a href="#about" class="button button-outline">Explore service</a>
+          </article>
+
+          <article class="panel career-panel featured-panel">
+            <div class="featured-label">POPULAR SERVICE</div>
+            <div class="service-icon" aria-hidden="true">✍️</div>
+            <span class="service-label">MAKE A STRONG IMPRESSION</span>
+            <h3>Cover Letters</h3>
+            <p>
+              Prepare tailored cover letters for jobs, scholarships,
+              internships and other applications.
+            </p>
+            <a href="#about" class="button button-primary">Explore service</a>
+          </article>
+
+          <article class="panel career-panel">
+            <div class="service-icon" aria-hidden="true">🧭</div>
+            <span class="service-label">APPLICATION SUPPORT</span>
+            <h3>Application Assistance</h3>
+            <p>
+              Get help understanding application requirements and organising
+              the information you need to apply.
+            </p>
+            <a href="#about" class="button button-outline">Explore service</a>
+          </article>
+
+        </div>
+
+        <div class="pricing-card">
+          <div>
+            <span class="section-kicker">SIMPLE AND TRANSPARENT</span>
+            <h3>Career Kit services</h3>
+            <p>Choose support that fits your needs.</p>
+          </div>
+
+          <div class="price-list">
+
+            <div class="price-row">
+              <span>CV writing and improvement</span>
+              <strong>Request a quote</strong>
+            </div>
+
+            <div class="price-row">
+              <span>Cover letter preparation</span>
+              <strong>Request a quote</strong>
+            </div>
+
+            <div class="price-row">
+              <span>Application guidance</span>
+              <strong>Request a quote</strong>
+            </div>
+
+          </div>
+
+          <p class="pricing-note">
+            Contact us for service details and pricing. Review all terms
+            before making a payment.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- APPLICATION TRACKER -->
+    <section class="tracker-section" id="tracker">
+      <div class="wrap">
+
+        <div class="section-head">
+          <div>
+            <span class="section-kicker">STAY ORGANISED</span>
+            <h2>Your application tracker</h2>
+            <p>Keep track of opportunities you want to pursue.</p>
+          </div>
+
+          <div class="tracker-actions">
+            <button class="button button-outline" id="exportTracker" type="button">
+              Export CSV
+            </button>
+
+            <button class="button button-danger" id="clearTracker" type="button">
+              Clear tracker
+            </button>
+          </div>
+        </div>
+
+        <div class="tracker-container panel">
+          <div class="tracker-heading">
+            <span class="tracker-heading-icon" aria-hidden="true">✓</span>
+            <div>
+              <h3>Saved opportunities</h3>
+              <p>Your personal list of opportunities to follow up on.</p>
+            </div>
+          </div>
+
+          <div id="trackerList" class="tracker-list">
+            <p class="empty">Your tracker is ready for your saved opportunities.</p>
+          </div>
+
+          <div class="privacy-note">
+            Your saved tracker information may be stored in your browser.
+            Avoid saving sensitive personal information.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- WHY CHOOSE US -->
+    <section class="trust-section">
+      <div class="wrap">
+
+        <div class="section-intro">
+          <span class="section-kicker">DESIGNED WITH YOU IN MIND</span>
+          <h2>A simpler way to move forward</h2>
+          <p>Tools and information to help you take your next step.</p>
+        </div>
+
+        <div class="trust-grid">
+
+          <article class="trust-card">
+            <div class="trust-icon" aria-hidden="true">🔎</div>
+            <h3>Discover</h3>
+            <p>
+              Explore different categories of opportunities in one convenient place.
+            </p>
+          </article>
+
+          <article class="trust-card">
+            <div class="trust-icon" aria-hidden="true">🎯</div>
+            <h3>Prepare</h3>
+            <p>
+              Find useful career resources to support your applications.
+            </p>
+          </article>
+
+          <article class="trust-card">
+            <div class="trust-icon" aria-hidden="true">📅</div>
+            <h3>Stay organised</h3>
+            <p>
+              Keep your shortlisted opportunities and application plans organised.
+            </p>
+          </article>
+
+          <article class="trust-card">
+            <div class="trust-icon" aria-hidden="true">🌱</div>
+            <h3>Grow</h3>
+            <p>
+              Take practical steps towards education, employment and career development.
+            </p>
+          </article>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ABOUT -->
+    <section class="about-section" id="about">
+      <div class="wrap">
+
+        <div class="about-panel panel">
+          <div class="about-content">
+            <span class="section-kicker">ABOUT OUR PLATFORM</span>
+            <h2>Helping Nigerians discover their next opportunity</h2>
+
+            <p>
+              Naija Opportunity Hub helps students, graduates and young
+              professionals discover opportunities and access practical
+              career resources. Our goal is to make opportunity discovery
+              and application preparation easier.
+            </p>
+
+            <p>
+              We encourage every applicant to verify information directly
+              with the relevant organisation before submitting an application.
+            </p>
+
+            <a href="#opportunities" class="button button-primary">
+              Start exploring <span aria-hidden="true">→</span>
+            </a>
+          </div>
+
+          <div class="about-decoration" aria-hidden="true">
+            <span class="decoration-circle"></span>
+            <span class="decoration-star">✦</span>
+            <span class="decoration-text">Discover<br>Learn<br>Grow</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
     <div class="wrap">
-      <p>© <span id="year"></span> Naija Opportunity Hub. All rights reserved.</p>
-      <p>Discover Opportunities. Build Your Future.</p>
+
+      <div class="footer-grid">
+
+        <div class="footer-brand">
+          <a class="brand footer-brand-link" href="#home">
+            <img
+              src="./naija-opportunity-hub-logo.png"
+              alt=""
+              class="brand-logo"
+              loading="lazy"
+            >
+
+            <span class="brand-copy">
+              <span class="brand-name">Naija Opportunity Hub</span>
+              <span class="brand-tagline">Discover Opportunities. Build Your Future.</span>
+            </span>
+          </a>
+
+          <p>
+            Connecting Nigerian students and graduates with opportunities
+            for learning, career development and growth.
+          </p>
+        </div>
+
+        <div class="footer-links">
+          <h3>Explore</h3>
+          <a href="#opportunities">Opportunities</a>
+          <a href="#career-kit">Career Kit</a>
+          <a href="#tracker">Application Tracker</a>
+        </div>
+
+        <div class="footer-links">
+          <h3>Information</h3>
+          <a href="#about">About Us</a>
+          <a href="#home">Back to Top</a>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <p>© <span id="year"></span> Naija Opportunity Hub. All rights reserved.</p>
+        <p>Built to help you discover your next opportunity.</p>
+      </div>
+
     </div>
-  </div>
-
-</footer>
+  </footer>
 
 
-<!-- ================= NOTIFICATIONS ================= -->
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-
-<!-- ================= SCRIPTS ================= -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./script.js"></script>
+  <!-- NOTIFICATION -->
+  <div
+    class="toast"
+    id="toast"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  ></div>
 
 </body>
-</html>
+      </html>
