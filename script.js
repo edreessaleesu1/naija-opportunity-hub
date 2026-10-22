@@ -5,7 +5,7 @@
   // Project URL is already added. Paste ONLY your new publishable key below.
   // Never put a Supabase secret/service-role key in this public HTML file.
   const SUPABASE_URL = "https://djxornmwvkauhkcuhgxc.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_NEW_PUBLISHABLE_KEY_HERE";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
 
   const sampleOpportunities = [
     {
