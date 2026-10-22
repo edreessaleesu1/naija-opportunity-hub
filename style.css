@@ -226,3 +226,140 @@
 .navlinks a {
   transition: all 0.2s ease;
 }
+/* Premium gold-and-green visual showcase */
+.visual-showcase {
+padding: 55px 0;
+margin: 35px 0;
+background: linear-gradient(180deg, #fffdf7 0%, #fff5d9 100%);
+border-top: 1px solid #ead9a6;
+border-bottom: 1px solid #ead9a6;
+}
+
+.visual-showcase .eyebrow {
+display: inline-block;
+margin-bottom: 10px;
+color: #946900;
+font-size: 0.78rem;
+font-weight: 800;
+letter-spacing: 1.5px;
+}
+
+.visual-showcase h2 {
+margin: 0 0 10px;
+color: #243c2d;
+font-size: clamp(1.7rem, 4vw, 2.4rem);
+}
+
+.visual-showcase .section-head p {
+color: #716a58;
+line-height: 1.7;
+}
+
+.visual-grid {
+display: grid;
+grid-template-columns: repeat(3, minmax(0, 1fr));
+gap: 22px;
+margin-top: 25px;
+}
+
+.visual-card {
+position: relative;
+display: block;
+min-height: 310px;
+overflow: hidden;
+border: 2px solid #e8d49a;
+border-radius: 20px;
+background: #253a2c;
+box-shadow: 0 10px 28px rgba(74, 55, 12, 0.12);
+color: #fff;
+text-decoration: none;
+isolation: isolate;
+transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.visual-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 16px 35px rgba(74, 55, 12, 0.2);
+}
+
+.visual-card img {
+position: absolute;
+inset: 0;
+z-index: -2;
+width: 100%;
+height: 100%;
+object-fit: cover;
+transition: transform 0.35s ease;
+}
+
+.visual-card:hover img {
+transform: scale(1.06);
+}
+
+.visual-card::after {
+content: "";
+position: absolute;
+inset: 0;
+z-index: -1;
+background: linear-gradient(
+180deg,
+rgba(15, 25, 18, 0.02) 15%,
+rgba(15, 25, 18, 0.88) 100%
+);
+}
+
+.visual-overlay {
+position: absolute;
+right: 0;
+bottom: 0;
+left: 0;
+padding: 23px;
+color: #fff;
+}
+
+.visual-icon {
+display: inline-flex;
+width: 46px;
+height: 46px;
+align-items: center;
+justify-content: center;
+margin-bottom: 12px;
+border: 1px solid rgba(255, 255, 255, 0.65);
+border-radius: 14px;
+background: #f2c14e;
+font-size: 1.5rem;
+}
+
+.visual-overlay h3 {
+margin: 0 0 7px;
+color: #fff;
+font-size: 1.35rem;
+}
+
+.visual-overlay p {
+margin: 0;
+color: #fff8e6;
+font-size: 0.93rem;
+line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+.visual-showcase {
+padding: 38px 0;
+}
+
+.visual-grid {
+grid-template-columns: 1fr;
+gap: 16px;
+}
+
+.visual-card {
+min-height: 260px;
+}
+}
+
+@media (min-width: 761px) and (max-width: 1000px) {
+.visual-grid {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+      }
