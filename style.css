@@ -1381,3 +1381,35 @@ footer a:hover,
     transition-duration: 0.01ms !important;
   }
 }
+/* PREMIUM GOLD ACCENTS */
+
+.hero h1 span {
+  color: #B8860B;
+}
+
+.eyebrow {
+  color: #B8860B;
+}
+
+.btn-gold {
+  background: #D4AF37;
+  color: #172B22;
+  border: 1px solid #B8860B;
+  font-weight: 800;
+}
+
+.btn-gold:hover {
+  background: #B8860B;
+  color: #FFFFFF;
+}
+
+.badge.deadline,
+.deadline-badge {
+  background: #FFF4CC;
+  color: #805D08;
+  border: 1px solid #E8CC75;
+}
+
+footer a:hover {
+  color: #F1CF70;
+}
