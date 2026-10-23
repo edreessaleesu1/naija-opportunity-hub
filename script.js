@@ -170,7 +170,7 @@
 
   async function loadSupabaseOpportunities() {
     const key = SUPABASE_PUBLISHABLE_KEY.trim();
-    if (!key || key === "PASTE_YOUR_NEW_PUBLISHABLE_KEY_HERE") {
+    if (!key || key === "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq") {
       $("dataStatus").textContent = "Database key not added yet";
       $("dataNotice").innerHTML = "<strong>Setup needed:</strong> Add your new Supabase publishable key in the code before publishing. The cards currently shown are demonstration cards, not verified listings.";
       renderOpportunities();
@@ -185,7 +185,7 @@
       supabaseClient = window.supabase.createClient(SUPABASE_URL, key);
       const { data, error } = await supabaseClient
         .from("opportunities")
-        .select("id,title,organization,category,description,eligibility,location,application_url,source_url,deadline,status,verified_at,created_at")
+        .select("id,title,organization,category,description,eligibility,location,application_url,source_url,deadline,status,verified_at,created_at,image_url")
         .eq("status", "published")
         .order("created_at", { ascending: false });
       if (error) throw error;
