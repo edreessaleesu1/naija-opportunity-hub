@@ -114,8 +114,25 @@
       const saved = bookmarks.includes(String(item.id));
       const link = safeURL(item.url);
       const badgeText = item.verified ? "Source checked" : (item.demo ? "Demo card" : "Check source");
-      return `<article class="card">
-        <div class="card-top"><span class="badge">${escapeHTML(item.category || "Opportunity")}</span>
+      const image = safeURL(item.image_url);
+
+return `<article class="card">
+  ${image ? `
+    <img
+      class="opportunity-image"
+      src="${escapeHTML(image)}"
+      alt="${escapeHTML(item.title)}"
+      loading="lazy"
+      onerror="this.style.display='none'"
+    >
+  ` : ""}
+
+  <div class="card-top">
+    <span class="badge">${escapeHTML(item.category || "Opportunity")}</span>
+    <button class="bookmark ${saved ? "saved" : ""}"
+      data-bookmark="${escapeHTML(item.id)}"
+      aria-label="${saved ? "Remove bookmark" : "Save bookmark"}">${saved ? "★ Saved" : "☆ Save"}</button>
+  </div>
         <button class="bookmark ${saved ? "saved" : ""}" data-bookmark="${escapeHTML(item.id)}" aria-label="${saved ? "Remove bookmark" : "Save bookmark"}">${saved ? "★ Saved" : "☆ Save"}</button></div>
         <h3>${escapeHTML(item.title)}</h3>
         <div class="org">${escapeHTML(item.organisation || "Organisation not specified")}</div>
