@@ -408,50 +408,223 @@ section {
 }
 
 .hero-benefits li {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  color: #64736a;
-  font-size: 14px;
+/* FULL-WIDTH HERO WITH TEXT OVER IMAGE */
+
+.hero {
+position: relative;
+isolation: isolate;
+overflow: hidden;
+padding: 100px 0 70px;
+color: #ffffff;
+background-color: #12382e;
+}
+
+.hero::before {
+content: "";
+position: absolute;
+inset: 0;
+z-index: -1;
+background-image:
+linear-gradient(
+90deg,
+rgba(3, 28, 24, 0.88) 0%,
+rgba(3, 28, 24, 0.72) 48%,
+rgba(3, 28, 24, 0.22) 100%
+),
+url("images/01-HERO-STUDENTS.jpg");
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+}
+
+.hero::after {
+content: "";
+position: absolute;
+inset: auto 0 0;
+height: 150px;
+z-index: -1;
+background: linear-gradient(
+to bottom,
+transparent,
+rgba(3, 28, 24, 0.45)
+);
+pointer-events: none;
+}
+
+.hero-grid {
+display: grid;
+grid-template-columns: minmax(0, 780px);
+align-items: center;
+gap: 0;
+}
+
+.hero-content {
+position: relative;
+z-index: 1;
+max-width: 780px;
+}
+
+.eyebrow {
+display: inline-flex;
+align-items: center;
+gap: 9px;
+margin-bottom: 22px;
+color: #ffffff;
+font-size: 12px;
+font-weight: 800;
+letter-spacing: 1.4px;
+line-height: 1.7;
+}
+
+.eyebrow-dot {
+width: 8px;
+height: 8px;
+flex-shrink: 0;
+border-radius: 50%;
+background: #d9ed83;
+box-shadow: 0 0 0 4px rgba(217, 237, 131, 0.18);
+}
+
+.hero h1 {
+max-width: 760px;
+color: #ffffff;
+font-size: clamp(36px, 5.2vw, 66px);
+line-height: 1.1;
+letter-spacing: -2px;
+font-weight: 800;
+text-wrap: balance;
+}
+
+.hero h1 span {
+color: #65e0a0;
+}
+
+.hero-description {
+max-width: 650px;
+margin-top: 22px;
+color: rgba(255, 255, 255, 0.94);
+font-size: 17px;
+line-height: 1.8;
+}
+
+.hero-actions {
+display: flex;
+flex-wrap: wrap;
+gap: 13px;
+margin-top: 28px;
+}
+
+.hero-actions .button {
+min-height: 51px;
+padding-inline: 23px;
+}
+
+.hero-actions .button-secondary {
+color: #ffffff;
+background: rgba(255, 255, 255, 0.08);
+border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.hero-actions .button-secondary:hover {
+background: rgba(255, 255, 255, 0.18);
+}
+
+.hero-benefits {
+display: flex;
+flex-wrap: wrap;
+gap: 12px 24px;
+margin-top: 30px;
+list-style: none;
+}
+
+.hero-benefits li {
+display: flex;
+align-items: center;
+gap: 9px;
+color: #ffffff;
+font-size: 13px;
 }
 
 .check-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 21px;
-  height: 21px;
-  flex: 0 0 21px;
-  border-radius: 50%;
-  background: #dcefe2;
-  color: var(--green);
-  font-size: 13px;
-  font-weight: 900;
-  line-height: 1;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: 22px;
+height: 22px;
+flex: 0 0 22px;
+border-radius: 50%;
+background: #079765;
+color: #ffffff;
+font-size: 13px;
+font-weight: 900;
+line-height: 1;
 }
 
-
-/* Hero image */
+/* The photograph is now the hero background.
+Hide the old separate image and floating cards. */
 
 .hero-visual {
-  position: relative;
-  min-width: 0;
+display: none;
 }
 
-.hero-image-frame {
-  padding: 10px;
-  background: var(--white);
-  border: 1px solid rgba(8, 107, 69, 0.08);
-  border-radius: 26px;
-  box-shadow: var(--shadow-md);
-  transform: rotate(1deg);
+/* Mobile responsiveness */
+
+@media (max-width: 768px) {
+.hero {
+padding: 72px 0 48px;
 }
 
-.hero-image {
-  width: 100%;
-  height: 420px;
-  object-fit: cover;
-  border-radius: 19px;
+.hero::before {
+background-image:
+linear-gradient(
+90deg,
+rgba(3, 28, 24, 0.82),
+rgba(3, 28, 24, 0.55)
+),
+url("images/01-HERO-STUDENTS.jpg");
+background-position: center;
+}
+
+.hero-content {
+max-width: 100%;
+}
+
+.eyebrow {
+font-size: 10px;
+letter-spacing: 1px;
+}
+
+.hero h1 {
+font-size: clamp(34px, 9vw, 48px);
+letter-spacing: -1.2px;
+}
+
+.hero-description {
+margin-top: 18px;
+font-size: 15px;
+line-height: 1.75;
+}
+
+.hero-actions {
+gap: 10px;
+}
+
+.hero-actions .button {
+min-height: 48px;
+padding-inline: 16px;
+}
+
+.hero-benefits {
+display: grid;
+gap: 12px;
+margin-top: 24px;
+}
+}
+
+@media (prefers-reduced-motion: reduce) {
+.hero * {
+scroll-behavior: auto;
+}
 }
 
 .floating-card {
