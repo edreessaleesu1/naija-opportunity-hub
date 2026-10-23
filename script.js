@@ -200,8 +200,9 @@
           description: item.description || "Visit the official source for full details.",
           deadline: item.deadline || "",
           url: item.application_url || item.source_url || "",
-          verified: Boolean(item.verified_at),
-          created_at: item.created_at || ""
+image_url: item.image_url || "",
+verified: Boolean(item.verified_at),
+created_at: item.created_at || ""
         }));
         $("dataNotice").innerHTML = "<strong>Reminder:</strong> Listings are loaded from the database. Check each official source to confirm eligibility and deadlines before applying.";
         $("dataStatus").textContent = "Connected · published database listings loaded";
