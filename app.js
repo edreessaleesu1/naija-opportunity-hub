@@ -934,7 +934,18 @@ function setupOpportunityGrid() {
   const grid = $("opportunityGrid");
 
   if (!grid) return;
+const viewAllButton = $("viewAllOpportunities");
 
+if (viewAllButton) {
+viewAllButton.addEventListener("click", () => {
+const showAll = viewAllButton.dataset.showAll !== "true";
+
+  viewAllButton.dataset.showAll = String(showAll);
+
+  renderOpportunities();
+});
+
+}
   grid.addEventListener("click", (event) => {
     if (event.target.closest("[data-retry]")) {
       loadOpportunities();
