@@ -509,7 +509,9 @@
       grid.appendChild(
         buildMessage(
           "No matching opportunities",
-          "Try another keyword or clear the filters.",
+          state.activeCategory !== "All"
+            ? "Nothing is listed in this category right now. Try another category or clear the filters."
+            : "Try another keyword or clear the filters.",
           false
         )
       );
@@ -822,7 +824,11 @@
 
         if (!button) return;
 
-        state.activeCategory = button.dataset.category;
+        // Tapping the active tile again clears the category.
+        state.activeCategory =
+          state.activeCategory === button.dataset.category
+            ? "All"
+            : button.dataset.category;
 
         if (categoryFilter) categoryFilter.value = "All";
 
@@ -966,4 +972,4 @@
     initialise();
   }
 })();
-      
+                                        
