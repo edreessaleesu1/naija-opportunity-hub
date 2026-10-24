@@ -144,14 +144,57 @@
             </select>
           </div>
 
-          <div class="form-actions">
+                    <div class="form-actions">
             <button class="button button-primary" type="button" id="preview-button">
               Update Preview
             </button>
+
             <button class="button button-secondary" type="reset" id="reset-button">
               Clear Form
             </button>
           </div>
+
+          <!-- AI Career Assistant -->
+          <section class="ai-assistant" id="ai-assistant">
+            <div class="ai-assistant-heading">
+              <span class="step-label">SMART CAREER TOOLS</span>
+              <h3 id="ai-assistant-title">AI Career Assistant</h3>
+              <p id="ai-assistant-description">
+                Get help improving your CV and preparing stronger job applications.
+              </p>
+            </div>
+
+            <div class="ai-actions">
+              <button
+                class="button button-primary"
+                type="button"
+                id="ai-improve-cv">
+                Improve My CV
+              </button>
+
+              <button
+                class="button button-secondary"
+                type="button"
+                id="ai-improve-summary">
+                Write My Professional Summary
+              </button>
+
+              <button
+                class="button button-secondary"
+                type="button"
+                id="ai-write-letter">
+                Write My Cover Letter
+              </button>
+            </div>
+
+            <div
+              id="ai-result"
+              class="ai-result"
+              role="status"
+              aria-live="polite"
+              hidden>
+            </div>
+          </section>
 
           <p class="privacy-note">
             Your entries stay in this browser prototype and are not submitted to our server.
