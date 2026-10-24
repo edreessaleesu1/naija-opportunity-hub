@@ -384,78 +384,241 @@ function buildMessage(title, text, retry) {
 
   return box;
 }
-
 function renderOpportunities() {
-  const grid = $("opportunityGrid");
-  const resultsCount = $("resultsCount");
+const grid = $("opportunityGrid");
+const resultsCount = $("resultsCount");
 
-  if (!grid) {
-    console.error("Opportunity Hub: the opportunityGrid element is missing.");
-    return;
-  }
+if (!grid) {
+console.error("Opportunity Hub: the opportunityGrid element is missing.");
+return;
+}
 
-  grid.textContent = "";
+grid.textContent = "";
 
-  if (state.loadState === "loading") {
-    if (resultsCount) resultsCount.textContent = "Finding opportunities...";
+// Find or create the View All button.
+let viewAllButton = $("viewAllOpportunities");
 
-    grid.appendChild(el("div", "loading-card", "Loading opportunities..."));
-    return;
-  }
+if (!viewAllButton) {
+viewAllButton = el(
+"button",
+"button button-primary view-all-opportunities",
+"View All Opportunities"
+);
 
-  if (state.loadState === "error") {
-    if (resultsCount) resultsCount.textContent = "Unable to load";
+viewAllButton.id = "viewAllOpportunities";
+viewAllButton.type = "button";
+viewAllButton.hidden = true;
 
-    grid.appendChild(
-      buildMessage(
-        "We could not load opportunities",
-        "Please check your internet connection and try again.",
-        true
-      )
-    );
-    return;
-  }
+grid.insertAdjacentElement("afterend", viewAllButton);
 
-  const filtered = getFilteredOpportunities();
+}
 
-  if (resultsCount) {
-    resultsCount.textContent =
-      filtered.length +
-      " opportunit" +
-      (filtered.length === 1 ? "y" : "ies") +
-      " shown";
-  }
+const hasActiveFilters = () => {
+const search = $("searchInput");
+const category = $("categoryFilter");
+const sort = $("sortFilter");
 
-  if (state.opportunities.length === 0) {
-    grid.appendChild(
-      buildMessage(
-        "No opportunities published yet",
-        "New opportunities are added regularly. Please check back soon.",
-        false
-      )
-    );
-    return;
-  }
+return Boolean(
+  (search && search.value.trim()) ||
+  (category && category.value !== "All") ||
+  state.activeCategory !== "All" ||
+  (sort && sort.value && sort.value !== "newest")
+);
 
-  if (filtered.length === 0) {
-    grid.appendChild(
-      buildMessage(
-        "No matching opportunities",
-        "Try another keyword or clear the filters.",
-        false
-      )
-    );
-    return;
-  }
+};
 
-  const bookmarks = getBookmarks();
-  const fragment = document.createDocumentFragment();
+// Show a loading state while Supabase responds.
+if (state.loadState === "loading") {
+if (resultsCount) {
+resultsCount.textContent = "Finding the latest opportunities...";
+}
 
-  filtered.forEach((item) => {
-    fragment.appendChild(buildCard(item, bookmarks));
-  });
+viewAllButton.hidden = true;
+grid.appendChild(el("div", "loading-card", "Loading opportunities..."));
+return;
 
-  grid.appendChild(fragment);
+}
+
+// Show an error and allow visitors to retry.
+if (state.loadState === "error") {
+if (resultsCount) resultsCount.textContent = "Unable to load";
+
+viewAllButton.hidden = true;
+
+grid.appendChild(
+  buildMessage(
+    "We could not load opportunities",
+    "Please check your internet connection and try again.",
+    true
+  )
+);
+return;
+
+}
+
+const filtered = getFilteredOpportunities();
+const showAll = viewAllButton.dataset.showAll === "true";
+const filtering = hasActiveFilters();
+
+// When searching or filtering, show every matching result.
+// Otherwise, show just the six newest on the homepage.
+const visible = filtering || showAll
+? filtered
+: filtered.slice(0, HOME_OPPORTUNITIES_LIMIT);
+
+if (resultsCount) {
+if (filtering || showAll) {
+resultsCount.textContent =
+filtered.length +
+" opportunit" +
+(filtered.length === 1 ? "y" : "ies") +
+" found";
+} else {
+resultsCount.textContent =
+"Showing " +
+visible.length +
+" latest opportunit" +
+(visible.length === 1 ? "y" : "ies");
+function renderOpportunities() {
+const grid = $("opportunityGrid");
+const resultsCount = $("resultsCount");
+
+if (!grid) {
+console.error("Opportunity Hub: the opportunityGrid element is missing.");
+return;
+}
+
+grid.textContent = "";
+
+// Find or create the View All button.
+let viewAllButton = $("viewAllOpportunities");
+
+if (!viewAllButton) {
+viewAllButton = el(
+"button",
+"button button-primary view-all-opportunities",
+"View All Opportunities"
+);
+
+viewAllButton.id = "viewAllOpportunities";
+viewAllButton.type = "button";
+viewAllButton.hidden = true;
+
+grid.insertAdjacentElement("afterend", viewAllButton);
+
+}
+
+const hasActiveFilters = () => {
+const search = $("searchInput");
+const category = $("categoryFilter");
+const sort = $("sortFilter");
+
+return Boolean(
+  (search && search.value.trim()) ||
+  (category && category.value !== "All") ||
+  state.activeCategory !== "All" ||
+  (sort && sort.value && sort.value !== "newest")
+);
+
+};
+
+// Show a loading state while Supabase responds.
+if (state.loadState === "loading") {
+if (resultsCount) {
+resultsCount.textContent = "Finding the latest opportunities...";
+}
+
+viewAllButton.hidden = true;
+grid.appendChild(el("div", "loading-card", "Loading opportunities..."));
+return;
+
+}
+
+// Show an error and allow visitors to retry.
+if (state.loadState === "error") {
+if (resultsCount) resultsCount.textContent = "Unable to load";
+
+viewAllButton.hidden = true;
+
+grid.appendChild(
+  buildMessage(
+    "We could not load opportunities",
+    "Please check your internet connection and try again.",
+    true
+  )
+);
+return;
+
+}
+
+const filtered = getFilteredOpportunities();
+const showAll = viewAllButton.dataset.showAll === "true";
+const filtering = hasActiveFilters();
+
+// When searching or filtering, show every matching result.
+// Otherwise, show just the six newest on the homepage.
+const visible = filtering || showAll
+? filtered
+: filtered.slice(0, HOME_OPPORTUNITIES_LIMIT);
+
+if (resultsCount) {
+if (filtering || showAll) {
+resultsCount.textContent =
+filtered.length +
+" opportunit" +
+(filtered.length === 1 ? "y" : "ies") +
+" found";
+} else {
+resultsCount.textContent =
+"Showing " +
+visible.length +
+" latest opportunit" +
+(visible.length === 1 ? "y" : "ies");
+}
+}
+
+viewAllButton.hidden = filtering || filtered.length <= HOME_OPPORTUNITIES_LIMIT;
+
+viewAllButton.textContent = showAll
+? "Show Latest 6"
+: "View All Opportunities (" + filtered.length + ")";
+
+if (state.opportunities.length === 0) {
+viewAllButton.hidden = true;
+
+grid.appendChild(
+  buildMessage(
+    "No opportunities published yet",
+    "New opportunities are added regularly. Please check back soon.",
+    false
+  )
+);
+return;
+
+}
+
+if (filtered.length === 0) {
+viewAllButton.hidden = true;
+
+grid.appendChild(
+  buildMessage(
+    "No matching opportunities",
+    "Try another keyword or clear the filters.",
+    false
+  )
+);
+return;
+
+}
+
+const bookmarks = getBookmarks();
+const fragment = document.createDocumentFragment();
+
+visible.forEach((item) => {
+fragment.appendChild(buildCard(item, bookmarks));
+});
+
+grid.appendChild(fragment);
 }
 
 /* ---------------------------------------------------------------
