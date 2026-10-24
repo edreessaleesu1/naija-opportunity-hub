@@ -383,49 +383,6 @@ function exportCSV() {
 
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-
-async function loadSupabaseOpportunities() {
-  const key = SUPABASE_PUBLISHABLE_KEY.trim();
-
-  if (!key) {
-    setDataStatus("Database key not configured", "Please configure the Supabase publishable key. Showing demonstration cards.");
-    return;
-  }
-
-  if (!window.supabase || typeof window.supabase.createClient !== "function") {
-    setDataStatus(
-      "Database library did not load",
-      "The Supabase JavaScript library could not be loaded. Check your internet connection and the script tags in index.html. Showing demonstration cards."
-    );
-    console.error("Supabase JavaScript library is unavailable.");
-    return;
-  }
-
-  setDataStatus("Connecting to database...", "Connecting to the published opportunities database.");
-
-  try {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, key);
-
-    const response = await supabaseClient
-      .from("opportunities")
-      .select("id,title,organization,category,description,eligibility,location,application_url,source_url,deadline,status,verified_at,created_at,image_url")
-      .eq("status", "published")
-      .order("created_at", { ascending: false });
-
-    if (response.error) throw response.error;
-
-    const data = response.data;
-
-    if (!Array.isArray(data) || data.length === 0) {
-      setDataStatus(
-        "Database connected - no published records returned",
-        "The database request succeeded, but no published records were returned, so demonstration cards are shown. Check the table contents and SELECT policy."
-      );
-      return;
-    }
-
-    opportunities = data.map((item) => ({
-      id: String(item.id),
 async function loadSupabaseOpportunities() {
   const key = SUPABASE_PUBLISHABLE_KEY.trim();
 
