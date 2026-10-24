@@ -86,10 +86,20 @@ window.addEventListener("error", function(event) {
   <main>
 
     <!-- HERO -->
-    <section class="hero" id="home">
-      <div class="wrap hero-grid">
+    <section class="hero hero-banner" id="home">
+      <div class="hero-bg" aria-hidden="true"></div>
 
-        <div class="hero-content">
+      <img
+        src="images/hero-banner.jpg"
+        alt="Smiling Nigerian students on a university campus"
+        class="hero-photo"
+        width="1021"
+        height="760"
+        fetchpriority="high"
+      >
+
+      <div class="wrap hero-banner-inner">
+        <div class="hero-banner-copy">
 
           <div class="eyebrow">
             <span class="eyebrow-dot"></span>
@@ -97,8 +107,9 @@ window.addEventListener("error", function(event) {
           </div>
 
           <h1>
-            Your Next Big Opportunity<br>
-            <span>Starts Here.</span>
+            Your Next Big<br>
+            <span>Opportunity</span><br>
+            Starts Here.
           </h1>
 
           <p class="hero-description">
@@ -107,134 +118,74 @@ window.addEventListener("error", function(event) {
           </p>
 
           <div class="hero-actions">
-            <a href="#opportunities" class="button button-primary">
+            <a href="#opportunities" class="button button-hero">
               Explore Opportunities <span aria-hidden="true">→</span>
             </a>
 
-            <a href="#career-kit" class="button button-secondary">
+            <a href="#career-kit" class="button button-hero-ghost">
               Build Your Career
             </a>
           </div>
 
-          <ul class="hero-benefits">
-            <li>
-              <span class="check-icon" aria-hidden="true">✓</span>
-              Multiple opportunity categories
-            </li>
-            <li>
-              <span class="check-icon" aria-hidden="true">✓</span>
-              Links to application sources
-            </li>
-            <li>
-              <span class="check-icon" aria-hidden="true">✓</span>
-              Personal application tracker
-            </li>
-          </ul>
-
-        </div>
-
-        <div class="hero-visual">
-          <div class="hero-image-frame">
-  <img
-    src="images/01-HERO-STUDENTS.jpg"
-    alt="Students on a university campus"
-    class="hero-image"
-    fetchpriority="high"
-  >
-</div>
-          <div class="floating-card floating-card-top">
-            <span class="floating-icon" aria-hidden="true">✦</span>
-            <span>
-              <strong>New possibilities</strong>
-              <small>Start your next chapter</small>
-            </span>
-          </div>
-
-          <div class="floating-card floating-card-bottom">
-            <span class="floating-icon gold-icon" aria-hidden="true">✓</span>
-            <span>
-              <strong>Stay organised</strong>
-              <small>Track your applications</small>
-            </span>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-
-    <!-- BENEFIT STRIP (no numerical claims, nothing invented) -->
-    <section class="benefit-strip" aria-label="Platform highlights">
-      <div class="wrap benefit-grid">
-        <div class="benefit-item">
-          <span class="benefit-icon" aria-hidden="true">🌍</span>
-          <span>
-            <strong>Local and International Opportunities</strong>
-            <small>Explore options at home and abroad</small>
-          </span>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-icon" aria-hidden="true">🧭</span>
-          <span>
-            <strong>Multiple Career Pathways</strong>
-            <small>Study, work, fund and train</small>
-          </span>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-icon" aria-hidden="true">🗂️</span>
-          <span>
-            <strong>Organised Application Resources</strong>
-            <small>Career Kit and personal tracker</small>
-          </span>
         </div>
       </div>
     </section>
 
 
-    <!-- CATEGORY SHORTCUTS -->
-    <section class="quick-categories">
+    <!-- CATEGORY ICON ROW + TRUST BAR (also drives the category filter) -->
+    <section class="category-strip" aria-label="Browse by category">
       <div class="wrap">
-
-        <div class="section-intro">
-          <span class="section-kicker">FIND YOUR NEXT STEP</span>
-          <h2>What opportunity are you looking for?</h2>
-          <p>Choose a category to explore opportunities that match your goals.</p>
-        </div>
-
-        <div class="category-list" id="categoryButtons">
+        <div class="category-row" id="categoryButtons">
 
           <button class="category" type="button" data-category="Scholarship">
-            <span class="category-icon" aria-hidden="true">🎓</span>
+            <span class="category-icon tint-green" aria-hidden="true">🎓</span>
             <span>Scholarships</span>
           </button>
 
           <button class="category" type="button" data-category="Job">
-            <span class="category-icon" aria-hidden="true">💼</span>
+            <span class="category-icon tint-blue" aria-hidden="true">💼</span>
             <span>Jobs</span>
           </button>
 
           <button class="category" type="button" data-category="Internship">
-            <span class="category-icon" aria-hidden="true">🚀</span>
+            <span class="category-icon tint-purple" aria-hidden="true">💻</span>
             <span>Internships</span>
           </button>
 
-          <button class="category" type="button" data-category="Grant">
-            <span class="category-icon" aria-hidden="true">💰</span>
-            <span>Grants</span>
-          </button>
-
           <button class="category" type="button" data-category="Fellowship">
-            <span class="category-icon" aria-hidden="true">🌍</span>
+            <span class="category-icon tint-yellow" aria-hidden="true">👥</span>
             <span>Fellowships</span>
           </button>
 
+          <button class="category" type="button" data-category="Grant">
+            <span class="category-icon tint-green" aria-hidden="true">💰</span>
+            <span>Grants</span>
+          </button>
+
           <button class="category" type="button" data-category="Training">
-            <span class="category-icon" aria-hidden="true">📚</span>
+            <span class="category-icon tint-orange" aria-hidden="true">🧑‍🏫</span>
             <span>Training</span>
           </button>
 
-        </div>
+          <button class="category" type="button" data-category="Volunteering">
+            <span class="category-icon tint-pink" aria-hidden="true">💖</span>
+            <span>Volunteering</span>
+          </button>
 
+          <a class="category category-link" href="#career-kit">
+            <span class="category-icon tint-blue" aria-hidden="true">📋</span>
+            <span>Career Kit</span>
+          </a>
+
+        </div>
+      </div>
+
+      <div class="trust-bar">
+        <div class="wrap trust-bar-grid">
+          <span><b aria-hidden="true">🛡️</b> Links to Official Sources</span>
+          <span><b aria-hidden="true">👥</b> For Nigerian Students &amp; Graduates</span>
+          <span><b aria-hidden="true">🌱</b> A Brighter Future Together</span>
+        </div>
       </div>
     </section>
 
@@ -660,4 +611,4 @@ window.addEventListener("error", function(event) {
 </body>
     </html>
 
-                
+        
