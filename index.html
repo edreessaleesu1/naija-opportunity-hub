@@ -1,318 +1,700 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#086b45">
+(() => {
+  "use strict";
 
-  <title>Naija Opportunity Hub | Discover Opportunities. Build Your Future.</title>
+  // 1. SUPABASE CONFIGURATION
+  const SUPABASE_URL = "https://djxornmwvkauhkcuhgxc.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
 
-  <meta name="description" content="Discover scholarships, jobs, internships, grants, fellowships and training opportunities for Nigerian students, graduates and young professionals.">
-
-  <meta name="keywords" content="Nigeria scholarships, jobs in Nigeria, internships, grants, fellowships, graduate opportunities, career development">
-
-  <meta name="author" content="Naija Opportunity Hub">
-
-  <link rel="icon" type="image/png" href="./naija-opportunity-hub-logo.png">
-  <link rel="stylesheet" href="./style.css">
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-window.addEventListener("error", function(event) {
-  const status = document.getElementById("dataStatus");
-  if (status) {
-    status.textContent = "JavaScript error: " + event.message;
+  // 2. DEMONSTRATION OPPORTUNITIES (shown if the database can't be loaded)
+  function demo(n, title, category, location, eligibility, description, query) {
+    return {
+      id: "demo-" + n,
+      title,
+      organisation: "Demonstration listing",
+      category,
+      location,
+      eligibility,
+      description,
+      deadline: "",
+      url: "https://www.google.com/search?q=" + query,
+      image_url: "",
+      verified: false,
+      demo: true
+    };
   }
-});
-</script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
-</head>
+  const sampleOpportunities = [
+    demo(1, "Scholarship Search Starter", "Scholarship", "Nigeria / International",
+      "Check official programme requirements.",
+      "Explore scholarships and confirm all details through official programme websites.",
+      "official+scholarships+for+Nigerian+students"),
+    demo(2, "Graduate Job Search Starter", "Job", "Nigeria",
+      "Depends on the employer and role.",
+      "Explore graduate vacancies and confirm current openings on official employer career pages.",
+      "official+graduate+jobs+Nigeria"),
+    demo(3, "Internship Search Starter", "Internship", "Nigeria / International",
+      "Depends on the programme.",
+      "Explore internships and confirm requirements on the host organisation's official website.",
+      "official+internships+Nigeria"),
+    demo(4, "Grant Search Starter", "Grant", "Nigeria / International",
+      "Depends on the grant provider.",
+      "Explore grants and confirm eligibility, deadlines and fees through official sources.",
+      "official+grants+Nigeria"),
+    demo(5, "Free Training Search Starter", "Training", "Online / Nigeria",
+      "Check the training provider's requirements.",
+      "Explore training programmes and skills courses from recognised providers.",
+      "official+free+online+training+Nigeria"),
+    demo(6, "Fellowship Search Starter", "Fellowship", "Nigeria / International",
+      "Depends on the fellowship.",
+      "Explore fellowship programmes and confirm current requirements with the programme owner.",
+      "official+fellowships+for+Nigerians")
+  ];
 
-<body>
+  // 3. APPLICATION STORAGE
+  const STORAGE = {
+    bookmarks: "noh_bookmarks_v1",
+    tracker: "noh_tracker_v1"
+  };
 
-  <!-- HEADER -->
-  <header class="site-header">
-    <div class="wrap nav">
+  let opportunities = [...sampleOpportunities];
+  let activeCategory = "All";
+  let supabaseClient = null;
 
-      <a class="brand" href="#home" aria-label="Naija Opportunity Hub homepage">
-        <img
-          src="./naija-opportunity-hub-logo.png"
-          alt="Naija Opportunity Hub logo"
-          class="brand-logo"
+  const $ = (id) => document.getElementById(id);
+
+  function readJSON(key, fallback) {
+    try {
+      const value = JSON.parse(localStorage.getItem(key));
+      return value ?? fallback;
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  function getBookmarks() {
+    const value = readJSON(STORAGE.bookmarks, []);
+    return Array.isArray(value) ? value : [];
+  }
+
+  function saveBookmarks(items) {
+    try {
+      localStorage.setItem(STORAGE.bookmarks, JSON.stringify(items));
+    } catch (error) {
+      console.error("Could not save bookmarks:", error);
+      showToast("Bookmarks could not be saved on this device.");
+    }
+  }
+
+  function getTracker() {
+    const value = readJSON(STORAGE.tracker, []);
+    return Array.isArray(value) ? value : [];
+  }
+
+  function saveTracker(items) {
+    try {
+      localStorage.setItem(STORAGE.tracker, JSON.stringify(items));
+    } catch (error) {
+      console.error("Could not save tracker:", error);
+      showToast("Tracker changes could not be saved on this device.");
+    }
+  }
+
+  // 4. SECURITY AND DISPLAY HELPERS
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
+  }
+
+  function safeURL(value) {
+    try {
+      const url = new URL(String(value || ""));
+      return url.protocol === "https:" || url.protocol === "http:" ? url.href : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function showToast(message) {
+    const toast = $("toast");
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove("show"), 3500);
+  }
+
+  function formatDate(date) {
+    if (!date) return "Check official source";
+
+    const value = String(date);
+    const parsed = new Date(value.length === 10 ? value + "T00:00:00" : value);
+
+    if (Number.isNaN(parsed.getTime())) return "Check official source";
+
+    return parsed.toLocaleDateString("en-NG", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+  }
+
+  // `notice` is treated as trusted HTML; always escape dynamic values first.
+  function setDataStatus(status, notice) {
+    const statusElement = $("dataStatus");
+    const noticeElement = $("dataNotice");
+
+    if (statusElement) statusElement.textContent = status;
+    if (noticeElement) {
+      noticeElement.innerHTML = notice || "";
+      noticeElement.hidden = !notice;
+    }
+  }
+
+  function timeValue(value) {
+    const t = new Date(value || 0).getTime();
+    return Number.isNaN(t) ? 0 : t;
+  }
+
+  // 5. RENDER OPPORTUNITY CARDS
+  function renderOpportunities() {
+    const searchInput = $("searchInput");
+    const categoryFilter = $("categoryFilter");
+    const sortFilter = $("sortFilter");
+    const grid = $("opportunityGrid");
+    const resultsCount = $("resultsCount");
+
+    if (!grid) {
+      console.error("Opportunity Hub: The opportunityGrid element is missing.");
+      return;
+    }
+
+    const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+    const category = categoryFilter ? categoryFilter.value : "All";
+
+    const filtered = opportunities.filter((item) => {
+      const searchableText = [
+        item.title,
+        item.organisation,
+        item.category,
+        item.location,
+        item.description,
+        item.eligibility
+      ]
+        .map((part) => String(part ?? ""))
+        .join(" ")
+        .toLowerCase();
+
+      const matchesQuery = !query || searchableText.includes(query);
+
+      const matchesCategory =
+        category === "All" ||
+        String(item.category).toLowerCase() === String(category).toLowerCase();
+
+      const matchesButton =
+        activeCategory === "All" ||
+        String(item.category).toLowerCase() === String(activeCategory).toLowerCase();
+
+      return matchesQuery && matchesCategory && matchesButton;
+    });
+
+    const sort = sortFilter ? sortFilter.value : "newest";
+
+    if (sort === "title") {
+      filtered.sort((a, b) => String(a.title).localeCompare(String(b.title)));
+    } else if (sort === "deadline") {
+      filtered.sort((a, b) => {
+        const aTime = a.deadline ? timeValue(a.deadline) : 0;
+        const bTime = b.deadline ? timeValue(b.deadline) : 0;
+        if (!aTime && !bTime) return 0;
+        if (!aTime) return 1;
+        if (!bTime) return -1;
+        return aTime - bTime;
+      });
+    } else if (sort === "newest") {
+      filtered.sort((a, b) => timeValue(b.created_at) - timeValue(a.created_at));
+    }
+
+    if (resultsCount) {
+      resultsCount.textContent =
+        `${filtered.length} opportunit${filtered.length === 1 ? "y" : "ies"} shown`;
+    }
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `
+        <div class="empty">
+          <h3>No matching opportunities</h3>
+          <p>Try another keyword or clear the filters.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const bookmarks = getBookmarks();
+
+    grid.innerHTML = filtered.map((item) => {
+      const id = String(item.id);
+      const saved = bookmarks.includes(id);
+      const link = safeURL(item.url);
+      const image = safeURL(item.image_url);
+
+      const badgeText = item.verified
+        ? "Source checked"
+        : item.demo
+          ? "Demo card"
+          : "Check source";
+
+      return `
+        <article class="card">
+          ${image ? `
+            <img
+              class="opportunity-image"
+              src="${escapeHTML(image)}"
+              alt="${escapeHTML(item.title)}"
+              loading="lazy"
+            >` : ""}
+
+          <div class="card-top">
+            <span class="badge">${escapeHTML(item.category || "Opportunity")}</span>
+
+            <button
+              type="button"
+              class="bookmark ${saved ? "saved" : ""}"
+              data-bookmark="${escapeHTML(id)}"
+              aria-label="${saved ? "Remove bookmark" : "Save bookmark"}"
+            >${saved ? "★ Saved" : "☆ Save"}</button>
+          </div>
+
+          <h3>${escapeHTML(item.title)}</h3>
+
+          <div class="org">
+            ${escapeHTML(item.organisation || "Organisation not specified")}
+          </div>
+
+          <p class="card-desc">
+            ${escapeHTML(item.description || "Visit the official source for full details.")}
+          </p>
+
+          <div class="meta">
+            <span>📍 ${escapeHTML(item.location || "Location not specified")}</span>
+            <span>🗓️ Deadline: ${escapeHTML(formatDate(item.deadline))}</span>
+          </div>
+
+          <div class="meta">
+            <span>${item.verified ? "✓ " : "ℹ️ "}${escapeHTML(badgeText)}</span>
+          </div>
+
+          <div class="card-actions">
+            ${link ? `
+              <a
+                class="button button-primary"
+                href="${escapeHTML(link)}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >View source ↗</a>` : `
+              <span class="button button-outline">Source not added</span>`}
+
+            <button
+              type="button"
+              class="button button-outline"
+              data-track="${escapeHTML(id)}"
+            >Track</button>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  // 6. APPLICATION TRACKER
+  function renderTracker() {
+    const tracker = getTracker();
+    const list = $("trackerList");
+
+    if (!list) return;
+
+    if (tracker.length === 0) {
+      list.innerHTML = `
+        <div class="empty">
+          <strong>Your tracker is empty.</strong>
+          <p>Tap "Track" on an opportunity to add it here.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const statuses = [
+      "Interested",
+      "Preparing",
+      "Applied",
+      "Interview",
+      "Successful",
+      "Unsuccessful"
+    ];
+
+    list.innerHTML = tracker.map((item) => `
+      <div class="tracker-item">
+        <div>
+          <strong>${escapeHTML(item.title)}</strong>
+          <small>${escapeHTML(item.organisation || "")}</small>
+        </div>
+
+        <select
+          data-status="${escapeHTML(item.id)}"
+          aria-label="Application status for ${escapeHTML(item.title)}"
         >
+          ${statuses.map((status) => `
+            <option ${item.status === status ? "selected" : ""}>${escapeHTML(status)}</option>
+          `).join("")}
+        </select>
 
-        <span class="brand-copy">
-          <span class="brand-name">Naija Opportunity Hub</span>
-          <span class="brand-tagline">Discover Opportunities. Build Your Future.</span>
-        </span>
-      </a>
-
-      <button
-        class="menu-toggle"
-        id="menuBtn"
-        type="button"
-        aria-label="Open navigation menu"
-        aria-expanded="false"
-        aria-controls="navLinks"
-      >
-        <span class="menu-icon" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
-        <span class="menu-label">Menu</span>
-      </button>
-
-      <nav class="navlinks" id="navLinks" aria-label="Main navigation">
-        <a href="#home">Home</a>
-        <a href="#opportunities">Opportunities</a>
-        <a href="#career-kit">Career Kit</a>
-        <a href="#tracker">My Tracker</a>
-        <a href="#about">About</a>
-      </nav>
-
-    </div>
-  </header>
-
-
-  <main>
-
-    <!-- HERO -->
-    <section class="hero" id="home">
-      <div class="wrap hero-grid">
-
-        <div class="hero-content">
-
-          <div class="eyebrow">
-            <span class="eyebrow-dot"></span>
-            YOUR FUTURE STARTS WITH ONE OPPORTUNITY
-          </div>
-
-          <h1>
-            Discover opportunities.<br>
-            <span>Build your future.</span>
-          </h1>
-
-          <p class="hero-description">
-            Your destination for scholarships, jobs, internships, grants,
-            fellowships and training opportunities for Nigerian students,
-            graduates and young professionals.
-          </p>
-
-          <div class="hero-actions">
-            <a href="#opportunities" class="button button-primary">
-              Explore Opportunities <span aria-hidden="true">→</span>
-            </a>
-
-            <a href="#career-kit" class="button button-secondary">
-              Explore Career Kit
-            </a>
-          </div>
-
-          <ul class="hero-benefits">
-            <li>
-              <span class="check-icon" aria-hidden="true">✓</span>
-              Multiple opportunity categories
-            </li>
-            <li>
-              <span class="check-icon" aria-hidden="true">✓</span>
-              Links to application sources
-            </li>
-            <li>
-              <span class="check-icon" aria-hidden="true">✓</span>
-              Personal application tracker
-            </li>
-          </ul>
-
-        </div>
-
-        <div class="hero-visual">
-          <div class="hero-image-frame">
-  <img
-    src="images/01-HERO-STUDENTS.jpg"
-    alt="Students on a university campus"
-    class="hero-image"
-    fetchpriority="high"
-  >
-</div>
-          <div class="floating-card floating-card-top">
-            <span class="floating-icon" aria-hidden="true">✦</span>
-            <span>
-              <strong>New possibilities</strong>
-              <small>Start your next chapter</small>
-            </span>
-          </div>
-
-          <div class="floating-card floating-card-bottom">
-            <span class="floating-icon gold-icon" aria-hidden="true">✓</span>
-            <span>
-              <strong>Stay organised</strong>
-              <small>Track your applications</small>
-            </span>
-          </div>
-        </div>
-
+        <button
+          type="button"
+          class="bookmark"
+          data-remove-track="${escapeHTML(item.id)}"
+          aria-label="Remove from tracker"
+        >✕</button>
       </div>
-    </section>
+    `).join("");
+  }
 
+  function trackOpportunity(id) {
+    const item = opportunities.find(
+      (opportunity) => String(opportunity.id) === String(id)
+    );
 
-    <!-- CATEGORY SHORTCUTS -->
-    <section class="quick-categories">
-      <div class="wrap">
+    if (!item) return;
 
-        <div class="section-intro">
-          <span class="section-kicker">FIND YOUR NEXT STEP</span>
-          <h2>What opportunity are you looking for?</h2>
-          <p>Choose a category to explore opportunities that match your goals.</p>
-        </div>
+    const tracker = getTracker();
 
-        <div class="category-list" id="categoryButtons">
+    if (tracker.some((row) => String(row.id) === String(id))) {
+      showToast("This opportunity is already in your tracker.");
+      return;
+    }
 
-          <button class="category" type="button" data-category="Scholarship">
-            <span class="category-icon" aria-hidden="true">🎓</span>
-            <span>Scholarships</span>
-          </button>
+    tracker.unshift({
+      id: String(item.id),
+      title: item.title,
+      organisation: item.organisation,
+      status: "Interested",
+      addedAt: new Date().toISOString()
+    });
 
-          <button class="category" type="button" data-category="Job">
-            <span class="category-icon" aria-hidden="true">💼</span>
-            <span>Jobs</span>
-          </button>
+    saveTracker(tracker);
+    renderTracker();
+    showToast("Added to your application tracker.");
+  }
 
-          <button class="category" type="button" data-category="Internship">
-            <span class="category-icon" aria-hidden="true">🚀</span>
-            <span>Internships</span>
-          </button>
+  function exportCSV() {
+    const tracker = getTracker();
 
-          <button class="category" type="button" data-category="Grant">
-            <span class="category-icon" aria-hidden="true">💰</span>
-            <span>Grants</span>
-          </button>
+    if (tracker.length === 0) {
+      showToast("Your tracker is empty.");
+      return;
+    }
 
-          <button class="category" type="button" data-category="Fellowship">
-            <span class="category-icon" aria-hidden="true">🌍</span>
-            <span>Fellowships</span>
-          </button>
+    // Prefix cells starting with = + - @ so spreadsheets don't run them as formulas.
+    const cell = (value) => {
+      let text = String(value ?? "");
+      if (/^[=+\-@\t\r]/.test(text)) text = "'" + text;
+      return `"${text.replace(/"/g, '""')}"`;
+    };
 
-          <button class="category" type="button" data-category="Training">
-            <span class="category-icon" aria-hidden="true">📚</span>
-            <span>Training</span>
-          </button>
+    const rows = [
+      ["Title", "Organisation", "Status", "Added on"],
+      ...tracker.map((item) => [
+        item.title,
+        item.organisation,
+        item.status,
+        item.addedAt
+      ])
+    ];
 
-        </div>
+    const csv = rows.map((row) => row.map(cell).join(",")).join("\r\n");
 
-      </div>
-    </section>
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
 
+    link.href = url;
+    link.download = "naija-opportunity-tracker.csv";
 
-    <!-- OPPORTUNITIES -->
-    <section class="opportunities-section" id="opportunities">
-      <div class="wrap main-content">
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
-        <div class="section-head">
-          <div>
-            <span class="section-kicker">YOUR NEXT OPPORTUNITY</span>
-            <h2>Explore opportunities</h2>
-            <p>Discover possibilities to learn, grow and advance your career.</p>
-          </div>
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 
-          <div class="results-badge" id="resultsCount">
-            Finding opportunities...
-          </div>
-        </div>
+  // 7. LOAD PUBLISHED OPPORTUNITIES FROM SUPABASE
+  async function loadSupabaseOpportunities() {
+    const key = SUPABASE_PUBLISHABLE_KEY.trim();
 
-        <div class="filters">
+    if (!key) {
+      setDataStatus(
+        "Database key not configured",
+        "Please configure the Supabase publishable key. Showing demonstration cards."
+      );
+      return;
+    }
 
-          <div class="search-box">
-            <span aria-hidden="true">⌕</span>
-            <input
-              type="search"
-              id="searchInput"
-              placeholder="Search scholarships, jobs, grants..."
-              aria-label="Search opportunities"
-            >
-          </div>
+    if (!window.supabase || typeof window.supabase.createClient !== "function") {
+      setDataStatus(
+        "Database library did not load",
+        "The Supabase JavaScript library could not be loaded. Check your internet connection and the script tags in index.html. Showing demonstration cards."
+      );
+      console.error("Supabase JavaScript library is unavailable.");
+      return;
+    }
 
-          <label class="filter-control">
-            <span class="sr-only">Filter by category</span>
-            <select id="categoryFilter">
-              <option value="All">All categories</option>
-              <option value="Scholarship">Scholarships</option>
-              <option value="Job">Jobs</option>
-              <option value="Internship">Internships</option>
-              <option value="Grant">Grants</option>
-              <option value="Fellowship">Fellowships</option>
-              <option value="Training">Training</option>
-            </select>
-          </label>
+    setDataStatus(
+      "Connecting to database…",
+      "Connecting to the published opportunities database."
+    );
 
-          <label class="filter-control">
-            <span class="sr-only">Sort opportunities</span>
-            <select id="sortFilter">
-              <option value="newest">Newest first</option>
-              <option value="deadline">Closing date</option>
-              <option value="title">Title A–Z</option>
-            </select>
-          </label>
+    try {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, key);
 
-          <button class="button button-outline" id="clearFilters" type="button">
-            Clear filters
-          </button>
+      const { data, error } = await supabaseClient
+        .from("opportunities")
+        .select(
+          "id,title,organization,category,description,eligibility,location,application_url,source_url,deadline,status,verified_at,created_at,image_url"
+        )
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
 
-        </div>
+      if (error) throw error;
 
-        <div class="data-notice" id="dataNotice" hidden></div>
+      if (!Array.isArray(data) || data.length === 0) {
+        setDataStatus(
+          "Database connected · no published records returned",
+          "The database request succeeded, but no published records were returned, so demonstration cards are shown. Check the table contents and SELECT policy."
+        );
+        console.info("Supabase returned no published opportunities.");
+        return;
+      }
 
-        <div class="data-status" id="dataStatus" aria-live="polite"></div>
+      opportunities = data.map((item) => ({
+        id: String(item.id),
+        title: item.title || "Untitled opportunity",
+        organisation: item.organization || "Organisation not specified",
+        category: item.category || "Other",
+        location: item.location || "Nigeria",
+        eligibility: item.eligibility || "Check official requirements",
+        description:
+          item.description || "Visit the official source for full details.",
+        deadline: item.deadline || "",
+        url: item.application_url || item.source_url || "",
+        image_url: item.image_url || "",
+        verified: Boolean(item.verified_at),
+        created_at: item.created_at || "",
+        demo: false
+      }));
 
-        <div class="opportunity-grid" id="opportunityGrid">
-          <div class="loading-card">Loading opportunities...</div>
-        </div>
+      setDataStatus(
+        "Connected · published database listings loaded",
+        "Your website is displaying published records from Supabase."
+      );
 
-        <p class="disclaimer">
-          Always confirm eligibility, deadlines and application requirements
-          on the official source before applying.
-        </p>
+      console.info("Supabase loaded published opportunities:", opportunities.length);
+    } catch (error) {
+      console.error("Supabase database error:", error);
 
-      </div>
-    </section>
+      const message = error && error.message ? error.message : String(error);
 
+      setDataStatus(
+        "Database request failed",
+        "<strong>Database error:</strong> " +
+          escapeHTML(message) +
+          "<br><br>Showing demonstration cards instead."
+      );
+    }
 
-    <!-- FEATURE SHOWCASE -->
-    <section class="showcase-section">
-      <div class="wrap showcase-grid">
+    renderOpportunities();
+    renderTracker();
+  }
 
-        <div class="showcase-image">
-          <img
-            src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=85"
-            alt="A person studying and preparing written work"
-            loading="lazy"
-          >
+  // 8. WEBSITE EVENT LISTENERS
+  function syncCategoryButtons() {
+    document.querySelectorAll(".category").forEach((button) => {
+      button.classList.toggle("active", button.dataset.category === activeCategory);
+    });
+  }
 
-          <div class="showcase-caption">
-            <span class="caption-mark" aria-hidden="true">✦</span>
-            <span>
-              <strong>Your goals matter.</strong>
-              <small>Take the next step with confidence.</small>
-            </span>
-          </div>
-        </div>
+  function initialiseWebsite() {
+    const menuButton = $("menuBtn");
+    const navigation = $("navLinks");
 
-        <div class="showcase-copy">
-          <span class="section-kicker">MORE THAN OPPORTUNITY LISTINGS</span>
+    if (menuButton && navigation) {
+      menuButton.addEventListener("click", () => {
+        const isOpen = navigation.classList.toggle("open");
+        menuButton.setAttribute("aria-expanded", String(isOpen));
+      });
 
-          <h2>Build skills. Prepare confidently. Move forward.</h2>
+      navigation.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          navigation.classList.remove("open");
+          menuButton.setAttribute("aria-expanded", "false");
+        });
+      });
+    }
 
-          <p>
-            Finding an opportunity is only the beginning. Prepare your
-            application, organise your deadlines and take practical steps
-            towards your career goals.
-          </p>
+    ["searchInput", "sortFilter"].forEach((id) => {
+      const element = $(id);
+      if (!element) return;
+      element.addEventListener(
+        id === "searchInput" ? "input" : "change",
+        renderOpportunities
+      );
+    });
 
-          <a href="#career-kit" class="text-link">
-            Discover the Career Kit <span aria-hidden="true">→</span>
+    // Choosing a dropdown category resets the quick-filter buttons.
+    const categoryFilter = $("categoryFilter");
+    if (categoryFilter) {
+      categoryFilter.addEventListener("change", () => {
+        activeCategory = "All";
+        syncCategoryButtons();
+        renderOpportunities();
+      });
+    }
+
+    const clearFilters = $("clearFilters");
+    if (clearFilters) {
+      clearFilters.addEventListener("click", () => {
+        if ($("searchInput")) $("searchInput").value = "";
+        if ($("categoryFilter")) $("categoryFilter").value = "All";
+        if ($("sortFilter")) $("sortFilter").value = "newest";
+
+        activeCategory = "All";
+        syncCategoryButtons();
+        renderOpportunities();
+      });
+    }
+
+    const categoryButtons = $("categoryButtons");
+    if (categoryButtons) {
+      categoryButtons.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-category]");
+        if (!button) return;
+
+        activeCategory = button.dataset.category;
+        if ($("categoryFilter")) $("categoryFilter").value = "All";
+
+        syncCategoryButtons();
+        renderOpportunities();
+      });
+    }
+
+    const opportunityGrid = $("opportunityGrid");
+    if (opportunityGrid) {
+      opportunityGrid.addEventListener("click", (event) => {
+        const bookmarkButton = event.target.closest("[data-bookmark]");
+
+        if (bookmarkButton) {
+          const id = String(bookmarkButton.dataset.bookmark);
+          const bookmarks = getBookmarks();
+          const alreadySaved = bookmarks.includes(id);
+
+          saveBookmarks(
+            alreadySaved
+              ? bookmarks.filter((item) => item !== id)
+              : [...bookmarks, id]
+          );
+
+          renderOpportunities();
+          showToast(alreadySaved ? "Bookmark removed." : "Opportunity saved.");
+          return;
+        }
+
+        const trackButton = event.target.closest("[data-track]");
+        if (trackButton) trackOpportunity(trackButton.dataset.track);
+      });
+
+      // Hide broken images.
+      opportunityGrid.addEventListener(
+        "error",
+        (event) => {
+          if (event.target && event.target.tagName === "IMG") {
+            event.target.style.display = "none";
+          }
+        },
+        true
+      );
+    }
+
+    const trackerList = $("trackerList");
+    if (trackerList) {
+      trackerList.addEventListener("change", (event) => {
+        const select = event.target.closest("[data-status]");
+        if (!select) return;
+
+        const tracker = getTracker();
+        const item = tracker.find(
+          (row) => String(row.id) === String(select.dataset.status)
+        );
+
+        if (item) {
+          item.status = select.value;
+          saveTracker(tracker);
+          showToast("Application status updated.");
+        }
+      });
+
+      trackerList.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-remove-track]");
+        if (!button) return;
+
+        saveTracker(
+          getTracker().filter(
+            (row) => String(row.id) !== String(button.dataset.removeTrack)
+          )
+        );
+
+        renderTracker();
+        showToast("Removed from tracker.");
+      });
+    }
+
+    const exportButton = $("exportTracker");
+    if (exportButton) exportButton.addEventListener("click", exportCSV);
+
+    const clearTracker = $("clearTracker");
+    if (clearTracker) {
+      clearTracker.addEventListener("click", () => {
+        if (getTracker().length === 0) {
+          showToast("Your tracker is already empty.");
+          return;
+        }
+
+        if (confirm("Clear all items from your application tracker on this device?")) {
+          saveTracker([]);
+          renderTracker();
+          showToast("Tracker cleared.");
+        }
+      });
+    }
+
+    const year = $("year");
+    if (year) year.textContent = new Date().getFullYear();
+
+    // Show demonstration cards immediately, then load published records.
+    renderOpportunities();
+    renderTracker();
+    loadSupabaseOpportunities();
+  }
+
+  // 9. START THE WEBSITE
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialiseWebsite, { once: true });
+  } else {
+    initialiseWebsite();
+  }
+})(); Kit <span aria-hidden="true">→</span>
           </a>
         </div>
 
