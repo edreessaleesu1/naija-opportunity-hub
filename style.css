@@ -2108,3 +2108,250 @@ section {
   border-radius: 12px;
   margin-bottom: 14px;
 }
+/* ==========================================
+   NAIJA CAREER KIT — CV BUILDER
+========================================== */
+
+.cv-builder {
+  margin-top: 35px;
+  padding: 30px;
+  border-radius: var(--radius-lg);
+}
+
+.cv-builder-heading {
+  max-width: 700px;
+  margin-bottom: 28px;
+}
+
+.cv-builder-heading h3 {
+  margin-top: 5px;
+  color: var(--green-deep);
+  font-size: clamp(25px, 3vw, 34px);
+  line-height: 1.3;
+}
+
+.cv-builder-heading > p {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.cv-builder-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: start;
+  gap: 25px;
+}
+
+.cv-form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+
+.cv-form h4 {
+  margin-top: 20px;
+  margin-bottom: 4px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--border);
+  color: var(--green-dark);
+  font-size: 16px;
+}
+
+.cv-form h4:first-child {
+  margin-top: 0;
+}
+
+.cv-form label {
+  margin-top: 5px;
+  color: #35463b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cv-form input,
+.cv-form textarea,
+.cv-form select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid #dce5de;
+  border-radius: 9px;
+  background: var(--white);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.cv-form textarea {
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.cv-form input:focus,
+.cv-form textarea:focus,
+.cv-form select:focus {
+  border-color: var(--green);
+  outline: 3px solid rgba(8, 107, 69, 0.08);
+}
+
+.cv-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 17px;
+}
+
+.cv-form-actions .button {
+  flex: 1;
+}
+
+.cv-privacy-note,
+.cv-preview-note {
+  margin-top: 15px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.cv-preview-area {
+  min-width: 0;
+}
+
+.cv-preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.cv-preview-toolbar h4 {
+  color: var(--green-dark);
+  font-size: 16px;
+}
+
+.cv-preview-toolbar p {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.cv-preview-toolbar .button {
+  flex-shrink: 0;
+  padding: 10px 13px;
+  font-size: 12px;
+}
+
+.cv-document {
+  min-height: 600px;
+  padding: 30px 25px;
+  overflow-wrap: anywhere;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  box-shadow: 0 8px 25px rgba(8, 55, 36, 0.08);
+}
+
+.cv-document-header {
+  margin-bottom: 25px;
+  padding-bottom: 17px;
+  border-bottom: 3px solid var(--green);
+}
+
+.cv-document-header h1 {
+  color: var(--green-deep);
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.cv-document-header > p {
+  margin-top: 7px;
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cv-contact {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.cv-document section {
+  margin-bottom: 22px;
+  scroll-margin-top: 20px;
+}
+
+.cv-document section h2 {
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  color: var(--green);
+  font-size: 12px;
+  letter-spacing: 0.8px;
+  line-height: 1.5;
+}
+
+.cv-document section p {
+  margin-bottom: 7px;
+  color: #43544a;
+  font-size: 12px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cv-document-modern .cv-document-header {
+  border-bottom-color: var(--gold);
+}
+
+.cv-document-modern section h2 {
+  color: #765812;
+  border-bottom-color: var(--gold-light);
+}
+
+@media (max-width: 850px) {
+  .cv-builder {
+    padding: 22px;
+  }
+
+  .cv-builder-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cv-document {
+    min-height: 450px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cv-builder {
+    padding: 17px;
+  }
+
+  .cv-preview-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cv-preview-toolbar .button {
+    width: 100%;
+  }
+
+  .cv-form-actions {
+    flex-direction: column;
+  }
+
+  .cv-form-actions .button {
+    width: 100%;
+  }
+
+  .cv-document {
+    padding: 22px 17px;
+  }
+   }
