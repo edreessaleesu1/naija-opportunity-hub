@@ -633,51 +633,129 @@
           title: item.title || "Untitled opportunity",
           organisation:
             item.organization || "Organisation not specified",
-          category: item.category || "Other",
-          location: item.location || "Nigeria",
-          eligibility:
-            item.eligibility || "Check official requirements",
-          description:
-            item.description ||
-            "Visit the official source for full details.",
-          deadline: item.deadline || "",
-          url: item.application_url || item.source_url || "",
-          image_url: item.image_url || "",
-          verified: Boolean(item.verified_at),
-          created_at: item.created_at || "",
-          demo: false
-        }));
+async function loadSupabaseOpportunities() {
+const key = SUPABASE_PUBLISHABLE_KEY.trim();
 
-        setDataStatus(
-          "Connected · published database listings loaded",
-          "<strong>Reminder:</strong> Check each official source to confirm eligibility and deadlines before applying."
-        );
-      } else {
-        opportunities = [...sampleOpportunities];
+setDataStatus(
+"Connecting to database…",
+"Connecting to the published opportunities database."
+);
 
-        setDataStatus(
-          "Connected · no published listings found",
-          "<strong>Database connected:</strong> No published opportunities were returned. Demonstration cards are shown instead. Check whether your records have status set to published."
-        );
-      }
+if (
+!window.supabase ||
+typeof window.supabase.createClient !== "function"
+) {
+setDataStatus(
+"Database library unavailable",
+"The Supabase JavaScript library did not load. Please check your internet connection and the script tags in index.html."
+);
+console.error("Supabase JavaScript library is unavailable.");
+return;
+}
 
-      renderOpportunities();
-      renderTracker();
+try {
+supabaseClient = window.supabase.createClient(
+SUPABASE_URL,
+key
+);
 
-    } catch (error) {
-      console.error("Supabase connection error:", error);
+// First test: request only essential columns.
+// This helps identify whether the full query contains
+// a column that does not exist.
+const { data, error } = await supabaseClient
+  .from("opportunities")
+  .select("id,title,status")
+  .eq("status", "published")
+  .limit(20);
 
-      opportunities = [...sampleOpportunities];
+if (error) {
+  throw error;
+}
 
-      setDataStatus(
-        "Could not connect to database",
-        "<strong>Connection issue:</strong> Demonstration cards are shown. Check the Supabase URL, publishable key, table columns and public read policy."
-      );
+if (!Array.isArray(data) || data.length === 0) {
+  opportunities = [];
 
-      renderOpportunities();
-      renderTracker();
-    }
-  }
+  setDataStatus(
+    "Database connected · no published records returned",
+    "The database request succeeded, but no published records were returned. Check the table contents and SELECT policy."
+  );
+
+  renderOpportunities();
+  renderTracker();
+
+  console.info("Supabase returned no published opportunities.");
+  return;
+}
+
+// Second request: load all fields needed by the cards.
+const { data: fullData, error: fullError } =
+  await supabaseClient
+    .from("opportunities")
+    .select(
+      "id,title,organization,category,description,eligibility,location,application_url,source_url,deadline,status,verified_at,created_at,image_url"
+    )
+    .eq("status", "published")
+    .order("created_at", { ascending: false });
+
+if (fullError) {
+  throw fullError;
+}
+
+opportunities = fullData.map((item) => ({
+  id: String(item.id),
+  title: item.title || "Untitled opportunity",
+  organisation:
+    item.organization || "Organisation not specified",
+  category: item.category || "Other",
+  location: item.location || "Nigeria",
+  eligibility:
+    item.eligibility || "Check official requirements",
+  description:
+    item.description ||
+    "Visit the official source for full details.",
+  deadline: item.deadline || "",
+  url: item.application_url || item.source_url || "",
+  image_url: item.image_url || "",
+  verified: Boolean(item.verified_at),
+  created_at: item.created_at || "",
+  demo: false
+}));
+
+setDataStatus(
+  "Connected · published database listings loaded",
+  "Your website is displaying published records from Supabase."
+);
+
+console.info(
+  "Supabase successfully loaded published opportunities:",
+  opportunities.length
+);
+
+renderOpportunities();
+renderTracker();
+
+} catch (error) {
+console.error("Supabase database error:", error);
+
+// Do not silently replace the listings with demo cards.
+opportunities = [];
+
+const message =
+  error && error.message
+    ? error.message
+    : String(error);
+
+setDataStatus(
+  "Database request failed",
+  "<strong>Actual database error:</strong> " +
+    escapeHTML(message) +
+    "<br><br>Please share this exact message so we can fix the cause."
+);
+
+renderOpportunities();
+renderTracker();
+
+}
 
   // =====================================================
   // 8. WEBSITE EVENT LISTENERS
