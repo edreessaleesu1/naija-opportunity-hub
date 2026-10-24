@@ -186,13 +186,12 @@ return `<article class="card">
   }
 
   async function loadSupabaseOpportunities() {
-    const key = SUPABASE_PUBLISHABLE_KEY.trim();
-    if (!key || key === "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq") {
-      $("dataStatus").textContent = "Database key not added yet";
-      $("dataNotice").innerHTML = "<strong>Setup needed:</strong> Add your new Supabase publishable key in the code before publishing. The cards currently shown are demonstration cards, not verified listings.";
-      renderOpportunities();
-      return;
-    }
+    if (!key) {
+  $("dataStatus").textContent = "Database key not added yet";
+  $("dataNotice").textContent =
+    "Please configure the Supabase publishable key.";
+  return;
+}
     if (!window.supabase || typeof window.supabase.createClient !== "function") {
       $("dataStatus").textContent = "Database library did not load";
       renderOpportunities();
