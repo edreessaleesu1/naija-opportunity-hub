@@ -1,13 +1,19 @@
 (() => {
   "use strict";
 
+  // Prevent accidental duplicate initialisation.
+  if (window.__NOH_CAREER_KIT_LOADED__) return;
+  window.__NOH_CAREER_KIT_LOADED__ = true;
+
   const $ = (id) => document.getElementById(id);
 
   const form = $("career-form");
 
+  // This script is intended for career-kit.html.
   if (!form) return;
 
   const params = new URLSearchParams(window.location.search);
+
   let tool = params.get("tool") || "cv";
 
   if (!["cv", "cover-letter", "bundle"].includes(tool)) {
@@ -26,17 +32,6 @@
     bundle: "Prepare your CV and cover letter for your next application."
   };
 
-  $("page-title").textContent = titles[tool];
-  $("page-description").textContent = descriptions[tool];
-  $("current-year").textContent = new Date().getFullYear();
-
-  document.querySelectorAll("[data-tool]").forEach((link) => {
-    if (link.dataset.tool === tool) {
-      link.classList.add("active");
-      link.setAttribute("aria-current", "page");
-    }
-  });
-
   const coverLetterFields = [
     "employer-field",
     "recipient-field",
@@ -52,9 +47,43 @@
     "certificates-field"
   ];
 
+  function setText(id, text) {
+    const element = $(id);
+    if (element) element.textContent = text;
+  }
+
   function setHidden(id, hidden) {
     const element = $(id);
     if (element) element.hidden = hidden;
+  }
+
+  function value(id, fallback = "") {
+    const element = $(id);
+
+    if (!element) return fallback;
+
+    return element.value.trim() || fallback;
+  }
+
+  function escapeHTML(text) {
+    return String(text).replace(/[&<>"']/g, (character) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[character]);
+  }
+
+  function formatText(text) {
+    if (!text) return "";
+
+    return escapeHTML(text)
+      .split(/\n+/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => `<p>${line}</p>`)
+      .join("");
   }
 
   function configureTool() {
@@ -62,9 +91,26 @@
     const isBundle = tool === "bundle";
     const isLetter = isCoverLetter || isBundle;
 
-    $("form-heading").textContent = isLetter
-      ? "Your application details"
-      : "Your professional details";
+    setText("page-title", titles[tool]);
+    setText("page-description", descriptions[tool]);
+    setText("current-year", new Date().getFullYear());
+
+    document.querySelectorAll("[data-tool]").forEach((link) => {
+      const active = link.dataset.tool === tool;
+
+      link.classList.toggle("active", active);
+
+      if (active) {
+        link.setAttribute("aria-current", "page");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+
+    setText(
+      "form-heading",
+      isLetter ? "Your application details" : "Your professional details"
+    );
 
     coverLetterFields.forEach((id) => {
       setHidden(id, !isLetter);
@@ -77,286 +123,438 @@
     setHidden("job-title-field", false);
     setHidden("template-field", false);
 
-    if (isCoverLetter) {
-      $("job-title").previousElementSibling.textContent = "Job title";
-      $("job-title").placeholder = "e.g. Graduate Trainee";
+    const jobTitle = $("job-title");
 
-      $("preview-summary-heading").textContent = "Application";
-      $("preview-education-heading").textContent = "Employer";
-      $("preview-experience-heading").textContent = "Dear Hiring Manager";
-      $("preview-skills-heading").textContent = "Why I Am Applying";
-      $("preview-certificates-heading").textContent = "Closing";
-
-      $("template").options[0].textContent = "Formal Letter";
-      $("template").options[1].textContent = "Modern Letter";
-    } else {
-      $("job-title").previousElementSibling.textContent =
-        "Professional title / Target role";
-      $("job-title").placeholder =
-        "e.g. Graduate Trainee or Data Analyst";
-
-      $("preview-summary-heading").textContent = "Professional Summary";
-      $("preview-education-heading").textContent = "Education";
-      $("preview-experience-heading").textContent = "Experience";
-      $("preview-skills-heading").textContent = "Skills";
-      $("preview-certificates-heading").textContent =
-        "Certifications & Additional Information";
-
-      $("template").options[0].textContent = "Classic Professional";
-      $("template").options[1].textContent = "Modern Clean";
+    if (jobTitle && jobTitle.previousElementSibling) {
+      jobTitle.previousElementSibling.textContent = isCoverLetter
+        ? "Job title"
+        : "Professional title / Target role";
     }
 
-    if (isBundle) {
-      $("page-description").textContent =
-        "Build your CV and cover letter together. Your information can be reused across both documents.";
+    if (jobTitle) {
+      jobTitle.placeholder = isCoverLetter
+        ? "e.g. Graduate Trainee"
+        : "e.g. Graduate Trainee or Data Analyst";
     }
 
-    $("download-button").textContent = isBundle
-      ? "Print / Save Current Document as PDF"
-      : "Print / Save as PDF";
+    setText(
+      "preview-summary-heading",
+      isCoverLetter ? "Application" : "Professional Summary"
+    );
+
+    setText(
+      "preview-education-heading",
+      isCoverLetter ? "Employer" : "Education"
+    );
+
+    setText(
+      "preview-experience-heading",
+      isCoverLetter ? "Cover Letter" : "Experience"
+    );
+
+    setText(
+      "preview-skills-heading",
+      isCoverLetter ? "Why I Am Applying" : "Skills"
+    );
+
+    setText(
+      "preview-certificates-heading",
+      isCoverLetter ? "Closing" : "Certifications & Additional Information"
+    );
+
+    const template = $("template");
+
+    if (template && template.options.length >= 2) {
+      template.options[0].textContent = isCoverLetter
+        ? "Formal Letter"
+        : "Classic Professional";
+
+      template.options[1].textContent = isCoverLetter
+        ? "Modern Letter"
+        : "Modern Clean";
+    }
+
+    setText(
+      "download-button",
+      isBundle
+        ? "Print / Save Current Document as PDF"
+        : "Print / Save as PDF"
+    );
+
+    // AI actions are displayed as an interface placeholder.
+    // Actual AI generation requires a secure backend.
+    setText("ai-assistant-title", "AI Career Assistant");
+    setText(
+      "ai-assistant-description",
+      "Get help improving your CV or preparing a tailored cover letter."
+    );
+
+    setText("ai-improve-cv", "Improve My CV with AI");
+    setText("ai-write-letter", "Write My Cover Letter with AI");
+    setText("ai-improve-summary", "Improve My Professional Summary");
   }
 
-  function value(id, fallback = "") {
-    const element = $(id);
-    if (!element) return fallback;
-
-    return element.value.trim() || fallback;
-  }
-
-  function setText(id, text) {
-    const element = $(id);
-    if (element) element.textContent = text;
-  }
-
-  function setSection(id, text) {
+  function setSection(id, heading, content) {
     const section = $(id);
+
     if (!section) return;
 
-    const content = section.querySelector("p");
-    const heading = section.querySelector("h3");
+    const headingElement = section.querySelector("h3");
+    const paragraph = section.querySelector("p");
 
-    const empty =
-      !text ||
-      text.startsWith("Your ") ||
-      text === "Not provided";
+    if (headingElement) headingElement.textContent = heading;
 
-    section.hidden = empty;
+    if (paragraph) {
+      paragraph.innerHTML = formatText(content);
+    }
 
-    if (content) content.textContent = text;
-    if (heading) heading.hidden = empty;
+    section.hidden = !content;
   }
 
   function updatePreview() {
-    const isLetter = tool === "cover-letter";
+    const isCoverLetter = tool === "cover-letter";
     const isBundle = tool === "bundle";
+
     const name = value("full-name", "Your Full Name");
     const job = value("job-title", "Your Professional Title");
 
     setText("preview-name", name);
 
     const title = $("preview-title");
-    title.hidden = isLetter;
 
-    if (isLetter) {
-      title.textContent = "";
-      setText("preview-contact", [
+    if (title) {
+      title.hidden = isCoverLetter;
+      title.textContent = isCoverLetter ? "" : job;
+    }
+
+    setText(
+      "preview-contact",
+      [
         value("email"),
         value("phone"),
         value("location")
-      ].filter(Boolean).join(" · "));
+      ].filter(Boolean).join(" · ") || "Add your contact details"
+    );
 
+    if (isCoverLetter) {
       setSection(
         "preview-summary-section",
-        "Application for: " + job
+        "Application",
+        `Application for: ${job}`
       );
 
       setSection(
         "preview-education-section",
-        "Organisation: " + value("employer", "Not provided")
+        "Employer",
+        value("employer", "Organisation not provided")
       );
-
-      const recipient = value("recipient", "Hiring Manager");
 
       setSection(
         "preview-experience-section",
-        "Dear " + recipient + ",\n\n" +
-        "I am writing to express my interest in the " + job +
-        " position at " + value("employer", "your organisation") + "."
+        "Cover Letter",
+        `Dear ${value("recipient", "Hiring Manager")},\n\nI am writing to express my interest in the ${job} position at ${value("employer", "your organisation")}.`
       );
 
       setSection(
         "preview-skills-section",
+        "Why I Am Applying",
         value(
-          "letterBody",
-          "Add your reasons for applying and explain how your qualifications, experience and skills relate to the role."
+          "letter-body",
+          "Explain your qualifications, relevant skills, and motivation for applying."
         )
       );
 
       setSection(
         "preview-certificates-section",
-        "Yours sincerely,\n" + name
+        "Closing",
+        `Yours sincerely,\n${name}`
       );
     } else {
-      title.textContent = job;
-
-      setText("preview-contact", [
-        value("email"),
-        value("phone"),
-        value("location")
-      ].filter(Boolean).join(" · ") || "Add your contact details");
-
       setSection(
         "preview-summary-section",
-        value("summary", "Your professional summary will appear here.")
+        "Professional Summary",
+        value("summary", "")
       );
 
       setSection(
         "preview-education-section",
-        value("education", "Your educational background will appear here.")
+        "Education",
+        value("education", "")
       );
 
       setSection(
         "preview-experience-section",
-        value("experience", "Your work experience will appear here.")
+        "Experience",
+        value("experience", "")
       );
 
       setSection(
         "preview-skills-section",
-        value("skills", "Your skills will appear here.")
+        "Skills",
+        value("skills", "")
       );
 
       setSection(
         "preview-certificates-section",
-        value(
-          "certificates",
-          "Your additional information will appear here."
-        )
+        "Certifications & Additional Information",
+        value("certificates", "")
       );
     }
 
-    $("document-preview").classList.toggle(
-      "modern",
-      value("template") === "modern"
-    );
+    const preview = $("document-preview");
+
+    if (preview) {
+      preview.classList.toggle(
+        "modern",
+        value("template") === "modern"
+      );
+    }
 
     setText(
       "preview-status",
-      isBundle ? "Bundle workspace" : "Preview updated"
+      isBundle ? "Career Bundle workspace" : "Preview updated"
     );
+  }
+
+  function buildCVForPrint() {
+    const name = value("full-name", "Your Name");
+    const job = value("job-title", "Professional Title");
+
+    const sections = [
+      ["PROFESSIONAL SUMMARY", value("summary")],
+      ["EDUCATION", value("education")],
+      ["WORK EXPERIENCE", value("experience")],
+      ["SKILLS", value("skills")],
+      ["CERTIFICATIONS & TRAINING", value("certificates")]
+    ];
+
+    return `
+      <header>
+        <h1>${escapeHTML(name)}</h1>
+        <p class="job-title">${escapeHTML(job)}</p>
+        <p class="contact">${escapeHTML([
+          value("email"),
+          value("phone"),
+          value("location")
+        ].filter(Boolean).join(" | "))}</p>
+      </header>
+
+      ${sections
+        .filter(([, content]) => content)
+        .map(([heading, content]) => `
+          <section>
+            <h2>${escapeHTML(heading)}</h2>
+            ${formatText(content)}
+          </section>
+        `)
+        .join("")}
+    `;
   }
 
   function buildLetterForPrint() {
     const name = value("full-name", "Your Name");
-    const contact = [
-      value("email"),
-      value("phone"),
-      value("location")
-    ].filter(Boolean).join(" | ");
-
-    const recipient = value("recipient", "Hiring Manager");
     const job = value("job-title", "the advertised position");
     const employer = value("employer", "your organisation");
+    const recipient = value("recipient", "Hiring Manager");
     const description = value("job-description");
     const body = value(
       "letter-body",
       "I believe my qualifications, skills and experience would enable me to contribute positively to your organisation. I would welcome the opportunity to discuss my application."
     );
 
-    const safe = (text) => String(text).replace(
-      /[&<>"']/g,
-      (char) => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;"
-      })[char]
-    );
-
     return `
-      <div class="letter">
-        <h1>${safe(name)}</h1>
-        <p>${safe(contact)}</p>
-        <hr>
-        <p>${safe(value("location"))}</p>
-        <p>Dear ${safe(recipient)},</p>
-        <p>
-          I am writing to apply for the ${safe(job)} position at
-          ${safe(employer)}.
-        </p>
-        ${description ? `<h3>Role requirements</h3><p>${safe(description)}</p>` : ""}
-        <p>${safe(body).replace(/\n/g, "<br>")}</p>
-        <p>
-          Thank you for considering my application. I look forward to the
-          opportunity to discuss my suitability for this role.
-        </p>
-        <p>Yours sincerely,<br>${safe(name)}</p>
-      </div>
+      <header>
+        <h1>${escapeHTML(name)}</h1>
+        <p class="contact">${escapeHTML([
+          value("email"),
+          value("phone"),
+          value("location")
+        ].filter(Boolean).join(" | "))}</p>
+      </header>
+
+      <p>Dear ${escapeHTML(recipient)},</p>
+
+      <p>
+        I am writing to apply for the ${escapeHTML(job)} position at
+        ${escapeHTML(employer)}.
+      </p>
+
+      ${description ? `
+        <section>
+          <h2>Role requirements</h2>
+          ${formatText(description)}
+        </section>
+      ` : ""}
+
+      ${formatText(body)}
+
+      <p>
+        Thank you for considering my application. I look forward to the
+        opportunity to discuss my suitability for this role.
+      </p>
+
+      <p>Yours sincerely,<br>${escapeHTML(name)}</p>
     `;
   }
 
   function printDocument() {
     updatePreview();
 
-    const isLetter = tool === "cover-letter";
+    const isCoverLetter = tool === "cover-letter";
 
-    if (isLetter) {
-      const printable = window.open("", "_blank");
+    const content = isCoverLetter
+      ? buildLetterForPrint()
+      : buildCVForPrint();
 
-      if (!printable) {
-        alert("Please allow pop-ups for this site, then try printing again.");
-        return;
-      }
+    const printWindow = window.open("", "_blank");
 
-      printable.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>Cover Letter</title>
-          <style>
-            @page { size: A4; margin: 22mm; }
-            body {
-              font-family: Arial, sans-serif;
-              color: #222;
-              line-height: 1.8;
-              font-size: 12pt;
-            }
-            h1 { color: #075b36; font-size: 22pt; }
-            h3 { font-size: 12pt; }
-            p { white-space: normal; }
-            hr { border: 0; border-top: 2px solid #087443; }
-          </style>
-        </head>
-        <body>${buildLetterForPrint()}</body>
-        </html>
-      `);
-
-      printable.document.close();
-      printable.focus();
-
-      setTimeout(() => {
-        printable.print();
-      }, 400);
-
+    if (!printWindow) {
+      window.alert(
+        "Please allow pop-ups for this website, then try again."
+      );
       return;
     }
 
-    window.print();
+    printWindow.document.open();
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>${escapeHTML(titles[tool])}</title>
+
+          <style>
+            @page {
+              size: A4;
+              margin: 18mm;
+            }
+
+            * {
+              box-sizing: border-box;
+            }
+
+            body {
+              margin: 0;
+              color: #17251e;
+              font-family: Arial, Helvetica, sans-serif;
+              font-size: 10.5pt;
+              line-height: 1.65;
+            }
+
+            header {
+              border-bottom: 3px solid #086b45;
+              padding-bottom: 12px;
+              margin-bottom: 20px;
+            }
+
+            h1 {
+              color: #06452f;
+              font-size: 24pt;
+              margin: 0 0 5px;
+              overflow-wrap: anywhere;
+            }
+
+            .job-title {
+              color: #086b45;
+              font-size: 12pt;
+            }
+
+            .contact {
+              color: #536359;
+              font-size: 9pt;
+              overflow-wrap: anywhere;
+            }
+
+            h2 {
+              color: #086b45;
+              font-size: 11pt;
+              border-bottom: 1px solid #dce5de;
+              padding-bottom: 5px;
+            }
+
+            section {
+              margin-bottom: 18px;
+              break-inside: avoid;
+            }
+
+            p {
+              overflow-wrap: anywhere;
+            }
+
+            .modern header {
+              border-bottom-color: #b58a20;
+            }
+
+            .modern h2 {
+              color: #765812;
+            }
+          </style>
+        </head>
+
+        <body class="${value("template") === "modern" ? "modern" : ""}">
+          ${content}
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+
+    printWindow.onload = () => {
+      printWindow.focus();
+
+      setTimeout(() => {
+        printWindow.print();
+      }, 300);
+    };
   }
 
-  $("preview-button").addEventListener("click", updatePreview);
+  function handleAI(action) {
+    const messages = {
+      cv: "AI CV improvement is not connected yet. The next step is to connect this button to a secure AI backend.",
+      letter: "AI cover letter generation is not connected yet. The next step is to connect this button to a secure AI backend.",
+      summary: "AI professional summary generation is not connected yet. The next step is to connect this button to a secure AI backend."
+    };
 
-  $("download-button").addEventListener("click", printDocument);
+    window.alert(messages[action] || "AI functionality is not connected yet.");
+  }
+
+  const previewButton = $("preview-button");
+  const downloadButton = $("download-button");
+
+  if (previewButton) {
+    previewButton.addEventListener("click", updatePreview);
+  }
+
+  if (downloadButton) {
+    downloadButton.addEventListener("click", printDocument);
+  }
 
   form.addEventListener("input", updatePreview);
-
   form.addEventListener("change", updatePreview);
 
   form.addEventListener("reset", () => {
     setTimeout(updatePreview, 0);
   });
 
+  const aiCVButton = $("ai-improve-cv");
+  const aiLetterButton = $("ai-write-letter");
+  const aiSummaryButton = $("ai-improve-summary");
+
+  if (aiCVButton) {
+    aiCVButton.addEventListener("click", () => handleAI("cv"));
+  }
+
+  if (aiLetterButton) {
+    aiLetterButton.addEventListener("click", () => handleAI("letter"));
+  }
+
+  if (aiSummaryButton) {
+    aiSummaryButton.addEventListener("click", () => handleAI("summary"));
+  }
+
+  // Configure and render the page.
   configureTool();
   updatePreview();
 })();
