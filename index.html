@@ -17,7 +17,17 @@
   <link rel="stylesheet" href="./style.css">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./script.js?v=4" defer></script>
+
+<script>
+window.addEventListener("error", function(event) {
+  const status = document.getElementById("dataStatus");
+  if (status) {
+    status.textContent = "JavaScript error: " + event.message;
+  }
+});
+</script>
+
+<script src="./script.js?v=5" defer></script>
 </head>
 
 <body>
