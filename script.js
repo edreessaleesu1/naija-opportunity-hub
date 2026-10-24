@@ -755,7 +755,7 @@ setDataStatus(
 renderOpportunities();
 renderTracker();
 
-}
+}}
 
   // =====================================================
   // 8. WEBSITE EVENT LISTENERS
