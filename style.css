@@ -2608,3 +2608,334 @@ section {
     padding: 9px 10px;
   }
    }
+
+
+/* ==========================================
+   REDESIGN ADDITIONS
+   Appended to the existing stylesheet; nothing above was removed.
+========================================== */
+
+/* Accessibility */
+
+.skip-link {
+  position: absolute;
+  top: -60px;
+  left: 12px;
+  z-index: 3000;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--green-dark);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+/* Navigation: roomier on desktop */
+
+.navlinks {
+  gap: 22px;
+}
+
+.navlinks a:last-child {
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(8, 107, 69, 0.16);
+}
+
+/* Gold button (used on the green banner) */
+
+.button-gold {
+  background: linear-gradient(135deg, #d2ab4a, #b58a20);
+  color: #1d2a22;
+  box-shadow: 0 10px 24px rgba(181, 138, 32, 0.28);
+}
+
+.button-gold:hover {
+  background: #c79a2b;
+  box-shadow: 0 13px 28px rgba(181, 138, 32, 0.34);
+}
+
+/* Benefit strip under the hero */
+
+.benefit-strip {
+  position: relative;
+  z-index: 2;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+}
+
+.benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 18px;
+  border-right: 1px solid var(--border);
+}
+
+.benefit-item:last-child {
+  border-right: 0;
+}
+
+.benefit-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 13px;
+  background: var(--green-light);
+  font-size: 21px;
+}
+
+.benefit-item strong,
+.benefit-item small {
+  display: block;
+}
+
+.benefit-item strong {
+  color: var(--green-dark);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.benefit-item small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Category shortcuts: clearer pressed state */
+
+.category.active,
+.category[aria-pressed="true"] {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--white);
+}
+
+.category.active .category-icon,
+.category[aria-pressed="true"] .category-icon {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Opportunity cards: styles for the classes app.js generates */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 7px;
+  background: var(--green-light);
+  color: var(--green-dark);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.bookmark.saved {
+  background: var(--gold-light);
+  border-color: var(--gold);
+  color: #85620c;
+}
+
+.card-top .bookmark {
+  width: auto;
+  min-width: 35px;
+  padding: 0 11px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.card-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-actions .button-primary,
+.card-actions .button-outline {
+  min-height: 42px;
+}
+
+/* View All / Show Latest 6 button (created by app.js) */
+
+.view-all-opportunities {
+  display: flex;
+  min-width: 260px;
+  margin: 32px auto 0;
+}
+
+/* Application tracker rows (created by app.js) */
+
+.tracker-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--green-soft);
+}
+
+.tracker-item strong,
+.tracker-item small {
+  display: block;
+}
+
+.tracker-item strong {
+  color: var(--green-deep);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.tracker-item small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.tracker-item select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid #dce5de;
+  border-radius: 10px;
+  background: var(--white);
+  color: #43544a;
+  font-size: 12px;
+}
+
+.tracker-item .bookmark {
+  width: 44px;
+  height: 44px;
+}
+
+/* Call-to-action banner */
+
+.cta-banner {
+  padding: 78px 0;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(198, 162, 74, 0.22), transparent 38%),
+    linear-gradient(135deg, var(--green-dark), var(--green-deep));
+  color: var(--white);
+  text-align: center;
+}
+
+.cta-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.cta-banner h2 {
+  max-width: 720px;
+  font-size: clamp(28px, 4.2vw, 44px);
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+.cta-banner h2::after {
+  content: "";
+  display: block;
+  width: 58px;
+  height: 3px;
+  margin: 18px auto 0;
+  border-radius: 3px;
+  background: var(--gold);
+}
+
+.cta-banner p {
+  max-width: 520px;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 15px;
+}
+
+.cta-banner .button {
+  margin-top: 8px;
+  min-height: 52px;
+  padding-inline: 26px;
+}
+
+/* Footer: four columns */
+
+.footer-grid {
+  grid-template-columns: 1.6fr 0.7fr 0.7fr 0.7fr;
+}
+
+/* Tablet */
+
+@media (max-width: 1000px) {
+  .navlinks {
+    gap: 12px;
+  }
+
+  .benefit-item {
+    padding: 18px 12px;
+    gap: 10px;
+  }
+
+  .benefit-item strong {
+    font-size: 13px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1.4fr 0.8fr 0.8fr 0.8fr;
+    gap: 28px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 720px) {
+  .benefit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .benefit-item {
+    padding: 14px 4px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .benefit-item:last-child {
+    border-bottom: 0;
+  }
+
+  .tracker-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .tracker-item > div {
+    grid-column: 1 / -1;
+  }
+
+  .view-all-opportunities {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cta-banner {
+    padding: 56px 0;
+  }
+
+  .cta-banner .button {
+    width: 100%;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+   }
+   
