@@ -934,6 +934,17 @@ function setupOpportunityGrid() {
   const grid = $("opportunityGrid");
 
   if (!grid) return;
+   document.addEventListener("click", (event) => {
+const button = event.target.closest("#viewAllOpportunities");
+
+if (!button) return;
+
+const showAll = button.dataset.showAll !== "true";
+button.dataset.showAll = String(showAll);
+
+renderOpportunities();
+
+});
 const viewAllButton = $("viewAllOpportunities");
 
 if (viewAllButton) {
