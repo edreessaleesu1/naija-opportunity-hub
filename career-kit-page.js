@@ -510,12 +510,213 @@
     };
   }
 
-  function handleAI(action) {
-    const messages = {
-      cv: "AI CV improvement is not connected yet. The next step is to connect this button to a secure AI backend.",
-      letter: "AI cover letter generation is not connected yet. The next step is to connect this button to a secure AI backend.",
-      summary: "AI professional summary generation is not connected yet. The next step is to connect this button to a secure AI backend."
-    };
+  async function handleAI(action) {
+  const resultBox = $("ai-result");
+
+  if (!resultBox) {
+    window.alert("The AI result area could not be found.");
+    return;
+  }
+
+  const actions = {
+    cv: {
+      apiAction: "improve-cv",
+      button: $("ai-improve-cv"),
+      title: "AI CV Improvement"
+    },
+    summary: {
+      apiAction: "write-summary",
+      button: $("ai-improve-summary"),
+      title: "Professional Summary"
+    },
+    letter: {
+      apiAction: "write-letter",
+      button: $("ai-write-letter"),
+      title: "AI Cover Letter"
+    }
+  };
+
+  const selected = actions[action];
+
+  if (!selected) {
+    window.alert("Please select a valid AI tool.");
+    return;
+  }
+
+  // Check whether the user has supplied enough information.
+  if (action === "cv" && !value("full-name") &&
+      !value("education") && !value("experience") &&
+      !value("skills") && !value("summary")) {
+    window.alert(
+      "Please enter some CV information before requesting improvements."
+    );
+    return;
+  }
+
+  if (action === "summary" &&
+      !value("job-title") && !value("education") &&
+      !value("experience") && !value("skills")) {
+    window.alert(
+      "Please enter your target job, education, experience, or skills first."
+    );
+    return;
+  }
+
+  if (action === "letter" &&
+      !value("job-title") && !value("job-description")) {
+    window.alert(
+      "Please enter the job title or job description first."
+    );
+    return;
+  }
+
+  const originalButtonText = selected.button
+    ? selected.button.textContent
+    : "";
+
+  // Gather the information needed by the AI.
+  const candidateData = {
+    fullName: value("full-name"),
+    email: value("email"),
+    phone: value("phone"),
+    location: value("location"),
+    jobTitle: value("job-title"),
+    summary: value("summary"),
+    education: value("education"),
+    experience: value("experience"),
+    skills: value("skills"),
+    certificates: value("certificates"),
+    employer: value("employer"),
+    recipient: value("recipient"),
+    jobDescription: value("job-description"),
+    letterBody: value("letter-body")
+  };
+
+  resultBox.hidden = false;
+  resultBox.replaceChildren();
+
+  const heading = document.createElement("h4");
+  heading.textContent = selected.title;
+
+  const status = document.createElement("p");
+  status.textContent = "Preparing your result. Please wait...";
+
+  resultBox.append(heading, status);
+
+  if (selected.button) {
+    selected.button.disabled = true;
+    selected.button.textContent = "Working...";
+  }
+
+  // Disable the other AI buttons while a request is running.
+  const allButtons = [
+    $("ai-improve-cv"),
+    $("ai-improve-summary"),
+    $("ai-write-letter")
+  ].filter(Boolean);
+
+  allButtons.forEach((button) => {
+    button.disabled = true;
+  });
+
+  try {
+    const response = await fetch(AI_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_PUBLISHABLE_KEY
+      },
+      body: JSON.stringify({
+        action: selected.apiAction,
+        ...candidateData
+      })
+    });
+
+    let data;
+
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error(
+        "The server returned an unexpected response. Please try again."
+      );
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || "The AI request failed. Please try again."
+      );
+    }
+
+    if (!data.result || typeof data.result !== "string") {
+      throw new Error(
+        "The AI returned no usable text. Please try again."
+      );
+    }
+
+    // Display AI-generated text safely.
+    resultBox.replaceChildren();
+
+    const resultHeading = document.createElement("h4");
+    resultHeading.textContent = selected.title;
+
+    const resultText = document.createElement("div");
+    resultText.textContent = data.result;
+    resultText.style.whiteSpace = "pre-wrap";
+    resultText.style.overflowWrap = "anywhere";
+    resultText.style.lineHeight = "1.7";
+
+    const copyButton = document.createElement("button");
+    copyButton.type = "button";
+    copyButton.className = "button button-secondary";
+    copyButton.textContent = "Copy Result";
+
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(data.result);
+        copyButton.textContent = "Copied Successfully!";
+      } catch {
+        window.alert(
+          "Automatic copying failed. Please select and copy the result manually."
+        );
+      }
+    });
+
+    resultBox.append(
+      resultHeading,
+      resultText,
+      copyButton
+    );
+
+    resultBox.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+
+  } catch (error) {
+    resultBox.replaceChildren();
+
+    const errorHeading = document.createElement("h4");
+    errorHeading.textContent = "AI Assistant";
+
+    const errorMessage = document.createElement("p");
+    errorMessage.textContent =
+      error instanceof Error
+        ? error.message
+        : "Something went wrong. Please try again.";
+
+    resultBox.append(errorHeading, errorMessage);
+
+  } finally {
+    allButtons.forEach((button) => {
+      button.disabled = false;
+    });
+
+    if (selected.button) {
+      selected.button.textContent = originalButtonText;
+    }
+  }
+}
 
     window.alert(messages[action] || "AI functionality is not connected yet.");
   }
