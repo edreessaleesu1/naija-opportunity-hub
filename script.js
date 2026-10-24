@@ -86,15 +86,150 @@
       parsed.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
   }
   function renderOpportunities() {
-    const query = $("searchInput").value.trim().toLowerCase();
-    const category = $("categoryFilter").value;
-    let filtered = opportunities.filter(item => {
-      const text = [item.title, item.organisation, item.category, item.location, item.description, item.eligibility].join(" ").toLowerCase();
-      const matchesQuery = !query || text.includes(query);
-      const matchesCategory = category === "All" || item.category.toLowerCase() === category.toLowerCase();
-      const matchesButton = activeCategory === "All" || item.category.toLowerCase() === activeCategory.toLowerCase();
-      return matchesQuery && matchesCategory && matchesButton;
+  const query = $("searchInput").value.trim().toLowerCase();
+  const category = $("categoryFilter").value;
+
+  let filtered = opportunities.filter(item => {
+    const text = [
+      item.title,
+      item.organisation,
+      item.category,
+      item.location,
+      item.description,
+      item.eligibility
+    ].join(" ").toLowerCase();
+
+    const matchesQuery = !query || text.includes(query);
+
+    const matchesCategory =
+      category === "All" ||
+      item.category.toLowerCase() === category.toLowerCase();
+
+    const matchesButton =
+      activeCategory === "All" ||
+      item.category.toLowerCase() === activeCategory.toLowerCase();
+
+    return matchesQuery && matchesCategory && matchesButton;
+  });
+
+  const sort = $("sortFilter").value;
+
+  if (sort === "title") {
+    filtered.sort((a, b) => a.title.localeCompare(b.title));
+  }
+
+  if (sort === "deadline") {
+    filtered.sort((a, b) => {
+      if (!a.deadline) return 1;
+      if (!b.deadline) return -1;
+      return new Date(a.deadline) - new Date(b.deadline);
     });
+  }
+
+  if (sort === "newest") {
+    filtered.sort(
+      (a, b) =>
+        new Date(b.created_at || 0) -
+        new Date(a.created_at || 0)
+    );
+  }
+
+  $("resultsCount").textContent =
+    `${filtered.length} opportunit${filtered.length === 1 ? "y" : "ies"} shown`;
+
+  const grid = $("opportunityGrid");
+
+  if (!filtered.length) {
+    grid.innerHTML = `
+      <div class="empty">
+        <h3>No matching opportunities</h3>
+        <p>Try a different keyword or clear the filters.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const bookmarks = getBookmarks();
+
+  grid.innerHTML = filtered.map(item => {
+    const saved = bookmarks.includes(String(item.id));
+    const link = safeURL(item.url);
+    const image = safeURL(item.image_url);
+
+    const badgeText = item.verified
+      ? "Source checked"
+      : item.demo
+        ? "Demo card"
+        : "Check source";
+
+    return `
+      <article class="card">
+
+        ${image ? `
+          <img
+            class="opportunity-image"
+            src="${escapeHTML(image)}"
+            alt="${escapeHTML(item.title)}"
+            loading="lazy"
+            onerror="this.style.display='none'"
+          >
+        ` : ""}
+
+        <div class="card-top">
+          <span class="badge">
+            ${escapeHTML(item.category || "Opportunity")}
+          </span>
+
+          <button
+            class="bookmark ${saved ? "saved" : ""}"
+            data-bookmark="${escapeHTML(item.id)}"
+            aria-label="${saved ? "Remove bookmark" : "Save bookmark"}"
+          >
+            ${saved ? "★ Saved" : "☆ Save"}
+          </button>
+        </div>
+
+        <h3>${escapeHTML(item.title)}</h3>
+
+        <div class="org">
+          ${escapeHTML(item.organisation || "Organisation not specified")}
+        </div>
+
+        <p class="card-desc">
+          ${escapeHTML(item.description || "Visit the official source for full details.")}
+        </p>
+
+        <div class="meta">
+          <span>📍 ${escapeHTML(item.location || "Location not specified")}</span>
+          <span>🗓️ Deadline: ${escapeHTML(formatDate(item.deadline))}</span>
+        </div>
+
+        <div class="meta">
+          <span>${item.verified ? "✓ " : "ℹ️ "}${escapeHTML(badgeText)}</span>
+        </div>
+
+        <div class="card-actions">
+          ${
+            link
+              ? `<a class="button button-primary"
+                    href="${escapeHTML(link)}"
+                    target="_blank"
+                    rel="noopener noreferrer">View source ↗</a>`
+              : '<span class="button button-outline">Source not added</span>'
+          }
+
+          <button
+            class="button button-outline"
+            data-track="${escapeHTML(item.id)}"
+          >
+            Track
+          </button>
+        </div>
+
+      </article>
+    `;
+  }).join("");
+});
     const sort = $("sortFilter").value;
     if (sort === "title") filtered.sort((a,b) => a.title.localeCompare(b.title));
     if (sort === "deadline") filtered.sort((a,b) => {
