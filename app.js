@@ -945,16 +945,6 @@ button.dataset.showAll = String(showAll);
 renderOpportunities();
 
 });
-const viewAllButton = $("viewAllOpportunities");
-
-if (viewAllButton) {
-viewAllButton.addEventListener("click", () => {
-const showAll = viewAllButton.dataset.showAll !== "true";
-
-  viewAllButton.dataset.showAll = String(showAll);
-
-  renderOpportunities();
-});
 
 }
   grid.addEventListener("click", (event) => {
