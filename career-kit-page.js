@@ -1,16 +1,23 @@
 (() => {
   "use strict";
 
-  // Prevent accidental duplicate initialisation.
+  // Prevent duplicate initialisation.
   if (window.__NOH_CAREER_KIT_LOADED__) return;
-  window.__NOH_CAREER_KIT_LOADED__ = true;
 
   const $ = (id) => document.getElementById(id);
-
   const form = $("career-form");
 
   // This script is intended for career-kit.html.
   if (!form) return;
+
+  window.__NOH_CAREER_KIT_LOADED__ = true;
+
+  // Supabase Edge Function configuration.
+  const AI_ENDPOINT =
+    "https://djxornmwvkauhkcuhgxc.supabase.co/functions/v1/career-assistant";
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
 
   const params = new URLSearchParams(window.location.search);
 
@@ -47,14 +54,24 @@
     "certificates-field"
   ];
 
+  // --------------------------------------------------
+  // GENERAL HELPERS
+  // --------------------------------------------------
+
   function setText(id, text) {
     const element = $(id);
-    if (element) element.textContent = text;
+
+    if (element) {
+      element.textContent = text;
+    }
   }
 
   function setHidden(id, hidden) {
     const element = $(id);
-    if (element) element.hidden = hidden;
+
+    if (element) {
+      element.hidden = hidden;
+    }
   }
 
   function value(id, fallback = "") {
@@ -62,7 +79,7 @@
 
     if (!element) return fallback;
 
-    return element.value.trim() || fallback;
+    return String(element.value || "").trim() || fallback;
   }
 
   function escapeHTML(text) {
@@ -85,6 +102,18 @@
       .map((line) => `<p>${line}</p>`)
       .join("");
   }
+
+  function getContactDetails() {
+    return [
+      value("email"),
+      value("phone"),
+      value("location")
+    ].filter(Boolean).join(" | ");
+  }
+
+  // --------------------------------------------------
+  // PAGE CONFIGURATION
+  // --------------------------------------------------
 
   function configureTool() {
     const isCoverLetter = tool === "cover-letter";
@@ -109,7 +138,9 @@
 
     setText(
       "form-heading",
-      isLetter ? "Your application details" : "Your professional details"
+      isLetter
+        ? "Your application details"
+        : "Your professional details"
     );
 
     coverLetterFields.forEach((id) => {
@@ -125,13 +156,14 @@
 
     const jobTitle = $("job-title");
 
-    if (jobTitle && jobTitle.previousElementSibling) {
-      jobTitle.previousElementSibling.textContent = isCoverLetter
-        ? "Job title"
-        : "Professional title / Target role";
-    }
-
     if (jobTitle) {
+      if (jobTitle.previousElementSibling) {
+        jobTitle.previousElementSibling.textContent =
+          isCoverLetter
+            ? "Job title"
+            : "Professional title / Target role";
+      }
+
       jobTitle.placeholder = isCoverLetter
         ? "e.g. Graduate Trainee"
         : "e.g. Graduate Trainee or Data Analyst";
@@ -159,7 +191,9 @@
 
     setText(
       "preview-certificates-heading",
-      isCoverLetter ? "Closing" : "Certifications & Additional Information"
+      isCoverLetter
+        ? "Closing"
+        : "Certifications & Additional Information"
     );
 
     const template = $("template");
@@ -177,13 +211,12 @@
     setText(
       "download-button",
       isBundle
-        ? "Print / Save Current Document as PDF"
+        ? "Print / Save CV and Cover Letter as PDF"
         : "Print / Save as PDF"
     );
 
-    // AI actions are displayed as an interface placeholder.
-    // Actual AI generation requires a secure backend.
     setText("ai-assistant-title", "AI Career Assistant");
+
     setText(
       "ai-assistant-description",
       "Get help improving your CV or preparing a tailored cover letter."
@@ -191,8 +224,15 @@
 
     setText("ai-improve-cv", "Improve My CV with AI");
     setText("ai-write-letter", "Write My Cover Letter with AI");
-    setText("ai-improve-summary", "Improve My Professional Summary");
+    setText(
+      "ai-improve-summary",
+      "Improve My Professional Summary"
+    );
   }
+
+  // --------------------------------------------------
+  // PREVIEW RENDERING
+  // --------------------------------------------------
 
   function setSection(id, heading, content) {
     const section = $(id);
@@ -202,7 +242,9 @@
     const headingElement = section.querySelector("h3");
     const paragraph = section.querySelector("p");
 
-    if (headingElement) headingElement.textContent = heading;
+    if (headingElement) {
+      headingElement.textContent = heading;
+    }
 
     if (paragraph) {
       paragraph.innerHTML = formatText(content);
@@ -213,7 +255,6 @@
 
   function updatePreview() {
     const isCoverLetter = tool === "cover-letter";
-    const isBundle = tool === "bundle";
 
     const name = value("full-name", "Your Full Name");
     const job = value("job-title", "Your Professional Title");
@@ -229,11 +270,7 @@
 
     setText(
       "preview-contact",
-      [
-        value("email"),
-        value("phone"),
-        value("location")
-      ].filter(Boolean).join(" · ") || "Add your contact details"
+      getContactDetails() || "Add your contact details"
     );
 
     if (isCoverLetter) {
@@ -252,7 +289,9 @@
       setSection(
         "preview-experience-section",
         "Cover Letter",
-        `Dear ${value("recipient", "Hiring Manager")},\n\nI am writing to express my interest in the ${job} position at ${value("employer", "your organisation")}.`
+        `Dear ${value("recipient", "Hiring Manager")},
+
+I am writing to express my interest in the ${job} position at ${value("employer", "your organisation")}.`
       );
 
       setSection(
@@ -273,31 +312,31 @@
       setSection(
         "preview-summary-section",
         "Professional Summary",
-        value("summary", "")
+        value("summary")
       );
 
       setSection(
         "preview-education-section",
         "Education",
-        value("education", "")
+        value("education")
       );
 
       setSection(
         "preview-experience-section",
         "Experience",
-        value("experience", "")
+        value("experience")
       );
 
       setSection(
         "preview-skills-section",
         "Skills",
-        value("skills", "")
+        value("skills")
       );
 
       setSection(
         "preview-certificates-section",
         "Certifications & Additional Information",
-        value("certificates", "")
+        value("certificates")
       );
     }
 
@@ -312,9 +351,29 @@
 
     setText(
       "preview-status",
-      isBundle ? "Career Bundle workspace" : "Preview updated"
+      tool === "bundle"
+        ? "Career Bundle workspace"
+        : "Preview updated"
     );
   }
+
+  // Called by the Preview button.
+  function previewDocument() {
+    updatePreview();
+
+    const preview = $("document-preview");
+
+    if (preview) {
+      preview.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+  }
+
+  // --------------------------------------------------
+  // CV CONTENT
+  // --------------------------------------------------
 
   function buildCVForPrint() {
     const name = value("full-name", "Your Name");
@@ -329,27 +388,29 @@
     ];
 
     return `
-      <header>
-        <h1>${escapeHTML(name)}</h1>
-        <p class="job-title">${escapeHTML(job)}</p>
-        <p class="contact">${escapeHTML([
-          value("email"),
-          value("phone"),
-          value("location")
-        ].filter(Boolean).join(" | "))}</p>
-      </header>
+      <article class="document">
+        <header>
+          <h1>${escapeHTML(name)}</h1>
+          <p class="job-title">${escapeHTML(job)}</p>
+          <p class="contact">${escapeHTML(getContactDetails())}</p>
+        </header>
 
-      ${sections
-        .filter(([, content]) => content)
-        .map(([heading, content]) => `
-          <section>
-            <h2>${escapeHTML(heading)}</h2>
-            ${formatText(content)}
-          </section>
-        `)
-        .join("")}
+        ${sections
+          .filter(([, content]) => content)
+          .map(([heading, content]) => `
+            <section>
+              <h2>${escapeHTML(heading)}</h2>
+              ${formatText(content)}
+            </section>
+          `)
+          .join("")}
+      </article>
     `;
   }
+
+  // --------------------------------------------------
+  // COVER LETTER CONTENT
+  // --------------------------------------------------
 
   function buildLetterForPrint() {
     const name = value("full-name", "Your Name");
@@ -357,63 +418,83 @@
     const employer = value("employer", "your organisation");
     const recipient = value("recipient", "Hiring Manager");
     const description = value("job-description");
+
     const body = value(
       "letter-body",
       "I believe my qualifications, skills and experience would enable me to contribute positively to your organisation. I would welcome the opportunity to discuss my application."
     );
 
     return `
-      <header>
-        <h1>${escapeHTML(name)}</h1>
-        <p class="contact">${escapeHTML([
-          value("email"),
-          value("phone"),
-          value("location")
-        ].filter(Boolean).join(" | "))}</p>
-      </header>
+      <article class="document letter-document">
+        <header>
+          <h1>${escapeHTML(name)}</h1>
+          <p class="contact">${escapeHTML(getContactDetails())}</p>
+        </header>
 
-      <p>Dear ${escapeHTML(recipient)},</p>
+        <p>Dear ${escapeHTML(recipient)},</p>
 
-      <p>
-        I am writing to apply for the ${escapeHTML(job)} position at
-        ${escapeHTML(employer)}.
-      </p>
+        <p>
+          I am writing to apply for the
+          ${escapeHTML(job)} position at
+          ${escapeHTML(employer)}.
+        </p>
 
-      ${description ? `
-        <section>
-          <h2>Role requirements</h2>
-          ${formatText(description)}
-        </section>
-      ` : ""}
+        ${description ? `
+          <section>
+            <h2>Role Requirements</h2>
+            ${formatText(description)}
+          </section>
+        ` : ""}
 
-      ${formatText(body)}
+        ${formatText(body)}
 
-      <p>
-        Thank you for considering my application. I look forward to the
-        opportunity to discuss my suitability for this role.
-      </p>
+        <p>
+          Thank you for considering my application. I look forward
+          to the opportunity to discuss my suitability for this role.
+        </p>
 
-      <p>Yours sincerely,<br>${escapeHTML(name)}</p>
+        <p>
+          Yours sincerely,<br>
+          ${escapeHTML(name)}
+        </p>
+      </article>
     `;
   }
+
+  // --------------------------------------------------
+  // PRINT / SAVE AS PDF
+  // --------------------------------------------------
 
   function printDocument() {
     updatePreview();
 
-    const isCoverLetter = tool === "cover-letter";
-
-    const content = isCoverLetter
-      ? buildLetterForPrint()
-      : buildCVForPrint();
-
+    // Open the window directly from the button click to reduce
+    // the chance that the browser blocks the pop-up.
     const printWindow = window.open("", "_blank");
 
     if (!printWindow) {
       window.alert(
-        "Please allow pop-ups for this website, then try again."
+        "Your browser blocked the print window. Allow pop-ups for this website and try again."
       );
       return;
     }
+
+    let content = "";
+
+    if (tool === "cover-letter") {
+      content = buildLetterForPrint();
+    } else if (tool === "bundle") {
+      content = `
+        ${buildCVForPrint()}
+        <div class="page-break"></div>
+        ${buildLetterForPrint()}
+      `;
+    } else {
+      content = buildCVForPrint();
+    }
+
+    const modernClass =
+      value("template") === "modern" ? "modern" : "";
 
     printWindow.document.open();
 
@@ -422,7 +503,12 @@
       <html lang="en">
         <head>
           <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
+
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+          >
+
           <title>${escapeHTML(titles[tool])}</title>
 
           <style>
@@ -443,6 +529,10 @@
               line-height: 1.65;
             }
 
+            .document {
+              width: 100%;
+            }
+
             header {
               border-bottom: 3px solid #086b45;
               padding-bottom: 12px;
@@ -459,6 +549,7 @@
             .job-title {
               color: #086b45;
               font-size: 12pt;
+              margin: 5px 0;
             }
 
             .contact {
@@ -472,6 +563,7 @@
               font-size: 11pt;
               border-bottom: 1px solid #dce5de;
               padding-bottom: 5px;
+              margin-top: 18px;
             }
 
             section {
@@ -481,6 +573,7 @@
 
             p {
               overflow-wrap: anywhere;
+              white-space: normal;
             }
 
             .modern header {
@@ -490,10 +583,23 @@
             .modern h2 {
               color: #765812;
             }
+
+            .page-break {
+              break-before: page;
+              page-break-before: always;
+            }
+
+            @media screen {
+              body {
+                padding: 24px;
+                max-width: 800px;
+                margin: 0 auto;
+              }
+            }
           </style>
         </head>
 
-        <body class="${value("template") === "modern" ? "modern" : ""}">
+        <body class="${modernClass}">
           ${content}
         </body>
       </html>
@@ -501,237 +607,272 @@
 
     printWindow.document.close();
 
-    printWindow.onload = () => {
-      printWindow.focus();
+    // Do not rely solely on the load event: the document may
+    // already be loaded by the time the handler is assigned.
+    printWindow.focus();
 
-      setTimeout(() => {
-        printWindow.print();
-      }, 300);
-    };
-  }
-
-  async function handleAI(action) {
-  const resultBox = $("ai-result");
-
-  if (!resultBox) {
-    window.alert("The AI result area could not be found.");
-    return;
-  }
-
-  const actions = {
-    cv: {
-      apiAction: "improve-cv",
-      button: $("ai-improve-cv"),
-      title: "AI CV Improvement"
-    },
-    summary: {
-      apiAction: "write-summary",
-      button: $("ai-improve-summary"),
-      title: "Professional Summary"
-    },
-    letter: {
-      apiAction: "write-letter",
-      button: $("ai-write-letter"),
-      title: "AI Cover Letter"
-    }
-  };
-
-  const selected = actions[action];
-
-  if (!selected) {
-    window.alert("Please select a valid AI tool.");
-    return;
-  }
-
-  // Check whether the user has supplied enough information.
-  if (action === "cv" && !value("full-name") &&
-      !value("education") && !value("experience") &&
-      !value("skills") && !value("summary")) {
-    window.alert(
-      "Please enter some CV information before requesting improvements."
-    );
-    return;
-  }
-
-  if (action === "summary" &&
-      !value("job-title") && !value("education") &&
-      !value("experience") && !value("skills")) {
-    window.alert(
-      "Please enter your target job, education, experience, or skills first."
-    );
-    return;
-  }
-
-  if (action === "letter" &&
-      !value("job-title") && !value("job-description")) {
-    window.alert(
-      "Please enter the job title or job description first."
-    );
-    return;
-  }
-
-  const originalButtonText = selected.button
-    ? selected.button.textContent
-    : "";
-
-  // Gather the information needed by the AI.
-  const candidateData = {
-    fullName: value("full-name"),
-    email: value("email"),
-    phone: value("phone"),
-    location: value("location"),
-    jobTitle: value("job-title"),
-    summary: value("summary"),
-    education: value("education"),
-    experience: value("experience"),
-    skills: value("skills"),
-    certificates: value("certificates"),
-    employer: value("employer"),
-    recipient: value("recipient"),
-    jobDescription: value("job-description"),
-    letterBody: value("letter-body")
-  };
-
-  resultBox.hidden = false;
-  resultBox.replaceChildren();
-
-  const heading = document.createElement("h4");
-  heading.textContent = selected.title;
-
-  const status = document.createElement("p");
-  status.textContent = "Preparing your result. Please wait...";
-
-  resultBox.append(heading, status);
-
-  if (selected.button) {
-    selected.button.disabled = true;
-    selected.button.textContent = "Working...";
-  }
-
-  // Disable the other AI buttons while a request is running.
-  const allButtons = [
-    $("ai-improve-cv"),
-    $("ai-improve-summary"),
-    $("ai-write-letter")
-  ].filter(Boolean);
-
-  allButtons.forEach((button) => {
-    button.disabled = true;
-  });
-
-  try {
-    const response = await fetch(AI_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_PUBLISHABLE_KEY
-      },
-      body: JSON.stringify({
-        action: selected.apiAction,
-        ...candidateData
-      })
-    });
-
-    let data;
-
-    try {
-      data = await response.json();
-    } catch {
-      throw new Error(
-        "The server returned an unexpected response. Please try again."
-      );
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        data.error || "The AI request failed. Please try again."
-      );
-    }
-
-    if (!data.result || typeof data.result !== "string") {
-      throw new Error(
-        "The AI returned no usable text. Please try again."
-      );
-    }
-
-    // Display AI-generated text safely.
-    resultBox.replaceChildren();
-
-    const resultHeading = document.createElement("h4");
-    resultHeading.textContent = selected.title;
-
-    const resultText = document.createElement("div");
-    resultText.textContent = data.result;
-    resultText.style.whiteSpace = "pre-wrap";
-    resultText.style.overflowWrap = "anywhere";
-    resultText.style.lineHeight = "1.7";
-
-    const copyButton = document.createElement("button");
-    copyButton.type = "button";
-    copyButton.className = "button button-secondary";
-    copyButton.textContent = "Copy Result";
-
-    copyButton.addEventListener("click", async () => {
+    setTimeout(() => {
       try {
-        await navigator.clipboard.writeText(data.result);
-        copyButton.textContent = "Copied Successfully!";
-      } catch {
+        printWindow.focus();
+        printWindow.print();
+      } catch (error) {
+        console.error("Print error:", error);
+
         window.alert(
-          "Automatic copying failed. Please select and copy the result manually."
+          "The print dialog could not be opened. Please try again."
         );
       }
-    });
+    }, 500);
+  }
 
-    resultBox.append(
-      resultHeading,
-      resultText,
-      copyButton
-    );
+  // --------------------------------------------------
+  // AI CAREER ASSISTANT
+  // --------------------------------------------------
 
-    resultBox.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest"
-    });
+  async function handleAI(action) {
+    const resultBox = $("ai-result");
 
-  } catch (error) {
-    resultBox.replaceChildren();
+    if (!resultBox) {
+      window.alert("The AI result area could not be found.");
+      return;
+    }
 
-    const errorHeading = document.createElement("h4");
-    errorHeading.textContent = "AI Assistant";
+    const actions = {
+      cv: {
+        apiAction: "improve-cv",
+        button: $("ai-improve-cv"),
+        title: "AI CV Improvement"
+      },
 
-    const errorMessage = document.createElement("p");
-    errorMessage.textContent =
-      error instanceof Error
-        ? error.message
-        : "Something went wrong. Please try again.";
+      summary: {
+        apiAction: "write-summary",
+        button: $("ai-improve-summary"),
+        title: "Professional Summary"
+      },
 
-    resultBox.append(errorHeading, errorMessage);
+      letter: {
+        apiAction: "write-letter",
+        button: $("ai-write-letter"),
+        title: "AI Cover Letter"
+      }
+    };
 
-  } finally {
+    const selected = actions[action];
+
+    if (!selected) {
+      window.alert("Please select a valid AI tool.");
+      return;
+    }
+
+    // Validate the information required by each AI tool.
+    if (
+      action === "cv" &&
+      !value("full-name") &&
+      !value("education") &&
+      !value("experience") &&
+      !value("skills") &&
+      !value("summary")
+    ) {
+      window.alert(
+        "Please enter some CV information before requesting improvements."
+      );
+      return;
+    }
+
+    if (
+      action === "summary" &&
+      !value("job-title") &&
+      !value("education") &&
+      !value("experience") &&
+      !value("skills")
+    ) {
+      window.alert(
+        "Please enter your target job, education, experience, or skills first."
+      );
+      return;
+    }
+
+    if (
+      action === "letter" &&
+      !value("job-title") &&
+      !value("job-description")
+    ) {
+      window.alert(
+        "Please enter the job title or job description first."
+      );
+      return;
+    }
+
+    const candidateData = {
+      fullName: value("full-name"),
+      email: value("email"),
+      phone: value("phone"),
+      location: value("location"),
+      jobTitle: value("job-title"),
+      summary: value("summary"),
+      education: value("education"),
+      experience: value("experience"),
+      skills: value("skills"),
+      certificates: value("certificates"),
+      employer: value("employer"),
+      recipient: value("recipient"),
+      jobDescription: value("job-description"),
+      letterBody: value("letter-body")
+    };
+
+    const allButtons = [
+      $("ai-improve-cv"),
+      $("ai-improve-summary"),
+      $("ai-write-letter")
+    ].filter(Boolean);
+
+    const originalButtonText = selected.button
+      ? selected.button.textContent
+      : "";
+
     allButtons.forEach((button) => {
-      button.disabled = false;
+      button.disabled = true;
     });
 
     if (selected.button) {
-      selected.button.textContent = originalButtonText;
+      selected.button.textContent = "Working...";
+    }
+
+    resultBox.hidden = false;
+    resultBox.replaceChildren();
+
+    const heading = document.createElement("h4");
+    heading.textContent = selected.title;
+
+    const status = document.createElement("p");
+    status.textContent = "Preparing your result. Please wait...";
+
+    resultBox.append(heading, status);
+
+    try {
+      const response = await fetch(AI_ENDPOINT, {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_PUBLISHABLE_KEY
+        },
+
+        body: JSON.stringify({
+          action: selected.apiAction,
+          ...candidateData
+        })
+      });
+
+      let data;
+
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(
+          "The server returned an unexpected response. Please try again."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || `The AI request failed (${response.status}).`
+        );
+      }
+
+      if (
+        !data.result ||
+        typeof data.result !== "string"
+      ) {
+        throw new Error(
+          "The AI returned no usable text. Please try again."
+        );
+      }
+
+      resultBox.replaceChildren();
+
+      const resultHeading = document.createElement("h4");
+      resultHeading.textContent = selected.title;
+
+      const resultText = document.createElement("div");
+      resultText.textContent = data.result;
+      resultText.style.whiteSpace = "pre-wrap";
+      resultText.style.overflowWrap = "anywhere";
+      resultText.style.lineHeight = "1.7";
+
+      const copyButton = document.createElement("button");
+      copyButton.type = "button";
+      copyButton.className = "button button-secondary";
+      copyButton.textContent = "Copy Result";
+
+      copyButton.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(data.result);
+          copyButton.textContent = "Copied Successfully!";
+        } catch {
+          // Clipboard access can be unavailable on some browsers.
+          window.alert(
+            "Automatic copying failed. Please select the result text and copy it manually."
+          );
+        }
+      });
+
+      resultBox.append(
+        resultHeading,
+        resultText,
+        copyButton
+      );
+
+      resultBox.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+
+    } catch (error) {
+      console.error("AI Career Assistant error:", error);
+
+      resultBox.replaceChildren();
+
+      const errorHeading = document.createElement("h4");
+      errorHeading.textContent = "AI Assistant";
+
+      const errorMessage = document.createElement("p");
+
+      errorMessage.textContent =
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.";
+
+      resultBox.append(errorHeading, errorMessage);
+
+    } finally {
+      allButtons.forEach((button) => {
+        button.disabled = false;
+      });
+
+      if (selected.button) {
+        selected.button.textContent = originalButtonText;
+      }
     }
   }
-}
 
-    window.alert(messages[action] || "AI functionality is not connected yet.");
-  }
+  // --------------------------------------------------
+  // EVENT LISTENERS
+  // --------------------------------------------------
 
   const previewButton = $("preview-button");
   const downloadButton = $("download-button");
+  const resetButton = $("reset-button");
 
   if (previewButton) {
-    previewButton.addEventListener("click", updatePreview);
+    previewButton.addEventListener("click", previewDocument);
   }
 
   if (downloadButton) {
     downloadButton.addEventListener("click", printDocument);
   }
 
+  // Keep the preview updated while the user edits the form.
   form.addEventListener("input", updatePreview);
   form.addEventListener("change", updatePreview);
 
@@ -739,23 +880,31 @@
     setTimeout(updatePreview, 0);
   });
 
+  // AI buttons.
   const aiCVButton = $("ai-improve-cv");
   const aiLetterButton = $("ai-write-letter");
   const aiSummaryButton = $("ai-improve-summary");
 
   if (aiCVButton) {
-    aiCVButton.addEventListener("click", () => handleAI("cv"));
+    aiCVButton.addEventListener("click", () => {
+      handleAI("cv");
+    });
   }
 
   if (aiLetterButton) {
-    aiLetterButton.addEventListener("click", () => handleAI("letter"));
+    aiLetterButton.addEventListener("click", () => {
+      handleAI("letter");
+    });
   }
 
   if (aiSummaryButton) {
-    aiSummaryButton.addEventListener("click", () => handleAI("summary"));
+    aiSummaryButton.addEventListener("click", () => {
+      handleAI("summary");
+    });
   }
 
-  // Configure and render the page.
+  // Configure and initialise the page.
   configureTool();
   updatePreview();
+
 })();
