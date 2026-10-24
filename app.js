@@ -426,12 +426,75 @@ async function loadSupabaseOpportunities() {
 
     opportunities = data.map((item) => ({
       id: String(item.id),
+async function loadSupabaseOpportunities() {
+  const key = SUPABASE_PUBLISHABLE_KEY.trim();
+
+  // Start with an empty list. Never display demonstration listings.
+  opportunities = [];
+  renderOpportunities();
+  setDataStatus("Connecting to database...", "Loading real published opportunities.");
+
+  if (!key) {
+    setDataStatus(
+      "Database key not configured",
+      "The Supabase publishable key is missing. Please check app.js."
+    );
+    renderOpportunities();
+    return;
+  }
+
+  if (
+    !window.supabase ||
+    typeof window.supabase.createClient !== "function"
+  ) {
+    setDataStatus(
+      "Database library did not load",
+      "Check your internet connection and the Supabase script in index.html."
+    );
+    renderOpportunities();
+    return;
+  }
+
+  try {
+    supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      key
+    );
+
+    const { data, error } = await supabaseClient
+      .from("opportunities")
+      .select(
+        "id,title,organization,category,description,eligibility,location,application_url,source_url,deadline,status,verified_at,created_at,image_url"
+      )
+      .eq("status", "published")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!Array.isArray(data) || data.length === 0) {
+      opportunities = [];
+
+      setDataStatus(
+        "Database connected - no published opportunities",
+        "No published opportunities were returned. Add or publish real listings in Supabase."
+      );
+
+      renderOpportunities();
+      renderTracker();
+      return;
+    }
+
+    opportunities = data.map((item) => ({
+      id: String(item.id),
       title: item.title || "Untitled opportunity",
       organisation: item.organization || "Organisation not specified",
       category: item.category || "Other",
       location: item.location || "Nigeria",
       eligibility: item.eligibility || "Check official requirements",
-      description: item.description || "Visit the official source for full details.",
+      description:
+        item.description || "Visit the official source for full details.",
       deadline: item.deadline || "",
       url: item.application_url || item.source_url || "",
       image_url: item.image_url || "",
@@ -440,15 +503,33 @@ async function loadSupabaseOpportunities() {
       demo: false
     }));
 
-    setDataStatus("Connected - published database listings loaded", "");
+    setDataStatus(
+      "Connected - published database listings loaded",
+      ""
+    );
+
+    renderOpportunities();
+    renderTracker();
+
   } catch (error) {
     console.error("Supabase database error:", error);
-    const message = error && error.message ? error.message : String(error);
-    setDataStatus("Database request failed", "Database error: " + message + " (showing demonstration cards instead)");
-  }
 
-  renderOpportunities();
-  renderTracker();
+    const message =
+      error && error.message
+        ? error.message
+        : String(error);
+
+    opportunities = [];
+
+    setDataStatus(
+      "Database request failed",
+      "Could not load opportunities: " + message
+    );
+
+    renderOpportunities();
+    renderTracker();
+  }
+}
 }
 
 function syncCategoryButtons() {
