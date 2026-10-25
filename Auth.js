@@ -10,6 +10,7 @@
   function initAuth() {
     const signupForm = $("signupForm");
     const loginForm = $("loginForm");
+    const resetForm = $("resetForm");
     const loggedInPanel = $("loggedInPanel");
     const authMessage = $("authMessage");
 
@@ -25,6 +26,14 @@
       return;
     }
 
+    // Read the URL hash BEFORE creating the client, because the client
+    // consumes and clears it when it processes email links.
+    const hashParams = new URLSearchParams(
+      window.location.hash.replace(/^#/, "")
+    );
+    const linkError = hashParams.get("error_description");
+    let recoveryMode = hashParams.get("type") === "recovery";
+
     const supabase = window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_PUBLISHABLE_KEY
@@ -39,17 +48,23 @@
       authMessage.classList.toggle("success", !isError && Boolean(text));
     }
 
-    // Sets both the hidden attribute and inline display, so site CSS
-    // cannot accidentally keep a "hidden" panel visible.
+    // Sets both the hidden attribute and inline display so site CSS
+    // can never keep a "hidden" panel visible.
     function setVisible(element, visible) {
+      if (!element) return;
       element.hidden = !visible;
       element.style.display = visible ? "" : "none";
     }
 
+    function showOnly(panel) {
+      setVisible(signupForm, panel === signupForm);
+      setVisible(loginForm, panel === loginForm);
+      setVisible(resetForm, panel === resetForm);
+      setVisible(loggedInPanel, panel === loggedInPanel);
+    }
+
     function showForm(form) {
-      setVisible(signupForm, form === signupForm);
-      setVisible(loginForm, form === loginForm);
-      setVisible(loggedInPanel, false);
+      showOnly(form);
       message("");
 
       const navLink = $("accountNavLink");
@@ -57,9 +72,7 @@
     }
 
     function showUser(user, text = "You are signed in.") {
-      setVisible(signupForm, false);
-      setVisible(loginForm, false);
-      setVisible(loggedInPanel, true);
+      showOnly(loggedInPanel);
 
       const email = $("accountEmail");
       if (email) email.textContent = user.email || "Signed-in user";
@@ -68,6 +81,11 @@
       if (navLink) navLink.textContent = "My Account";
 
       message(text);
+    }
+
+    function showReset() {
+      showOnly(resetForm);
+      message("Choose a new password for your account.");
     }
 
     // Disables a button while an async action runs, then restores it.
@@ -114,7 +132,7 @@
       await withButton(
         $("signupButton"),
         "Creating account...",
-        "Create Account",
+        "Create Free Account",
         async () => {
           try {
             const { data, error } = await supabase.auth.signUp({
@@ -129,6 +147,22 @@
 
             signupForm.reset();
 
+            // Supabase returns an empty identities list when the email
+            // is already registered (and confirmation is required).
+            if (
+              data.user &&
+              Array.isArray(data.user.identities) &&
+              data.user.identities.length === 0
+            ) {
+              showForm(loginForm);
+              $("loginEmail").value = email;
+              message(
+                "An account with this email already exists. Please log in.",
+                true
+              );
+              return;
+            }
+
             if (data.session && data.user) {
               showUser(data.user, "Your account has been created.");
             } else {
@@ -138,15 +172,11 @@
               );
             }
           } catch (error) {
-  console.error("Registration error:", error);
-
-  message(
-    "Registration failed: " +
-      (error.message || "Unknown error") +
-      ". Please try again.",
-    true
-  );
-}
+            message(
+              error.message || "Registration failed. Please try again.",
+              true
+            );
+          }
         }
       );
     });
@@ -180,7 +210,7 @@
       });
     });
 
-    // ---------- Forgot password ----------
+    // ---------- Forgot password (request the email) ----------
 
     $("forgotPassword")?.addEventListener("click", async () => {
       const email = $("loginEmail").value.trim();
@@ -206,6 +236,55 @@
       }
     });
 
+    // ---------- Set a new password (after clicking the reset email) ----------
+
+    resetForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      message("");
+
+      const password = $("newPassword").value;
+      const confirmation = $("confirmNewPassword").value;
+
+      if (password.length < 8) {
+        message("Use a password containing at least 8 characters.", true);
+        return;
+      }
+
+      if (password !== confirmation) {
+        message("Your passwords do not match.", true);
+        return;
+      }
+
+      await withButton(
+        $("resetButton"),
+        "Saving...",
+        "Save New Password",
+        async () => {
+          try {
+            const { data, error } = await supabase.auth.updateUser({ password });
+            if (error) throw error;
+
+            resetForm.reset();
+            recoveryMode = false;
+
+            // Remove leftover tokens from the address bar.
+            window.history.replaceState(
+              null,
+              "",
+              window.location.pathname + window.location.search
+            );
+
+            showUser(data.user, "Your password has been updated.");
+          } catch (error) {
+            message(
+              error.message || "Could not update your password. Try again.",
+              true
+            );
+          }
+        }
+      );
+    });
+
     // ---------- Log out ----------
 
     $("logoutButton")?.addEventListener("click", async (event) => {
@@ -227,12 +306,16 @@
 
     // ---------- Session handling ----------
 
-    // Keeps the page in sync (for example when you sign in or out in
-    // another tab). Does not overwrite messages already on screen.
+    // Keeps the page in sync (e.g. sign-in/out in another tab) without
+    // overwriting messages already on screen. Never calls supabase here.
     supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_OUT") {
-        showForm(loginForm);
-      } else if (session?.user && loggedInPanel.hidden) {
+      if (event === "PASSWORD_RECOVERY") {
+        recoveryMode = true;
+        showReset();
+      } else if (event === "SIGNED_OUT") {
+        recoveryMode = false;
+        if (!loggedInPanel.hidden) showForm(loginForm);
+      } else if (session?.user && !recoveryMode && loggedInPanel.hidden) {
         showUser(session.user, "");
       }
     });
@@ -247,15 +330,24 @@
             "Unable to check your session. Refresh the page to retry.",
             true
           );
+        } else if (recoveryMode && data.session?.user) {
+          showReset();
         } else if (data.session?.user) {
           showUser(data.session.user);
+        } else if (linkError) {
+          // Expired or already-used email link.
+          showForm(loginForm);
+          message(linkError, true);
         } else {
           showForm(signupForm);
         }
       })
       .catch(() => {
         showForm(loginForm);
-        message("Unable to check your session. Refresh the page to retry.", true);
+        message(
+          "Unable to check your session. Refresh the page to retry.",
+          true
+        );
       });
   }
 
@@ -265,4 +357,4 @@
     initAuth();
   }
 })();
-              
+          
