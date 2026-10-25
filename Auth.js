@@ -138,11 +138,15 @@
               );
             }
           } catch (error) {
-            message(
-              error.message || "Registration failed. Please try again.",
-              true
-            );
-          }
+  console.error("Registration error:", error);
+
+  message(
+    "Registration failed: " +
+      (error.message || "Unknown error") +
+      ". Please try again.",
+    true
+  );
+}
         }
       );
     });
