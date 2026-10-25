@@ -87,100 +87,141 @@ window.addEventListener("error", function(event) {
 
 
   <main>
-    <!-- USER ACCOUNT -->
-<section class="account-section section-padding" id="account">
+   <!-- CAREER KIT ACCOUNT PORTAL -->
+<section class="account-section" id="account">
   <div class="wrap">
-    <div class="section-heading">
-      <span class="eyebrow">YOUR ACCOUNT</span>
-      <h2>Welcome to Naija Opportunity Hub</h2>
-      <p>Create an account to get started, or log in if you already have one.</p>
-    </div>
+    <div class="account-portal">
 
-    <div class="account-card" id="authContainer">
-      <div id="authMessage" role="status" aria-live="polite"></div>
-
-      <!-- SIGN UP FORM -->
-      <form id="signupForm">
-        <h3>Create Account</h3>
-
-        <label for="signupEmail">Email address</label>
-        <input
-          type="email"
-          id="signupEmail"
-          autocomplete="email"
-          placeholder="you@example.com"
-          required
-        >
-
-        <label for="signupPassword">Password</label>
-        <input
-          type="password"
-          id="signupPassword"
-          autocomplete="new-password"
-          minlength="8"
-          placeholder="At least 8 characters"
-          required
-        >
-
-        <label for="confirmPassword">Confirm password</label>
-        <input
-          type="password"
-          id="confirmPassword"
-          autocomplete="new-password"
-          minlength="8"
-          placeholder="Enter your password again"
-          required
-        >
-
-        <button type="submit" id="signupButton">Create Account</button>
-
-        <p>Already registered?
-          <button type="button" id="showLogin">Log In</button>
-        </p>
-      </form>
-
-      <!-- LOGIN FORM -->
-      <form id="loginForm" hidden>
-        <h3>Log In</h3>
-
-        <label for="loginEmail">Email address</label>
-        <input
-          type="email"
-          id="loginEmail"
-          autocomplete="email"
-          placeholder="you@example.com"
-          required
-        >
-
-        <label for="loginPassword">Password</label>
-        <input
-          type="password"
-          id="loginPassword"
-          autocomplete="current-password"
-          placeholder="Your password"
-          required
-        >
-
-        <button type="submit" id="loginButton">Log In</button>
-
+      <div class="account-intro">
+        <span class="eyebrow">YOUR CAREER. YOUR FUTURE.</span>
+        <h2>Your Career Kit</h2>
         <p>
-          <button type="button" id="forgotPassword">Forgot password?</button>
+          Create a professional CV, prepare stronger applications, and build
+          the skills you need to pursue your next opportunity.
         </p>
 
-        <p>New here?
-          <button type="button" id="showSignup">Create an account</button>
-        </p>
-      </form>
+        <div class="career-features">
+          <span>✓ CV & Résumé Assistance</span>
+          <span>✓ Cover Letter Support</span>
+          <span>✓ Job Application Guidance</span>
+          <span>✓ Interview Preparation</span>
+        </div>
 
-      <!-- SIGNED-IN ACCOUNT -->
-      <div id="loggedInPanel" hidden>
-        <h3>You're logged in!</h3>
-        <p>Account: <span id="accountEmail"></span></p>
-        <button type="button" id="logoutButton">Log Out</button>
+        <a class="account-explore-link" href="#opportunities">
+          Explore opportunities instead →
+        </a>
+      </div>
+
+      <div class="account-card" id="authContainer">
+        <div id="authMessage" role="status" aria-live="polite"></div>
+
+        <!-- REGISTRATION -->
+        <form id="signupForm">
+          <h3>Create your account</h3>
+          <p class="auth-description">
+            Join Naija Opportunity Hub to access your Career Kit.
+          </p>
+
+          <label for="signupEmail">Email address</label>
+          <input
+            type="email"
+            id="signupEmail"
+            autocomplete="email"
+            placeholder="you@example.com"
+            required
+          >
+
+          <label for="signupPassword">Password</label>
+          <input
+            type="password"
+            id="signupPassword"
+            autocomplete="new-password"
+            minlength="8"
+            placeholder="At least 8 characters"
+            required
+          >
+
+          <label for="confirmPassword">Confirm password</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            autocomplete="new-password"
+            minlength="8"
+            placeholder="Enter your password again"
+            required
+          >
+
+          <button type="submit" id="signupButton">
+            Create Free Account
+          </button>
+
+          <p class="auth-switch">
+            Already have an account?
+            <button type="button" id="showLogin">Log in</button>
+          </p>
+        </form>
+
+        <!-- LOGIN -->
+        <form id="loginForm" hidden>
+          <h3>Welcome back</h3>
+          <p class="auth-description">
+            Log in to continue to your Career Kit.
+          </p>
+
+          <label for="loginEmail">Email address</label>
+          <input
+            type="email"
+            id="loginEmail"
+            autocomplete="email"
+            placeholder="you@example.com"
+            required
+          >
+
+          <label for="loginPassword">Password</label>
+          <input
+            type="password"
+            id="loginPassword"
+            autocomplete="current-password"
+            placeholder="Your password"
+            required
+          >
+
+          <button type="submit" id="loginButton">Log In</button>
+
+          <p class="auth-switch">
+            <button type="button" id="forgotPassword">
+              Forgot password?
+            </button>
+          </p>
+
+          <p class="auth-switch">
+            Don't have an account?
+            <button type="button" id="showSignup">Create one</button>
+          </p>
+        </form>
+
+        <!-- SIGNED-IN DASHBOARD -->
+        <div id="loggedInPanel" hidden>
+          <span class="account-success-icon" aria-hidden="true">✓</span>
+          <h3>Welcome to your Career Kit!</h3>
+          <p class="auth-description">
+            Signed in as <strong id="accountEmail"></strong>
+          </p>
+
+          <div class="career-dashboard-links">
+            <a href="#career-kit">Explore Career Kit</a>
+            <a href="#opportunities">Browse Opportunities</a>
+          </div>
+
+          <button type="button" id="logoutButton" class="logout-button">
+            Log Out
+          </button>
+        </div>
+
       </div>
     </div>
   </div>
-</section>
+</section> 
 
     <!-- HERO -->
     <section class="hero hero-banner" id="home">
