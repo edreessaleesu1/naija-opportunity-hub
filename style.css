@@ -2802,7 +2802,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(14, 10, 6, 0.5);
+  background: rgba(14, 10, 6, 0.4);
 }
 
 .hero-photo {
@@ -2896,7 +2896,7 @@ body {
 /* Phones and tablets: headline on top, photo rising from the bottom of the banner */
 @media (max-width: 1199px) {
   .hero.hero-banner::after {
-    background: linear-gradient(180deg, rgba(12, 9, 6, 0.74) 0%, rgba(12, 9, 6, 0.55) 46%, rgba(12, 9, 6, 0) 72%);
+    background: linear-gradient(180deg, rgba(12, 9, 6, 0.58) 0%, rgba(12, 9, 6, 0.40) 42%, rgba(12, 9, 6, 0) 72%);
   }
 
   .hero.hero-banner .hero-photo {
@@ -2904,19 +2904,19 @@ body {
     right: auto;
     bottom: 0;
     left: 50%;
-    width: 124%;
+    width: 150%;
     height: auto;
     aspect-ratio: 3 / 2;
     transform: translateX(-50%);
     background-position: center 30%;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.7) 22%, #000 46%);
-    mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.7) 22%, #000 46%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 16%);
   }
 
   .hero-banner-inner {
     display: block;
     min-height: 0;
-    padding-block: 40px 250px;
+    padding-block: 40px calc(72vw + 10px);
   }
 
   .hero-banner-copy {
@@ -2941,11 +2941,11 @@ body {
 
 @media (min-width: 721px) and (max-width: 1199px) {
   .hero.hero-banner .hero-photo {
-    width: 112%;
+    width: 130%;
   }
 
   .hero-banner-inner {
-    padding-block: 52px 400px;
+    padding-block: 52px calc(62vw + 10px);
   }
 
   .hero.hero-banner h1 {
@@ -2957,13 +2957,6 @@ body {
     align-items: center;
   }
 }
-
-@media (max-width: 380px) {
-  .hero-banner-inner {
-    padding-bottom: 230px;
-  }
-}
-
 
 /* ---------- Category strip and trust bar ---------- */
 
@@ -3373,4 +3366,5 @@ body {
   .footer-grid {
     grid-template-columns: 1fr 1fr;
   }
-}
+   }
+   
