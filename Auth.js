@@ -20,6 +20,7 @@
       if (authMessage) {
         authMessage.textContent =
           "Account services could not load. Please refresh the page.";
+        authMessage.classList.add("error");
       }
       return;
     }
@@ -29,24 +30,36 @@
       SUPABASE_PUBLISHABLE_KEY
     );
 
+    // ---------- UI helpers ----------
+
     function message(text, isError = false) {
       if (!authMessage) return;
       authMessage.textContent = text;
-      authMessage.classList.toggle("error", isError);
+      authMessage.classList.toggle("error", isError && Boolean(text));
       authMessage.classList.toggle("success", !isError && Boolean(text));
     }
 
+    // Sets both the hidden attribute and inline display, so site CSS
+    // cannot accidentally keep a "hidden" panel visible.
+    function setVisible(element, visible) {
+      element.hidden = !visible;
+      element.style.display = visible ? "" : "none";
+    }
+
     function showForm(form) {
-      signupForm.hidden = form !== signupForm;
-      loginForm.hidden = form !== loginForm;
-      loggedInPanel.hidden = true;
+      setVisible(signupForm, form === signupForm);
+      setVisible(loginForm, form === loginForm);
+      setVisible(loggedInPanel, false);
       message("");
+
+      const navLink = $("accountNavLink");
+      if (navLink) navLink.textContent = "Account";
     }
 
     function showUser(user, text = "You are signed in.") {
-      signupForm.hidden = true;
-      loginForm.hidden = true;
-      loggedInPanel.hidden = false;
+      setVisible(signupForm, false);
+      setVisible(loginForm, false);
+      setVisible(loggedInPanel, true);
 
       const email = $("accountEmail");
       if (email) email.textContent = user.email || "Signed-in user";
@@ -57,11 +70,29 @@
       message(text);
     }
 
-    // Switch between registration and login.
+    // Disables a button while an async action runs, then restores it.
+    async function withButton(button, busyLabel, idleLabel, action) {
+      if (button) {
+        button.disabled = true;
+        button.textContent = busyLabel;
+      }
+      try {
+        await action();
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = idleLabel;
+        }
+      }
+    }
+
+    // ---------- Switch between registration and login ----------
+
     $("showLogin")?.addEventListener("click", () => showForm(loginForm));
     $("showSignup")?.addEventListener("click", () => showForm(signupForm));
 
-    // Register a new account.
+    // ---------- Register ----------
+
     signupForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       message("");
@@ -69,7 +100,6 @@
       const email = $("signupEmail").value.trim();
       const password = $("signupPassword").value;
       const confirmation = $("confirmPassword").value;
-      const button = $("signupButton");
 
       if (password.length < 8) {
         message("Use a password containing at least 8 characters.", true);
@@ -81,74 +111,73 @@
         return;
       }
 
-      button.disabled = true;
-      button.textContent = "Creating account...";
+      await withButton(
+        $("signupButton"),
+        "Creating account...",
+        "Create Account",
+        async () => {
+          try {
+            const { data, error } = await supabase.auth.signUp({
+              email,
+              password,
+              options: {
+                emailRedirectTo: window.location.origin + "/account.html"
+              }
+            });
 
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin + "/account.html"
-        });
+            if (error) throw error;
 
-        if (error) throw error;
+            signupForm.reset();
 
-        signupForm.reset();
-
-        if (data.session && data.user) {
-          showUser(data.user, "Your account has been created.");
-        } else {
-          showForm(loginForm);
-          message(
-            "Registration received. Check your email and confirm your account before logging in."
-          );
+            if (data.session && data.user) {
+              showUser(data.user, "Your account has been created.");
+            } else {
+              showForm(loginForm);
+              message(
+                "Registration received. Check your email and confirm your account before logging in."
+              );
+            }
+          } catch (error) {
+            message(
+              error.message || "Registration failed. Please try again.",
+              true
+            );
+          }
         }
-      } catch (error) {
-        message(
-          error.message || "Registration failed. Please try again.",
-          true
-        );
-      } finally {
-        button.disabled = false;
-        button.textContent = "Create Account";
-      }
+      );
     });
 
-    // Log in.
+    // ---------- Log in ----------
+
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       message("");
 
       const email = $("loginEmail").value.trim();
       const password = $("loginPassword").value;
-      const button = $("loginButton");
 
-      button.disabled = true;
-      button.textContent = "Logging in...";
+      await withButton($("loginButton"), "Logging in...", "Log In", async () => {
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
 
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
+          if (error) throw error;
 
-        if (error) throw error;
-
-        loginForm.reset();
-        showUser(data.user, "Login successful. Welcome back!");
-      } catch (error) {
-        message(
-          error.message || "Login failed. Check your email and password.",
-          true
-        );
-      } finally {
-        button.disabled = false;
-        button.textContent = "Log In";
-      }
+          loginForm.reset();
+          showUser(data.user, "Login successful. Welcome back!");
+        } catch (error) {
+          message(
+            error.message || "Login failed. Check your email and password.",
+            true
+          );
+        }
+      });
     });
 
-    // Request a password-reset email.
+    // ---------- Forgot password ----------
+
     $("forgotPassword")?.addEventListener("click", async () => {
       const email = $("loginEmail").value.trim();
 
@@ -169,14 +198,12 @@
           "If an account exists for this email, a password-reset email will be sent."
         );
       } catch (error) {
-        message(
-          error.message || "Could not request a password reset.",
-          true
-        );
+        message(error.message || "Could not request a password reset.", true);
       }
     });
 
-    // Log out.
+    // ---------- Log out ----------
+
     $("logoutButton")?.addEventListener("click", async (event) => {
       const button = event.currentTarget;
       button.disabled = true;
@@ -194,24 +221,38 @@
       }
     });
 
-    // Restore the existing session when the page loads.
+    // ---------- Session handling ----------
+
+    // Keeps the page in sync (for example when you sign in or out in
+    // another tab). Does not overwrite messages already on screen.
     supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        showUser(session.user);
-      } else if (event === "SIGNED_OUT") {
+      if (event === "SIGNED_OUT") {
         showForm(loginForm);
+      } else if (session?.user && loggedInPanel.hidden) {
+        showUser(session.user, "");
       }
     });
 
-    supabase.auth.getSession().then(({ data, error }) => {
-      if (error) {
+    // Restore the existing session when the page loads.
+    supabase.auth
+      .getSession()
+      .then(({ data, error }) => {
+        if (error) {
+          showForm(loginForm);
+          message(
+            "Unable to check your session. Refresh the page to retry.",
+            true
+          );
+        } else if (data.session?.user) {
+          showUser(data.session.user);
+        } else {
+          showForm(signupForm);
+        }
+      })
+      .catch(() => {
+        showForm(loginForm);
         message("Unable to check your session. Refresh the page to retry.", true);
-      } else if (data.session?.user) {
-        showUser(data.session.user);
-      } else {
-        showForm(signupForm);
-      }
-    });
+      });
   }
 
   if (document.readyState === "loading") {
@@ -220,3 +261,4 @@
     initAuth();
   }
 })();
+              
