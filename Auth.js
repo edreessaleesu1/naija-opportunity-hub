@@ -89,8 +89,7 @@
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin + "/#account"
-          }
+            emailRedirectTo: window.location.origin + "/account.html"
         });
 
         if (error) throw error;
