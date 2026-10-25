@@ -160,7 +160,7 @@
 
       try {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + "/#account"
+          redirectTo: window.location.origin + "/account.html"
         });
 
         if (error) throw error;
