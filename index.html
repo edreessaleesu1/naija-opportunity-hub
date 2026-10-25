@@ -18,6 +18,7 @@
   <meta property="og:description" content="Scholarships, jobs, internships, grants, fellowships and training for Nigerian students, graduates and young professionals.">
 
   <link rel="icon" type="image/png" href="./naija-opportunity-hub-logo.png">
+  <link rel="stylesheet" href="./hero-image.css">
   <link rel="stylesheet" href="./style.css">
 
   <script>
@@ -89,15 +90,7 @@ window.addEventListener("error", function(event) {
     <section class="hero hero-banner" id="home">
       <div class="hero-bg" aria-hidden="true"></div>
 
-      <img
-        src="images/hero-study-group.jpg"
-        alt="Three students studying together at a laptop in a library"
-        class="hero-photo"
-        width="1400"
-        height="933"
-        fetchpriority="high"
-        onerror="this.style.display='none'"
-      >
+      <div class="hero-photo" role="img" aria-label="Three students studying together at a laptop in a library"></div>
 
       <div class="wrap hero-banner-inner">
         <div class="hero-banner-copy">
@@ -131,23 +124,6 @@ window.addEventListener("error", function(event) {
         </div>
       </div>
     </section>
-
-
-    <script>
-      /* Reuse whichever hero photo loads as the blurred background behind the headline. */
-      (function () {
-        var photo = document.querySelector(".hero-photo");
-        var bg = document.querySelector(".hero-bg");
-        if (!photo || !bg) return;
-        function sync() {
-          if (photo.currentSrc && photo.naturalWidth) {
-            bg.style.backgroundImage = 'url("' + photo.currentSrc + '")';
-          }
-        }
-        photo.addEventListener("load", sync);
-        if (photo.complete) sync();
-      })();
-    </script>
 
 
     <!-- CATEGORY ICON ROW + TRUST BAR (also drives the category filter) -->
@@ -701,4 +677,4 @@ window.addEventListener("error", function(event) {
 </body>
     </html>
 
-        
+  
