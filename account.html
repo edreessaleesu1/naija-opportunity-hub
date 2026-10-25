@@ -1,1 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#086b45">
 
+  <title>My Account | Naija Opportunity Hub</title>
+
+  <meta name="description" content="Create an account or log in to access your Naija Opportunity Hub Career Kit.">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f8f4;
+      color: #18352a;
+      line-height: 1.6;
+    }
+
+    header {
+      background: #086b45;
+      color: white;
+      padding: 18px 20px;
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      color: white;
+      text-decoration: none;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 45px auto;
+      padding: 0 20px;
+    }
+
+    .account-layout {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .intro .eyebrow {
+      color: #087443;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+    }
+
+    .intro h1 {
+      font-size: clamp(32px, 5vw, 48px);
+      line-height: 1.15;
+      margin: 15px 0;
+    }
+
+    .intro p {
+      color: #5b6c63;
+      font-size: 17px;
+      max-width: 520px;
+    }
+
+    .features {
+      list-style: none;
+      padding: 0;
+      margin-top: 25px;
+    }
+
+    .features li {
+      margin: 12px 0;
+    }
+
+    .features li::before {
+      content: "✓";
+      color: #087443;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    .account-card {
+      background: white;
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 12px 40px rgba(20, 60, 40, 0.09);
+      border: 1px solid #e1ece4;
+    }
+
+    .account-card h2 {
+      margin-top: 0;
+      margin-bottom: 5px;
+      font-size: 26px;
+    }
+
+    .description {
+      color: #69766e;
+      font-size: 14px;
+      margin-top: 0;
+      margin-bottom: 22px;
+    }
+
+    form label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin: 14px 0 6px;
+    }
+
+    form input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #d4dfd7;
+      border-radius: 9px;
+      font-size: 15px;
+      background: #fff;
+    }
+
+    form input:focus {
+      outline: 2px solid #a7d8bb;
+      border-color: #087443;
+    }
+
+    button {
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .primary-button {
+      width: 100%;
+      border: 0;
+      border-radius: 9px;
+      background: #087443;
+      color: white;
+      padding: 14px;
+      font-weight: 700;
+      margin-top: 22px;
+    }
+
+    .primary-button:hover {
+      background: #065c35;
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    .auth-switch {
+      text-align: center;
+      font-size: 14px;
+      color: #69766e;
+      margin-bottom: 0;
+    }
+
+    .text-button {
+      background: none;
+      border: none;
+      color: #087443;
+      font-weight: 700;
+      padding: 4px;
+    }
+
+    .text-button:hover {
+      text-decoration: underline;
+    }
+
+    #authMessage {
+      font-size: 14px;
+      margin-bottom: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    #authMessage.error {
+      color: #b42318;
+    }
+
+    #authMessage.success {
+      color: #087443;
+    }
+
+    .dashboard-links {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .dashboard-links a {
+      text-decoration: none;
+      text-align: center;
+      padding: 12px;
+      border-radius: 9px;
+      color: #087443;
+      background: #edf7f0;
+      font-weight: 700;
+    }
+
+    .dashboard-links a:hover {
+      background: #dcefe2;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 25px 20px;
+      color: #6b7c72;
+      font-size: 13px;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 800px) {
+      .account-layout {
+        grid-template-columns: 1fr;
+        gap: 25px;
+      }
+
+      .page {
+        margin: 30px auto;
+      }
+
+      .account-card {
+        padding: 24px;
+      }
+
+      .intro h1 {
+        font-size: 34px;
+      }
+    }
+  </style>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="auth.js"></script>
+</head>
+
+<body>
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="./">Naija Opportunity Hub</a>
+
+      <nav aria-label="Main navigation">
+        <a href="./">Home</a>
+        <a href="./#opportunities">Opportunities</a>
+        <a href="./#career-kit">Career Kit</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="account-layout">
+
+      <section class="intro">
+        <span class="eyebrow">YOUR CAREER. YOUR FUTURE.</span>
+
+        <h1>Build your future, one opportunity at a time.</h1>
+
+        <p>
+          Create your account to get started with your Career Kit
+          and prepare for your next career opportunity.
+        </p>
+
+        <ul class="features">
+          <li>CV and résumé assistance</li>
+          <li>Cover letter support</li>
+          <li>Job application guidance</li>
+          <li>Interview preparation</li>
+        </ul>
+      </section>
+
+      <section class="account-card" id="authContainer">
+        <div id="authMessage" role="status" aria-live="polite"></div>
+
+        <form id="signupForm">
+          <h2>Create your account</h2>
+          <p class="description">
+            Join Naija Opportunity Hub and take the next step.
+          </p>
+
+          <label for="signupEmail">Email address</label>
+          <input
+            type="email"
+            id="signupEmail"
+            autocomplete="email"
+            placeholder="you@example.com"
+            required
+          >
+
+          <label for="signupPassword">Password</label>
+          <input
+            type="password"
+            id="signupPassword"
+            autocomplete="new-password"
+            minlength="8"
+            placeholder="At least 8 characters"
+            required
+          >
+
+          <label for="confirmPassword">Confirm password</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            autocomplete="new-password"
+            minlength="8"
+            placeholder="Enter your password again"
+            required
+          >
+
+          <button class="primary-button" type="submit" id="signupButton">
+            Create Free Account
+          </button>
+
+          <p class="auth-switch">
+            Already have an account?
+            <button class="text-button" type="button" id="showLogin">
+              Log in
+            </button>
+          </p>
+        </form>
+
+        <form id="loginForm" hidden>
+          <h2>Welcome back</h2>
+          <p class="description">
+            Log in to continue to your Career Kit.
+          </p>
+
+          <label for="loginEmail">Email address</label>
+          <input
+            type="email"
+            id="loginEmail"
+            autocomplete="email"
+            placeholder="you@example.com"
+            required
+          >
+
+          <label for="loginPassword">Password</label>
+          <input
+            type="password"
+            id="loginPassword"
+            autocomplete="current-password"
+            placeholder="Your password"
+            required
+          >
+
+          <button class="primary-button" type="submit" id="loginButton">
+            Log In
+          </button>
+
+          <p class="auth-switch">
+            <button class="text-button" type="button" id="forgotPassword">
+              Forgot password?
+            </button>
+          </p>
+
+          <p class="auth-switch">
+            Don't have an account?
+            <button class="text-button" type="button" id="showSignup">
+              Create one
+            </button>
+          </p>
+        </form>
+
+        <div id="loggedInPanel" hidden>
+          <h2>Welcome to your Career Kit!</h2>
+
+          <p class="description">
+            Signed in as <strong id="accountEmail"></strong>
+          </p>
+
+          <div class="dashboard-links">
+            <a href="./#career-kit">Explore Career Kit</a>
+            <a href="./#opportunities">Browse Opportunities</a>
+          </div>
+
+          <button
+            class="primary-button"
+            type="button"
+            id="logoutButton"
+          >
+            Log Out
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 Naija Opportunity Hub. Discover Opportunities. Build Your Future.
+  </footer>
+</body>
+  </html>
