@@ -2610,12 +2610,103 @@ section {
    }
 
 
-/* ==========================================
-   REDESIGN ADDITIONS
-   Appended to the existing stylesheet; nothing above was removed.
-========================================== */
+/* ==========================================================================
+   REDESIGN LAYER
+   Everything below was added on top of the original stylesheet above.
+   Order: theme, header and buttons, hero banner, category strip and trust bar,
+   opportunities, Career Kit, tracker, call to action, footer.
+========================================================================== */
 
-/* Accessibility */
+
+/* ---------- Emerald-gold theme (replaces the white surfaces) ---------- */
+
+:root {
+  --eg-page:  #f6f2dc;   /* champagne: main page tone */
+  --eg-alt:   #eaf0d6;   /* pale emerald-gold: alternate sections */
+  --eg-strip: #fbf7e2;   /* lighter band under the hero */
+  --eg-card:  #fffcee;   /* warm ivory: cards and inputs */
+  --eg-line:  #e2dfbd;   /* borders */
+  --eg-gold:  #c6a24a;
+}
+
+body {
+  background: var(--eg-page);
+}
+
+.site-header {
+  background: rgba(246, 242, 220, 0.96);
+  border-bottom-color: var(--eg-line);
+}
+
+.showcase-section,
+.tracker-section,
+.about-section {
+  background: var(--eg-page);
+}
+
+.opportunities-section,
+.trust-section {
+  background: var(--eg-alt);
+}
+
+.category-strip {
+  background: var(--eg-strip);
+}
+
+/* Cards, panels, inputs and light buttons: warm ivory instead of white */
+.card,
+.panel,
+.trust-card,
+.pricing-card,
+.showcase-image,
+.showcase-caption,
+.floating-card,
+.search-box,
+.filter-control select,
+.tracker-item select,
+.cv-form input,
+.cv-form textarea,
+.cv-form select,
+.menu-toggle,
+.bookmark,
+.button-outline,
+.button-secondary,
+.empty,
+.loading-card {
+  background: var(--eg-card);
+}
+
+.card,
+.panel,
+.trust-card,
+.pricing-card,
+.showcase-image,
+.search-box,
+.filter-control select,
+.tracker-item select,
+.menu-toggle,
+.bookmark,
+.button-outline,
+.empty,
+.loading-card {
+  border-color: var(--eg-line);
+}
+
+.tracker-item {
+  background: var(--eg-strip);
+  border-color: var(--eg-line);
+}
+
+.about-panel {
+  background: linear-gradient(120deg, #eef3d9, #fffcee);
+}
+
+.meta {
+  border-top-color: var(--eg-line);
+}
+
+
+/* ---------- Header, navigation and buttons ---------- */
 
 .skip-link {
   position: absolute;
@@ -2625,7 +2716,7 @@ section {
   padding: 10px 16px;
   border-radius: 10px;
   background: var(--green-dark);
-  color: var(--white);
+  color: #fff;
   font-size: 13px;
   font-weight: 700;
 }
@@ -2633,8 +2724,6 @@ section {
 .skip-link:focus {
   top: 12px;
 }
-
-/* Navigation: roomier on desktop */
 
 .navlinks {
   gap: 22px;
@@ -2645,7 +2734,12 @@ section {
   box-shadow: 0 6px 16px rgba(8, 107, 69, 0.16);
 }
 
-/* Gold button (used on the green banner) */
+@media (max-width: 720px) {
+  .navlinks {
+    background: var(--eg-page);
+    border-color: var(--eg-line);
+  }
+}
 
 .button-gold {
   background: linear-gradient(135deg, #d2ab4a, #b58a20);
@@ -2658,339 +2752,69 @@ section {
   box-shadow: 0 13px 28px rgba(181, 138, 32, 0.34);
 }
 
-/* Benefit strip under the hero */
 
-.benefit-strip {
-  position: relative;
-  z-index: 2;
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-}
-
-.benefit-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.benefit-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 22px 18px;
-  border-right: 1px solid var(--border);
-}
-
-.benefit-item:last-child {
-  border-right: 0;
-}
-
-.benefit-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
-  border-radius: 13px;
-  background: var(--green-light);
-  font-size: 21px;
-}
-
-.benefit-item strong,
-.benefit-item small {
-  display: block;
-}
-
-.benefit-item strong {
-  color: var(--green-dark);
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.benefit-item small {
-  margin-top: 2px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-/* Category shortcuts: clearer pressed state */
-
-.category.active,
-.category[aria-pressed="true"] {
-  background: var(--green);
-  border-color: var(--green);
-  color: var(--white);
-}
-
-.category.active .category-icon,
-.category[aria-pressed="true"] .category-icon {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-/* Opportunity cards: styles for the classes app.js generates */
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 10px;
-  border-radius: 7px;
-  background: var(--green-light);
-  color: var(--green-dark);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-}
-
-.bookmark.saved {
-  background: var(--gold-light);
-  border-color: var(--gold);
-  color: #85620c;
-}
-
-.card-top .bookmark {
-  width: auto;
-  min-width: 35px;
-  padding: 0 11px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.card-desc {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-actions .button-primary,
-.card-actions .button-outline {
-  min-height: 42px;
-}
-
-/* View All / Show Latest 6 button (created by app.js) */
-
-.view-all-opportunities {
-  display: flex;
-  min-width: 260px;
-  margin: 32px auto 0;
-}
-
-/* Application tracker rows (created by app.js) */
-
-.tracker-item {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 190px auto;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 13px;
-  background: var(--green-soft);
-}
-
-.tracker-item strong,
-.tracker-item small {
-  display: block;
-}
-
-.tracker-item strong {
-  color: var(--green-deep);
-  font-size: 14px;
-  overflow-wrap: anywhere;
-}
-
-.tracker-item small {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.tracker-item select {
-  width: 100%;
-  min-height: 44px;
-  padding: 0 10px;
-  border: 1px solid #dce5de;
-  border-radius: 10px;
-  background: var(--white);
-  color: #43544a;
-  font-size: 12px;
-}
-
-.tracker-item .bookmark {
-  width: 44px;
-  height: 44px;
-}
-
-/* Call-to-action banner */
-
-.cta-banner {
-  padding: 78px 0;
-  background:
-    radial-gradient(circle at 85% 20%, rgba(198, 162, 74, 0.22), transparent 38%),
-    linear-gradient(135deg, var(--green-dark), var(--green-deep));
-  color: var(--white);
-  text-align: center;
-}
-
-.cta-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.cta-banner h2 {
-  max-width: 720px;
-  font-size: clamp(28px, 4.2vw, 44px);
-  line-height: 1.2;
-  letter-spacing: -1px;
-}
-
-.cta-banner h2::after {
-  content: "";
-  display: block;
-  width: 58px;
-  height: 3px;
-  margin: 18px auto 0;
-  border-radius: 3px;
-  background: var(--gold);
-}
-
-.cta-banner p {
-  max-width: 520px;
-  color: rgba(255, 255, 255, 0.84);
-  font-size: 15px;
-}
-
-.cta-banner .button {
-  margin-top: 8px;
-  min-height: 52px;
-  padding-inline: 26px;
-}
-
-/* Footer: four columns */
-
-.footer-grid {
-  grid-template-columns: 1.6fr 0.7fr 0.7fr 0.7fr;
-}
-
-/* Tablet */
-
-@media (max-width: 1000px) {
-  .navlinks {
-    gap: 12px;
-  }
-
-  .benefit-item {
-    padding: 18px 12px;
-    gap: 10px;
-  }
-
-  .benefit-item strong {
-    font-size: 13px;
-  }
-
-  .footer-grid {
-    grid-template-columns: 1.4fr 0.8fr 0.8fr 0.8fr;
-    gap: 28px;
-  }
-}
-
-/* Mobile */
-
-@media (max-width: 720px) {
-  .benefit-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .benefit-item {
-    padding: 14px 4px;
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .benefit-item:last-child {
-    border-bottom: 0;
-  }
-
-  .tracker-item {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .tracker-item > div {
-    grid-column: 1 / -1;
-  }
-
-  .view-all-opportunities {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .cta-banner {
-    padding: 56px 0;
-  }
-
-  .cta-banner .button {
-    width: 100%;
-  }
-
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-
-/* ==========================================
-   HERO BANNER (full-width photo, icon row, trust bar)
-========================================== */
+/* ---------- Hero banner ----------
+   Layers, back to front: blurred photo, sharp photo, dark overlay, content.
+   The photo comes from --hero-photo (hero-image.css); if that file is missing,
+   the page falls back to images/hero-study-group.jpg, and if that is missing too,
+   the banner stays a clean dark colour with the headline on it. */
 
 .hero.hero-banner {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   padding: 0;
-  background: #06452f;
-  color: var(--white);
+  border-top: 3px solid var(--eg-gold);
+  background: #1a1612;
+  color: #fff;
 }
 
-.hero.hero-banner::before,
-.hero.hero-banner::after {
+.hero.hero-banner::before {
   display: none;
 }
 
-/* Blurred, darkened copy of the photo fills the whole banner behind the text */
+.hero.hero-banner::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(12, 9, 6, 0.66) 0%, rgba(12, 9, 6, 0.42) 38%, rgba(12, 9, 6, 0) 64%);
+}
+
 .hero-bg {
   position: absolute;
   inset: -30px;
-  z-index: -2;
-  background: url("images/hero-study-group.jpg") center / cover no-repeat;
-  filter: blur(16px) saturate(1.1);
+  z-index: -3;
+  background: var(--hero-photo, url("images/hero-study-group.jpg")) center / cover no-repeat;
+  filter: blur(14px) saturate(1.05);
 }
 
 .hero-bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(3, 47, 34, 0.92) 0%,
-    rgba(4, 62, 43, 0.78) 40%,
-    rgba(4, 62, 43, 0.35) 100%
-  );
+  background: rgba(14, 10, 6, 0.5);
 }
 
-/* Sharp photo on the right, fading into the background on its left edge */
 .hero-photo {
   position: absolute;
   top: 0;
   right: 0;
-  z-index: -1;
-  width: 60%;
+  z-index: -2;
+  width: 62%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 18%;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 26%);
-  mask-image: linear-gradient(to right, transparent 0, #000 26%);
+  background: var(--hero-photo, url("images/hero-study-group.jpg")) center 30% / cover no-repeat;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 17%);
+  mask-image: linear-gradient(to right, transparent 0, #000 17%);
 }
 
 .hero-banner-inner {
@@ -3007,21 +2831,21 @@ section {
 .hero-banner .eyebrow {
   margin-bottom: 20px;
   border-color: rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.28);
   color: #f3dc92;
 }
 
-.hero-banner h1 {
+.hero.hero-banner h1 {
   max-width: none;
-  color: var(--white);
+  color: #fff;
   font-size: clamp(40px, 4.6vw, 64px);
   font-weight: 850;
   line-height: 1.08;
   letter-spacing: -2px;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.28);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.3);
 }
 
-.hero-banner h1 span {
+.hero.hero-banner h1 span {
   display: inline;
   margin-top: 0;
   color: #92e43f;
@@ -3045,7 +2869,7 @@ section {
   padding: 14px 28px;
   border-radius: 999px;
   background: #0b8a4e;
-  color: var(--white);
+  color: #fff;
   font-size: 15px;
   font-weight: 800;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.25);
@@ -3060,7 +2884,7 @@ section {
   padding: 14px 24px;
   border: 2px solid rgba(255, 255, 255, 0.7);
   border-radius: 999px;
-  color: var(--white);
+  color: #fff;
   font-size: 15px;
   font-weight: 800;
 }
@@ -3069,11 +2893,79 @@ section {
   background: rgba(255, 255, 255, 0.14);
 }
 
-/* White icon row */
+/* Phones and tablets: headline on top, photo rising from the bottom of the banner */
+@media (max-width: 1199px) {
+  .hero.hero-banner::after {
+    background: linear-gradient(180deg, rgba(12, 9, 6, 0.74) 0%, rgba(12, 9, 6, 0.55) 46%, rgba(12, 9, 6, 0) 72%);
+  }
 
-.category-strip {
-  background: var(--white);
+  .hero.hero-banner .hero-photo {
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 50%;
+    width: 124%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    transform: translateX(-50%);
+    background-position: center 30%;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.7) 22%, #000 46%);
+    mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.7) 22%, #000 46%);
+  }
+
+  .hero-banner-inner {
+    display: block;
+    min-height: 0;
+    padding-block: 40px 250px;
+  }
+
+  .hero-banner-copy {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  .hero.hero-banner h1 {
+    font-size: clamp(36px, 10vw, 46px);
+    letter-spacing: -1.4px;
+  }
+
+  .hero-banner .hero-description {
+    font-size: 15px;
+  }
+
+  .hero-banner .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
+
+@media (min-width: 721px) and (max-width: 1199px) {
+  .hero.hero-banner .hero-photo {
+    width: 112%;
+  }
+
+  .hero-banner-inner {
+    padding-block: 52px 400px;
+  }
+
+  .hero.hero-banner h1 {
+    font-size: clamp(42px, 6vw, 54px);
+  }
+
+  .hero-banner .hero-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero-banner-inner {
+    padding-bottom: 230px;
+  }
+}
+
+
+/* ---------- Category strip and trust bar ---------- */
 
 .category-row {
   display: grid;
@@ -3084,16 +2976,21 @@ section {
 
 .category-strip .category,
 .category-strip .category-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   min-height: 0;
   padding: 0;
   gap: 8px;
   border: 0;
   border-radius: 14px;
   background: transparent;
+  box-shadow: none;
   color: var(--green-deep);
   font-size: 14px;
   font-weight: 800;
-  box-shadow: none;
+  text-align: center;
 }
 
 .category-strip .category:hover,
@@ -3109,7 +3006,6 @@ section {
 .category-strip .category[aria-pressed="true"] .category-icon {
   outline: 3px solid var(--gold);
   outline-offset: 2px;
-  background-color: inherit;
 }
 
 .category-strip .category-icon {
@@ -3126,11 +3022,9 @@ section {
 .tint-orange { background: #fdebd3; }
 .tint-pink   { background: #fbe3ea; }
 
-/* Dark green trust bar */
-
 .trust-bar {
   background: #06452f;
-  color: var(--white);
+  color: #fff;
 }
 
 .trust-bar-grid {
@@ -3158,30 +3052,7 @@ section {
   font-weight: 400;
 }
 
-/* Tablet */
-
 @media (max-width: 1000px) {
-  .hero-banner-inner {
-    min-height: 500px;
-  }
-
-  .hero-banner-copy {
-    width: min(480px, 52%);
-  }
-
-  .hero-photo {
-    width: 58%;
-  }
-
-  .hero-banner h1 {
-    font-size: clamp(36px, 5.2vw, 48px);
-    letter-spacing: -1.4px;
-  }
-
-  .hero-banner .hero-description {
-    font-size: 15px;
-  }
-
   .category-row {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     row-gap: 18px;
@@ -3192,55 +3063,7 @@ section {
   }
 }
 
-/* Mobile: text first, photo below */
-
 @media (max-width: 720px) {
-  .hero.hero-banner {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .hero-bg::after {
-    background: linear-gradient(
-      180deg,
-      rgba(3, 47, 34, 0.9),
-      rgba(4, 62, 43, 0.82)
-    );
-  }
-
-  .hero-banner-inner {
-    min-height: 0;
-    padding-block: 40px 28px;
-  }
-
-  .hero-banner-copy {
-    width: 100%;
-  }
-
-  .hero-banner h1 {
-    font-size: clamp(36px, 10vw, 46px);
-    letter-spacing: -1.4px;
-  }
-
-  .hero-banner .hero-description {
-    font-size: 15px;
-  }
-
-  .hero-banner .hero-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .hero-photo {
-    position: static;
-    order: 2;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 14%);
-  }
-
   .category-row {
     gap: 12px 6px;
     padding: 20px 0 18px;
@@ -3287,307 +3110,63 @@ section {
   }
 }
 
-/* Keep link tile aligned with the button tiles */
-.category-strip .category,
-.category-strip .category-link {
-  display: flex;
-  flex-direction: column;
+
+/* ---------- Opportunities: elements created by app.js ---------- */
+
+.badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  text-align: center;
+  padding: 6px 10px;
+  border-radius: 7px;
+  background: var(--green-light);
+  color: var(--green-dark);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 }
 
-
-/* Tablet and small laptop: stack text above the full photo so all four faces show */
-
-@media (min-width: 721px) and (max-width: 1199px) {
-  .hero.hero-banner {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .hero-bg::after {
-    background: linear-gradient(
-      180deg,
-      rgba(3, 47, 34, 0.9),
-      rgba(4, 62, 43, 0.82)
-    );
-  }
-
-  .hero-banner-inner {
-    min-height: 0;
-    padding-block: 52px 36px;
-  }
-
-  .hero-banner-copy {
-    width: 100%;
-    max-width: 640px;
-  }
-
-  .hero-banner h1 {
-    font-size: clamp(42px, 6vw, 54px);
-  }
-
-  .hero-photo {
-    position: static;
-    order: 2;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 10;
-    max-height: 560px;
-    object-position: center 20%;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 12%);
-  }
+.bookmark.saved {
+  background: var(--gold-light);
+  border-color: var(--gold);
+  color: #85620c;
 }
 
-
-/* ==========================================
-   HERO POLISH: rich emerald background + photo blended into it
-========================================== */
-
-/* (1) Background: deep emerald gradient with a soft gold glow and a gold hairline.
-   This is also what shows if the photo is ever unavailable, so the hero is never flat or empty. */
-
-.hero.hero-banner {
-  border-top: 3px solid #c6a24a;
-  background:
-    radial-gradient(circle at 90% 6%, rgba(198, 162, 74, 0.24), transparent 34%),
-    radial-gradient(circle at 8% 100%, rgba(11, 138, 78, 0.28), transparent 40%),
-    linear-gradient(135deg, #032f22 0%, #064e3b 52%, #0a6b47 100%);
-}
-
-/* (2) Photo: on phones and tablets it rises into the headline area instead of sitting
-   in a separate block, so the text and the students read as one composition. */
-
-@media (max-width: 1199px) {
-  .hero-photo {
-    margin-top: -36px;
-    pointer-events: none;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.55) 16%, #000 34%);
-    mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.55) 16%, #000 34%);
-  }
-
-  .hero-bg {
-    opacity: 0.55;
-  }
-
-  .hero-banner-inner {
-    position: relative;
-    z-index: 1;
-    padding-bottom: 8px;
-  }
-}
-
-@media (max-width: 720px) {
-  .hero-photo {
-    aspect-ratio: 4 / 3;
-    object-position: center 20%;
-  }
-}
-
-
-/* Study-group photo: keep all three faces clear of the fade */
-.hero-photo {
-  object-position: center 30%;
-}
-
-@media (min-width: 1200px) {
-  .hero-photo {
-    width: 62%;
-    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 17%);
-    mask-image: linear-gradient(to right, transparent 0, #000 17%);
-  }
-}
-
-@media (max-width: 720px) {
-  .hero-photo {
-    aspect-ratio: 3 / 2;
-    object-position: center 30%;
-  }
-}
-
-
-/* ==========================================
-   PHOTO AS THE BANNER BACKGROUND (phones and tablets)
-   The photo sits behind the whole banner; the headline and buttons are on top of it.
-========================================== */
-
-@media (max-width: 1199px) {
-  .hero.hero-banner {
-    display: block;
-  }
-
-  .hero.hero-banner .hero-photo {
-    position: absolute;
-    top: auto;
-    right: auto;
-    bottom: 0;
-    left: 50%;
-    z-index: -1;
-    order: 0;
-    width: 135%;
-    max-width: none;
-    height: auto;
-    aspect-ratio: auto;
-    margin: 0;
-    transform: translateX(-53%);
-    object-fit: cover;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.7) 22%, #000 46%);
-    mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.7) 22%, #000 46%);
-  }
-
-  .hero.hero-banner .hero-bg {
-    opacity: 0.7;
-  }
-
-  .hero.hero-banner .hero-banner-inner {
-    padding-bottom: 270px;
-  }
-}
-
-@media (min-width: 721px) and (max-width: 1199px) {
-  .hero.hero-banner .hero-photo {
-    width: 112%;
-    transform: translateX(-50%);
-  }
-
-  .hero.hero-banner .hero-banner-inner {
-    padding-bottom: 400px;
-  }
-}
-
-@media (max-width: 380px) {
-  .hero.hero-banner .hero-banner-inner {
-    padding-bottom: 240px;
-  }
-}
-
-@media (max-width: 720px) {
-  .hero.hero-banner .hero-photo {
-    width: 124%;
-    transform: translateX(-50%);
-  }
-
-  .hero.hero-banner .hero-banner-inner {
-    padding-bottom: 250px;
-  }
-}
-
-
-/* ==========================================
-   CAREER KIT: panel illustrations
-========================================== */
-
-.career-panel {
-  overflow: hidden;
-}
-
-.career-panel .career-visual {
-  align-self: stretch;
-  width: calc(100% + 54px);
-  height: 170px;
-  margin: -27px -27px 22px;
-  overflow: hidden;
-  border-bottom: 1px solid var(--border);
-}
-
-.career-panel .career-visual svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/* The illustration replaces the small emoji tile */
-.career-panel .service-icon {
-  display: none;
-}
-
-.featured-panel .career-visual {
-  margin-top: -29px;
-}
-
-.featured-label {
-  z-index: 2;
-}
-
-.career-panel:hover .career-visual svg {
-  transform: scale(1.03);
-}
-
-.career-panel .career-visual svg {
-  transition: transform 0.4s ease;
-}
-
-@media (max-width: 720px) {
-  .career-panel .career-visual {
-    width: calc(100% + 46px);
-    height: 160px;
-    margin: -23px -23px 20px;
-  }
-
-  .featured-panel .career-visual {
-    margin-top: -25px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .career-panel .career-visual svg {
-    transition: none;
-  }
-}
-
-
-/* ==========================================
-   HERO: photo banner with no green wash
-========================================== */
-
-.hero.hero-banner {
-  background: #1a1612;
-}
-
-.hero.hero-banner .hero-bg {
-  opacity: 1;
-  filter: blur(14px) saturate(1.05);
-}
-
-.hero.hero-banner .hero-bg::after {
-  background: linear-gradient(180deg, rgba(14, 10, 6, 0.55), rgba(14, 10, 6, 0.35));
-}
-
-/* Readability overlay, neutral and dark, above the photo and below the text */
-.hero.hero-banner::after {
-  content: "";
-  display: block;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+.card-top .bookmark {
   width: auto;
-  height: auto;
-  border: 0;
-  border-radius: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: linear-gradient(90deg, rgba(12, 9, 6, 0.62) 0%, rgba(12, 9, 6, 0.40) 38%, rgba(12, 9, 6, 0) 62%);
+  min-width: 35px;
+  padding: 0 11px;
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.hero.hero-banner .eyebrow {
-  background: rgba(0, 0, 0, 0.28);
+.card-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* Phones and tablets: dark top for the headline, photo shows through below */
-@media (max-width: 1199px) {
-  .hero.hero-banner::after {
-    background: linear-gradient(180deg, rgba(12, 9, 6, 0.74) 0%, rgba(12, 9, 6, 0.55) 46%, rgba(12, 9, 6, 0) 72%);
+.card-actions .button-primary,
+.card-actions .button-outline {
+  min-height: 42px;
+}
+
+.view-all-opportunities {
+  display: flex;
+  min-width: 260px;
+  margin: 32px auto 0;
+}
+
+@media (max-width: 720px) {
+  .view-all-opportunities {
+    width: 100%;
+    min-width: 0;
   }
 }
 
 
-/* ==========================================
-   CAREER KIT: gold section
-========================================== */
+/* ---------- Career Kit: gold section with illustrated cards ---------- */
 
 .career-section {
   background: linear-gradient(160deg, #ebcf7e 0%, #d6b25a 52%, #c49d3c 100%);
@@ -3613,5 +3192,185 @@ section {
 .career-section .panel,
 .career-section .pricing-card {
   box-shadow: 0 10px 28px rgba(60, 44, 6, 0.16);
-   }
-   
+}
+
+.career-panel {
+  overflow: hidden;
+}
+
+.career-panel .career-visual {
+  align-self: stretch;
+  width: calc(100% + 54px);
+  height: 170px;
+  margin: -27px -27px 22px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--eg-line);
+}
+
+.career-panel .career-visual svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s ease;
+}
+
+.career-panel:hover .career-visual svg {
+  transform: scale(1.03);
+}
+
+.career-panel .service-icon {
+  display: none;
+}
+
+.featured-panel .career-visual {
+  margin-top: -29px;
+}
+
+.featured-label {
+  z-index: 2;
+}
+
+@media (max-width: 720px) {
+  .career-panel .career-visual {
+    width: calc(100% + 46px);
+    height: 160px;
+    margin: -23px -23px 20px;
+  }
+
+  .featured-panel .career-visual {
+    margin-top: -25px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .career-panel .career-visual svg {
+    transition: none;
+  }
+}
+
+
+/* ---------- Application tracker rows created by app.js ---------- */
+
+.tracker-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--eg-line);
+  border-radius: 13px;
+}
+
+.tracker-item strong,
+.tracker-item small {
+  display: block;
+}
+
+.tracker-item strong {
+  color: var(--green-deep);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.tracker-item small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.tracker-item select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--eg-line);
+  border-radius: 10px;
+  color: #43544a;
+  font-size: 12px;
+}
+
+.tracker-item .bookmark {
+  width: 44px;
+  height: 44px;
+}
+
+@media (max-width: 720px) {
+  .tracker-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .tracker-item > div {
+    grid-column: 1 / -1;
+  }
+}
+
+
+/* ---------- Call-to-action banner and footer ---------- */
+
+.cta-banner {
+  padding: 78px 0;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(198, 162, 74, 0.22), transparent 38%),
+    linear-gradient(135deg, var(--green-dark), var(--green-deep));
+  color: #fff;
+  text-align: center;
+}
+
+.cta-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.cta-banner h2 {
+  max-width: 720px;
+  font-size: clamp(28px, 4.2vw, 44px);
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+.cta-banner h2::after {
+  content: "";
+  display: block;
+  width: 58px;
+  height: 3px;
+  margin: 18px auto 0;
+  border-radius: 3px;
+  background: var(--gold);
+}
+
+.cta-banner p {
+  max-width: 520px;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 15px;
+}
+
+.cta-banner .button {
+  margin-top: 8px;
+  min-height: 52px;
+  padding-inline: 26px;
+}
+
+.footer-grid {
+  grid-template-columns: 1.6fr 0.7fr 0.7fr 0.7fr;
+}
+
+@media (max-width: 1000px) {
+  .footer-grid {
+    grid-template-columns: 1.4fr 0.8fr 0.8fr 0.8fr;
+    gap: 28px;
+  }
+}
+
+@media (max-width: 720px) {
+  .cta-banner {
+    padding: 56px 0;
+  }
+
+  .cta-banner .button {
+    width: 100%;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
