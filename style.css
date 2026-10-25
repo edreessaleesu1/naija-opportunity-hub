@@ -2963,7 +2963,7 @@ section {
   position: absolute;
   inset: -30px;
   z-index: -2;
-  background: url("images/hero-banner.jpg") center / cover no-repeat;
+  background: url("images/hero-study-group.jpg") center / cover no-repeat;
   filter: blur(16px) saturate(1.1);
 }
 
@@ -3385,3 +3385,155 @@ section {
     object-position: center 20%;
   }
 }
+
+
+/* Study-group photo: keep all three faces clear of the fade */
+.hero-photo {
+  object-position: center 30%;
+}
+
+@media (min-width: 1200px) {
+  .hero-photo {
+    width: 62%;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 17%);
+    mask-image: linear-gradient(to right, transparent 0, #000 17%);
+  }
+}
+
+@media (max-width: 720px) {
+  .hero-photo {
+    aspect-ratio: 3 / 2;
+    object-position: center 30%;
+  }
+}
+
+
+/* ==========================================
+   PHOTO AS THE BANNER BACKGROUND (phones and tablets)
+   The photo sits behind the whole banner; the headline and buttons are on top of it.
+========================================== */
+
+@media (max-width: 1199px) {
+  .hero.hero-banner {
+    display: block;
+  }
+
+  .hero.hero-banner .hero-photo {
+    position: absolute;
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 50%;
+    z-index: -1;
+    order: 0;
+    width: 135%;
+    max-width: none;
+    height: auto;
+    aspect-ratio: auto;
+    margin: 0;
+    transform: translateX(-53%);
+    object-fit: cover;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.7) 22%, #000 46%);
+    mask-image: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.7) 22%, #000 46%);
+  }
+
+  .hero.hero-banner .hero-bg {
+    opacity: 0.7;
+  }
+
+  .hero.hero-banner .hero-banner-inner {
+    padding-bottom: 270px;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1199px) {
+  .hero.hero-banner .hero-photo {
+    width: 112%;
+    transform: translateX(-50%);
+  }
+
+  .hero.hero-banner .hero-banner-inner {
+    padding-bottom: 400px;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero.hero-banner .hero-banner-inner {
+    padding-bottom: 240px;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero.hero-banner .hero-photo {
+    width: 124%;
+    transform: translateX(-50%);
+  }
+
+  .hero.hero-banner .hero-banner-inner {
+    padding-bottom: 250px;
+  }
+}
+
+
+/* ==========================================
+   CAREER KIT: panel illustrations
+========================================== */
+
+.career-panel {
+  overflow: hidden;
+}
+
+.career-panel .career-visual {
+  align-self: stretch;
+  width: calc(100% + 54px);
+  height: 170px;
+  margin: -27px -27px 22px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+.career-panel .career-visual svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The illustration replaces the small emoji tile */
+.career-panel .service-icon {
+  display: none;
+}
+
+.featured-panel .career-visual {
+  margin-top: -29px;
+}
+
+.featured-label {
+  z-index: 2;
+}
+
+.career-panel:hover .career-visual svg {
+  transform: scale(1.03);
+}
+
+.career-panel .career-visual svg {
+  transition: transform 0.4s ease;
+}
+
+@media (max-width: 720px) {
+  .career-panel .career-visual {
+    width: calc(100% + 46px);
+    height: 160px;
+    margin: -23px -23px 20px;
+  }
+
+  .featured-panel .career-visual {
+    margin-top: -25px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .career-panel .career-visual svg {
+    transition: none;
+  }
+   }
+     
