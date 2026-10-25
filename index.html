@@ -86,6 +86,100 @@ window.addEventListener("error", function(event) {
 
 
   <main>
+    <!-- USER ACCOUNT -->
+<section class="account-section section-padding" id="account">
+  <div class="wrap">
+    <div class="section-heading">
+      <span class="eyebrow">YOUR ACCOUNT</span>
+      <h2>Welcome to Naija Opportunity Hub</h2>
+      <p>Create an account to get started, or log in if you already have one.</p>
+    </div>
+
+    <div class="account-card" id="authContainer">
+      <div id="authMessage" role="status" aria-live="polite"></div>
+
+      <!-- SIGN UP FORM -->
+      <form id="signupForm">
+        <h3>Create Account</h3>
+
+        <label for="signupEmail">Email address</label>
+        <input
+          type="email"
+          id="signupEmail"
+          autocomplete="email"
+          placeholder="you@example.com"
+          required
+        >
+
+        <label for="signupPassword">Password</label>
+        <input
+          type="password"
+          id="signupPassword"
+          autocomplete="new-password"
+          minlength="8"
+          placeholder="At least 8 characters"
+          required
+        >
+
+        <label for="confirmPassword">Confirm password</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          autocomplete="new-password"
+          minlength="8"
+          placeholder="Enter your password again"
+          required
+        >
+
+        <button type="submit" id="signupButton">Create Account</button>
+
+        <p>Already registered?
+          <button type="button" id="showLogin">Log In</button>
+        </p>
+      </form>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" hidden>
+        <h3>Log In</h3>
+
+        <label for="loginEmail">Email address</label>
+        <input
+          type="email"
+          id="loginEmail"
+          autocomplete="email"
+          placeholder="you@example.com"
+          required
+        >
+
+        <label for="loginPassword">Password</label>
+        <input
+          type="password"
+          id="loginPassword"
+          autocomplete="current-password"
+          placeholder="Your password"
+          required
+        >
+
+        <button type="submit" id="loginButton">Log In</button>
+
+        <p>
+          <button type="button" id="forgotPassword">Forgot password?</button>
+        </p>
+
+        <p>New here?
+          <button type="button" id="showSignup">Create an account</button>
+        </p>
+      </form>
+
+      <!-- SIGNED-IN ACCOUNT -->
+      <div id="loggedInPanel" hidden>
+        <h3>You're logged in!</h3>
+        <p>Account: <span id="accountEmail"></span></p>
+        <button type="button" id="logoutButton">Log Out</button>
+      </div>
+    </div>
+  </div>
+</section>
 
     <!-- HERO -->
     <section class="hero hero-banner" id="home">
