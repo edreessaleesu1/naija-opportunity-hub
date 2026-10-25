@@ -3535,5 +3535,83 @@ section {
   .career-panel .career-visual svg {
     transition: none;
   }
+}
+
+
+/* ==========================================
+   HERO: photo banner with no green wash
+========================================== */
+
+.hero.hero-banner {
+  background: #1a1612;
+}
+
+.hero.hero-banner .hero-bg {
+  opacity: 1;
+  filter: blur(14px) saturate(1.05);
+}
+
+.hero.hero-banner .hero-bg::after {
+  background: linear-gradient(180deg, rgba(14, 10, 6, 0.55), rgba(14, 10, 6, 0.35));
+}
+
+/* Readability overlay, neutral and dark, above the photo and below the text */
+.hero.hero-banner::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(12, 9, 6, 0.62) 0%, rgba(12, 9, 6, 0.40) 38%, rgba(12, 9, 6, 0) 62%);
+}
+
+.hero.hero-banner .eyebrow {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+/* Phones and tablets: dark top for the headline, photo shows through below */
+@media (max-width: 1199px) {
+  .hero.hero-banner::after {
+    background: linear-gradient(180deg, rgba(12, 9, 6, 0.74) 0%, rgba(12, 9, 6, 0.55) 46%, rgba(12, 9, 6, 0) 72%);
+  }
+}
+
+
+/* ==========================================
+   CAREER KIT: gold section
+========================================== */
+
+.career-section {
+  background: linear-gradient(160deg, #ebcf7e 0%, #d6b25a 52%, #c49d3c 100%);
+}
+
+.career-section .section-kicker {
+  color: #3b2c06;
+}
+
+.career-section .section-intro h2 {
+  color: #1d2a22;
+}
+
+.career-section .section-intro p {
+  color: #3a3420;
+}
+
+.career-section .featured-panel {
+  border-color: #064e3b;
+  box-shadow: 0 14px 34px rgba(60, 44, 6, 0.22);
+}
+
+.career-section .panel,
+.career-section .pricing-card {
+  box-shadow: 0 10px 28px rgba(60, 44, 6, 0.16);
    }
-     
+   
