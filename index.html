@@ -93,10 +93,10 @@ window.addEventListener("error", function(event) {
         src="images/hero-banner.jpg"
         alt="Smiling Nigerian students on a university campus"
         class="hero-photo"
-        width="1021"
-        height="760"
+        width="960"
+        height="715"
         fetchpriority="high"
-        onerror="this.style.display='none'"
+        onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='images/01-HERO-STUDENTS.jpg';}else{this.style.display='none';}"
       >
 
       <div class="wrap hero-banner-inner">
@@ -131,6 +131,23 @@ window.addEventListener("error", function(event) {
         </div>
       </div>
     </section>
+
+
+    <script>
+      /* Reuse whichever hero photo loads as the blurred background behind the headline. */
+      (function () {
+        var photo = document.querySelector(".hero-photo");
+        var bg = document.querySelector(".hero-bg");
+        if (!photo || !bg) return;
+        function sync() {
+          if (photo.currentSrc && photo.naturalWidth) {
+            bg.style.backgroundImage = 'url("' + photo.currentSrc + '")';
+          }
+        }
+        photo.addEventListener("load", sync);
+        if (photo.complete) sync();
+      })();
+    </script>
 
 
     <!-- CATEGORY ICON ROW + TRUST BAR (also drives the category filter) -->
@@ -612,4 +629,4 @@ window.addEventListener("error", function(event) {
 </body>
     </html>
 
-                                                
+              
