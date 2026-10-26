@@ -536,49 +536,34 @@
   .hero-banner .cat-card strong { font-size: 1.15rem; }
 }
 
-/* ---------- Small phones ---------- */
-@media (max-width: 480px) {
-  .hero-banner { padding: 5.5rem 0 4.5rem; }
-  .hero-banner .hero-actions .button { flex: 1 1 100%; }
-  .hero-banner .hero-search .button { padding-inline: 1.1rem; }
-  .hero-banner .cat-card small { display: none; }
-}
+  <div class="eyebrow">
+    <span class="eyebrow-dot" aria-hidden="true"></span>
+    OPPORTUNITIES FOR THE NEXT GENERATION
+  </div>
 
-/* ---------- Keyframes ---------- */
-@keyframes rise     { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
-@keyframes bob      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-@keyframes line     { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes shimmer  { to { background-position: -200% 0; } }
-@keyframes pulse    { 0% { box-shadow: 0 0 0 0 rgba(232,195,106,.6); } 70%,100% { box-shadow: 0 0 0 10px rgba(232,195,106,0); } }
-@keyframes scroll   { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
-@keyframes orbA     { to { transform: translate(-60px, 80px) scale(1.15); } }
-@keyframes orbB     { to { transform: translate(90px, -60px) scale(1.1); } }
+  <h1>
+    Your Next Big<br>
+    <span>Opportunity</span><br>
+    Starts Here.
+  </h1>
 
-@media (prefers-reduced-motion: reduce) {
-  .hero-banner *, .hero-banner *::before, .hero-banner *::after { animation: none !important; transition: none !important; }
-  .hero-banner .reveal { opacity: 1; }
-}
-</style>
+  <p class="hero-description">
+    Discover scholarships, jobs, grants, internships and career
+    opportunities that move your future forward.
+  </p>
 
-<!-- ============ HERO v2 JS (paste into app.js) ============ -->
-<script>
-(function () {
-  const hero = document.getElementById("home");
-  if (!hero) return;
+  <div class="hero-actions">
+    <a href="#opportunities" class="button button-hero">
+      Explore Opportunities
+      <span aria-hidden="true">→</span>
+    </a>
 
-  /* 1) Hero search -> uses your existing search box in #opportunities */
-  const form = document.getElementById("heroSearch");
-  form?.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const q = form.q.value.trim();
-    const target = document.querySelector('#opportunities input[type="search"], #opportunities input[type="text"]');
-    if (target) {
-      target.value = q;
-      target.dispatchEvent(new Event("input", { bubbles: true }));
-    }
-    document.getElementById("opportunities")?.scrollIntoView({ behavior: "smooth" });
-  });
+    <a href="#career-kit" class="button button-hero-ghost">
+      Build Your Career
+    </a>
+  </div>
 
+</div>
   /* 2) Category cards -> clicks your existing filter control if found */
   hero.querySelectorAll(".cat-card").forEach(function (card) {
     card.addEventListener("click", function () {
