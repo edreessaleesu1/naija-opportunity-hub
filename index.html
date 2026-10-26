@@ -177,49 +177,430 @@
 
   <main>
 
-    <!-- HERO -->
-    <section class="hero hero-banner" id="home">
-      <div class="hero-bg" aria-hidden="true"></div>
+    <!-- Optional fonts (add once in <head>) -->
+<!-- <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"> -->
 
-      <div
-        class="hero-photo"
-        role="img"
-        aria-label="Students studying together at a laptop in a library"
-      ></div>
+<!-- ============ HERO v2 (paste into index.html) ============ -->
+<section class="hero hero-banner" id="home">
+  <div class="hero-bg" aria-hidden="true">
+    <i class="orb orb-gold"></i>
+    <i class="orb orb-green"></i>
+  </div>
 
-      <div class="wrap hero-banner-inner">
-        <div class="hero-banner-copy">
+  <div
+    class="hero-photo"
+    role="img"
+    aria-label="Students studying together at a laptop in a library"
+  ></div>
 
-          <div class="eyebrow">
-            <span class="eyebrow-dot" aria-hidden="true"></span>
-            OPPORTUNITIES FOR THE NEXT GENERATION
-          </div>
+  <div class="wrap hero-banner-inner">
 
-          <h1>
-            Your Next Big<br>
-            <span>Opportunity</span><br>
-            Starts Here.
-          </h1>
+    <!-- LEFT: copy -->
+    <div class="hero-banner-copy">
 
-          <p class="hero-description">
-            Discover scholarships, jobs, grants, internships and career
-            opportunities that move your future forward.
-          </p>
-
-          <div class="hero-actions">
-            <a href="#opportunities" class="button button-hero">
-              Explore Opportunities
-              <span aria-hidden="true">→</span>
-            </a>
-
-            <a href="#career-kit" class="button button-hero-ghost">
-              Build Your Career
-            </a>
-          </div>
-
-        </div>
+      <div class="eyebrow reveal" style="--d:0s">
+        <span class="eyebrow-dot" aria-hidden="true"></span>
+        Opportunities for the next generation
       </div>
-    </section>
+
+      <h1 class="reveal" style="--d:.08s">
+        Your next big
+        <span class="hero-accent">opportunity</span>
+        starts here.
+      </h1>
+
+      <p class="hero-description reveal" style="--d:.16s">
+        Discover scholarships, jobs, grants, internships and career
+        opportunities that move your future forward.
+      </p>
+
+      <form class="hero-search reveal" style="--d:.24s" role="search" id="heroSearch">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="search" name="q" placeholder="Search scholarships, jobs, grants…" aria-label="Search opportunities" autocomplete="off">
+        <button type="submit" class="button button-hero">Search</button>
+      </form>
+
+      <div class="hero-actions reveal" style="--d:.32s">
+        <a href="#opportunities" class="button button-hero-ghost">
+          Explore Opportunities
+          <span class="button-arrow" aria-hidden="true">→</span>
+        </a>
+        <a href="#career-kit" class="button button-hero-ghost button-outline-gold">
+          Build Your Career
+        </a>
+      </div>
+
+      <ul class="hero-trust reveal" style="--d:.4s">
+        <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Built for Nigerian students &amp; graduates</li>
+        <li><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Save &amp; track your applications</li>
+      </ul>
+    </div>
+
+    <!-- RIGHT: floating category cards -->
+    <div class="hero-visual" aria-label="Browse by category">
+      <a href="#opportunities" class="cat-card reveal" style="--d:.2s" data-filter="scholarship">
+        <span class="cat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg></span>
+        <strong>Scholarships</strong>
+        <small>Fund your education</small>
+        <span class="cat-count" data-count="scholarship"></span>
+        <span class="cat-go" aria-hidden="true">→</span>
+      </a>
+
+      <a href="#opportunities" class="cat-card reveal" style="--d:.3s" data-filter="job">
+        <span class="cat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span>
+        <strong>Jobs</strong>
+        <small>Start or grow your career</small>
+        <span class="cat-count" data-count="job"></span>
+        <span class="cat-go" aria-hidden="true">→</span>
+      </a>
+
+      <a href="#opportunities" class="cat-card reveal" style="--d:.4s" data-filter="grant">
+        <span class="cat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></span>
+        <strong>Grants</strong>
+        <small>Funding for your ideas</small>
+        <span class="cat-count" data-count="grant"></span>
+        <span class="cat-go" aria-hidden="true">→</span>
+      </a>
+
+      <a href="#opportunities" class="cat-card reveal" style="--d:.5s" data-filter="internship">
+        <span class="cat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16 8-2 6-6 2 2-6 6-2Z"/></svg></span>
+        <strong>Internships</strong>
+        <small>Real experience, early</small>
+        <span class="cat-count" data-count="internship"></span>
+        <span class="cat-go" aria-hidden="true">→</span>
+      </a>
+    </div>
+
+  </div>
+
+  <a href="#opportunities" class="hero-scroll" aria-label="Scroll to opportunities"><span></span></a>
+</section>
+
+<!-- ============ HERO v2 CSS (paste into style.css) ============ -->
+<style>
+.hero-banner {
+  --g950: #031a12;
+  --g900: #062a1e;
+  --g800: #0b4030;
+  --gold300: #f4dc9b;
+  --gold400: #e8c36a;
+  --gold500: #d4a64a;
+  --gold600: #b98a2e;
+  --ivory: #fbf7ee;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: 6.5rem 0 5rem;
+  color: var(--ivory);
+  background: var(--g950);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ---------- Background ---------- */
+.hero-banner .hero-bg {
+  position: absolute; inset: 0; z-index: -3; overflow: hidden;
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(11, 64, 48, .9), transparent 70%),
+    linear-gradient(170deg, var(--g900), var(--g950) 75%);
+}
+.hero-banner .orb {
+  position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55;
+  will-change: transform;
+}
+.hero-banner .orb-gold {
+  width: 420px; height: 420px; right: -120px; top: -100px;
+  background: radial-gradient(circle, var(--gold500), transparent 70%);
+  animation: orbA 16s ease-in-out infinite alternate;
+}
+.hero-banner .orb-green {
+  width: 520px; height: 520px; left: -180px; bottom: -200px;
+  background: radial-gradient(circle, #14805a, transparent 70%);
+  animation: orbB 20s ease-in-out infinite alternate;
+}
+/* film grain */
+.hero-banner .hero-bg::after {
+  content: ""; position: absolute; inset: 0; opacity: .09; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+/* photo (set your image here) */
+.hero-banner .hero-photo {
+  --hero-image: url("images/hero-students.jpg");
+  position: absolute; inset: 0; z-index: -2; opacity: .28;
+  background: linear-gradient(180deg, rgba(3,26,18,.4), var(--g950) 92%), var(--hero-image) center / cover;
+  mix-blend-mode: luminosity;
+}
+
+/* ---------- Layout ---------- */
+.hero-banner .hero-banner-inner {
+  width: min(1180px, 100% - 2.5rem);
+  margin-inline: auto;
+  display: grid;
+  gap: 2.8rem;
+  align-items: center;
+}
+
+/* ---------- Reveal ---------- */
+.hero-banner .reveal {
+  opacity: 0;
+  animation: rise .9s cubic-bezier(.2,.7,.2,1) var(--d, 0s) forwards;
+}
+
+/* ---------- Eyebrow ---------- */
+.hero-banner .eyebrow {
+  display: inline-flex; align-items: center; gap: .6rem;
+  padding: .5rem .95rem;
+  border: 1px solid rgba(232,195,106,.35);
+  border-radius: 999px;
+  background: rgba(251,247,238,.06);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  font-size: .7rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold400);
+}
+.hero-banner .eyebrow-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--gold400);
+  animation: pulse 2.2s infinite;
+}
+
+/* ---------- Headline ---------- */
+.hero-banner h1 {
+  margin: 1.3rem 0 1.1rem;
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(2.5rem, 9vw, 5rem);
+  line-height: 1.03;
+  letter-spacing: -.025em;
+}
+.hero-banner .hero-accent {
+  position: relative; display: inline-block; font-style: italic;
+  background: linear-gradient(100deg, var(--gold400), var(--gold500) 50%, var(--gold300) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+.hero-banner .hero-accent::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -.06em; height: .08em;
+  border-radius: 99px; background: linear-gradient(90deg, var(--gold500), transparent);
+  transform-origin: left; animation: line 1.1s .6s cubic-bezier(.2,.7,.2,1) both;
+}
+
+.hero-banner .hero-description {
+  max-width: 33rem; margin: 0 0 1.8rem;
+  font-size: clamp(1rem, 2.6vw, 1.15rem); line-height: 1.7;
+  color: rgba(251,247,238,.76);
+}
+
+/* ---------- Search ---------- */
+.hero-banner .ico {
+  width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.hero-banner .hero-search {
+  display: flex; align-items: center; gap: .4rem;
+  max-width: 36rem; padding: .45rem .45rem .45rem 1.1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(251,247,238,.18);
+  background: rgba(251,247,238,.08);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  box-shadow: 0 20px 50px -20px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08);
+  color: rgba(251,247,238,.6);
+  transition: border-color .25s, box-shadow .25s;
+}
+.hero-banner .hero-search:focus-within {
+  border-color: var(--gold400);
+  box-shadow: 0 0 0 4px rgba(232,195,106,.18), 0 20px 50px -20px rgba(0,0,0,.6);
+}
+.hero-banner .hero-search input {
+  flex: 1; min-width: 0; padding: .8rem .3rem;
+  background: transparent; border: 0; outline: 0;
+  font: 500 1rem/1.2 inherit; color: var(--ivory);
+}
+.hero-banner .hero-search input::placeholder { color: rgba(251,247,238,.5); }
+
+/* ---------- Buttons ---------- */
+.hero-banner .button {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+  min-height: 50px; padding: .85rem 1.5rem; border-radius: 14px;
+  font: 600 .98rem/1 inherit; text-decoration: none; cursor: pointer; overflow: hidden;
+  transition: transform .25s, box-shadow .25s, background .25s, border-color .25s;
+}
+.hero-banner .button-hero {
+  border: 0; color: var(--g950);
+  background: linear-gradient(135deg, var(--gold300), var(--gold500) 55%, var(--gold600));
+  box-shadow: 0 10px 28px -10px rgba(212,166,74,.7), inset 0 1px 0 rgba(255,255,255,.55);
+}
+.hero-banner .button-hero::before {
+  content: ""; position: absolute; top: 0; left: -120%; width: 60%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.55), transparent);
+  transform: skewX(-20deg); transition: left .7s;
+}
+.hero-banner .button-hero:hover { transform: translateY(-2px); }
+.hero-banner .button-hero:hover::before { left: 140%; }
+
+.hero-banner .hero-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1.1rem; }
+.hero-banner .button-hero-ghost {
+  color: var(--ivory); border: 1px solid rgba(251,247,238,.25);
+  background: rgba(251,247,238,.05);
+}
+.hero-banner .button-hero-ghost:hover { transform: translateY(-2px); background: rgba(251,247,238,.12); border-color: rgba(251,247,238,.5); }
+.hero-banner .button-outline-gold { color: var(--gold400); border-color: rgba(232,195,106,.45); }
+.hero-banner .button-outline-gold:hover { border-color: var(--gold400); background: rgba(232,195,106,.1); }
+.hero-banner .button-arrow { transition: transform .25s; }
+.hero-banner .button:hover .button-arrow { transform: translateX(5px); }
+
+/* ---------- Trust ---------- */
+.hero-banner .hero-trust {
+  display: flex; flex-wrap: wrap; gap: .6rem 1.4rem;
+  margin: 1.8rem 0 0; padding: 0; list-style: none;
+  font-size: .85rem; color: rgba(251,247,238,.65);
+}
+.hero-banner .hero-trust li { display: inline-flex; align-items: center; gap: .45rem; }
+.hero-banner .hero-trust .ico { width: 16px; height: 16px; color: var(--gold400); stroke-width: 2.6; }
+
+/* ---------- Category cards ---------- */
+.hero-banner .hero-visual {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .9rem;
+}
+.hero-banner .cat-card {
+  position: relative; display: flex; flex-direction: column; gap: .2rem;
+  padding: 1.1rem 1rem 1.2rem; border-radius: 20px;
+  text-decoration: none; color: var(--ivory); overflow: hidden;
+  border: 1px solid rgba(251,247,238,.14);
+  background: linear-gradient(160deg, rgba(251,247,238,.12), rgba(251,247,238,.03));
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: 0 24px 50px -28px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.1);
+  transition: transform .35s cubic-bezier(.2,.7,.2,1), border-color .3s, background .3s;
+}
+.hero-banner .cat-card::before {
+  content: ""; position: absolute; width: 140px; height: 140px; right: -50px; top: -50px;
+  background: radial-gradient(circle, rgba(232,195,106,.35), transparent 70%);
+  opacity: 0; transition: opacity .35s;
+}
+.hero-banner .cat-card:hover { transform: translateY(-6px); border-color: rgba(232,195,106,.6); }
+.hero-banner .cat-card:hover::before { opacity: 1; }
+
+.hero-banner .cat-icon {
+  display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: .7rem;
+  border-radius: 13px; color: var(--g950);
+  background: linear-gradient(135deg, var(--gold300), var(--gold500));
+  box-shadow: 0 8px 20px -8px rgba(212,166,74,.8);
+}
+.hero-banner .cat-icon svg {
+  width: 22px; height: 22px; fill: none; stroke: currentColor;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.hero-banner .cat-card strong { font-size: 1.05rem; font-weight: 600; }
+.hero-banner .cat-card small { font-size: .8rem; line-height: 1.4; color: rgba(251,247,238,.62); }
+.hero-banner .cat-count {
+  align-self: flex-start; margin-top: .6rem; padding: .2rem .6rem; border-radius: 99px;
+  font-size: .72rem; font-weight: 600; color: var(--gold400);
+  background: rgba(232,195,106,.12); border: 1px solid rgba(232,195,106,.25);
+}
+.hero-banner .cat-count:empty { display: none; }
+.hero-banner .cat-go {
+  position: absolute; right: 1rem; bottom: 1rem; color: var(--gold400);
+  transition: transform .3s;
+}
+.hero-banner .cat-card:hover .cat-go { transform: translateX(5px); }
+
+/* gentle float after reveal */
+.hero-banner .cat-card:nth-child(odd)  { animation: rise .9s cubic-bezier(.2,.7,.2,1) var(--d) forwards, bob 7s 1.4s ease-in-out infinite; }
+.hero-banner .cat-card:nth-child(even) { animation: rise .9s cubic-bezier(.2,.7,.2,1) var(--d) forwards, bob 8s 1.8s ease-in-out infinite reverse; }
+
+/* focus */
+.hero-banner a:focus-visible, .hero-banner button:focus-visible { outline: 3px solid var(--gold400); outline-offset: 3px; }
+
+/* ---------- Scroll cue ---------- */
+.hero-banner .hero-scroll {
+  position: absolute; left: 50%; bottom: 1.4rem; width: 26px; height: 42px;
+  border: 2px solid rgba(251,247,238,.3); border-radius: 14px; transform: translateX(-50%);
+}
+.hero-banner .hero-scroll span {
+  position: absolute; top: 8px; left: 50%; width: 4px; height: 8px; margin-left: -2px;
+  border-radius: 2px; background: var(--gold400); animation: scroll 1.8s infinite;
+}
+
+/* ---------- Desktop ---------- */
+@media (min-width: 960px) {
+  .hero-banner { padding: 8rem 0 6rem; }
+  .hero-banner .hero-banner-inner { grid-template-columns: 1.1fr .9fr; gap: 4rem; }
+  .hero-banner .hero-visual { gap: 1.1rem; }
+  .hero-banner .hero-visual .cat-card:nth-child(even) { margin-top: 2.2rem; }
+  .hero-banner .hero-visual .cat-card { padding: 1.4rem 1.3rem 1.5rem; }
+  .hero-banner .cat-card strong { font-size: 1.15rem; }
+}
+
+/* ---------- Small phones ---------- */
+@media (max-width: 480px) {
+  .hero-banner { padding: 5.5rem 0 4.5rem; }
+  .hero-banner .hero-actions .button { flex: 1 1 100%; }
+  .hero-banner .hero-search .button { padding-inline: 1.1rem; }
+  .hero-banner .cat-card small { display: none; }
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes rise     { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes bob      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes line     { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes shimmer  { to { background-position: -200% 0; } }
+@keyframes pulse    { 0% { box-shadow: 0 0 0 0 rgba(232,195,106,.6); } 70%,100% { box-shadow: 0 0 0 10px rgba(232,195,106,0); } }
+@keyframes scroll   { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
+@keyframes orbA     { to { transform: translate(-60px, 80px) scale(1.15); } }
+@keyframes orbB     { to { transform: translate(90px, -60px) scale(1.1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-banner *, .hero-banner *::before, .hero-banner *::after { animation: none !important; transition: none !important; }
+  .hero-banner .reveal { opacity: 1; }
+}
+</style>
+
+<!-- ============ HERO v2 JS (paste into app.js) ============ -->
+<script>
+(function () {
+  const hero = document.getElementById("home");
+  if (!hero) return;
+
+  /* 1) Hero search -> uses your existing search box in #opportunities */
+  const form = document.getElementById("heroSearch");
+  form?.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const q = form.q.value.trim();
+    const target = document.querySelector('#opportunities input[type="search"], #opportunities input[type="text"]');
+    if (target) {
+      target.value = q;
+      target.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    document.getElementById("opportunities")?.scrollIntoView({ behavior: "smooth" });
+  });
+
+  /* 2) Category cards -> clicks your existing filter control if found */
+  hero.querySelectorAll(".cat-card").forEach(function (card) {
+    card.addEventListener("click", function () {
+      const type = card.dataset.filter;
+      const existing = document.querySelector(
+        '#opportunities [data-category="' + type + '"], #opportunities [data-type="' + type + '"], #opportunities [data-value="' + type + '"]'
+      );
+      existing?.click();
+      document.dispatchEvent(new CustomEvent("hero:filter", { detail: { type: type } }));
+    });
+  });
+
+  /* 3) Optional live counts. Call this after your Supabase listings load:
+        setHeroCounts({ scholarship: 24, job: 18, grant: 7, internship: 11 }) */
+  window.setHeroCounts = function (counts) {
+    Object.keys(counts).forEach(function (key) {
+      const el = hero.querySelector('[data-count="' + key + '"]');
+      if (el && counts[key] > 0) el.textContent = counts[key] + " open";
+    });
+  };
+})();
+</script>
 
 
     <!-- OPPORTUNITY CATEGORIES -->
