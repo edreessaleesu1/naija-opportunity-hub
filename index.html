@@ -177,67 +177,48 @@
 
   <main>
 
-    <!-- Optional fonts (add once in <head>) -->
-<!-- <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"> -->
+    <section class="hero hero-banner" id="home">
+  <div class="hero-bg" aria-hidden="true"></div>
 
-      
+  <div
+    class="hero-photo"
+    role="img"
+    aria-label="Students studying together at a laptop in a library"
+  ></div>
 
+  <div class="wrap hero-banner-inner">
+    <div class="hero-banner-copy">
 
+      <div class="eyebrow">
+        <span class="eyebrow-dot" aria-hidden="true"></span>
+        OPPORTUNITIES FOR THE NEXT GENERATION
+      </div>
 
+      <h1>
+        Your Next Big<br>
+        <span>Opportunity</span><br>
+        Starts Here.
+      </h1>
 
-  <div class="eyebrow">
-    <span class="eyebrow-dot" aria-hidden="true"></span>
-    OPPORTUNITIES FOR THE NEXT GENERATION
+      <p class="hero-description">
+        Discover scholarships, jobs, grants, internships and career
+        opportunities that move your future forward.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#opportunities" class="button button-hero">
+          Explore Opportunities
+          <span aria-hidden="true">→</span>
+        </a>
+
+        <a href="#career-kit" class="button button-hero-ghost">
+          Build Your Career
+        </a>
+      </div>
+
+    </div>
   </div>
-
-  <h1>
-    Your Next Big<br>
-    <span>Opportunity</span><br>
-    Starts Here.
-  </h1>
-
-  <p class="hero-description">
-    Discover scholarships, jobs, grants, internships and career
-    opportunities that move your future forward.
-  </p>
-
-  <div class="hero-actions">
-    <a href="#opportunities" class="button button-hero">
-      Explore Opportunities
-      <span aria-hidden="true">→</span>
-    </a>
-
-    <a href="#career-kit" class="button button-hero-ghost">
-      Build Your Career
-    </a>
-  </div>
-
-</div>
-  /* 2) Category cards -> clicks your existing filter control if found */
-  hero.querySelectorAll(".cat-card").forEach(function (card) {
-    card.addEventListener("click", function () {
-      const type = card.dataset.filter;
-      const existing = document.querySelector(
-        '#opportunities [data-category="' + type + '"], #opportunities [data-type="' + type + '"], #opportunities [data-value="' + type + '"]'
-      );
-      existing?.click();
-      document.dispatchEvent(new CustomEvent("hero:filter", { detail: { type: type } }));
-    });
-  });
-
-  /* 3) Optional live counts. Call this after your Supabase listings load:
-        setHeroCounts({ scholarship: 24, job: 18, grant: 7, internship: 11 }) */
-  window.setHeroCounts = function (counts) {
-    Object.keys(counts).forEach(function (key) {
-      const el = hero.querySelector('[data-count="' + key + '"]');
-      if (el && counts[key] > 0) el.textContent = counts[key] + " open";
-    });
-  };
-})();
-</script>
-
+</section
 
     <!-- OPPORTUNITY CATEGORIES -->
     <section
