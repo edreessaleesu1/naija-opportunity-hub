@@ -73,14 +73,19 @@ window.addEventListener("error", function(event) {
       </button>
 
       <nav class="navlinks" id="navLinks" aria-label="Main navigation">
-        <a href="#home">Home</a>
-        <a href="#opportunities">Opportunities</a>
-        <a href="#career-kit">Career Kit</a>
-        <a href="#tracker">Application Tracker</a>
-        <a href="#about">About</a>
-        <a href="#opportunities">Explore Opportunities</a>
-        <a href="account.html" id="accountNavLink">My Account</a>
-      </nav>
+  <a href="#home">Home</a>
+  <a href="#opportunities">Opportunities</a>
+  <a href="#career-kit">Career Kit</a>
+  <a href="#tracker">Application Tracker</a>
+  <a href="#about">About</a>  <div class="nav-auth" id="navAuth">
+    <a href="account.html" class="nav-signin" id="signInLink">Sign In</a>
+    <a href="account.html" class="nav-register" id="createAccountLink">Create Account</a><div class="account-menu" id="accountMenu" hidden>
+  <a href="account.html" id="myAccountLink">My Account</a>
+  <button type="button" id="navLogoutButton">Sign Out</button>
+</div>
+
+  </div>
+</nav>
 
     </div>
   </header>
