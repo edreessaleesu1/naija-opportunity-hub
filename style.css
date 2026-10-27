@@ -3641,3 +3641,46 @@ body {
     padding: 21px 16px;
   }
 }
+/* Opportunity card image area */
+.opportunity-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(135deg, #e8f5ed, #d8e9df);
+}
+
+/* Keep opportunity images properly proportioned */
+.opportunity-image-wrap .opportunity-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Branded fallback when an image is missing or unavailable */
+.opportunity-image-wrap.image-unavailable {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e8f5ed, #d5e9dc);
+}
+
+.opportunity-image-wrap.image-unavailable::before {
+  content: "NAIJA OPPORTUNITY HUB";
+  display: block;
+  max-width: 90%;
+  color: #086b45;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+/* Prevent images from overflowing their cards */
+.card {
+  min-width: 0;
+  overflow: hidden;
+}
