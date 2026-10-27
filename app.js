@@ -209,192 +209,135 @@
      Opportunity cards
   ---------------------------------------------------------------- */
 
-  function buildCard(item, bookmarks) {
-    const id = String(item.id);
-    const saved = bookmarks.includes(id);
-    const link = safeURL(item.url);
-    const image = safeURL(item.image_url);
-    const badgeText = item.verified ? "Source checked" : "Check source";
-    const closed = isPastDeadline(item.deadline);
+ function buildCard(item, bookmarks) {
+  const id = String(item.id);
+  const saved = bookmarks.includes(id);
+  const link = safeURL(item.url);
+  const image = safeURL(item.image_url);
+  const badgeText = item.verified ? "Source checked" : "Check source";
+  const closed = isPastDeadline(item.deadline);
 
-    const card = el("article", "card");
+  const card = el("article", "card");
 
-    if (image) {
-      const img = el("img", "opportunity-image");
+  // Always create an image area so cards remain visually consistent.
+  const imageWrap = el("div", "opportunity-image-wrap");
+  const img = el("img", "opportunity-image");
 
-      img.src = image;
-      img.alt = item.title || "";
-      img.loading = "lazy";
+  img.alt = item.title
+    ? "Image for " + item.title
+    : "Opportunity image";
 
-      img.addEventListener("error", () => {
-        img.style.display = "none";
-      });
+  img.loading = "lazy";
+  img.decoding = "async";
 
-      card.appendChild(img);
-    }
-
-    const top = el("div", "card-top");
-
-    top.appendChild(el("span", "badge", item.category || "Opportunity"));
-
-    const bookmark = el(
-      "button",
-      "bookmark" + (saved ? " saved" : ""),
-      saved ? "\u2605 Saved" : "\u2606 Save"
-    );
-
-    bookmark.type = "button";
-    bookmark.dataset.bookmark = id;
-    bookmark.setAttribute(
-      "aria-label",
-      saved ? "Remove bookmark" : "Save bookmark"
-    );
-
-    top.appendChild(bookmark);
-    card.appendChild(top);
-
-    card.appendChild(el("h3", "", item.title || "Untitled opportunity"));
-
-    card.appendChild(
-      el("div", "org", item.organisation || "Organisation not specified")
-    );
-
-    card.appendChild(
-      el(
-        "p",
-        "card-desc",
-        item.description || "Visit the official source for full details."
-      )
-    );
-
-    const meta1 = el("div", "meta");
-
-    meta1.appendChild(
-      el("span", "", "\uD83D\uDCCD " + (item.location || "Nigeria"))
-    );
-
-    meta1.appendChild(
-      el(
-        "span",
-        "",
-        "\uD83D\uDDD3\uFE0F Deadline: " +
-          formatDate(item.deadline) +
-          (closed ? " (closed)" : "")
-      )
-    );
-
-    card.appendChild(meta1);
-
-    const meta2 = el("div", "meta");
-
-    meta2.appendChild(
-      el(
-        "span",
-        "",
-        (item.verified ? "\u2713 " : "\u2139\uFE0F ") + badgeText
-      )
-    );
-
-    card.appendChild(meta2);
-
-    const actions = el("div", "card-actions");
-
-    if (link) {
-      const sourceLink = el("a", "button button-primary", "View source \u2197");
-
-      sourceLink.href = link;
-      sourceLink.target = "_blank";
-      sourceLink.rel = "noopener noreferrer";
-
-      actions.appendChild(sourceLink);
-    } else {
-      actions.appendChild(el("span", "button button-outline", "Source not added"));
-    }
-
-    const trackButton = el("button", "button button-outline", "Track");
-
-    trackButton.type = "button";
-    trackButton.dataset.track = id;
-
-    actions.appendChild(trackButton);
-    card.appendChild(actions);
-
-    return card;
+  // Use the opportunity image when a valid URL is available.
+  if (image) {
+    img.src = image;
+  } else {
+    imageWrap.classList.add("image-unavailable");
   }
 
-  function getFilteredOpportunities() {
-    const searchInput = $("searchInput");
-    const categoryFilter = $("categoryFilter");
-    const sortFilter = $("sortFilter");
+  // If the image cannot load, show a branded fallback instead of a blank space.
+  img.addEventListener("error", () => {
+    img.removeAttribute("src");
+    img.style.display = "none";
+    imageWrap.classList.add("image-unavailable");
+  });
 
-    const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
-    const category = categoryFilter ? categoryFilter.value : "All";
-    const sort = sortFilter ? sortFilter.value : "newest";
+  imageWrap.appendChild(img);
+  card.appendChild(imageWrap);
 
-    const results = state.opportunities.filter((item) => {
-      const searchableText = [
-        item.title,
-        item.organisation,
-        item.category,
-        item.location,
-        item.description,
-        item.eligibility
-      ]
-        .map((part) => String(part === null || part === undefined ? "" : part))
-        .join(" ")
-        .toLowerCase();
+  const top = el("div", "card-top");
 
-      const itemCategory = String(item.category || "").toLowerCase();
+  top.appendChild(el("span", "badge", item.category || "Opportunity"));
 
-      const matchesQuery = !query || searchableText.includes(query);
+  const bookmark = el(
+    "button",
+    "bookmark" + (saved ? " saved" : ""),
+    saved ? "\u2605 Saved" : "\u2606 Save"
+  );
 
-      const matchesDropdown =
-        category === "All" || itemCategory === String(category).toLowerCase();
+  bookmark.type = "button";
+  bookmark.dataset.bookmark = id;
+  bookmark.setAttribute(
+    "aria-label",
+    saved ? "Remove bookmark" : "Save bookmark"
+  );
 
-      const matchesButton =
-        state.activeCategory === "All" ||
-        itemCategory === String(state.activeCategory).toLowerCase();
+  top.appendChild(bookmark);
+  card.appendChild(top);
 
-      return matchesQuery && matchesDropdown && matchesButton;
-    });
+  card.appendChild(el("h3", "", item.title || "Untitled opportunity"));
 
-    if (sort === "title") {
-      results.sort((a, b) => String(a.title).localeCompare(String(b.title)));
-    } else if (sort === "deadline") {
-      results.sort((a, b) => {
-        const aTime = timeValue(a.deadline);
-        const bTime = timeValue(b.deadline);
+  card.appendChild(
+    el("div", "org", item.organisation || "Organisation not specified")
+  );
 
-        if (!aTime && !bTime) return 0;
-        if (!aTime) return 1;
-        if (!bTime) return -1;
+  card.appendChild(
+    el(
+      "p",
+      "card-desc",
+      item.description || "Visit the official source for full details."
+    )
+  );
 
-        return aTime - bTime;
-      });
-    } else {
-      results.sort((a, b) => timeValue(b.created_at) - timeValue(a.created_at));
-    }
+  const meta1 = el("div", "meta");
 
-    return results;
+  meta1.appendChild(
+    el("span", "", "\uD83D\uDCCD " + (item.location || "Nigeria"))
+  );
+
+  meta1.appendChild(
+    el(
+      "span",
+      "",
+      "\uD83D\uDDD3\uFE0F Deadline: " +
+        formatDate(item.deadline) +
+        (closed ? " (closed)" : "")
+    )
+  );
+
+  card.appendChild(meta1);
+
+  const meta2 = el("div", "meta");
+
+  meta2.appendChild(
+    el(
+      "span",
+      "",
+      (item.verified ? "\u2713 " : "\u2139\uFE0F ") + badgeText
+    )
+  );
+
+  card.appendChild(meta2);
+
+  const actions = el("div", "card-actions");
+
+  if (link) {
+    const sourceLink = el("a", "button button-primary", "View source \u2197");
+
+    sourceLink.href = link;
+    sourceLink.target = "_blank";
+    sourceLink.rel = "noopener noreferrer";
+
+    actions.appendChild(sourceLink);
+  } else {
+    actions.appendChild(
+      el("span", "button button-outline", "Source not added")
+    );
   }
 
-  function buildMessage(title, text, retry) {
-    const box = el("div", "empty");
+  const trackButton = el("button", "button button-outline", "Track");
 
-    box.appendChild(el("h3", "", title));
-    box.appendChild(el("p", "", text));
+  trackButton.type = "button";
+  trackButton.dataset.track = id;
 
-    if (retry) {
-      const retryButton = el("button", "button button-outline", "Try again");
+  actions.appendChild(trackButton);
+  card.appendChild(actions);
 
-      retryButton.type = "button";
-      retryButton.dataset.retry = "true";
-
-      box.appendChild(retryButton);
-    }
-
-    return box;
-  }
+  return card;
+} 
+    
 
   /* ---------------------------------------------------------------
      Opportunity grid rendering
