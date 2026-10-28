@@ -209,6 +209,91 @@
      Opportunity cards
   ---------------------------------------------------------------- */
 
+  /* ---------------------------------------------------------------
+     Missing opportunity helper functions — FIX
+  ---------------------------------------------------------------- */
+
+  function buildMessage(title, message, showRetry = false) {
+    const box = el("div", "empty");
+    box.appendChild(el("h3", "", title));
+    box.appendChild(el("p", "", message));
+
+    if (showRetry) {
+      const retry = el("button", "button button-primary", "Try Again");
+      retry.type = "button";
+      retry.dataset.retry = "true";
+      box.appendChild(retry);
+    }
+
+    return box;
+  }
+
+  function getFilteredOpportunities() {
+    const searchInput = $("searchInput");
+    const categoryFilter = $("categoryFilter");
+    const sortFilter = $("sortFilter");
+
+    const query = searchInput
+      ? searchInput.value.trim().toLowerCase()
+      : "";
+
+    const dropdownCategory = categoryFilter
+      ? categoryFilter.value
+      : "All";
+
+    const selectedCategory =
+      state.activeCategory !== "All"
+        ? state.activeCategory
+        : dropdownCategory;
+
+    const filtered = state.opportunities.filter((item) => {
+      const matchesCategory =
+        selectedCategory === "All" ||
+        item.category.toLowerCase() === selectedCategory.toLowerCase();
+
+      const searchableText = [
+        item.title,
+        item.organisation,
+        item.category,
+        item.description,
+        item.eligibility,
+        item.location
+      ].join(" ").toLowerCase();
+
+      const matchesSearch =
+        !query || searchableText.includes(query);
+
+      return matchesCategory && matchesSearch;
+    });
+
+    const sort = sortFilter ? sortFilter.value : "newest";
+
+    if (sort === "deadline") {
+      filtered.sort((a, b) => {
+        const aDate = timeValue(a.deadline);
+        const bDate = timeValue(b.deadline);
+
+        if (!aDate) return 1;
+        if (!bDate) return -1;
+
+        return aDate - bDate;
+      });
+    } else if (sort === "title") {
+      filtered.sort((a, b) =>
+        a.title.localeCompare(b.title)
+      );
+    } else {
+      filtered.sort((a, b) => {
+        const aDate = timeValue(a.created_at);
+        const bDate = timeValue(b.created_at);
+
+        return bDate - aDate;
+      });
+    }
+
+    return filtered;
+  }
+
  function buildCard(item, bookmarks) {
   const id = String(item.id);
   const saved = bookmarks.includes(id);
