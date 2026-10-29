@@ -1,99 +1,176 @@
+
 /*
- * Naija Opportunity Hub
- * Front-end application script.
- * Loads published opportunities from Supabase and provides search,
- * filtering, bookmarks and a local application tracker.
+ * NAIJA OPPORTUNITY HUB
+ * Main front-end application script
+ *
+ * Features:
+ * - Loads published opportunities from Supabase
+ * - Search and category filtering
+ * - Sorting by newest, deadline and title
+ * - Opportunity images with fallback
+ * - Bookmarks using localStorage
+ * - Application tracker using localStorage
+ * - CSV export
+ * - View All / Show Less
+ * - Loading, empty and error states
+ * - Optional debug mode: add ?debug=1 to the URL
  */
+
 (() => {
   "use strict";
 
-  /* ---------------------------------------------------------------
-     Configuration
-  ---------------------------------------------------------------- */
+  /* =========================================================
+     1. CONFIGURATION
+  ========================================================= */
 
-  const SUPABASE_URL = "https://djxornmwvkauhkcuhgxc.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
+  const SUPABASE_URL =
+    "https://djxornmwvkauhkcuhgxc.supabase.co";
 
-  const STORAGE = {
-    bookmarks: "noh_bookmarks_v1",
-    tracker: "noh_tracker_v1"
-  };
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
 
-  const TRACKER_STATUSES = [
-    "Interested",
-    "Preparing",
-    "Applied",
-    "Interview",
-    "Successful",
-    "Unsuccessful"
-  ];
+  const TABLE_NAME = "opportunities";
 
-  const HOME_OPPORTUNITIES_LIMIT = 6;
-  const SEARCH_DELAY_MS = 200;
-  const TOAST_DURATION_MS = 3500;
+  const BOOKMARKS_KEY = "noh_bookmarks_v1";
+  const TRACKER_KEY = "noh_tracker_v1";
 
-  /* Add ?debug=1 to the page address to see technical error details. */
-  const DEBUG = /(?:^|[?&])debug=1(?:&|$)/.test(window.location.search || "");
+  const DEFAULT_VISIBLE_COUNT = 6;
 
-  /* ---------------------------------------------------------------
-     Application state
-  ---------------------------------------------------------------- */
+  const FALLBACK_IMAGE =
+    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80";
 
-  const state = {
-    opportunities: [],
-    activeCategory: "All",
-    loadState: "loading"
-  };
+  const DEBUG =
+    new URLSearchParams(window.location.search).get("debug") === "1";
 
-  /* ---------------------------------------------------------------
-     Utilities
-  ---------------------------------------------------------------- */
+  /* =========================================================
+     2. DOM HELPERS
+  ========================================================= */
 
-  const $ = (id) => document.getElementById(id);
+  const $ = (selector, parent = document) =>
+    parent.querySelector(selector);
 
-  function el(tag, className, text) {
-    const node = document.createElement(tag);
+  const $$ = (selector, parent = document) =>
+    Array.from(parent.querySelectorAll(selector));
 
-    if (className) node.className = className;
-    if (text !== undefined && text !== null) node.textContent = text;
-
-    return node;
+  function getElement(...ids) {
+    for (const id of ids) {
+      const element = document.getElementById(id);
+      if (element) return element;
+    }
+    return null;
   }
 
-  function debounce(callback, delay) {
-    let timer = null;
+  const elements = {
+    opportunities: getElement(
+      "opportunitiesGrid",
+      "opportunityGrid",
+      "opportunitiesContainer"
+    ),
 
-    return function () {
-      clearTimeout(timer);
-      timer = setTimeout(callback, delay);
-    };
-  }
+    search: getElement(
+      "searchInput",
+      "opportunitySearch",
+      "search"
+    ),
 
-  function safeURL(value) {
+    sort: getElement(
+      "sortSelect",
+      "sortOpportunities"
+    ),
+
+    viewAll: getElement(
+      "viewAllBtn",
+      "viewAll",
+      "showAllBtn"
+    ),
+
+    bookmarks: getElement(
+      "bookmarksCount",
+      "bookmarkCount"
+    ),
+
+    tracker: getElement(
+      "trackerCount",
+      "applicationCount"
+    ),
+
+    loading: getElement(
+      "loadingState",
+      "opportunitiesLoading"
+    ),
+
+    empty: getElement(
+      "emptyState",
+      "noOpportunities"
+    ),
+
+    error: getElement(
+      "errorState",
+      "opportunitiesError"
+    )
+  };
+
+  /* =========================================================
+     3. APPLICATION STATE
+  ========================================================= */
+
+  let allOpportunities = [];
+  let filteredOpportunities = [];
+
+  let activeCategory = "All";
+  let showAll = false;
+  let isLoading = false;
+
+  let bookmarks = readStorage(BOOKMARKS_KEY, []);
+  let tracker = readStorage(TRACKER_KEY, []);
+
+  /* =========================================================
+     4. GENERAL HELPERS
+  ========================================================= */
+
+  function readStorage(key, fallback) {
     try {
-      const url = new URL(String(value || ""));
-
-      return url.protocol === "https:" || url.protocol === "http:"
-        ? url.href
-        : "";
+      const value = JSON.parse(localStorage.getItem(key));
+      return value ?? fallback;
     } catch (error) {
-      return "";
+      console.warn("Storage could not be read:", key, error);
+      return fallback;
     }
   }
 
-  function parseDate(value) {
-    if (!value) return null;
+  function saveStorage(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error("Storage could not be saved:", error);
+    }
+  }
 
-    const text = String(value);
-    const parsed = new Date(text.length === 10 ? text + "T00:00:00" : text);
+  function escapeHTML(value) {
+    return String(value ?? "").replace(
+      /[&<>"']/g,
+      character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[character]
+    );
+  }
 
-    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  function normalize(value) {
+    return String(value ?? "").trim().toLowerCase();
   }
 
   function formatDate(value) {
-    const date = parseDate(value);
+    if (!value) return "Not specified";
 
-    if (!date) return "Check official source";
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return "Not specified";
+    }
 
     return date.toLocaleDateString("en-NG", {
       day: "numeric",
@@ -102,902 +179,686 @@
     });
   }
 
-  function isPastDeadline(value) {
-    const date = parseDate(value);
-
-    if (!date) return false;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return date.getTime() < today.getTime();
+  function getOpportunityId(item) {
+    return String(item.id ?? "");
   }
 
-  function timeValue(value) {
-    const date = parseDate(value);
-
-    return date ? date.getTime() : 0;
+  function isBookmarked(id) {
+    return bookmarks.some(item => String(item) === String(id));
   }
 
-  function pluralizeOpportunity(count) {
-    return count === 1 ? "opportunity" : "opportunities";
+  function isTracked(id) {
+    return tracker.some(item => String(item.id) === String(id));
   }
 
-  function showToast(message) {
-    const toast = $("toast");
-
-    if (!toast) return;
-
-    toast.textContent = message;
-    toast.classList.add("show");
-
-    clearTimeout(showToast.timer);
-
-    showToast.timer = setTimeout(() => {
-      toast.classList.remove("show");
-    }, TOAST_DURATION_MS);
-  }
-
-  function setDataStatus(status, notice) {
-    const statusElement = $("dataStatus");
-    const noticeElement = $("dataNotice");
-
-    if (statusElement) statusElement.textContent = status || "";
-
-    if (noticeElement) {
-      noticeElement.textContent = notice || "";
-      noticeElement.hidden = !notice;
+  function showElement(element, visible) {
+    if (element) {
+      element.hidden = !visible;
     }
   }
 
-  function setResultsCount(text) {
-    const resultsCount = $("resultsCount");
-
-    if (resultsCount) resultsCount.textContent = text;
-  }
-
-  /* ---------------------------------------------------------------
-     Local storage
-  ---------------------------------------------------------------- */
-
-  function readList(key) {
-    try {
-      const value = JSON.parse(localStorage.getItem(key));
-
-      return Array.isArray(value) ? value : [];
-    } catch (error) {
-      return [];
+  function debugLog(...args) {
+    if (DEBUG) {
+      console.log("[NOH]", ...args);
     }
   }
 
-  function writeList(key, items, failureMessage) {
-    try {
-      localStorage.setItem(key, JSON.stringify(items));
-      return true;
-    } catch (error) {
-      console.error(failureMessage, error);
-      showToast(failureMessage);
-      return false;
+  /* =========================================================
+     5. SUPABASE CONNECTION
+  ========================================================= */
+
+  async function fetchOpportunities(includeImages = true) {
+    const columns = [
+      "id",
+      "title",
+      "organization",
+      "category",
+      "description",
+      "eligibility",
+      "location",
+      "application_url",
+      "source_url",
+      "deadline",
+      "status",
+      "verified_at",
+      "created_at"
+    ];
+
+    if (includeImages) {
+      columns.push("image_url");
     }
-  }
 
-  function getBookmarks() {
-    return readList(STORAGE.bookmarks);
-  }
+    const query = new URLSearchParams({
+      select: columns.join(","),
+      status: "eq.published",
+      order: "created_at.desc"
+    });
 
-  function saveBookmarks(items) {
-    return writeList(
-      STORAGE.bookmarks,
-      items,
-      "Bookmarks could not be saved on this device."
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?${query}`,
+      {
+        method: "GET",
+        headers: {
+          apikey: SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+          Accept: "application/json"
+        }
+      }
     );
-  }
 
-  function getTracker() {
-    return readList(STORAGE.tracker);
-  }
+    const result = await response.json().catch(() => null);
 
-  function saveTracker(items) {
-    return writeList(
-      STORAGE.tracker,
-      items,
-      "Tracker changes could not be saved on this device."
-    );
-  }
+    if (!response.ok) {
+      const error = new Error(
+        result?.message ||
+        result?.details ||
+        `Supabase request failed: ${response.status}`
+      );
 
-  /* ---------------------------------------------------------------
-     Opportunity cards
-  ---------------------------------------------------------------- */
+      error.status = response.status;
+      error.details = result;
 
-  /* ---------------------------------------------------------------
-     Missing opportunity helper functions — FIX
-  ---------------------------------------------------------------- */
-
-  function buildMessage(title, message, showRetry = false) {
-    const box = el("div", "empty");
-    box.appendChild(el("h3", "", title));
-    box.appendChild(el("p", "", message));
-
-    if (showRetry) {
-      const retry = el("button", "button button-primary", "Try Again");
-      retry.type = "button";
-      retry.dataset.retry = "true";
-      box.appendChild(retry);
+      throw error;
     }
 
-    return box;
+    return Array.isArray(result) ? result : [];
   }
 
-  function getFilteredOpportunities() {
-    const searchInput = $("searchInput");
-    const categoryFilter = $("categoryFilter");
-    const sortFilter = $("sortFilter");
+  async function loadOpportunities() {
+    if (isLoading) return;
 
-    const query = searchInput
-      ? searchInput.value.trim().toLowerCase()
-      : "";
+    isLoading = true;
 
-    const dropdownCategory = categoryFilter
-      ? categoryFilter.value
-      : "All";
+    showElement(elements.loading, true);
+    showElement(elements.empty, false);
+    showElement(elements.error, false);
 
-    const selectedCategory =
-      state.activeCategory !== "All"
-        ? state.activeCategory
-        : dropdownCategory;
+    if (elements.opportunities) {
+      elements.opportunities.innerHTML = "";
+    }
 
-    const filtered = state.opportunities.filter((item) => {
+    try {
+      let data;
+
+      try {
+        data = await fetchOpportunities(true);
+        debugLog("Loaded opportunities with image_url.");
+      } catch (error) {
+        const missingImageColumn =
+          /image_url|column.*does not exist|schema cache/i.test(
+            error.message
+          );
+
+        if (!missingImageColumn) {
+          throw error;
+        }
+
+        debugLog(
+          "image_url column unavailable. Retrying without it."
+        );
+
+        data = await fetchOpportunities(false);
+      }
+
+      allOpportunities = data.map(item => ({
+        ...item,
+        title: item.title || "Untitled Opportunity",
+        organization:
+          item.organization ||
+          item.organisation ||
+          "Organisation not specified",
+        category: item.category || "Other",
+        description: item.description || "",
+        image_url: item.image_url || "",
+        application_url:
+          item.application_url ||
+          item.source_url ||
+          ""
+      }));
+
+      debugLog("Opportunities loaded:", allOpportunities);
+
+      applyFilters();
+
+    } catch (error) {
+      console.error("Unable to load opportunities:", error);
+
+      showElement(elements.error, true);
+
+      if (elements.error) {
+        elements.error.innerHTML = `
+          <p>We couldn't load opportunities right now.</p>
+          <button type="button" id="retryOpportunities">
+            Try Again
+          </button>
+          ${
+            DEBUG
+              ? `<pre>${escapeHTML(error.message)}</pre>`
+              : ""
+          }
+        `;
+
+        const retryButton = $("#retryOpportunities", elements.error);
+
+        retryButton?.addEventListener(
+          "click",
+          loadOpportunities
+        );
+      }
+    } finally {
+      isLoading = false;
+      showElement(elements.loading, false);
+    }
+  }
+
+  /* =========================================================
+     6. FILTERING AND SORTING
+  ========================================================= */
+
+  function applyFilters() {
+    const searchTerm = normalize(
+      elements.search?.value || ""
+    );
+
+    filteredOpportunities = allOpportunities.filter(item => {
       const matchesCategory =
-        selectedCategory === "All" ||
-        item.category.toLowerCase() === selectedCategory.toLowerCase();
+        activeCategory === "All" ||
+        normalize(item.category) === normalize(activeCategory);
 
       const searchableText = [
         item.title,
-        item.organisation,
+        item.organization,
         item.category,
         item.description,
         item.eligibility,
         item.location
-      ].join(" ").toLowerCase();
+      ].join(" ");
 
       const matchesSearch =
-        !query || searchableText.includes(query);
+        !searchTerm ||
+        normalize(searchableText).includes(searchTerm);
 
       return matchesCategory && matchesSearch;
     });
 
-    const sort = sortFilter ? sortFilter.value : "newest";
+    sortOpportunities();
+    renderOpportunities();
+  }
 
-    if (sort === "deadline") {
-      filtered.sort((a, b) => {
-        const aDate = timeValue(a.deadline);
-        const bDate = timeValue(b.deadline);
+  function sortOpportunities() {
+    const sortValue = elements.sort?.value || "newest";
 
-        if (!aDate) return 1;
-        if (!bDate) return -1;
+    filteredOpportunities.sort((a, b) => {
+      if (sortValue === "deadline") {
+        const dateA = a.deadline
+          ? new Date(a.deadline).getTime()
+          : Infinity;
 
-        return aDate - bDate;
-      });
-    } else if (sort === "title") {
-      filtered.sort((a, b) =>
-        a.title.localeCompare(b.title)
+        const dateB = b.deadline
+          ? new Date(b.deadline).getTime()
+          : Infinity;
+
+        return dateA - dateB;
+      }
+
+      if (sortValue === "title") {
+        return String(a.title).localeCompare(String(b.title));
+      }
+
+      return (
+        new Date(b.created_at || 0).getTime() -
+        new Date(a.created_at || 0).getTime()
       );
-    } else {
-      filtered.sort((a, b) => {
-        const aDate = timeValue(a.created_at);
-        const bDate = timeValue(b.created_at);
-
-        return bDate - aDate;
-      });
-    }
-
-    return filtered;
+    });
   }
 
- function buildCard(item, bookmarks) {
-  const id = String(item.id);
-  const saved = bookmarks.includes(id);
-  const link = safeURL(item.url);
-  const image = safeURL(item.image_url);
-  const badgeText = item.verified ? "Source checked" : "Check source";
-  const closed = isPastDeadline(item.deadline);
+  /* =========================================================
+     7. OPPORTUNITY CARD
+  ========================================================= */
 
-  const card = el("article", "card");
+  function createOpportunityCard(item) {
+    const id = getOpportunityId(item);
+    const bookmarked = isBookmarked(id);
+    const tracked = isTracked(id);
 
-  // Always create an image area so cards remain visually consistent.
-  const imageWrap = el("div", "opportunity-image-wrap");
-  const img = el("img", "opportunity-image");
+    const image = item.image_url || FALLBACK_IMAGE;
 
-  img.alt = item.title
-    ? "Image for " + item.title
-    : "Opportunity image";
+    const applicationURL = item.application_url || "";
 
-  img.loading = "lazy";
-  img.decoding = "async";
+    const safeApplicationURL = /^https?:\/\//i.test(applicationURL)
+      ? applicationURL
+      : "";
 
-  // Use the opportunity image when a valid URL is available.
-  if (image) {
-    img.src = image;
-  } else {
-    imageWrap.classList.add("image-unavailable");
+    const description = item.description.length > 180
+      ? `${item.description.slice(0, 180)}...`
+      : item.description;
+
+    const verified = Boolean(item.verified_at);
+
+    return `
+      <article class="opportunity-card" data-id="${escapeHTML(id)}">
+
+        <div class="opportunity-image">
+          <img
+            src="${escapeHTML(image)}"
+            alt="${escapeHTML(item.title)}"
+            loading="lazy"
+            onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
+          >
+
+          <span class="opportunity-category">
+            ${escapeHTML(item.category)}
+          </span>
+
+          <button
+            type="button"
+            class="bookmark-btn ${bookmarked ? "active" : ""}"
+            data-action="bookmark"
+            data-id="${escapeHTML(id)}"
+            aria-label="${bookmarked ? "Remove bookmark" : "Bookmark opportunity"}"
+            aria-pressed="${bookmarked}"
+          >
+            ${bookmarked ? "♥" : "♡"}
+          </button>
+        </div>
+
+        <div class="opportunity-content">
+
+          <div class="opportunity-organisation">
+            ${escapeHTML(item.organization)}
+            ${verified ? '<span class="verified-label">✓ Verified</span>' : ""}
+          </div>
+
+          <h3>${escapeHTML(item.title)}</h3>
+
+          <p class="opportunity-description">
+            ${escapeHTML(description)}
+          </p>
+
+          <div class="opportunity-meta">
+            <span>📍 ${escapeHTML(item.location || "Location not specified")}</span>
+            <span>📅 Deadline: ${escapeHTML(formatDate(item.deadline))}</span>
+          </div>
+
+          <div class="opportunity-actions">
+
+            ${
+              safeApplicationURL
+                ? `
+                  <a
+                    href="${escapeHTML(safeApplicationURL)}"
+                    class="apply-btn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-action="apply"
+                    data-id="${escapeHTML(id)}"
+                  >
+                    Apply Now
+                  </a>
+                `
+                : `
+                  <span class="apply-btn disabled">
+                    Application link unavailable
+                  </span>
+                `
+            }
+
+            <button
+              type="button"
+              class="track-btn ${tracked ? "active" : ""}"
+              data-action="track"
+              data-id="${escapeHTML(id)}"
+            >
+              ${tracked ? "✓ Tracking" : "Track Application"}
+            </button>
+
+          </div>
+
+        </div>
+      </article>
+    `;
   }
 
-  // If the image cannot load, show a branded fallback instead of a blank space.
-  img.addEventListener("error", () => {
-    img.removeAttribute("src");
-    img.style.display = "none";
-    imageWrap.classList.add("image-unavailable");
-  });
-
-  imageWrap.appendChild(img);
-  card.appendChild(imageWrap);
-
-  const top = el("div", "card-top");
-
-  top.appendChild(el("span", "badge", item.category || "Opportunity"));
-
-  const bookmark = el(
-    "button",
-    "bookmark" + (saved ? " saved" : ""),
-    saved ? "\u2605 Saved" : "\u2606 Save"
-  );
-
-  bookmark.type = "button";
-  bookmark.dataset.bookmark = id;
-  bookmark.setAttribute(
-    "aria-label",
-    saved ? "Remove bookmark" : "Save bookmark"
-  );
-
-  top.appendChild(bookmark);
-  card.appendChild(top);
-
-  card.appendChild(el("h3", "", item.title || "Untitled opportunity"));
-
-  card.appendChild(
-    el("div", "org", item.organisation || "Organisation not specified")
-  );
-
-  card.appendChild(
-    el(
-      "p",
-      "card-desc",
-      item.description || "Visit the official source for full details."
-    )
-  );
-
-  const meta1 = el("div", "meta");
-
-  meta1.appendChild(
-    el("span", "", "\uD83D\uDCCD " + (item.location || "Nigeria"))
-  );
-
-  meta1.appendChild(
-    el(
-      "span",
-      "",
-      "\uD83D\uDDD3\uFE0F Deadline: " +
-        formatDate(item.deadline) +
-        (closed ? " (closed)" : "")
-    )
-  );
-
-  card.appendChild(meta1);
-
-  const meta2 = el("div", "meta");
-
-  meta2.appendChild(
-    el(
-      "span",
-      "",
-      (item.verified ? "\u2713 " : "\u2139\uFE0F ") + badgeText
-    )
-  );
-
-  card.appendChild(meta2);
-
-  const actions = el("div", "card-actions");
-
-  if (link) {
-    const sourceLink = el("a", "button button-primary", "View source \u2197");
-
-    sourceLink.href = link;
-    sourceLink.target = "_blank";
-    sourceLink.rel = "noopener noreferrer";
-
-    actions.appendChild(sourceLink);
-  } else {
-    actions.appendChild(
-      el("span", "button button-outline", "Source not added")
-    );
-  }
-
-  const trackButton = el("button", "button button-outline", "Track");
-
-  trackButton.type = "button";
-  trackButton.dataset.track = id;
-
-  actions.appendChild(trackButton);
-  card.appendChild(actions);
-
-  return card;
-} 
-    
-
-  /* ---------------------------------------------------------------
-     Opportunity grid rendering
-  ---------------------------------------------------------------- */
-
-  /** Returns the "View All" button, creating it after the grid if needed. */
-  function getOrCreateViewAllButton(grid) {
-    let button = $("viewAllOpportunities");
-
-    if (button) return button;
-
-    button = el(
-      "button",
-      "button button-primary view-all-opportunities",
-      "View All Opportunities"
-    );
-
-    button.id = "viewAllOpportunities";
-    button.type = "button";
-    button.hidden = true;
-
-    grid.insertAdjacentElement("afterend", button);
-
-    return button;
-  }
-
-  /** True when the visitor has searched, filtered or changed the sort order. */
-  function hasActiveFilters() {
-    const search = $("searchInput");
-    const category = $("categoryFilter");
-    const sort = $("sortFilter");
-
-    return Boolean(
-      (search && search.value.trim()) ||
-        (category && category.value !== "All") ||
-        state.activeCategory !== "All" ||
-        (sort && sort.value && sort.value !== "newest")
-    );
-  }
+  /* =========================================================
+     8. RENDER OPPORTUNITIES
+  ========================================================= */
 
   function renderOpportunities() {
-    const grid = $("opportunityGrid");
-
-    if (!grid) {
-      console.error("Opportunity Hub: the opportunityGrid element is missing.");
-      return;
-    }
-
-    grid.textContent = "";
-
-    const viewAllButton = getOrCreateViewAllButton(grid);
-
-    // Loading state while Supabase responds.
-    if (state.loadState === "loading") {
-      setResultsCount("Finding the latest opportunities...");
-      viewAllButton.hidden = true;
-      grid.appendChild(el("div", "loading-card", "Loading opportunities..."));
-      return;
-    }
-
-    // Error state, with a retry option.
-    if (state.loadState === "error") {
-      setResultsCount("Unable to load");
-      viewAllButton.hidden = true;
-      grid.appendChild(
-        buildMessage(
-          "We could not load opportunities",
-          "Please check your internet connection and try again.",
-          true
-        )
+    if (!elements.opportunities) {
+      debugLog(
+        "Opportunity grid not found. Check your HTML element ID."
       );
       return;
     }
 
-    const filtered = getFilteredOpportunities();
-    const showAll = viewAllButton.dataset.showAll === "true";
-    const filtering = hasActiveFilters();
+    const visibleItems = showAll
+      ? filteredOpportunities
+      : filteredOpportunities.slice(0, DEFAULT_VISIBLE_COUNT);
 
-    // Searching or filtering shows every match; otherwise show only the newest.
-    const showEverything = filtering || showAll;
-    const visible = showEverything
-      ? filtered
-      : filtered.slice(0, HOME_OPPORTUNITIES_LIMIT);
+    elements.opportunities.innerHTML = visibleItems
+      .map(createOpportunityCard)
+      .join("");
 
-    setResultsCount(
-      showEverything
-        ? `${filtered.length} ${pluralizeOpportunity(filtered.length)} found`
-        : `Showing ${visible.length} latest ${pluralizeOpportunity(visible.length)}`
-    );
+    const hasResults = filteredOpportunities.length > 0;
 
-    viewAllButton.hidden =
-      filtering || filtered.length <= HOME_OPPORTUNITIES_LIMIT;
-    viewAllButton.textContent = showAll
-      ? `Show Latest ${HOME_OPPORTUNITIES_LIMIT}`
-      : `View All Opportunities (${filtered.length})`;
+    showElement(elements.empty, !hasResults);
 
-    // Empty states.
-    if (state.opportunities.length === 0) {
-      viewAllButton.hidden = true;
-      grid.appendChild(
-        buildMessage(
-          "No opportunities published yet",
-          "New opportunities are added regularly. Please check back soon.",
-          false
-        )
-      );
-      return;
+    if (elements.empty && !hasResults) {
+      elements.empty.textContent =
+        "No opportunities found. Try another search or category.";
     }
 
-    if (filtered.length === 0) {
-      viewAllButton.hidden = true;
-      grid.appendChild(
-        buildMessage(
-          "No matching opportunities",
-          state.activeCategory !== "All"
-            ? "Nothing is listed in this category right now. Try another category or clear the filters."
-            : "Try another keyword or clear the filters.",
-          false
-        )
-      );
-      return;
+    if (elements.viewAll) {
+      const shouldShowButton =
+        filteredOpportunities.length > DEFAULT_VISIBLE_COUNT;
+
+      showElement(elements.viewAll, shouldShowButton);
+
+      elements.viewAll.textContent = showAll
+        ? "Show Less"
+        : `View All (${filteredOpportunities.length})`;
     }
 
-    // Render cards.
-    const bookmarks = getBookmarks();
-    const fragment = document.createDocumentFragment();
-
-    visible.forEach((item) => fragment.appendChild(buildCard(item, bookmarks)));
-    grid.appendChild(fragment);
+    updateCounters();
+    syncCategoryButtons();
   }
 
-  /* ---------------------------------------------------------------
-     Application tracker
-  ---------------------------------------------------------------- */
+  /* =========================================================
+     9. CATEGORY BUTTONS
+  ========================================================= */
 
-  function renderTracker() {
-    const list = $("trackerList");
-
-    if (!list) return;
-
-    const tracker = getTracker();
-
-    list.textContent = "";
-
-    if (tracker.length === 0) {
-      const empty = el("div", "empty");
-
-      empty.appendChild(el("strong", "", "Your tracker is empty."));
-      empty.appendChild(el("p", "", "Tap Track on an opportunity to add it here."));
-
-      list.appendChild(empty);
-      return;
-    }
-
-    tracker.forEach((item) => {
-      const row = el("div", "tracker-item");
-      const info = el("div");
-
-      info.appendChild(el("strong", "", item.title || "Untitled opportunity"));
-      info.appendChild(el("small", "", item.organisation || ""));
-      row.appendChild(info);
-
-      const select = el("select");
-
-      select.dataset.status = String(item.id);
-      select.setAttribute(
-        "aria-label",
-        "Application status for " + (item.title || "this opportunity")
+  function getCategoryButtons() {
+    return $$(
+      "[data-category], .category, .category-button, .category-card"
+    ).filter(button => {
+      return (
+        button.tagName === "BUTTON" ||
+        button.tagName === "A" ||
+        button.hasAttribute("data-category")
       );
+    });
+  }
 
-      TRACKER_STATUSES.forEach((status) => {
-        const option = el("option", "", status);
+  function syncCategoryButtons() {
+    getCategoryButtons().forEach(button => {
+      const category =
+        button.dataset.category ||
+        button.textContent.trim();
 
-        option.value = status;
-        option.selected = item.status === status;
+      const active =
+        normalize(category) === normalize(activeCategory);
 
-        select.appendChild(option);
+      button.classList.toggle("active", active);
+
+      if (active) {
+        button.setAttribute("aria-pressed", "true");
+      } else {
+        button.setAttribute("aria-pressed", "false");
+      }
+    });
+  }
+
+  function setupCategoryButtons() {
+    getCategoryButtons().forEach(button => {
+      button.addEventListener("click", event => {
+        event.preventDefault();
+
+        activeCategory =
+          button.dataset.category ||
+          button.textContent.trim();
+
+        showAll = false;
+        applyFilters();
+
+        debugLog("Category selected:", activeCategory);
       });
-
-      row.appendChild(select);
-
-      const remove = el("button", "bookmark", "\u2715");
-
-      remove.type = "button";
-      remove.dataset.removeTrack = String(item.id);
-      remove.setAttribute("aria-label", "Remove from tracker");
-
-      row.appendChild(remove);
-      list.appendChild(row);
     });
   }
 
-  function trackOpportunity(id) {
-    const item = state.opportunities.find(
-      (opportunity) => String(opportunity.id) === String(id)
-    );
+  /* =========================================================
+     10. BOOKMARKS
+  ========================================================= */
 
-    if (!item) return;
+  function toggleBookmark(id) {
+    id = String(id);
 
-    const tracker = getTracker();
-
-    if (tracker.some((row) => String(row.id) === String(id))) {
-      showToast("This opportunity is already in your tracker.");
-      return;
+    if (isBookmarked(id)) {
+      bookmarks = bookmarks.filter(
+        item => String(item) !== id
+      );
+    } else {
+      bookmarks.push(id);
     }
 
-    tracker.unshift({
-      id: String(item.id),
-      title: item.title,
-      organisation: item.organisation,
-      status: "Interested",
-      addedAt: new Date().toISOString()
-    });
+    saveStorage(BOOKMARKS_KEY, bookmarks);
+    renderOpportunities();
+  }
 
-    if (saveTracker(tracker)) {
-      renderTracker();
-      showToast("Added to your application tracker.");
+  /* =========================================================
+     11. APPLICATION TRACKER
+  ========================================================= */
+
+  function toggleTracker(id) {
+    id = String(id);
+
+    if (isTracked(id)) {
+      tracker = tracker.filter(
+        item => String(item.id) !== id
+      );
+    } else {
+      const opportunity = allOpportunities.find(
+        item => getOpportunityId(item) === id
+      );
+
+      if (!opportunity) return;
+
+      tracker.push({
+        id,
+        title: opportunity.title,
+        organization: opportunity.organization,
+        category: opportunity.category,
+        application_url: opportunity.application_url,
+        date_added: new Date().toISOString(),
+        status: "Interested"
+      });
+    }
+
+    saveStorage(TRACKER_KEY, tracker);
+    renderOpportunities();
+  }
+
+  /* =========================================================
+     12. COUNTERS
+  ========================================================= */
+
+  function updateCounters() {
+    if (elements.bookmarks) {
+      elements.bookmarks.textContent = bookmarks.length;
+    }
+
+    if (elements.tracker) {
+      elements.tracker.textContent = tracker.length;
     }
   }
 
-  function exportCSV() {
-    const tracker = getTracker();
+  /* =========================================================
+     13. CSV EXPORT
+  ========================================================= */
 
-    if (tracker.length === 0) {
-      showToast("Your tracker is empty.");
+  function exportTrackerCSV() {
+    if (!tracker.length) {
+      alert("Your application tracker is empty.");
       return;
     }
 
-    const cell = (value) => {
-      let text = String(value === null || value === undefined ? "" : value);
+    const headers = [
+      "Title",
+      "Organisation",
+      "Category",
+      "Application URL",
+      "Date Added",
+      "Status"
+    ];
 
-      if (/^[=+\-@\t\r]/.test(text)) text = "'" + text;
+    const rows = tracker.map(item => [
+      item.title,
+      item.organization,
+      item.category,
+      item.application_url,
+      item.date_added,
+      item.status
+    ]);
 
-      return '"' + text.replace(/"/g, '""') + '"';
-    };
+    const csv = [
+      headers,
+      ...rows
+    ].map(row =>
+      row.map(value =>
+        `"${String(value ?? "").replace(/"/g, '""')}"`
+      ).join(",")
+    ).join("\n");
 
-    const rows = [["Title", "Organisation", "Status", "Added on"]].concat(
-      tracker.map((item) => [
-        item.title,
-        item.organisation,
-        item.status,
-        item.addedAt
-      ])
+    const blob = new Blob(
+      ["\uFEFF" + csv],
+      { type: "text/csv;charset=utf-8;" }
     );
-
-    const csv = rows.map((row) => row.map(cell).join(",")).join("\r\n");
-
-    const blob = new Blob(["\uFEFF" + csv], {
-      type: "text/csv;charset=utf-8;"
-    });
 
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "naija-opportunity-tracker.csv";
+    link.download = "naija-opportunity-hub-tracker.csv";
 
     document.body.appendChild(link);
     link.click();
     link.remove();
 
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    URL.revokeObjectURL(url);
   }
 
-  /* ---------------------------------------------------------------
-     Data loading
-  ---------------------------------------------------------------- */
+  /* =========================================================
+     14. CLEAR TRACKER
+  ========================================================= */
 
-  function normaliseRecord(item) {
-    return {
-      id: String(item.id),
-      title: item.title || "Untitled opportunity",
-      organisation: item.organization || "Organisation not specified",
-      category: item.category || "Other",
-      location: item.location || "Nigeria",
-      eligibility: item.eligibility || "Check official requirements",
-      description:
-        item.description || "Visit the official source for full details.",
-      deadline: item.deadline || "",
-      url: item.application_url || item.source_url || "",
-      image_url: item.image_url || "",
-      verified: Boolean(item.verified_at),
-      created_at: item.created_at || ""
-    };
-  }
+  function clearTracker() {
+    if (!tracker.length) {
+      alert("Your tracker is already empty.");
+      return;
+    }
 
-  function failLoad(technicalMessage, error) {
-    console.error(
-      "Opportunity Hub: could not load opportunities.",
-      error || technicalMessage
+    const confirmed = confirm(
+      "Are you sure you want to clear your application tracker?"
     );
 
-    state.opportunities = [];
-    state.loadState = "error";
+    if (!confirmed) return;
 
-    if (DEBUG) {
-      setDataStatus("Database request failed", "Debug: " + technicalMessage);
-    } else {
-      setDataStatus("", "");
-    }
+    tracker = [];
+    saveStorage(TRACKER_KEY, tracker);
 
     renderOpportunities();
   }
 
-  async function loadOpportunities() {
-    state.loadState = "loading";
+  /* =========================================================
+     15. EVENT LISTENERS
+  ========================================================= */
 
-    setDataStatus("", "");
-    renderOpportunities();
+  function setupEventListeners() {
 
-    const key = SUPABASE_PUBLISHABLE_KEY.trim();
+    elements.search?.addEventListener(
+      "input",
+      () => {
+        showAll = false;
+        applyFilters();
+      }
+    );
 
-    if (!key) {
-      failLoad("The Supabase publishable key is not configured.");
-      return;
-    }
+    elements.sort?.addEventListener(
+      "change",
+      () => {
+        applyFilters();
+      }
+    );
 
-    if (!window.supabase || typeof window.supabase.createClient !== "function") {
-      failLoad(
-        "The Supabase library did not load. Check the script tag in index.html."
-      );
-      return;
-    }
-
-    try {
-      const client = window.supabase.createClient(SUPABASE_URL, key);
-
-      const response = await client
-        .from("opportunities")
-        .select(
-          "id,title,organization,category,description,eligibility,location,application_url,source_url,deadline,status,verified_at,created_at,image_url"
-        )
-        .eq("status", "published")
-        .order("created_at", { ascending: false });
-
-      if (response.error) throw response.error;
-
-      state.opportunities = (response.data || []).map(normaliseRecord);
-      state.loadState = "ready";
-
-      setDataStatus("", "");
-    } catch (error) {
-      const message = error && error.message ? error.message : String(error);
-
-      failLoad(message, error);
-      return;
-    }
-
-    renderOpportunities();
-  }
-
-  /* ---------------------------------------------------------------
-     Page setup and events
-  ---------------------------------------------------------------- */
-
-  function syncCategoryButtons() {
-    document.querySelectorAll(".category").forEach((button) => {
-      const active = button.dataset.category === state.activeCategory;
-
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-pressed", String(active));
-    });
-  }
-
-  function setupNavigation() {
-    const menuButton = $("menuBtn");
-    const navigation = $("navLinks");
-
-    if (!menuButton || !navigation) return;
-
-    menuButton.addEventListener("click", () => {
-      const isOpen = navigation.classList.toggle("open");
-
-      menuButton.setAttribute("aria-expanded", String(isOpen));
-    });
-
-    navigation.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => {
-        navigation.classList.remove("open");
-        menuButton.setAttribute("aria-expanded", "false");
-      });
-    });
-  }
-
-  function setupFilters() {
-    const searchInput = $("searchInput");
-    const sortFilter = $("sortFilter");
-    const categoryFilter = $("categoryFilter");
-    const clearFilters = $("clearFilters");
-    const categoryButtons = $("categoryButtons");
-
-    if (searchInput) {
-      searchInput.addEventListener(
-        "input",
-        debounce(renderOpportunities, SEARCH_DELAY_MS)
-      );
-    }
-
-    if (sortFilter) {
-      sortFilter.addEventListener("change", renderOpportunities);
-    }
-
-    if (categoryFilter) {
-      categoryFilter.addEventListener("change", () => {
-        state.activeCategory = "All";
-        syncCategoryButtons();
+    elements.viewAll?.addEventListener(
+      "click",
+      () => {
+        showAll = !showAll;
         renderOpportunities();
-      });
-    }
+      }
+    );
 
-    if (clearFilters) {
-      clearFilters.addEventListener("click", () => {
-        if (searchInput) searchInput.value = "";
-        if (categoryFilter) categoryFilter.value = "All";
-        if (sortFilter) sortFilter.value = "newest";
-
-        state.activeCategory = "All";
-
-        syncCategoryButtons();
-        renderOpportunities();
-      });
-    }
-
-    if (categoryButtons) {
-      categoryButtons.addEventListener("click", (event) => {
-        const button = event.target.closest("[data-category]");
+    elements.opportunities?.addEventListener(
+      "click",
+      event => {
+        const button = event.target.closest("[data-action]");
 
         if (!button) return;
 
-        // Tapping the active tile again clears the category.
-        state.activeCategory =
-          state.activeCategory === button.dataset.category
-            ? "All"
-            : button.dataset.category;
+        const action = button.dataset.action;
+        const id = button.dataset.id;
 
-        if (categoryFilter) categoryFilter.value = "All";
+        if (!id) return;
 
-        syncCategoryButtons();
-        renderOpportunities();
-
-        const section = $("opportunities");
-
-        if (section && typeof section.scrollIntoView === "function") {
-          section.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (action === "bookmark") {
+          toggleBookmark(id);
         }
-      });
-    }
-  }
 
-  function setupOpportunityGrid() {
-    const grid = $("opportunityGrid");
-
-    if (!grid) return;
-
-    // The "View All" button sits outside the grid, so listen on the document.
-    document.addEventListener("click", (event) => {
-      const button = event.target.closest("#viewAllOpportunities");
-
-      if (!button) return;
-
-      button.dataset.showAll = String(button.dataset.showAll !== "true");
-      renderOpportunities();
-    });
-
-    grid.addEventListener("click", (event) => {
-      if (event.target.closest("[data-retry]")) {
-        loadOpportunities();
-        return;
+        if (action === "track") {
+          toggleTracker(id);
+        }
       }
+    );
 
-      const bookmarkButton = event.target.closest("[data-bookmark]");
+    const exportButton = getElement(
+      "exportTracker",
+      "exportCSV",
+      "exportTrackerBtn"
+    );
 
-      if (bookmarkButton) {
-        const id = String(bookmarkButton.dataset.bookmark);
-        const bookmarks = getBookmarks();
-        const alreadySaved = bookmarks.includes(id);
+    exportButton?.addEventListener(
+      "click",
+      exportTrackerCSV
+    );
 
-        const updated = alreadySaved
-          ? bookmarks.filter((item) => item !== id)
-          : bookmarks.concat([id]);
+    const clearButton = getElement(
+      "clearTracker",
+      "clearTrackerBtn"
+    );
 
-        if (saveBookmarks(updated)) {
-          renderOpportunities();
-          showToast(alreadySaved ? "Bookmark removed." : "Opportunity saved.");
-        }
+    clearButton?.addEventListener(
+      "click",
+      clearTracker
+    );
 
-        return;
-      }
+    const refreshButton = getElement(
+      "refreshOpportunities",
+      "refreshBtn"
+    );
 
-      const trackButton = event.target.closest("[data-track]");
-
-      if (trackButton) trackOpportunity(trackButton.dataset.track);
-    });
+    refreshButton?.addEventListener(
+      "click",
+      loadOpportunities
+    );
   }
 
-  function setupTracker() {
-    const trackerList = $("trackerList");
-    const exportButton = $("exportTracker");
-    const clearTracker = $("clearTracker");
+  /* =========================================================
+     16. INITIALISE APPLICATION
+  ========================================================= */
 
-    if (trackerList) {
-      trackerList.addEventListener("change", (event) => {
-        const select = event.target.closest("[data-status]");
+  function init() {
+    debugLog("Naija Opportunity Hub initialising...");
 
-        if (!select) return;
+    setupCategoryButtons();
+    setupEventListeners();
+    updateCounters();
 
-        const tracker = getTracker();
-
-        const item = tracker.find(
-          (row) => String(row.id) === String(select.dataset.status)
-        );
-
-        if (item) {
-          item.status = select.value;
-
-          if (saveTracker(tracker)) showToast("Application status updated.");
-        }
-      });
-
-      trackerList.addEventListener("click", (event) => {
-        const button = event.target.closest("[data-remove-track]");
-
-        if (!button) return;
-
-        const remaining = getTracker().filter(
-          (row) => String(row.id) !== String(button.dataset.removeTrack)
-        );
-
-        if (saveTracker(remaining)) {
-          renderTracker();
-          showToast("Removed from tracker.");
-        }
-      });
-    }
-
-    if (exportButton) exportButton.addEventListener("click", exportCSV);
-
-    if (clearTracker) {
-      clearTracker.addEventListener("click", () => {
-        if (getTracker().length === 0) {
-          showToast("Your tracker is already empty.");
-          return;
-        }
-
-        if (
-          confirm("Clear all items from your application tracker on this device?")
-        ) {
-          if (saveTracker([])) {
-            renderTracker();
-            showToast("Tracker cleared.");
-          }
-        }
-      });
-    }
-  }
-
-  function initialise() {
-    setupNavigation();
-    setupFilters();
-    setupOpportunityGrid();
-    setupTracker();
-
-    const year = $("year");
-
-    if (year) year.textContent = String(new Date().getFullYear());
-
-    syncCategoryButtons();
-    renderTracker();
     loadOpportunities();
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initialise, { once: true });
+    document.addEventListener("DOMContentLoaded", init);
   } else {
-    initialise();
+    init();
   }
+
 })();
-                                        
