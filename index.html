@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,329 +8,133 @@
 
   <title>Naija Opportunity Hub | Discover Opportunities. Build Your Future.</title>
 
-  <meta
-    name="description"
-    content="Discover scholarships, jobs, internships, grants, fellowships, training and government recruitment opportunities for Nigerian students, graduates and young professionals."
-  >
+  <meta name="description" content="Discover scholarships, jobs, internships, grants, fellowships and training opportunities for Nigerian students, graduates and young professionals.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://naijaopportunityhub.com.ng/">
 
-  <meta
-    name="keywords"
-    content="Nigeria scholarships, jobs in Nigeria, internships, grants, fellowships, graduate opportunities, government recruitment, career development"
-  >
-
-  <meta name="author" content="Naija Opportunity Hub">
-
-  <!-- Update this URL if you purchase and configure a custom domain. -->
-  <link
-    rel="canonical"
-    href="https://opportunity-naija.edreessaleesu.workers.dev/"
-  >
-
-  <!-- Social sharing metadata -->
+  <meta property="og:title" content="Naija Opportunity Hub">
+  <meta property="og:description" content="Discover opportunities. Build your future.">
   <meta property="og:type" content="website">
-  <meta
-    property="og:title"
-    content="Naija Opportunity Hub | Discover Opportunities. Build Your Future."
-  >
-  <meta
-    property="og:description"
-    content="Discover scholarships, jobs, internships, grants, fellowships and training opportunities for Nigerians."
-  >
-  <meta
-    property="og:url"
-    content="https://opportunity-naija.edreessaleesu.workers.dev/"
-  >
-  <meta
-    property="og:image"
-    content="https://opportunity-naija.edreessaleesu.workers.dev/naija-opportunity-hub-logo.png"
-  >
+  <meta property="og:url" content="https://naijaopportunityhub.com.ng/">
+  <meta property="og:image" content="https://naijaopportunityhub.com.ng/images/01-HERO-STUDENTS.jpg">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta
-    name="twitter:title"
-    content="Naija Opportunity Hub"
-  >
-  <meta
-    name="twitter:description"
-    content="Discover Opportunities. Build Your Future."
-  >
-  <meta
-    name="twitter:image"
-    content="https://opportunity-naija.edreessaleesu.workers.dev/naija-opportunity-hub-logo.png"
-  >
+  <meta name="twitter:title" content="Naija Opportunity Hub">
+  <meta name="twitter:description" content="Discover opportunities. Build your future.">
+  <meta name="twitter:image" content="https://naijaopportunityhub.com.ng/images/01-HERO-STUDENTS.jpg">
 
-  <link
-    rel="icon"
-    type="image/png"
-    href="./naija-opportunity-hub-logo.png"
-  >
-
+  <link rel="icon" href="./naija-opportunity-hub-logo.png">
   <link rel="stylesheet" href="./hero-image.css">
   <link rel="stylesheet" href="./style.css">
 
-  <!-- Load Supabase before the application scripts. -->
-  <script
-    defer
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-  ></script>
-
-  <script defer src="./auth.js"></script>
-  <script defer src="./app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./auth.js" defer></script>
+  <script src="./app.js" defer></script>
 </head>
 
 <body>
-
-  <a class="skip-link" href="#opportunities">
-    Skip to opportunities
-  </a>
-
-  <!-- HEADER -->
   <header class="site-header">
-    <div class="wrap nav">
-
-      <a
-        class="brand"
-        href="#home"
-        aria-label="Naija Opportunity Hub homepage"
-      >
-        <img
-          src="./naija-opportunity-hub-logo.png"
-          alt="Naija Opportunity Hub logo"
-          class="brand-logo"
-          width="48"
-          height="48"
-        >
-
-        <span class="brand-copy">
-          <span class="brand-name">Naija Opportunity Hub</span>
-          <span class="brand-tagline">
-            Discover Opportunities. Build Your Future.
-          </span>
-        </span>
+    <div class="wrap nav-container">
+      <a class="brand" href="#home" aria-label="Naija Opportunity Hub home">
+        <img src="./naija-opportunity-hub-logo.png"
+             alt="Naija Opportunity Hub logo"
+             class="site-logo">
+        <span>Naija Opportunity Hub</span>
       </a>
 
-      <button
-        class="menu-toggle"
-        id="menuBtn"
-        type="button"
-        aria-label="Open navigation menu"
-        aria-expanded="false"
-        aria-controls="navLinks"
-      >
-        <span class="menu-icon" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
-
-        <span class="menu-label">Menu</span>
+      <button id="menuBtn" class="menu-toggle"
+              type="button" aria-label="Toggle navigation"
+              aria-expanded="false">
+        ☰
       </button>
 
-      <nav
-        class="navlinks"
-        id="navLinks"
-        aria-label="Main navigation"
-      >
+      <nav id="navLinks" class="nav-links" aria-label="Main navigation">
         <a href="#home">Home</a>
         <a href="#opportunities">Opportunities</a>
-        <a href="#career-kit">Career Kit</a>
-        <a href="#tracker">Application Tracker</a>
+        <a href="./career-kit.html?tool=cv">Career Kit</a>
+        <a href="#tracker">My Tracker</a>
         <a href="#about">About</a>
 
-        <!-- auth.js must control these elements using the Supabase session. -->
-        <div class="nav-auth" id="navAuth">
+        <div id="navAuth" class="nav-auth">
+          <a id="signInLink" href="./login.html">Sign in</a>
+          <a id="createAccountLink" href="./signup.html">Create account</a>
+        </div>
 
-          <a
-            href="./account.html"
-            class="nav-signin"
-            id="signInLink"
-          >
-            Sign In
-          </a>
-
-          <a
-            href="./account.html"
-            class="nav-register"
-            id="createAccountLink"
-          >
-            Create Account
-          </a>
-
-          <div class="account-menu" id="accountMenu" hidden>
-            <a href="./account.html" id="myAccountLink">
-              My Account
-            </a>
-
-            <button
-              type="button"
-              id="navLogoutButton"
-            >
-              Sign Out
-            </button>
-          </div>
-
+        <div id="accountMenu" hidden>
+          <a id="myAccountLink" href="./account.html">My account</a>
+          <button id="navLogoutButton" type="button">Sign out</button>
         </div>
       </nav>
-
     </div>
   </header>
 
-
   <main>
-
+    <!-- HERO -->
     <section class="hero hero-banner" id="home">
-  <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-photo" role="img"
+           aria-label="Students studying together at a laptop"></div>
 
-  <div
-    class="hero-photo"
-    role="img"
-    aria-label="Students studying together at a laptop in a library"
-  ></div>
+      <div class="wrap hero-banner-inner">
+        <div class="hero-banner-copy">
+          <span class="section-kicker">YOUR FUTURE STARTS HERE</span>
 
-  <div class="wrap hero-banner-inner">
-    <div class="hero-banner-copy">
+          <h1>Discover Opportunities. Build Your Future.</h1>
 
-      <div class="eyebrow">
-        <span class="eyebrow-dot" aria-hidden="true"></span>
-        OPPORTUNITIES FOR THE NEXT GENERATION
-      </div>
+          <p>
+            Your gateway to scholarships, jobs, internships, grants,
+            fellowships and practical career resources in Nigeria and beyond.
+          </p>
 
-      <h1>
-        Your Next Big<br>
-        <span>Opportunity</span><br>
-        Starts Here.
-      </h1>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#opportunities">
+              Explore Opportunities
+            </a>
+            <a class="btn btn-secondary" href="./career-kit.html?tool=cv">
+              Build Your CV
+            </a>
+          </div>
 
-      <p class="hero-description">
-        Discover scholarships, jobs, grants, internships and career
-        opportunities that move your future forward.
-      </p>
-
-      <div class="hero-actions">
-        <a href="#opportunities" class="button button-hero">
-          Explore Opportunities
-          <span aria-hidden="true">→</span>
-        </a>
-
-        <a href="#career-kit" class="button button-hero-ghost">
-          Build Your Career
-        </a>
-      </div>
-
-    </div>
-  </div>
-</section
-
-    <!-- OPPORTUNITY CATEGORIES -->
-    <section
-      class="category-strip"
-      aria-label="Browse by category"
-    >
-      <div class="wrap">
-        <div class="category-row" id="categoryButtons">
-
-          <button
-            class="category"
-            type="button"
-            data-category="Scholarship"
-          >
-            <span class="category-icon tint-green" aria-hidden="true">🎓</span>
+          <div class="hero-trust">
             <span>Scholarships</span>
-          </button>
-
-          <button
-            class="category"
-            type="button"
-            data-category="Job"
-          >
-            <span class="category-icon tint-blue" aria-hidden="true">💼</span>
-            <span>Jobs</span>
-          </button>
-
-          <button
-            class="category"
-            type="button"
-            data-category="Internship"
-          >
-            <span class="category-icon tint-purple" aria-hidden="true">💻</span>
-            <span>Internships</span>
-          </button>
-
-          <button
-            class="category"
-            type="button"
-            data-category="Fellowship"
-          >
-            <span class="category-icon tint-yellow" aria-hidden="true">👥</span>
-            <span>Fellowships</span>
-          </button>
-
-          <button
-            class="category"
-            type="button"
-            data-category="Grant"
-          >
-            <span class="category-icon tint-green" aria-hidden="true">💰</span>
-            <span>Grants</span>
-          </button>
-
-          <button
-            class="category"
-            type="button"
-            data-category="Training"
-          >
-            <span class="category-icon tint-orange" aria-hidden="true">🧑‍🏫</span>
-            <span>Training</span>
-          </button>
-
-          <button
-            class="category"
-            type="button"
-            data-category="Volunteering"
-          >
-            <span class="category-icon tint-pink" aria-hidden="true">💖</span>
-            <span>Volunteering</span>
-          </button>
-
-          <a
-            class="category category-link"
-            href="#career-kit"
-          >
-            <span class="category-icon tint-blue" aria-hidden="true">📋</span>
-            <span>Career Kit</span>
-          </a>
-
-        </div>
-      </div>
-
-      <div class="trust-bar">
-        <div class="wrap trust-bar-grid">
-          <span>
-            <b aria-hidden="true">🛡️</b>
-            Links to Official Sources
-          </span>
-
-          <span>
-            <b aria-hidden="true">👥</b>
-            For Nigerian Students &amp; Graduates
-          </span>
-
-          <span>
-            <b aria-hidden="true">🌱</b>
-            A Brighter Future Together
-          </span>
+            <span>Career Development</span>
+            <span>Global Opportunities</span>
+          </div>
         </div>
       </div>
     </section>
 
+    <!-- CATEGORIES -->
+    <section class="categories-section" aria-labelledby="categoriesTitle">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <span class="section-kicker">EXPLORE YOUR OPTIONS</span>
+            <h2 id="categoriesTitle">Opportunities for Your Next Step</h2>
+            <p>Choose a category and find opportunities that match your goals.</p>
+          </div>
+        </div>
+
+        <div class="category-grid">
+          <a class="category-card" href="#opportunities"
+             data-category="Scholarship">🎓 <span>Scholarships</span></a>
+          <a class="category-card" href="#opportunities"
+             data-category="Job">💼 <span>Jobs</span></a>
+          <a class="category-card" href="#opportunities"
+             data-category="Internship">🚀 <span>Internships</span></a>
+          <a class="category-card" href="#opportunities"
+             data-category="Grant">💰 <span>Grants</span></a>
+          <a class="category-card" href="#opportunities"
+             data-category="Fellowship">🌍 <span>Fellowships</span></a>
+          <a class="category-card" href="#opportunities"
+             data-category="Training">📚 <span>Training</span></a>
+        </div>
+      </div>
+    </section>
 
     <!-- OPPORTUNITIES -->
-    <section
-      class="opportunities-section"
-      id="opportunities"
-    >
+    <section class="opportunities-section" id="opportunities">
       <div class="wrap main-content">
-
         <div class="section-head">
           <div>
             <span class="section-kicker">YOUR NEXT OPPORTUNITY</span>
@@ -339,662 +144,229 @@
               and advance your career.
             </p>
           </div>
-
-          <div class="results-badge" id="resultsCount" aria-live="polite">
-            Loading opportunities...
-          </div>
         </div>
 
-        <div class="filters">
+        <div class="opportunity-filters">
+          <input id="searchInput" type="search"
+                 placeholder="Search opportunities..."
+                 aria-label="Search opportunities">
 
-          <div class="search-box">
-            <span aria-hidden="true">⌕</span>
+          <select id="categoryFilter" aria-label="Filter by category">
+            <option value="all">All categories</option>
+            <option value="Scholarship">Scholarships</option>
+            <option value="Job">Jobs</option>
+            <option value="Internship">Internships</option>
+            <option value="Grant">Grants</option>
+            <option value="Fellowship">Fellowships</option>
+            <option value="Training">Training</option>
+            <option value="Other">Other</option>
+          </select>
 
-            <input
-              type="search"
-              id="searchInput"
-              placeholder="Search scholarships, jobs, grants..."
-              aria-label="Search opportunities"
-            >
-          </div>
+          <select id="sortFilter" aria-label="Sort opportunities">
+            <option value="newest">Newest first</option>
+            <option value="deadline">Closing soon</option>
+            <option value="title">Title A–Z</option>
+          </select>
 
-          <label class="filter-control">
-            <span class="sr-only">Filter by category</span>
-
-            <select id="categoryFilter">
-              <option value="All">All categories</option>
-              <option value="Scholarship">Scholarships</option>
-              <option value="Job">Jobs</option>
-              <option value="Internship">Internships</option>
-              <option value="Grant">Grants</option>
-              <option value="Fellowship">Fellowships</option>
-              <option value="Training">Training</option>
-              <option value="Volunteering">Volunteering</option>
-            </select>
-          </label>
-
-          <label class="filter-control">
-            <span class="sr-only">Sort opportunities</span>
-
-            <select id="sortFilter">
-              <option value="newest">Newest first</option>
-              <option value="deadline">Closing date</option>
-              <option value="title">Title A–Z</option>
-            </select>
-          </label>
-
-          <button
-            class="button button-outline"
-            id="clearFilters"
-            type="button"
-          >
+          <button id="clearFilters" class="btn btn-outline" type="button">
             Clear filters
           </button>
-
         </div>
 
-        <div class="data-notice" id="dataNotice" hidden></div>
-
-        <div
-          class="data-status"
-          id="dataStatus"
-          aria-live="polite"
-        ></div>
-
-        <div
-          class="opportunity-grid"
-          id="opportunityGrid"
-        >
-          <div class="loading-card">
-            Loading opportunities...
-          </div>
+        <div class="category-buttons" aria-label="Quick category filters">
+          <button class="category-button active" data-category="all" type="button">All</button>
+          <button class="category-button" data-category="Scholarship" type="button">Scholarships</button>
+          <button class="category-button" data-category="Job" type="button">Jobs</button>
+          <button class="category-button" data-category="Internship" type="button">Internships</button>
+          <button class="category-button" data-category="Grant" type="button">Grants</button>
+          <button class="category-button" data-category="Fellowship" type="button">Fellowships</button>
+          <button class="category-button" data-category="Training" type="button">Training</button>
         </div>
 
-        <p class="disclaimer">
-          Always confirm eligibility, deadlines and application requirements
-          on the official source before applying.
-        </p>
+        <div class="results-summary">
+          <p id="resultsCount" aria-live="polite">Loading opportunities...</p>
+          <p id="dataStatus" role="status">Connecting to opportunities database...</p>
+        </div>
 
+        <div id="dataNotice" class="data-notice" hidden></div>
+
+        <div id="opportunityGrid" class="opportunity-grid">
+          <p>Loading opportunities. Please wait...</p>
+        </div>
+
+        <div class="section-cta">
+          <p>Check back regularly for new opportunities.</p>
+        </div>
       </div>
     </section>
-
-
-    <!-- FEATURE SHOWCASE -->
-    <section class="showcase-section">
-      <div class="wrap showcase-grid">
-
-        <div class="showcase-image">
-          <img
-            src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=85"
-            alt="A person studying and preparing written work"
-            loading="lazy"
-          >
-
-          <div class="showcase-caption">
-            <span class="caption-mark" aria-hidden="true">✦</span>
-
-            <span>
-              <strong>Your goals matter.</strong>
-              <small>Take the next step with confidence.</small>
-            </span>
-          </div>
-        </div>
-
-        <div class="showcase-copy">
-          <span class="section-kicker">
-            MORE THAN OPPORTUNITY LISTINGS
-          </span>
-
-          <h2>
-            Build skills. Prepare confidently. Move forward.
-          </h2>
-
-          <p>
-            Finding an opportunity is only the beginning. Prepare your
-            application, organise your deadlines and take practical steps
-            towards your career goals.
-          </p>
-
-          <a href="#career-kit" class="text-link">
-            Discover the Career Kit
-            <span aria-hidden="true">→</span>
-          </a>
-        </div>
-
-      </div>
-    </section>
-
 
     <!-- CAREER KIT -->
-    <section class="career-section" id="career-kit">
+    <section class="career-kit-section" id="career-kit">
       <div class="wrap">
-
-        <div class="section-intro">
-          <span class="section-kicker">YOUR CAREER TOOLBOX</span>
-
-          <h2>Make Your Next Application Your Best One.</h2>
-
-          <p>
-            Practical support for your CV, cover letters, scholarship and job
-            applications, and how you present yourself.
-          </p>
-        </div>
-
-        <div class="career-grid">
-
-          <!-- CV SERVICE -->
-          <article class="panel career-panel">
-            <div class="career-visual" aria-hidden="true">
-              <svg
-                viewBox="0 0 400 190"
-                preserveAspectRatio="xMidYMid slice"
-                focusable="false"
-              >
-                <defs>
-                  <linearGradient id="cvg" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="#0a6b47"/>
-                    <stop offset="1" stop-color="#032f22"/>
-                  </linearGradient>
-                </defs>
-
-                <rect width="400" height="190" fill="url(#cvg)"/>
-                <circle cx="350" cy="28" r="72" fill="#c6a24a" opacity=".16"/>
-                <circle cx="36" cy="172" r="62" fill="#fff" opacity=".06"/>
-
-                <rect
-                  x="150" y="30" width="130" height="160"
-                  rx="10" fill="#fff" opacity=".35"
-                  transform="rotate(7 215 110)"
-                />
-
-                <rect x="118" y="22" width="140" height="176" rx="10" fill="#fff"/>
-                <path d="M118 66V32a10 10 0 0 1 10-10h120a10 10 0 0 1 10 10v34z" fill="#e8f2ee"/>
-
-                <circle cx="146" cy="44" r="14" fill="#086b45"/>
-                <circle cx="146" cy="40" r="5" fill="#fff"/>
-                <path d="M136 53c2-8 18-8 20 0z" fill="#fff"/>
-
-                <rect x="168" y="35" width="70" height="7" rx="3.5" fill="#064e3b"/>
-                <rect x="168" y="48" width="46" height="5" rx="2.5" fill="#9bb5a8"/>
-
-                <rect x="132" y="80" width="40" height="5" rx="2.5" fill="#b58a20"/>
-                <rect x="132" y="92" width="112" height="4" rx="2" fill="#d4dfd7"/>
-                <rect x="132" y="102" width="100" height="4" rx="2" fill="#d4dfd7"/>
-                <rect x="132" y="112" width="108" height="4" rx="2" fill="#d4dfd7"/>
-
-                <rect x="132" y="128" width="40" height="5" rx="2.5" fill="#b58a20"/>
-                <rect x="132" y="140" width="34" height="12" rx="6" fill="#dcefe2"/>
-                <rect x="170" y="140" width="40" height="12" rx="6" fill="#f6edcf"/>
-                <rect x="214" y="140" width="28" height="12" rx="6" fill="#dcefe2"/>
-
-                <rect x="132" y="162" width="100" height="4" rx="2" fill="#d4dfd7"/>
-                <rect x="132" y="172" width="76" height="4" rx="2" fill="#d4dfd7"/>
-
-                <circle cx="270" cy="150" r="21" fill="#c6a24a"/>
-                <path
-                  d="M261 150l7 7 13-14"
-                  stroke="#fff"
-                  stroke-width="4"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </div>
-
-            <div class="service-icon" aria-hidden="true">📄</div>
-            <span class="service-label">CAREER ESSENTIAL</span>
-
-            <h3>Professional CV</h3>
-
-            <p>
-              Create a clear, professional CV that highlights your education,
-              skills, experience and achievements.
-            </p>
-
-            <a
-              href="./career-kit.html?tool=cv"
-              class="button button-outline"
-            >
-              Open CV Builder
-            </a>
-          </article>
-
-
-          <!-- COVER LETTER SERVICE -->
-          <article class="panel career-panel featured-panel">
-            <div class="featured-label">POPULAR SERVICE</div>
-
-            <div class="career-visual" aria-hidden="true">
-              <svg
-                viewBox="0 0 400 190"
-                preserveAspectRatio="xMidYMid slice"
-                focusable="false"
-              >
-                <defs>
-                  <linearGradient id="clg" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="#fff8e5"/>
-                    <stop offset="1" stop-color="#efdfae"/>
-                  </linearGradient>
-                </defs>
-
-                <rect width="400" height="190" fill="url(#clg)"/>
-                <circle cx="356" cy="30" r="70" fill="#086b45" opacity=".08"/>
-                <circle cx="40" cy="170" r="60" fill="#c6a24a" opacity=".18"/>
-
-                <rect x="100" y="70" width="200" height="130" rx="10" fill="#064e3b"/>
-                <rect x="122" y="26" width="156" height="120" rx="8" fill="#fff"/>
-
-                <rect x="138" y="42" width="52" height="6" rx="3" fill="#064e3b"/>
-                <rect x="138" y="58" width="120" height="4" rx="2" fill="#d4dfd7"/>
-                <rect x="138" y="68" width="108" height="4" rx="2" fill="#d4dfd7"/>
-                <rect x="138" y="78" width="118" height="4" rx="2" fill="#d4dfd7"/>
-                <rect x="138" y="88" width="84" height="4" rx="2" fill="#d4dfd7"/>
-
-                <path
-                  d="M138 118q8-16 14 0t14 0 14-8"
-                  stroke="#b58a20"
-                  stroke-width="2.6"
-                  fill="none"
-                  stroke-linecap="round"
-                />
-
-                <path
-                  d="M100 98L200 160 300 98v82a10 10 0 0 1-10 10H110a10 10 0 0 1-10-10z"
-                  fill="#086b45"
-                />
-
-                <path
-                  d="M100 98L200 160 300 98"
-                  stroke="#0b8a58"
-                  stroke-width="3"
-                  fill="none"
-                  stroke-linejoin="round"
-                />
-
-                <circle cx="200" cy="158" r="16" fill="#c6a24a"/>
-                <circle cx="200" cy="158" r="9" fill="none" stroke="#fff" stroke-width="2.2"/>
-              </svg>
-            </div>
-
-            <div class="service-icon" aria-hidden="true">✍️</div>
-            <span class="service-label">MAKE A STRONG IMPRESSION</span>
-
-            <h3>Cover Letters</h3>
-
-            <p>
-              Prepare tailored cover letters for jobs, scholarships,
-              internships and other applications.
-            </p>
-
-            <a href="#about" class="button button-primary">
-              Explore service
-            </a>
-          </article>
-
-
-          <!-- APPLICATION ASSISTANCE -->
-          <article class="panel career-panel">
-            <div class="career-visual" aria-hidden="true">
-              <svg
-                viewBox="0 0 400 190"
-                preserveAspectRatio="xMidYMid slice"
-                focusable="false"
-              >
-                <defs>
-                  <linearGradient id="apg" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="#eaf5ee"/>
-                    <stop offset="1" stop-color="#c9e6d4"/>
-                  </linearGradient>
-                </defs>
-
-                <rect width="400" height="190" fill="url(#apg)"/>
-                <circle cx="360" cy="165" r="64" fill="#c6a24a" opacity=".16"/>
-                <circle cx="30" cy="24" r="56" fill="#086b45" opacity=".08"/>
-
-                <rect x="58" y="26" width="206" height="142" rx="12" fill="#fff"/>
-                <rect x="76" y="42" width="72" height="7" rx="3.5" fill="#064e3b"/>
-
-                <circle cx="88" cy="74" r="9" fill="#086b45"/>
-                <path
-                  d="M83.5 74l3.2 3.2 5.8-6.4"
-                  stroke="#fff"
-                  stroke-width="2.4"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <rect x="106" y="70" width="112" height="6" rx="3" fill="#d4dfd7"/>
-
-                <circle cx="88" cy="102" r="9" fill="#086b45"/>
-                <path
-                  d="M83.5 102l3.2 3.2 5.8-6.4"
-                  stroke="#fff"
-                  stroke-width="2.4"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <rect x="106" y="98" width="88" height="6" rx="3" fill="#d4dfd7"/>
-
-                <circle cx="88" cy="130" r="8" fill="none" stroke="#b58a20" stroke-width="2.4"/>
-                <rect x="106" y="126" width="100" height="6" rx="3" fill="#d4dfd7"/>
-                <rect x="76" y="148" width="150" height="5" rx="2.5" fill="#eaf5ee"/>
-
-                <rect x="244" y="56" width="104" height="112" rx="14" fill="#064e3b"/>
-                <path d="M244 70a14 14 0 0 1 14-14h76a14 14 0 0 1 14 14v18H244z" fill="#c6a24a"/>
-
-                <rect x="268" y="46" width="8" height="20" rx="4" fill="#032f22"/>
-                <rect x="316" y="46" width="8" height="20" rx="4" fill="#032f22"/>
-
-                <text
-                  x="296"
-                  y="142"
-                  text-anchor="middle"
-                  font-family="Arial, Helvetica, sans-serif"
-                  font-size="40"
-                  font-weight="800"
-                  fill="#fff"
-                >15</text>
-              </svg>
-            </div>
-
-            <div class="service-icon" aria-hidden="true">🧭</div>
-            <span class="service-label">APPLICATION SUPPORT</span>
-
-            <h3>Application Assistance</h3>
-
-            <p>
-              Get help understanding application requirements and organising
-              the information you need to apply.
-            </p>
-
-            <a href="#about" class="button button-outline">
-              Explore service
-            </a>
-          </article>
-
-        </div>
-
-
-        <!-- SERVICE PRICING -->
-        <div class="pricing-card">
+        <div class="section-head">
           <div>
-            <span class="section-kicker">SIMPLE AND TRANSPARENT</span>
-            <h3>Career Kit services</h3>
-            <p>Choose support that fits your needs.</p>
+            <span class="section-kicker">CAREER TOOLBOX</span>
+            <h2>Your Career Kit</h2>
+            <p>
+              Prepare stronger applications with practical tools for your
+              professional journey.
+            </p>
           </div>
-
-          <div class="price-list">
-
-            <div class="price-row">
-              <span>CV writing and improvement</span>
-              <strong>Request a quote</strong>
-            </div>
-
-            <div class="price-row">
-              <span>Cover letter preparation</span>
-              <strong>Request a quote</strong>
-            </div>
-
-            <div class="price-row">
-              <span>Application guidance</span>
-              <strong>Request a quote</strong>
-            </div>
-
-          </div>
-
-          <p class="pricing-note">
-            Contact us for service details and pricing. Review all terms
-            before making a payment.
-          </p>
         </div>
 
+        <div class="career-kit-grid">
+          <article class="career-card">
+            <div class="career-card-icon">📄</div>
+            <h3>Professional CV Builder</h3>
+            <p>Create a structured CV that highlights your skills,
+               education and experience.</p>
+            <a class="btn btn-primary" href="./career-kit.html?tool=cv">
+              Build My CV
+            </a>
+          </article>
+
+          <article class="career-card">
+            <div class="career-card-icon">✉️</div>
+            <h3>Cover Letter Builder</h3>
+            <p>Prepare a focused cover letter for your next job,
+               internship or scholarship.</p>
+            <a class="btn btn-primary"
+               href="./career-kit.html?tool=cover-letter">
+              Create Cover Letter
+            </a>
+          </article>
+
+          <article class="career-card">
+            <div class="career-card-icon">🎯</div>
+            <h3>Career Application Bundle</h3>
+            <p>Organise your application materials and prepare for
+               your next opportunity.</p>
+            <a class="btn btn-primary" href="./career-kit.html?tool=bundle">
+              Explore Career Bundle
+            </a>
+          </article>
+        </div>
       </div>
     </section>
 
-
-    <!-- APPLICATION TRACKER -->
+    <!-- TRACKER -->
     <section class="tracker-section" id="tracker">
       <div class="wrap">
-
         <div class="section-head">
           <div>
             <span class="section-kicker">STAY ORGANISED</span>
-            <h2>Your application tracker</h2>
-            <p>Keep track of opportunities you want to pursue.</p>
-          </div>
-
-          <div class="tracker-actions">
-            <button
-              class="button button-outline"
-              id="exportTracker"
-              type="button"
-            >
-              Export CSV
-            </button>
-
-            <button
-              class="button button-danger"
-              id="clearTracker"
-              type="button"
-            >
-              Clear tracker
-            </button>
+            <h2>My Application Tracker</h2>
+            <p>
+              Keep track of opportunities you save and applications
+              you want to follow up on.
+            </p>
           </div>
         </div>
 
-        <div class="tracker-container panel">
-          <div class="tracker-heading">
-            <span class="tracker-heading-icon" aria-hidden="true">✓</span>
-
-            <div>
-              <h3>Saved opportunities</h3>
-              <p>Your personal list of opportunities to follow up on.</p>
-            </div>
-          </div>
-
-          <div id="trackerList" class="tracker-list">
-            <p class="empty">
-              Your tracker is ready for your saved opportunities.
-            </p>
-          </div>
-
-          <div class="privacy-note">
-            Your saved tracker information may be stored in your browser.
-            Avoid saving sensitive personal information.
-          </div>
+        <div class="tracker-actions">
+          <button id="exportTracker" class="btn btn-outline" type="button">
+            Export Tracker (CSV)
+          </button>
+          <button id="clearTracker" class="btn btn-outline" type="button">
+            Clear Tracker
+          </button>
         </div>
 
-      </div>
-    </section>
-
-
-    <!-- WHY CHOOSE US -->
-    <section class="trust-section">
-      <div class="wrap">
-
-        <div class="section-intro">
-          <span class="section-kicker">DESIGNED WITH YOU IN MIND</span>
-          <h2>A simpler way to move forward</h2>
-          <p>Tools and information to help you take your next step.</p>
+        <div id="trackerList" class="tracker-list">
+          <p>Your tracked opportunities will appear here.</p>
         </div>
 
-        <div class="trust-grid">
-
-          <article class="trust-card">
-            <div class="trust-icon" aria-hidden="true">🔎</div>
-            <h3>Discover</h3>
-            <p>
-              Explore different categories of opportunities in one convenient place.
-            </p>
-          </article>
-
-          <article class="trust-card">
-            <div class="trust-icon" aria-hidden="true">🎯</div>
-            <h3>Prepare</h3>
-            <p>
-              Find useful career resources to support your applications.
-            </p>
-          </article>
-
-          <article class="trust-card">
-            <div class="trust-icon" aria-hidden="true">📅</div>
-            <h3>Stay organised</h3>
-            <p>
-              Keep your shortlisted opportunities and application plans organised.
-            </p>
-          </article>
-
-          <article class="trust-card">
-            <div class="trust-icon" aria-hidden="true">🌱</div>
-            <h3>Grow</h3>
-            <p>
-              Take practical steps towards education, employment and career development.
-            </p>
-          </article>
-
-        </div>
-
-      </div>
-    </section>
-
-
-    <!-- CALL TO ACTION -->
-    <section class="cta-banner">
-      <div class="wrap cta-inner">
-        <h2>Your Future Is Full of Possibilities.</h2>
-        <p>
-          Take the next step. Discover opportunities that match your ambitions.
+        <p class="tracker-note">
+          Keep your application details updated as you progress.
         </p>
-
-        <a href="#opportunities" class="button button-gold">
-          Start Exploring
-          <span aria-hidden="true">→</span>
-        </a>
       </div>
     </section>
-
 
     <!-- ABOUT -->
     <section class="about-section" id="about">
       <div class="wrap">
-
-        <div class="about-panel panel">
-          <div class="about-content">
-            <span class="section-kicker">ABOUT OUR PLATFORM</span>
-
-            <h2>Helping Nigerians discover their next opportunity</h2>
-
+        <div class="section-head">
+          <div>
+            <span class="section-kicker">ABOUT US</span>
+            <h2>Helping You Move Forward</h2>
             <p>
               Naija Opportunity Hub helps students, graduates and young
-              professionals discover opportunities and access practical
-              career resources. Our goal is to make opportunity discovery
-              and application preparation easier.
+              professionals discover opportunities and access useful career
+              resources in one place.
             </p>
-
-            <p>
-              We encourage every applicant to verify information directly
-              with the relevant organisation before submitting an application.
-            </p>
-
-            <a href="#opportunities" class="button button-primary">
-              Start exploring
-              <span aria-hidden="true">→</span>
-            </a>
-          </div>
-
-          <div class="about-decoration" aria-hidden="true">
-            <span class="decoration-circle"></span>
-            <span class="decoration-star">✦</span>
-            <span class="decoration-text">Discover<br>Learn<br>Grow</span>
           </div>
         </div>
 
+        <div class="about-values">
+          <div><h3>Discover</h3><p>Find opportunities from Nigeria and around the world.</p></div>
+          <div><h3>Prepare</h3><p>Use career resources to strengthen your applications.</p></div>
+          <div><h3>Progress</h3><p>Organise your search and take the next step with confidence.</p></div>
+        </div>
       </div>
     </section>
-
   </main>
 
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="wrap">
-
-      <div class="footer-grid">
-
-        <div class="footer-brand">
-          <a class="brand footer-brand-link" href="#home">
-            <img
-              src="./naija-opportunity-hub-logo.png"
-              alt=""
-              class="brand-logo"
-              width="48"
-              height="48"
-              loading="lazy"
-            >
-
-            <span class="brand-copy">
-              <span class="brand-name">Naija Opportunity Hub</span>
-              <span class="brand-tagline">
-                Discover Opportunities. Build Your Future.
-              </span>
-            </span>
-          </a>
-
-          <p>
-            Connecting Nigerian students and graduates with opportunities
-            for learning, career development and growth.
-          </p>
-        </div>
-
-        <div class="footer-links">
-          <h3>Explore</h3>
-          <a href="#opportunities">Opportunities</a>
-          <a href="#career-kit">Career Kit</a>
-          <a href="#tracker">Application Tracker</a>
-        </div>
-
-        <div class="footer-links">
-          <h3>Categories</h3>
-          <a href="#opportunities">Scholarships</a>
-          <a href="#opportunities">Jobs</a>
-          <a href="#opportunities">Internships</a>
-          <a href="#opportunities">Grants</a>
-          <a href="#opportunities">Fellowships</a>
-          <a href="#opportunities">Training</a>
-          <a href="#opportunities">Volunteering</a>
-        </div>
-
-        <div class="footer-links">
-          <h3>Information</h3>
-          <a href="#about">About Us</a>
-          <a href="#home">Back to Top</a>
-          <a href="./account.html">Sign In / Create Account</a>
-        </div>
-
+  <footer class="site-footer">
+    <div class="wrap footer-content">
+      <div>
+        <a class="brand footer-brand" href="#home">
+          <img src="./naija-opportunity-hub-logo.png"
+               alt="" class="site-logo">
+          <span>Naija Opportunity Hub</span>
+        </a>
+        <p>Discover opportunities. Build your future.</p>
       </div>
 
-      <div class="footer-bottom">
-        <p>
-          © <span id="year"></span> Naija Opportunity Hub. All rights reserved.
-        </p>
-
-        <p>Built to help you discover your next opportunity.</p>
+      <div class="footer-links">
+        <a href="#opportunities">Opportunities</a>
+        <a href="./career-kit.html?tool=cv">Career Kit</a>
+        <a href="#tracker">My Tracker</a>
+        <a href="#about">About</a>
       </div>
 
+      <p class="copyright">
+        © <span id="year"></span> Naija Opportunity Hub. All rights reserved.
+      </p>
     </div>
   </footer>
 
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <!-- NOTIFICATIONS -->
-  <div
-    class="toast"
-    id="toast"
-    role="status"
-    aria-live="polite"
-    aria-atomic="true"
-  ></div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const year = document.getElementById("year");
+      if (year) year.textContent = new Date().getFullYear();
 
+      const menuBtn = document.getElementById("menuBtn");
+      const navLinks = document.getElementById("navLinks");
+
+      if (menuBtn && navLinks) {
+        menuBtn.addEventListener("click", function () {
+          const expanded = menuBtn.getAttribute("aria-expanded") === "true";
+          menuBtn.setAttribute("aria-expanded", String(!expanded));
+          navLinks.classList.toggle("open", !expanded);
+        });
+
+        navLinks.querySelectorAll("a").forEach(function (link) {
+          link.addEventListener("click", function () {
+            navLinks.classList.remove("open");
+            menuBtn.setAttribute("aria-expanded", "false");
+          });
+        });
+      }
+
+      document.querySelectorAll("[data-category]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          const category = button.getAttribute("data-category");
+          const categoryFilter = document.getElementById("categoryFilter");
+
+          if (categoryFilter && category) {
+            categoryFilter.value = category === "all" ? "all" : category;
+            categoryFilter.dispatchEvent(new Event("change", { bubbles: true }));
+          }
+        });
+      });
+    });
+  </script>
 </body>
-    </html>
+</html>
