@@ -2,14 +2,14 @@
 (() => {
   "use strict";
 
-  if (window.__NOH_CAREER_KIT_LOADED__) return;
+  if (window.NOH_CAREER_KIT_LOADED) return;
 
   const $ = (id) => document.getElementById(id);
   const form = $("career-form");
 
   if (!form) return;
 
-  window.__NOH_CAREER_KIT_LOADED__ = true;
+  window.NOH_CAREER_KIT_LOADED = true;
 
   const AI_ENDPOINT =
     "https://djxornmwvkauhkcuhgxc.supabase.co/functions/v1/career-assistant";
@@ -53,8 +53,13 @@
   ];
 
   const letterFields = [
+    "letter-details-heading",
+    "applicant-address-field",
+    "application-date-field",
     "employer-field",
     "recipient-field",
+    "employer-address-field",
+    "vacancy-source-field",
     "job-description-field",
     "letter-body-field"
   ];
@@ -127,7 +132,8 @@
   // --------------------------------------------------
 
   const BULLET = /^[-•*]\s*/;
-  const DATE_HINT = /\b(19|20)\d{2}\b|\b(present|current|to date|ongoing)\b/i;
+  const DATE_HINT =
+    /\b(19|20)\d{2}\b|\b(present|current|to date|ongoing)\b/i;
 
   function isBullet(line) {
     return BULLET.test(line);
@@ -139,7 +145,12 @@
     if (next && isBullet(next)) return true;
     if (DATE_HINT.test(line)) return true;
 
-    if (next && !isBullet(next) && DATE_HINT.test(next) && next.length <= 120) {
+    if (
+      next &&
+      !isBullet(next) &&
+      DATE_HINT.test(next) &&
+      next.length <= 120
+    ) {
       return true;
     }
 
@@ -168,7 +179,8 @@
 
       flush();
 
-      const label = labelMode && line.match(/^([^:]{2,32}):\s*(.+)$/);
+      const label =
+        labelMode && line.match(/^([^:]{2,32}):\s*(.+)$/);
 
       html += label
         ? `<p><strong>${escapeHTML(label[1])}:</strong> ${escapeHTML(label[2])}</p>`
@@ -299,6 +311,8 @@
     cvFields.forEach((id) => setHidden(id, coverOnly));
     letterFields.forEach((id) => setHidden(id, !isLetter()));
 
+    setText("design-section-number", isLetter() ? "07" : "06");
+
     setHidden("job-title-field", false);
     setHidden("template-field", false);
 
@@ -318,14 +332,23 @@
       }
     }
 
-    setText(
-      "download-button",
-      tool === "bundle"
+    const downloadButton = $("download-button");
+
+    if (downloadButton) {
+      const label = downloadButton.querySelector("span:last-child");
+
+      const buttonText = tool === "bundle"
         ? "Download Career Bundle"
         : tool === "cover-letter"
           ? "Download Cover Letter"
-          : "Download CV"
-    );
+          : "Download CV";
+
+      if (label) {
+        label.textContent = buttonText;
+      } else {
+        downloadButton.textContent = buttonText;
+      }
+    }
 
     setText("ai-assistant-title", "AI Career Assistant");
 
@@ -381,7 +404,6 @@
   // FOUR UK CV TEMPLATES
   // --------------------------------------------------
 
-  // 1. British Professional
   function britishProfessional(data) {
     return `
       <article class="cv-document cv-classic">
@@ -400,7 +422,6 @@
     `;
   }
 
-  // 2. Modern UK
   function modernUK(data) {
     return `
       <article class="cv-document cv-modern">
@@ -424,7 +445,6 @@
     `;
   }
 
-  // 3. Executive UK
   function executiveUK(data) {
     const sideHTML =
       sectionHTML("Core Skills", data.skills, "skills") +
@@ -453,7 +473,6 @@
     `;
   }
 
-  // 4. Graduate UK
   function graduateUK(data) {
     return `
       <article class="cv-document cv-graduate">
@@ -497,6 +516,68 @@
   }
 
   // --------------------------------------------------
+  // UK COVER LETTER HELPERS
+  // --------------------------------------------------
+
+  function formatUKDate(rawDate) {
+    if (rawDate) {
+      const parts = rawDate.split("-");
+
+      if (parts.length === 3) {
+        const date = new Date(
+          Number(parts[0]),
+          Number(parts[1]) - 1,
+          Number(parts[2])
+        );
+
+        if (!Number.isNaN(date.getTime())) {
+          return new Intl.DateTimeFormat("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+          }).format(date);
+        }
+      }
+    }
+
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }).format(new Date());
+  }
+
+  function addressLinesHTML(text) {
+    return getLines(text)
+      .map((line) => `<p>${escapeHTML(line)}</p>`)
+      .join("");
+  }
+
+  function getRecipientDetails() {
+    const recipient = value("recipient");
+
+    const genericRecipient =
+      !recipient ||
+      /^(hiring manager|hiring team|recruit(ment)? team|human resources|hr\b|talent acquisition|sir|madam|dear sir|dear madam|to whom)/i.test(recipient);
+
+    let greetingName = recipient;
+
+    if (genericRecipient) {
+      greetingName =
+        recipient && /recruit/i.test(recipient)
+          ? "Recruitment Team"
+          : "Hiring Manager";
+    }
+
+    return {
+      greetingName,
+      signOff: genericRecipient
+        ? "Yours faithfully"
+        : "Yours sincerely"
+    };
+  }
+
+  // --------------------------------------------------
   // COVER LETTER
   // --------------------------------------------------
 
@@ -504,56 +585,64 @@
     const name = value("full-name", "Your Full Name");
     const job = value("job-title");
     const employer = value("employer");
+
+    const applicantAddress = value("applicant-address");
+    const employerAddress = value("employer-address");
+
     const recipient = value("recipient");
+    const date = formatUKDate(value("application-date"));
+
     const items = contactItems();
 
-    const genericRecipient =
-      !recipient ||
-      /^(hiring|recruit|human resources|hr\b|talent|sir|madam|to whom)/i
-        .test(recipient);
+    const { greetingName, signOff } = getRecipientDetails();
 
-    const greetingName = recipient || "Hiring Manager";
-    const signOff = genericRecipient ? "Yours faithfully" : "Yours sincerely";
+    const body = value("letter-body");
 
-    const fallbackBody = [
-      `I am writing to apply for ${job ? `the ${job} position` : "the advertised position"}${employer ? ` at ${employer}` : ""}.`,
-      "Use this space to explain your suitability for the role."
-    ].join("\n");
-
-    const body = value("letter-body", fallbackBody);
-
-    const date = new Intl.DateTimeFormat("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    }).format(new Date());
+    const subject = job
+      ? `APPLICATION FOR ${job}`
+      : "APPLICATION FOR ADVERTISED POSITION";
 
     return `
       <article class="cv-document letter-document letter-${getTemplate()}">
+
         <header class="letter-sender">
           <h1>${escapeHTML(name)}</h1>
-          ${items.map((item) => `<p>${escapeHTML(item)}</p>`).join("")}
+
+          ${addressLinesHTML(applicantAddress)}
+
+          ${items.map((item) =>
+            `<p>${escapeHTML(item)}</p>`
+          ).join("")}
         </header>
 
         <p class="letter-date">${escapeHTML(date)}</p>
 
         <div class="letter-recipient">
-          ${recipient ? `<p>${escapeHTML(recipient)}</p>` : ""}
-          ${employer ? `<p>${escapeHTML(employer)}</p>` : ""}
+          <p>${escapeHTML(greetingName)}</p>
+
+          ${employer
+            ? `<p>${escapeHTML(employer)}</p>`
+            : ""}
+
+          ${addressLinesHTML(employerAddress)}
         </div>
 
         <div class="letter-content">
+
+          <p class="letter-subject">${escapeHTML(subject)}</p>
+
           <p>Dear ${escapeHTML(greetingName)},</p>
 
-          ${job
-            ? `<p class="letter-subject">Application for ${escapeHTML(job)}</p>`
-            : ""}
+          ${body
+            ? formatEntries(body, "plain")
+            : `<p class="letter-placeholder">Your tailored application letter will appear here when you enter your letter content.</p>`}
 
-          ${formatEntries(body, "plain")}
+          <p class="letter-close">${escapeHTML(signOff)},</p>
 
-          <p class="letter-close">${signOff},</p>
           <p class="letter-name">${escapeHTML(name)}</p>
+
         </div>
+
       </article>
     `;
   }
@@ -563,8 +652,6 @@
   // --------------------------------------------------
 
   const designStyles = `
-    /* GLOBAL DOCUMENT FONT */
-
     .cv-document {
       width: 100%;
       background: #ffffff;
@@ -646,7 +733,7 @@
       padding-left: 2px;
     }
 
-    /* 1. BRITISH PROFESSIONAL */
+    /* BRITISH PROFESSIONAL */
 
     .cv-classic {
       color: #1c1c1c;
@@ -679,7 +766,7 @@
       border-bottom: 1px solid #bdbdbd;
     }
 
-    /* 2. MODERN UK */
+    /* MODERN UK */
 
     .cv-modern .modern-head {
       display: flex;
@@ -727,11 +814,7 @@
       padding-top: 2px;
     }
 
-    .cv-modern .cv-entry-title {
-      color: #111111;
-    }
-
-    /* 3. EXECUTIVE UK */
+    /* EXECUTIVE UK */
 
     .cv-executive .executive-head {
       background: #1b2a41;
@@ -781,7 +864,7 @@
       align-self: start;
     }
 
-    /* 4. GRADUATE UK */
+    /* GRADUATE UK */
 
     .cv-graduate .graduate-head {
       display: flex;
@@ -819,34 +902,84 @@
       border-bottom: 1px solid #cfd8dc;
     }
 
-    .cv-graduate .cv-entry-title {
-      color: #0b4f6c;
-    }
-
-    /* COVER LETTER */
+    /* UK COVER LETTER */
 
     .letter-document {
       font-size: 11pt;
-      line-height: 1.5;
-      padding: 44px 52px;
+      line-height: 1.45;
+      padding: 40px 46px;
       min-height: 700px;
+      text-align: left;
+    }
+
+    .letter-document * {
+      text-align: left !important;
     }
 
     .letter-sender {
-      text-align: right;
-      margin-bottom: 26px;
+      text-align: left;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #c6a24a;
     }
 
     .letter-sender h1 {
-      font-size: 18pt;
-      margin-bottom: 4px;
+      font-size: 17pt;
+      margin-bottom: 5px;
+      color: #075b3b;
     }
 
     .letter-sender p {
       margin: 0;
       font-size: 10pt;
       color: #555555;
-      line-height: 1.5;
+      line-height: 1.4;
+    }
+
+    .letter-date {
+      text-align: left;
+      margin: 0 0 18px !important;
+    }
+
+    .letter-recipient {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .letter-recipient p {
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .letter-content {
+      text-align: left;
+    }
+
+    .letter-content p {
+      margin: 0 0 11px;
+      line-height: 1.45;
+      text-align: left;
+    }
+
+    .letter-subject {
+      font-weight: 700;
+      text-transform: uppercase;
+      margin: 0 0 14px !important;
+    }
+
+    .letter-close {
+      margin-top: 18px !important;
+      margin-bottom: 4px !important;
+    }
+
+    .letter-name {
+      font-weight: 700;
+      margin-bottom: 0 !important;
+    }
+
+    .letter-placeholder {
+      color: #777777;
+      font-style: italic;
     }
 
     .letter-modern .letter-sender h1 {
@@ -859,36 +992,6 @@
 
     .letter-graduate .letter-sender h1 {
       color: #0b4f6c;
-    }
-
-    .letter-date {
-      text-align: right;
-      margin: 0 0 22px !important;
-    }
-
-    .letter-recipient {
-      margin-bottom: 22px;
-    }
-
-    .letter-recipient p {
-      margin: 0;
-    }
-
-    .letter-content p {
-      margin: 0 0 13px;
-    }
-
-    .letter-subject {
-      font-weight: 700;
-    }
-
-    .letter-close {
-      margin-top: 20px !important;
-      margin-bottom: 34px !important;
-    }
-
-    .letter-name {
-      font-weight: 700;
     }
 
     /* CAREER BUNDLE */
@@ -904,7 +1007,7 @@
       break-before: page;
     }
 
-    /* PDF EXPORT LAYOUT */
+    /* PDF EXPORT */
 
     #noh-pdf-export {
       width: 794px !important;
@@ -925,7 +1028,52 @@
       break-before: page !important;
     }
 
-    /* MOBILE RESPONSIVENESS */
+    /* CENTRED CV HEADERS */
+
+    .cv-classic .cv-head,
+    .cv-executive .executive-head {
+      text-align: center;
+    }
+
+    .cv-classic .cv-head h1,
+    .cv-classic .cv-head .cv-role,
+    .cv-classic .cv-head .cv-contact,
+    .cv-executive .executive-head h1,
+    .cv-executive .executive-head .cv-role,
+    .cv-executive .executive-head .cv-contact {
+      width: 100%;
+      text-align: center;
+    }
+
+    .cv-modern .modern-head,
+    .cv-graduate .graduate-head {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .cv-modern .modern-head > div,
+    .cv-modern .modern-contact,
+    .cv-graduate .graduate-head > div,
+    .cv-graduate .graduate-contact {
+      width: 100%;
+      text-align: center;
+    }
+
+    .cv-modern .modern-head h1,
+    .cv-modern .modern-head .cv-role,
+    .cv-modern .modern-contact p,
+    .cv-graduate .graduate-head h1,
+    .cv-graduate .graduate-head .cv-role,
+    .cv-graduate .graduate-contact p {
+      width: 100%;
+      text-align: center;
+    }
+
+    /* MOBILE */
 
     @media (max-width: 650px) {
       .cv-document {
@@ -939,12 +1087,12 @@
       .modern-head,
       .graduate-head {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
       }
 
       .modern-contact,
       .graduate-contact {
-        text-align: left;
+        text-align: center;
       }
 
       .cv-modern .cv-section,
@@ -954,103 +1102,6 @@
 
       .cv-executive .executive-head {
         padding: 20px;
-      }
-    }
-
-    /* --------------------------------------------------
-       CENTRED HEADERS — ALL FOUR CV TEMPLATES
-       Applies to live preview and PDF export.
-    -------------------------------------------------- */
-
-    .cv-classic .cv-head {
-      text-align: center;
-    }
-
-    .cv-classic .cv-head h1,
-    .cv-classic .cv-head .cv-role,
-    .cv-classic .cv-head .cv-contact {
-      width: 100%;
-      text-align: center;
-    }
-
-    .cv-modern .modern-head {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      text-align: center;
-    }
-
-    .cv-modern .modern-head > div,
-    .cv-modern .modern-contact {
-      width: 100%;
-      text-align: center;
-    }
-
-    .cv-modern .modern-head h1,
-    .cv-modern .modern-head .cv-role,
-    .cv-modern .modern-contact p {
-      width: 100%;
-      text-align: center;
-    }
-
-    .cv-executive .executive-head {
-      text-align: center;
-    }
-
-    .cv-executive .executive-head h1,
-    .cv-executive .executive-head .cv-role,
-    .cv-executive .executive-head .cv-contact {
-      width: 100%;
-      text-align: center;
-    }
-
-    .cv-graduate .graduate-head {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      text-align: center;
-    }
-
-    .cv-graduate .graduate-head > div,
-    .cv-graduate .graduate-contact {
-      width: 100%;
-      text-align: center;
-    }
-
-    .cv-graduate .graduate-head h1,
-    .cv-graduate .graduate-head .cv-role,
-    .cv-graduate .graduate-contact p {
-      width: 100%;
-      text-align: center;
-    }
-
-    @media (max-width: 650px) {
-      .cv-classic .cv-head,
-      .cv-modern .modern-head,
-      .cv-executive .executive-head,
-      .cv-graduate .graduate-head {
-        text-align: center;
-      }
-
-      .cv-modern .modern-head,
-      .cv-graduate .graduate-head {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .cv-modern .modern-contact,
-      .cv-graduate .graduate-contact {
-        width: 100%;
-        text-align: center;
-      }
-
-      .cv-modern .modern-contact p,
-      .cv-graduate .graduate-contact p {
-        text-align: center;
       }
     }
   `;
@@ -1271,21 +1322,23 @@
 
     const candidates = [];
 
-    doc.querySelectorAll(".cv-section, .cv-entry, .letter-content > p")
-      .forEach((element) => {
-        if (element.closest(".executive-side")) return;
+    doc.querySelectorAll(
+      ".cv-section, .cv-entry, .letter-content > p"
+    ).forEach((element) => {
+      if (element.closest(".executive-side")) return;
 
-        const isFirstEntry =
-          element.classList.contains("cv-entry") &&
-          element === element.parentElement.firstElementChild;
+      const isFirstEntry =
+        element.classList.contains("cv-entry") &&
+        element === element.parentElement.firstElementChild;
 
-        if (isFirstEntry) return;
+      if (isFirstEntry) return;
 
-        candidates.push(topOf(element));
-      });
+      candidates.push(topOf(element));
+    });
 
-    const forced = Array.from(doc.querySelectorAll(".page-break"))
-      .map(topOf);
+    const forced = Array.from(
+      doc.querySelectorAll(".page-break")
+    ).map(topOf);
 
     const pages = [];
     let start = 0;
@@ -1303,7 +1356,8 @@
         } else {
           const usable = candidates.filter(
             (position) =>
-              position > start + PAGE_CONTENT_PX * 0.35 && position <= end
+              position > start + PAGE_CONTENT_PX * 0.35 &&
+              position <= end
           );
 
           if (usable.length) end = Math.max(...usable);
@@ -1322,8 +1376,12 @@
     const maxArea = isIOS ? 14000000 : 30000000;
     const maxSide = 8192;
 
-    const byArea = Math.sqrt(maxArea / (PAGE_PX_WIDTH * totalHeight));
-    const bySide = maxSide / Math.max(PAGE_PX_WIDTH, totalHeight);
+    const byArea = Math.sqrt(
+      maxArea / (PAGE_PX_WIDTH * totalHeight)
+    );
+
+    const bySide =
+      maxSide / Math.max(PAGE_PX_WIDTH, totalHeight);
 
     return Math.max(1, Math.min(2, byArea, bySide));
   }
@@ -1341,10 +1399,19 @@
 
     context.drawImage(canvas, 0, 0, probe.width, probe.height);
 
-    const pixels = context.getImageData(0, 0, probe.width, probe.height).data;
+    const pixels = context.getImageData(
+      0,
+      0,
+      probe.width,
+      probe.height
+    ).data;
 
     for (let i = 0; i < pixels.length; i += 4) {
-      if (pixels[i] < 254 || pixels[i + 1] < 254 || pixels[i + 2] < 254) {
+      if (
+        pixels[i] < 254 ||
+        pixels[i + 1] < 254 ||
+        pixels[i + 2] < 254
+      ) {
         return false;
       }
     }
@@ -1373,10 +1440,14 @@
 
       await wait(150);
 
-      const totalHeight = Math.ceil(root.getBoundingClientRect().height);
+      const totalHeight = Math.ceil(
+        root.getBoundingClientRect().height
+      );
 
       if (totalHeight < 50) {
-        throw new Error("The document could not be prepared for PDF export.");
+        throw new Error(
+          "The document could not be prepared for PDF export."
+        );
       }
 
       frame.style.height = `${totalHeight}px`;
@@ -1402,7 +1473,11 @@
         canvas: `${canvas.width}x${canvas.height}`
       });
 
-      if (!canvas.width || !canvas.height || canvasLooksBlank(canvas)) {
+      if (
+        !canvas.width ||
+        !canvas.height ||
+        canvasLooksBlank(canvas)
+      ) {
         throw new Error(
           "Your browser could not draw the document. Please try again, or use Google Chrome."
         );
@@ -1441,12 +1516,23 @@
         const context = pageCanvas.getContext("2d");
 
         context.fillStyle = "#ffffff";
-        context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+        context.fillRect(
+          0,
+          0,
+          pageCanvas.width,
+          pageCanvas.height
+        );
 
         context.drawImage(
           canvas,
-          0, sourceY, canvas.width, sourceHeight,
-          0, 0, pageCanvas.width, pageCanvas.height
+          0,
+          sourceY,
+          canvas.width,
+          sourceHeight,
+          0,
+          0,
+          pageCanvas.width,
+          pageCanvas.height
         );
 
         if (index > 0) pdf.addPage();
@@ -1477,6 +1563,18 @@
 
     if (!button || button.disabled) return;
 
+    if (!value("full-name")) {
+      window.alert("Please enter your full name before downloading.");
+      return;
+    }
+
+    if (isLetter() && !value("letter-body")) {
+      window.alert(
+        "Please write your cover letter or copy your AI-generated letter into the letter editor before downloading."
+      );
+      return;
+    }
+
     const originalText = button.textContent;
 
     button.disabled = true;
@@ -1496,8 +1594,8 @@
       setText(
         "preview-status",
         inAppBrowser
-          ? "PDF created (Times New Roman). If nothing downloaded, open this page in Chrome or Safari."
-          : "PDF downloaded successfully (Times New Roman)"
+          ? "PDF created. If nothing downloaded, open this page in Chrome or Safari."
+          : "PDF downloaded successfully."
       );
 
     } catch (error) {
@@ -1593,14 +1691,21 @@
       email: value("email"),
       phone: value("phone"),
       location: value("location"),
+
+      applicantAddress: value("applicant-address"),
+      applicationDate: value("application-date"),
+
       jobTitle: value("job-title"),
       summary: value("summary"),
       education: value("education"),
       experience: value("experience"),
       skills: value("skills"),
       certificates: value("certificates"),
+
       employer: value("employer"),
       recipient: value("recipient"),
+      employerAddress: value("employer-address"),
+      vacancySource: value("vacancy-source"),
       jobDescription: value("job-description"),
       letterBody: value("letter-body")
     };
@@ -1820,7 +1925,7 @@
   updatePreview();
 
   console.info(
-    "[NOH Career Kit] v5 loaded — Times New Roman, centred CV headers"
+    "[NOH Career Kit] Updated UK-standard version loaded."
   );
 
 })();
