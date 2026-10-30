@@ -1,4 +1,3 @@
-
 (() => {
   "use strict";
 
@@ -60,7 +59,7 @@
   ];
 
   // --------------------------------------------------
-  // HELPERS
+  // GENERAL HELPERS
   // --------------------------------------------------
 
   function setText(id, text) {
@@ -137,9 +136,11 @@
 
     return lines.map((line) => {
       if (isBullet(line)) {
-        return `<p class="cv-entry-bullet">${escapeHTML(
-          line.replace(/^[-•*]\s*/, "")
-        )}</p>`;
+        return `
+          <p class="cv-entry-bullet">
+            ${escapeHTML(line.replace(/^[-•*]\s*/, ""))}
+          </p>
+        `;
       }
 
       return `<p>${escapeHTML(line)}</p>`;
@@ -262,7 +263,7 @@
   }
 
   // --------------------------------------------------
-  // CV CONTENT
+  // CV DATA
   // --------------------------------------------------
 
   function getCVData() {
@@ -289,7 +290,7 @@
   }
 
   // --------------------------------------------------
-  // FOUR DISTINCT CV DESIGNS
+  // FOUR UK CV TEMPLATES
   // --------------------------------------------------
 
   function britishProfessional(data) {
@@ -357,17 +358,17 @@
   }
 
   function graduateUK(data) {
+    const initials = data.name
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0] || "")
+      .join("");
+
     return `
       <article class="cv-document cv-graduate">
         <header class="graduate-header">
           <div class="graduate-monogram">
-            ${escapeHTML(
-              data.name
-                .split(/\s+/)
-                .slice(0, 2)
-                .map((part) => part[0])
-                .join("")
-            )}
+            ${escapeHTML(initials)}
           </div>
 
           <div>
@@ -433,13 +434,15 @@
         </header>
 
         <div class="letter-body">
-          <p class="letter-date">${escapeHTML(
-            new Intl.DateTimeFormat("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric"
-            }).format(new Date())
-          )}</p>
+          <p class="letter-date">
+            ${escapeHTML(
+              new Intl.DateTimeFormat("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+              }).format(new Date())
+            )}
+          </p>
 
           <p><strong>${escapeHTML(recipient)}</strong></p>
           <p>${escapeHTML(employer)}</p>
@@ -476,13 +479,13 @@
   }
 
   // --------------------------------------------------
-  // TEMPLATE STYLES
+  // DOCUMENT DESIGN
   // --------------------------------------------------
 
   const designStyles = `
     .cv-document {
       width: 100%;
-      background: #fff;
+      background: #ffffff;
       color: #26332d;
       font-family: Arial, Helvetica, sans-serif;
       font-size: 10pt;
@@ -537,6 +540,7 @@
     .cv-section {
       margin-bottom: 15px;
       break-inside: avoid;
+      page-break-inside: avoid;
     }
 
     .cv-list {
@@ -582,10 +586,6 @@
       color: #173d2c;
       border-bottom: 1px solid #b8c5bc;
       letter-spacing: 1.2px;
-    }
-
-    .british-body {
-      max-width: 100%;
     }
 
     /* MODERN UK */
@@ -635,13 +635,13 @@
 
     .executive-header {
       background: #173d2c;
-      color: #fff;
+      color: #ffffff;
       padding: 32px;
       border-bottom: 5px solid #c6a24a;
     }
 
     .cv-executive .executive-header h1 {
-      color: #fff;
+      color: #ffffff;
       font-size: 27pt;
     }
 
@@ -694,7 +694,7 @@
       place-items: center;
       border-radius: 50%;
       background: #075b3b;
-      color: #fff;
+      color: #ffffff;
       font-size: 18pt;
       font-weight: 700;
     }
@@ -736,6 +736,45 @@
     .letter-date {
       text-align: right;
       margin-bottom: 25px !important;
+    }
+
+    /* CAREER BUNDLE PAGE BREAK */
+
+    .page-break {
+      display: block;
+      height: 1px;
+      page-break-before: always;
+      break-before: page;
+    }
+
+    /* PDF EXPORT LAYOUT */
+
+    #noh-pdf-export {
+      width: 794px !important;
+      min-height: 1123px;
+      background: #ffffff !important;
+      color: #26332d !important;
+      box-sizing: border-box !important;
+      overflow: visible !important;
+    }
+
+    #noh-pdf-export .cv-document {
+      width: 794px !important;
+      max-width: none !important;
+    }
+
+    #noh-pdf-export .executive-body {
+      grid-template-columns: 1.7fr 1fr !important;
+    }
+
+    #noh-pdf-export .graduate-header {
+      align-items: center !important;
+    }
+
+    #noh-pdf-export .page-break {
+      height: 1px !important;
+      page-break-before: always !important;
+      break-before: page !important;
     }
 
     /* MOBILE RESPONSIVENESS */
@@ -822,7 +861,7 @@
   }
 
   // --------------------------------------------------
-  // PDF DOWNLOAD
+  // PDF LIBRARY
   // --------------------------------------------------
 
   let pdfLibraryPromise = null;
@@ -898,10 +937,14 @@
     return `${name}-${suffix}.pdf`;
   }
 
+  // --------------------------------------------------
+  // FIXED PDF DOWNLOAD
+  // --------------------------------------------------
+
   async function downloadDocument() {
     const button = $("download-button");
 
-    if (!button) return;
+    if (!button || button.disabled) return;
 
     const originalText = button.textContent;
 
@@ -915,29 +958,37 @@
 
       const html2pdf = await loadPDFLibrary();
 
+      // Create a correctly positioned A4 export container.
+      // Do not position this element far below the page.
       pdfContainer = document.createElement("div");
+
       pdfContainer.id = "noh-pdf-export";
+      pdfContainer.setAttribute("aria-hidden", "true");
 
       pdfContainer.style.cssText = [
-        "position:absolute",
-        `top:${document.documentElement.scrollHeight + 500}px`,
+        "position:fixed",
+        "top:0",
         "left:0",
         "width:794px",
-        "min-height:100px",
+        "min-height:1123px",
+        "padding:0",
+        "margin:0",
         "background:#ffffff",
         "color:#26332d",
-        "z-index:1",
         "display:block",
         "visibility:visible",
         "opacity:1",
+        "z-index:2147483647",
         "overflow:visible",
-        "pointer-events:none"
+        "pointer-events:none",
+        "box-sizing:border-box"
       ].join(";");
 
       pdfContainer.innerHTML = getPDFContent();
 
       document.body.appendChild(pdfContainer);
 
+      // Ensure the document content is rendered.
       if (document.fonts && document.fonts.ready) {
         await document.fonts.ready;
       }
@@ -947,6 +998,23 @@
           requestAnimationFrame(resolve);
         });
       });
+
+      // Check that the export container actually contains content.
+      const exportDocument = pdfContainer.querySelector(".cv-document");
+
+      if (!exportDocument || !exportDocument.textContent.trim()) {
+        throw new Error(
+          "The document is empty. Please complete your details and try again."
+        );
+      }
+
+      const dimensions = pdfContainer.getBoundingClientRect();
+
+      if (dimensions.width < 100 || dimensions.height < 100) {
+        throw new Error(
+          "The document could not be prepared for PDF export."
+        );
+      }
 
       const options = {
         margin: [12, 12, 12, 12],
@@ -965,7 +1033,8 @@
           logging: false,
           scrollX: 0,
           scrollY: 0,
-          windowWidth: 794
+          windowWidth: 794,
+          windowHeight: 1123
         },
 
         jsPDF: {
@@ -976,7 +1045,6 @@
 
         pagebreak: {
           mode: ["css", "legacy"],
-          before: [".page-break"],
           avoid: [".cv-section", ".letter-header"]
         }
       };
@@ -1312,4 +1380,3 @@
   updatePreview();
 
 })();
-
