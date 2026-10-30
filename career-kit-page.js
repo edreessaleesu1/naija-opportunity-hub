@@ -1,3 +1,4 @@
+
 (() => {
   "use strict";
 
@@ -123,10 +124,6 @@
 
   // --------------------------------------------------
   // ENTRY FORMATTING
-  // Turns typed text into tidy CV entries:
-  //   Role, Company            -> bold title
-  //   2021 - Present           -> muted detail line
-  //   - Achievement            -> bullet list
   // --------------------------------------------------
 
   const BULLET = /^[-•*]\s*/;
@@ -141,6 +138,7 @@
 
     if (next && isBullet(next)) return true;
     if (DATE_HINT.test(line)) return true;
+
     if (next && !isBullet(next) && DATE_HINT.test(next) && next.length <= 120) {
       return true;
     }
@@ -383,8 +381,7 @@
   // FOUR UK CV TEMPLATES
   // --------------------------------------------------
 
-  // 1. British Professional: traditional serif, centred header,
-  //    single column. The safest choice for UK recruiters and ATS.
+  // 1. British Professional
   function britishProfessional(data) {
     return `
       <article class="cv-document cv-classic">
@@ -403,7 +400,7 @@
     `;
   }
 
-  // 2. Modern UK: left-aligned header, section labels in a margin column.
+  // 2. Modern UK
   function modernUK(data) {
     return `
       <article class="cv-document cv-modern">
@@ -427,7 +424,7 @@
     `;
   }
 
-  // 3. Executive UK: dark header panel, main column plus a side panel.
+  // 3. Executive UK
   function executiveUK(data) {
     const sideHTML =
       sectionHTML("Core Skills", data.skills, "skills") +
@@ -456,7 +453,7 @@
     `;
   }
 
-  // 4. Graduate UK: education first, clean blue accents.
+  // 4. Graduate UK
   function graduateUK(data) {
     return `
       <article class="cv-document cv-graduate">
@@ -500,7 +497,7 @@
   }
 
   // --------------------------------------------------
-  // COVER LETTER (UK business letter format)
+  // COVER LETTER
   // --------------------------------------------------
 
   function buildLetterHTML() {
@@ -563,7 +560,6 @@
 
   // --------------------------------------------------
   // DOCUMENT DESIGN
-  // Web-safe fonts only, so the PDF matches the preview.
   // --------------------------------------------------
 
   const designStyles = `
@@ -932,7 +928,7 @@
       break-before: page !important;
     }
 
-    /* MOBILE RESPONSIVENESS (preview only) */
+    /* MOBILE RESPONSIVENESS */
 
     @media (max-width: 650px) {
       .cv-document {
@@ -961,6 +957,103 @@
 
       .cv-executive .executive-head {
         padding: 20px;
+      }
+    }
+
+    /* --------------------------------------------------
+       CENTRED HEADERS — ALL FOUR CV TEMPLATES
+       Applies to live preview and PDF export.
+    -------------------------------------------------- */
+
+    .cv-classic .cv-head {
+      text-align: center;
+    }
+
+    .cv-classic .cv-head h1,
+    .cv-classic .cv-head .cv-role,
+    .cv-classic .cv-head .cv-contact {
+      width: 100%;
+      text-align: center;
+    }
+
+    .cv-modern .modern-head {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .cv-modern .modern-head > div,
+    .cv-modern .modern-contact {
+      width: 100%;
+      text-align: center;
+    }
+
+    .cv-modern .modern-head h1,
+    .cv-modern .modern-head .cv-role,
+    .cv-modern .modern-contact p {
+      width: 100%;
+      text-align: center;
+    }
+
+    .cv-executive .executive-head {
+      text-align: center;
+    }
+
+    .cv-executive .executive-head h1,
+    .cv-executive .executive-head .cv-role,
+    .cv-executive .executive-head .cv-contact {
+      width: 100%;
+      text-align: center;
+    }
+
+    .cv-graduate .graduate-head {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .cv-graduate .graduate-head > div,
+    .cv-graduate .graduate-contact {
+      width: 100%;
+      text-align: center;
+    }
+
+    .cv-graduate .graduate-head h1,
+    .cv-graduate .graduate-head .cv-role,
+    .cv-graduate .graduate-contact p {
+      width: 100%;
+      text-align: center;
+    }
+
+    @media (max-width: 650px) {
+      .cv-classic .cv-head,
+      .cv-modern .modern-head,
+      .cv-executive .executive-head,
+      .cv-graduate .graduate-head {
+        text-align: center;
+      }
+
+      .cv-modern .modern-head,
+      .cv-graduate .graduate-head {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .cv-modern .modern-contact,
+      .cv-graduate .graduate-contact {
+        width: 100%;
+        text-align: center;
+      }
+
+      .cv-modern .modern-contact p,
+      .cv-graduate .graduate-contact p {
+        text-align: center;
       }
     }
   `;
@@ -1025,12 +1118,6 @@
   // --------------------------------------------------
   // PDF LIBRARY
   // --------------------------------------------------
-
-  // The PDF is built with two small libraries loaded on demand:
-  //   html2canvas - draws the document to an image
-  //   jsPDF       - places those images on A4 pages
-  // We drive them directly (no html2pdf wrapper), because the wrapper's
-  // overlay/clone step is what produced blank pages.
 
   const scriptPromises = {};
 
@@ -1120,8 +1207,9 @@
   // PDF DOWNLOAD
   // --------------------------------------------------
 
-  const PAGE_PX_WIDTH = 794;          // A4 width at 96 dpi
-  const PAGE_MARGIN_MM = 10;          // top and bottom margin on every page
+  const PAGE_PX_WIDTH = 794;
+  const PAGE_MARGIN_MM = 10;
+
   const PAGE_CONTENT_PX = Math.floor(
     ((297 - PAGE_MARGIN_MM * 2) / 210) * PAGE_PX_WIDTH
   );
@@ -1130,8 +1218,6 @@
     return new Promise((resolve) => window.setTimeout(resolve, ms));
   }
 
-  // Renders the document inside its own blank iframe. Nothing from the
-  // host page (CSS, scroll position, overflow rules) can affect it.
   function createExportFrame(html) {
     const frame = document.createElement("iframe");
 
@@ -1179,9 +1265,9 @@
     return frame;
   }
 
-  // Picks where each page ends so entries and sections are not cut in half.
   function computePages(doc, root, totalHeight) {
     const rootTop = root.getBoundingClientRect().top;
+
     const topOf = (element) =>
       Math.round(element.getBoundingClientRect().top - rootTop);
 
@@ -1195,7 +1281,6 @@
           element.classList.contains("cv-entry") &&
           element === element.parentElement.firstElementChild;
 
-        // Never separate a heading from its first entry.
         if (isFirstEntry) return;
 
         candidates.push(topOf(element));
@@ -1234,7 +1319,6 @@
     return pages;
   }
 
-  // Phones limit canvas size; a canvas over the limit comes out blank.
   function chooseScale(totalHeight) {
     const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
     const maxArea = isIOS ? 14000000 : 30000000;
@@ -1279,14 +1363,16 @@
       const doc = frame.contentDocument;
       const root = doc.getElementById("noh-pdf-export");
 
-      if (!root || !root.querySelector(".cv-document") ||
-          !root.textContent.trim()) {
+      if (
+        !root ||
+        !root.querySelector(".cv-document") ||
+        !root.textContent.trim()
+      ) {
         throw new Error(
           "The document is empty. Please complete your details and try again."
         );
       }
 
-      // Let the iframe lay out before measuring.
       await wait(150);
 
       const totalHeight = Math.ceil(root.getBoundingClientRect().height);
@@ -1325,6 +1411,7 @@
       }
 
       const ratio = canvas.width / PAGE_PX_WIDTH;
+
       const pdf = new window.jspdf.jsPDF({
         unit: "mm",
         format: "a4",
@@ -1334,10 +1421,18 @@
 
       pages.forEach(([top, bottom], index) => {
         const sliceHeight = bottom - top;
-        const sourceY = Math.min(Math.round(top * ratio), canvas.height - 1);
+
+        const sourceY = Math.min(
+          Math.round(top * ratio),
+          canvas.height - 1
+        );
+
         const sourceHeight = Math.max(
           1,
-          Math.min(Math.round(sliceHeight * ratio), canvas.height - sourceY)
+          Math.min(
+            Math.round(sliceHeight * ratio),
+            canvas.height - sourceY
+          )
         );
 
         const pageCanvas = document.createElement("canvas");
@@ -1373,7 +1468,9 @@
       return pdf;
 
     } finally {
-      if (frame.parentNode) frame.parentNode.removeChild(frame);
+      if (frame.parentNode) {
+        frame.parentNode.removeChild(frame);
+      }
     }
   }
 
@@ -1724,6 +1821,6 @@
   installDesignStyles();
   updatePreview();
 
-  console.info("[NOH Career Kit] v3 loaded (iframe PDF renderer)");
+  console.info("[NOH Career Kit] v4 loaded (centred CV headers)");
 
 })();
