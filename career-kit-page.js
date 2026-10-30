@@ -75,6 +75,7 @@
 
   function value(id, fallback = "") {
     const element = $(id);
+
     if (!element) return fallback;
 
     return String(element.value || "").trim() || fallback;
@@ -100,10 +101,6 @@
 
   function isLetter() {
     return tool === "cover-letter" || tool === "bundle";
-  }
-
-  function isCV() {
-    return tool === "cv" || tool === "bundle";
   }
 
   function getTemplate() {
@@ -168,6 +165,7 @@
 
   function configureTemplates() {
     const select = $("template");
+
     if (!select) return;
 
     const previousValue = select.value;
@@ -176,8 +174,10 @@
 
     templates.forEach((template) => {
       const option = document.createElement("option");
+
       option.value = template.value;
       option.textContent = template.label;
+
       select.appendChild(option);
     });
 
@@ -211,7 +211,9 @@
 
     setText(
       "form-heading",
-      isLetter() ? "Your application details" : "Your professional details"
+      isLetter()
+        ? "Your application details"
+        : "Your professional details"
     );
 
     cvFields.forEach((id) => setHidden(id, coverOnly));
@@ -236,7 +238,6 @@
       }
     }
 
-    
     setText(
       "download-button",
       tool === "bundle"
@@ -245,7 +246,6 @@
           ? "Download Cover Letter"
           : "Download CV"
     );
-
 
     setText("ai-assistant-title", "AI Career Assistant");
 
@@ -317,6 +317,7 @@
             <h1>${escapeHTML(data.name)}</h1>
             <p class="cv-job-title">${escapeHTML(data.job)}</p>
           </div>
+
           <div class="modern-contact">
             ${escapeHTML(data.contact)}
           </div>
@@ -361,7 +362,11 @@
         <header class="graduate-header">
           <div class="graduate-monogram">
             ${escapeHTML(
-              data.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")
+              data.name
+                .split(/\s+/)
+                .slice(0, 2)
+                .map((part) => part[0])
+                .join("")
             )}
           </div>
 
@@ -412,6 +417,7 @@
     const job = value("job-title", "the advertised position");
     const employer = value("employer", "the organisation");
     const recipient = value("recipient", "Hiring Manager");
+
     const body = value(
       "letter-body",
       "Use this space to explain your suitability for the role."
@@ -732,6 +738,8 @@
       margin-bottom: 25px !important;
     }
 
+    /* MOBILE RESPONSIVENESS */
+
     @media (max-width: 650px) {
       .cv-document {
         padding: 18px;
@@ -760,6 +768,7 @@
     if ($("noh-cv-design-styles")) return;
 
     const style = document.createElement("style");
+
     style.id = "noh-cv-design-styles";
     style.textContent = designStyles;
 
@@ -779,12 +788,14 @@
 
     if (tool === "cover-letter") {
       preview.innerHTML = buildLetterHTML();
+
     } else if (tool === "bundle") {
       preview.innerHTML = `
         ${buildCVHTML()}
         <div class="bundle-preview-divider"></div>
         ${buildLetterHTML()}
       `;
+
     } else {
       preview.innerHTML = buildCVHTML();
     }
@@ -811,7 +822,7 @@
   }
 
   // --------------------------------------------------
-  // DIRECT PDF DOWNLOAD
+  // PDF DOWNLOAD
   // --------------------------------------------------
 
   let pdfLibraryPromise = null;
@@ -841,7 +852,12 @@
 
       script.onerror = () => {
         pdfLibraryPromise = null;
-        reject(new Error("Unable to load the PDF download service. Check your internet connection."));
+
+        reject(
+          new Error(
+            "Unable to load the PDF download service. Check your internet connection."
+          )
+        );
       };
 
       document.head.appendChild(script);
@@ -903,35 +919,36 @@
       pdfContainer.id = "noh-pdf-export";
 
       pdfContainer.style.cssText = [
-  "position:absolute",
-  `top:${document.documentElement.scrollHeight + 500}px`,
-  "left:0",
-  "width:794px",
-  "min-height:100px",
-  "background:#ffffff",
-  "color:#26332d",
-  "z-index:1",
-  "display:block",
-  "visibility:visible",
-  "opacity:1",
-  "overflow:visible",
-  "pointer-events:none"
-].join(";");
+        "position:absolute",
+        `top:${document.documentElement.scrollHeight + 500}px`,
+        "left:0",
+        "width:794px",
+        "min-height:100px",
+        "background:#ffffff",
+        "color:#26332d",
+        "z-index:1",
+        "display:block",
+        "visibility:visible",
+        "opacity:1",
+        "overflow:visible",
+        "pointer-events:none"
+      ].join(";");
+
       pdfContainer.innerHTML = getPDFContent();
 
       document.body.appendChild(pdfContainer);
 
-if (document.fonts && document.fonts.ready) {
-  await document.fonts.ready;
-}
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
 
-await new Promise((resolve) => {
-  requestAnimationFrame(() => {
-    requestAnimationFrame(resolve);
-  });
-});
+      await new Promise((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(resolve);
+        });
+      });
 
-const options = {
+      const options = {
         margin: [12, 12, 12, 12],
 
         filename: getPDFFileName(),
@@ -987,10 +1004,12 @@ const options = {
       button.disabled = false;
       button.textContent = originalText;
     }
-    }
+  }
 
   // --------------------------------------------------
   // AI CAREER ASSISTANT
+  // --------------------------------------------------
+
   async function handleAI(action) {
     const resultBox = $("ai-result");
 
@@ -1005,11 +1024,13 @@ const options = {
         button: $("ai-improve-cv"),
         title: "AI CV Improvement"
       },
+
       summary: {
         apiAction: "write-summary",
         button: $("ai-improve-summary"),
         title: "Professional Summary"
       },
+
       letter: {
         apiAction: "write-letter",
         button: $("ai-write-letter"),
@@ -1029,7 +1050,9 @@ const options = {
       !value("skills") &&
       !value("summary")
     ) {
-      window.alert("Enter some CV information before requesting improvements.");
+      window.alert(
+        "Enter some CV information before requesting improvements."
+      );
       return;
     }
 
@@ -1040,7 +1063,9 @@ const options = {
       !value("experience") &&
       !value("skills")
     ) {
-      window.alert("Enter your target role, education, experience or skills first.");
+      window.alert(
+        "Enter your target role, education, experience or skills first."
+      );
       return;
     }
 
@@ -1049,7 +1074,9 @@ const options = {
       !value("job-title") &&
       !value("job-description")
     ) {
-      window.alert("Enter the job title or job description first.");
+      window.alert(
+        "Enter the job title or job description first."
+      );
       return;
     }
 
@@ -1102,10 +1129,12 @@ const options = {
     try {
       const response = await fetch(AI_ENDPOINT, {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
           "apikey": SUPABASE_PUBLISHABLE_KEY
         },
+
         body: JSON.stringify({
           action: selected.apiAction,
           ...candidateData
@@ -1117,17 +1146,22 @@ const options = {
       try {
         data = await response.json();
       } catch {
-        throw new Error("The server returned an unexpected response.");
+        throw new Error(
+          "The server returned an unexpected response."
+        );
       }
 
       if (!response.ok) {
         throw new Error(
-          data.error || `The AI request failed (${response.status}).`
+          data.error ||
+          `The AI request failed (${response.status}).`
         );
       }
 
       if (!data.result || typeof data.result !== "string") {
-        throw new Error("The AI returned no usable text. Please try again.");
+        throw new Error(
+          "The AI returned no usable text. Please try again."
+        );
       }
 
       resultBox.replaceChildren();
@@ -1149,13 +1183,21 @@ const options = {
       copyButton.addEventListener("click", async () => {
         try {
           await navigator.clipboard.writeText(data.result);
+
           copyButton.textContent = "Copied Successfully!";
+
         } catch {
-          window.alert("Copy failed. Please select and copy the result manually.");
+          window.alert(
+            "Copy failed. Please select and copy the result manually."
+          );
         }
       });
 
-      resultBox.append(resultHeading, resultText, copyButton);
+      resultBox.append(
+        resultHeading,
+        resultText,
+        copyButton
+      );
 
       resultBox.scrollIntoView({
         behavior: "smooth",
@@ -1171,11 +1213,12 @@ const options = {
       errorHeading.textContent = "AI Assistant";
 
       const errorMessage = document.createElement("p");
-      errorMessage.textContent = error.message || "Something went wrong.";
+      errorMessage.textContent =
+        error.message || "Something went wrong.";
 
       resultBox.append(errorHeading, errorMessage);
 
-    }    } finally {
+    } finally {
       buttons.forEach((button) => {
         button.disabled = false;
       });
@@ -1188,6 +1231,8 @@ const options = {
 
   // --------------------------------------------------
   // EVENT LISTENERS
+  // --------------------------------------------------
+
   const previewButton = $("preview-button");
   const downloadButton = $("download-button");
   const resetButton = $("reset-button");
@@ -1202,7 +1247,7 @@ const options = {
   if (downloadButton) {
     downloadButton.addEventListener("click", (event) => {
       event.preventDefault();
-    downloadDocument();
+      downloadDocument();
     });
   }
 
@@ -1233,7 +1278,7 @@ const options = {
   form.addEventListener("change", updatePreview);
 
   form.addEventListener("reset", () => {
-    setTimeout(updatePreview, 0);
+    window.setTimeout(updatePreview, 0);
   });
 
   const aiCVButton = $("ai-improve-cv");
@@ -1241,15 +1286,21 @@ const options = {
   const aiSummaryButton = $("ai-improve-summary");
 
   if (aiCVButton) {
-    aiCVButton.addEventListener("click", () => handleAI("cv"));
+    aiCVButton.addEventListener("click", () => {
+      handleAI("cv");
+    });
   }
 
   if (aiLetterButton) {
-    aiLetterButton.addEventListener("click", () => handleAI("letter"));
+    aiLetterButton.addEventListener("click", () => {
+      handleAI("letter");
+    });
   }
 
   if (aiSummaryButton) {
-    aiSummaryButton.addEventListener("click", () => handleAI("summary"));
+    aiSummaryButton.addEventListener("click", () => {
+      handleAI("summary");
+    });
   }
 
   // --------------------------------------------------
@@ -1261,3 +1312,4 @@ const options = {
   updatePreview();
 
 })();
+
