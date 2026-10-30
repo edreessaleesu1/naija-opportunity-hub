@@ -1175,7 +1175,7 @@ const options = {
 
       resultBox.append(errorHeading, errorMessage);
 
-    } finally {
+    }    } finally {
       buttons.forEach((button) => {
         button.disabled = false;
       });
@@ -1184,11 +1184,10 @@ const options = {
         selected.button.textContent = originalText;
       }
     }
+  }
 
   // --------------------------------------------------
   // EVENT LISTENERS
-  // --------------------------------------------------
-
   const previewButton = $("preview-button");
   const downloadButton = $("download-button");
   const resetButton = $("reset-button");
