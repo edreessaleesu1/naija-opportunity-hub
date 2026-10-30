@@ -974,14 +974,10 @@
       button.disabled = false;
       button.textContent = originalText;
     }
-  }
-
-  }
+    }
 
   // --------------------------------------------------
   // AI CAREER ASSISTANT
-  // --------------------------------------------------
-
   async function handleAI(action) {
     const resultBox = $("ai-result");
 
