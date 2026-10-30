@@ -904,16 +904,20 @@
       pdfContainer.id = "noh-pdf-export";
 
       pdfContainer.style.cssText = [
-        "position:fixed",
-        "left:-10000px",
-        "top:0",
-        "width:794px",
-        "background:#ffffff",
-        "color:#26332d",
-        "z-index:-1",
-        "overflow:visible"
-      ].join(";");
-
+  "position:absolute",
+  `top:${document.documentElement.scrollHeight + 500}px`,
+  "left:0",
+  "width:794px",
+  "min-height:100px",
+  "background:#ffffff",
+  "color:#26332d",
+  "z-index:1",
+  "display:block",
+  "visibility:visible",
+  "opacity:1",
+  "overflow:visible",
+  "pointer-events:none"
+].join(";");
       pdfContainer.innerHTML = getPDFContent();
 
       document.body.appendChild(pdfContainer);
