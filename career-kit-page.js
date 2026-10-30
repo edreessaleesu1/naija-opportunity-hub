@@ -810,143 +810,172 @@
     }
   }
 
+
   // --------------------------------------------------
-  // PRINT / PDF
+  // DIRECT PDF DOWNLOAD
   // --------------------------------------------------
 
-  function printDocument() {
-    updatePreview();
+  let pdfLibraryPromise = null;
 
-    const printWindow = window.open("", "_blank");
-
-    if (!printWindow) {
-      window.alert(
-        "Your browser blocked the print window. Allow pop-ups for this website and try again."
-      );
-      return;
+  function loadPDFLibrary() {
+    if (window.html2pdf) {
+      return Promise.resolve(window.html2pdf);
     }
 
-    let content = "";
+    if (pdfLibraryPromise) {
+      return pdfLibraryPromise;
+    }
 
+    pdfLibraryPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+
+      script.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.3/html2pdf.bundle.min.js";
+
+      script.onload = () => {
+        if (window.html2pdf) {
+          resolve(window.html2pdf);
+        } else {
+          reject(new Error("The PDF library could not be loaded."));
+        }
+      };
+
+      script.onerror = () => {
+        pdfLibraryPromise = null;
+        reject(new Error("Unable to load the PDF download service. Check your internet connection."));
+      };
+
+      document.head.appendChild(script);
+    });
+
+    return pdfLibraryPromise;
+  }
+
+  function getPDFContent() {
     if (tool === "cover-letter") {
-      content = buildLetterHTML();
-    } else if (tool === "bundle") {
-      content = `
+      return buildLetterHTML();
+    }
+
+    if (tool === "bundle") {
+      return `
         ${buildCVHTML()}
         <div class="page-break"></div>
         ${buildLetterHTML()}
       `;
-    } else {
-      content = buildCVHTML();
     }
 
-    printWindow.document.open();
+    return buildCVHTML();
+  }
 
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>${escapeHTML(titles[tool])}</title>
+  function getPDFFileName() {
+    const name = value("full-name", "Professional Document")
+      .replace(/[<>:"/\\|?*]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
 
-        <style>
-          ${designStyles}
+    const suffix = {
+      cv: "CV",
+      "cover-letter": "Cover-Letter",
+      bundle: "Career-Bundle"
+    }[tool];
 
-          @page {
-            size: A4;
-            margin: 15mm;
-          }
+    return `${name}-${suffix}.pdf`;
+  }
 
-          * {
-            box-sizing: border-box;
-          }
+  async function downloadDocument() {
+    const button = $("download-button");
 
-          body {
-            margin: 0;
-            background: #fff;
-            color: #26332d;
-            font-family: Arial, Helvetica, sans-serif;
-          }
+    if (!button) return;
 
-          .cv-document {
-            width: 100%;
-            padding: 0;
-            font-size: 9.5pt;
-          }
+    const originalText = button.textContent;
 
-          .cv-document h1 {
-            font-size: 23pt;
-          }
+    button.disabled = true;
+    button.textContent = "Preparing PDF...";
 
-          .cv-document h2 {
-            font-size: 10pt;
-          }
+    let pdfContainer = null;
 
-          .modern-header,
-          .executive-header,
-          .graduate-header {
-            print-color-adjust: exact;
-            -webkit-print-color-adjust: exact;
-          }
+    try {
+      updatePreview();
 
-          .executive-sidebar {
-            print-color-adjust: exact;
-            -webkit-print-color-adjust: exact;
-          }
+      const html2pdf = await loadPDFLibrary();
 
-          .page-break {
-            break-before: page;
-            page-break-before: always;
-          }
+      pdfContainer = document.createElement("div");
+      pdfContainer.id = "noh-pdf-export";
 
-          .bundle-preview-divider {
-            display: none;
-          }
+      pdfContainer.style.cssText = [
+        "position:fixed",
+        "left:-10000px",
+        "top:0",
+        "width:794px",
+        "background:#ffffff",
+        "color:#26332d",
+        "z-index:-1",
+        "overflow:visible"
+      ].join(";");
 
-          .letter-document {
-            min-height: auto;
-          }
+      pdfContainer.innerHTML = getPDFContent();
 
-          .cv-section {
-            break-inside: avoid;
-          }
+      document.body.appendChild(pdfContainer);
 
-          @media screen {
-            body {
-              max-width: 850px;
-              margin: 25px auto;
-              padding: 25px;
-              background: #f5f5f5;
-            }
+      const options = {
+        margin: [12, 12, 12, 12],
 
-            .cv-document {
-              background: #fff;
-              padding: 30px;
-              box-shadow: 0 3px 18px rgba(0,0,0,.08);
-            }
-          }
-        </style>
-      </head>
+        filename: getPDFFileName(),
 
-      <body>
-        ${content}
-      </body>
-      </html>
-    `);
+        image: {
+          type: "jpeg",
+          quality: 0.98
+        },
 
-    printWindow.document.close();
-    printWindow.focus();
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: 794
+        },
 
-    setTimeout(() => {
-      try {
-        printWindow.focus();
-        printWindow.print();
-      } catch (error) {
-        console.error("Print error:", error);
-        window.alert("Unable to open the print dialog. Please try again.");
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait"
+        },
+
+        pagebreak: {
+          mode: ["css", "legacy"],
+          before: [".page-break"],
+          avoid: [".cv-section", ".letter-header"]
+        }
+      };
+
+      await html2pdf()
+        .set(options)
+        .from(pdfContainer)
+        .save();
+
+      setText("preview-status", "PDF downloaded successfully");
+
+    } catch (error) {
+      console.error("PDF download error:", error);
+
+      window.alert(
+        error.message ||
+        "Unable to download your PDF. Please try again."
+      );
+
+    } finally {
+      if (pdfContainer && pdfContainer.parentNode) {
+        pdfContainer.parentNode.removeChild(pdfContainer);
       }
-    }, 700);
+
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  }
+
   }
 
   // --------------------------------------------------
