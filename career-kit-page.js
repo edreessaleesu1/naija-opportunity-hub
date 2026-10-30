@@ -1195,7 +1195,7 @@
   if (downloadButton) {
     downloadButton.addEventListener("click", (event) => {
       event.preventDefault();
-      printDocument();
+    downloadDocument();
     });
   }
 
