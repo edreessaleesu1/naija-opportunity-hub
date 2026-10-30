@@ -429,6 +429,10 @@
 
   // 3. Executive UK: dark header panel, main column plus a side panel.
   function executiveUK(data) {
+    const sideHTML =
+      sectionHTML("Core Skills", data.skills, "skills") +
+      sectionHTML("Training & Certifications", data.certificates, "plain");
+
     return `
       <article class="cv-document cv-executive">
         <header class="executive-head">
@@ -437,17 +441,16 @@
           ${contactHTML(data)}
         </header>
 
-        <div class="executive-body">
+        <div class="executive-body${sideHTML.trim() ? "" : " no-side"}">
           <div class="executive-main">
             ${sectionHTML("Profile", data.summary, "plain")}
             ${sectionHTML("Career History", data.experience)}
             ${sectionHTML("Education", data.education)}
           </div>
 
-          <aside class="executive-side">
-            ${sectionHTML("Core Skills", data.skills, "skills")}
-            ${sectionHTML("Training & Certifications", data.certificates, "plain")}
-          </aside>
+          ${sideHTML.trim()
+            ? `<aside class="executive-side">${sideHTML}</aside>`
+            : ""}
         </div>
       </article>
     `;
@@ -575,6 +578,7 @@
       overflow-wrap: anywhere;
     }
 
+    .cv-document,
     .cv-document * {
       box-sizing: border-box;
     }
@@ -759,6 +763,10 @@
       padding-top: 20px;
     }
 
+    .executive-body.no-side {
+      grid-template-columns: 1fr;
+    }
+
     .executive-main,
     .executive-side {
       min-width: 0;
@@ -918,14 +926,6 @@
       max-width: none !important;
     }
 
-    #noh-pdf-export .cv-modern .cv-section {
-      grid-template-columns: 128px 1fr !important;
-    }
-
-    #noh-pdf-export .executive-body {
-      grid-template-columns: 1.85fr 1fr !important;
-    }
-
     #noh-pdf-export .page-break {
       height: 1px !important;
       page-break-before: always !important;
@@ -1026,34 +1026,35 @@
   // PDF LIBRARY
   // --------------------------------------------------
 
-  let pdfLibraryPromise = null;
+  // The PDF is built with two small libraries loaded on demand:
+  //   html2canvas - draws the document to an image
+  //   jsPDF       - places those images on A4 pages
+  // We drive them directly (no html2pdf wrapper), because the wrapper's
+  // overlay/clone step is what produced blank pages.
 
-  function loadPDFLibrary() {
-    if (window.html2pdf) {
-      return Promise.resolve(window.html2pdf);
-    }
+  const scriptPromises = {};
 
-    if (pdfLibraryPromise) {
-      return pdfLibraryPromise;
-    }
+  function loadScript(src, isReady, failMessage) {
+    if (isReady()) return Promise.resolve();
 
-    pdfLibraryPromise = new Promise((resolve, reject) => {
+    if (scriptPromises[src]) return scriptPromises[src];
+
+    scriptPromises[src] = new Promise((resolve, reject) => {
       const script = document.createElement("script");
 
-      script.src =
-        "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.3/html2pdf.bundle.min.js";
+      script.src = src;
 
       script.onload = () => {
-        if (window.html2pdf) {
-          resolve(window.html2pdf);
+        if (isReady()) {
+          resolve();
         } else {
-          pdfLibraryPromise = null;
-          reject(new Error("The PDF library could not be loaded."));
+          delete scriptPromises[src];
+          reject(new Error(failMessage));
         }
       };
 
       script.onerror = () => {
-        pdfLibraryPromise = null;
+        delete scriptPromises[src];
 
         reject(
           new Error(
@@ -1065,7 +1066,22 @@
       document.head.appendChild(script);
     });
 
-    return pdfLibraryPromise;
+    return scriptPromises[src];
+  }
+
+  function loadPDFLibraries() {
+    return Promise.all([
+      loadScript(
+        "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+        () => typeof window.html2canvas === "function",
+        "The PDF renderer could not be loaded."
+      ),
+      loadScript(
+        "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+        () => Boolean(window.jspdf && window.jspdf.jsPDF),
+        "The PDF writer could not be loaded."
+      )
+    ]);
   }
 
   function getPDFContent() {
@@ -1104,6 +1120,263 @@
   // PDF DOWNLOAD
   // --------------------------------------------------
 
+  const PAGE_PX_WIDTH = 794;          // A4 width at 96 dpi
+  const PAGE_MARGIN_MM = 10;          // top and bottom margin on every page
+  const PAGE_CONTENT_PX = Math.floor(
+    ((297 - PAGE_MARGIN_MM * 2) / 210) * PAGE_PX_WIDTH
+  );
+
+  function wait(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  // Renders the document inside its own blank iframe. Nothing from the
+  // host page (CSS, scroll position, overflow rules) can affect it.
+  function createExportFrame(html) {
+    const frame = document.createElement("iframe");
+
+    frame.setAttribute("aria-hidden", "true");
+    frame.tabIndex = -1;
+
+    frame.style.cssText = [
+      "position:fixed",
+      "left:0",
+      "top:0",
+      `width:${PAGE_PX_WIDTH}px`,
+      "height:1123px",
+      "border:0",
+      "opacity:0",
+      "pointer-events:none",
+      "z-index:-1",
+      "background:#ffffff"
+    ].join(";");
+
+    document.body.appendChild(frame);
+
+    const doc = frame.contentDocument;
+
+    doc.open();
+    doc.write(`<!doctype html>
+      <html lang="en-GB">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            html, body {
+              margin: 0;
+              padding: 0;
+              background: #ffffff;
+              overflow-x: hidden;
+            }
+            ${designStyles}
+          </style>
+        </head>
+        <body>
+          <div id="noh-pdf-export">${html}</div>
+        </body>
+      </html>`);
+    doc.close();
+
+    return frame;
+  }
+
+  // Picks where each page ends so entries and sections are not cut in half.
+  function computePages(doc, root, totalHeight) {
+    const rootTop = root.getBoundingClientRect().top;
+    const topOf = (element) =>
+      Math.round(element.getBoundingClientRect().top - rootTop);
+
+    const candidates = [];
+
+    doc.querySelectorAll(".cv-section, .cv-entry, .letter-content > p")
+      .forEach((element) => {
+        if (element.closest(".executive-side")) return;
+
+        const isFirstEntry =
+          element.classList.contains("cv-entry") &&
+          element === element.parentElement.firstElementChild;
+
+        // Never separate a heading from its first entry.
+        if (isFirstEntry) return;
+
+        candidates.push(topOf(element));
+      });
+
+    const forced = Array.from(doc.querySelectorAll(".page-break"))
+      .map(topOf);
+
+    const pages = [];
+    let start = 0;
+
+    while (totalHeight - start > 8) {
+      let end = Math.min(start + PAGE_CONTENT_PX, totalHeight);
+
+      if (end < totalHeight) {
+        const forcedBreak = forced.find(
+          (position) => position > start + 5 && position <= end
+        );
+
+        if (forcedBreak) {
+          end = forcedBreak;
+        } else {
+          const usable = candidates.filter(
+            (position) =>
+              position > start + PAGE_CONTENT_PX * 0.35 && position <= end
+          );
+
+          if (usable.length) end = Math.max(...usable);
+        }
+      }
+
+      pages.push([start, end]);
+      start = end;
+    }
+
+    return pages;
+  }
+
+  // Phones limit canvas size; a canvas over the limit comes out blank.
+  function chooseScale(totalHeight) {
+    const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+    const maxArea = isIOS ? 14000000 : 30000000;
+    const maxSide = 8192;
+
+    const byArea = Math.sqrt(maxArea / (PAGE_PX_WIDTH * totalHeight));
+    const bySide = maxSide / Math.max(PAGE_PX_WIDTH, totalHeight);
+
+    return Math.max(1, Math.min(2, byArea, bySide));
+  }
+
+  function canvasLooksBlank(canvas) {
+    const probe = document.createElement("canvas");
+
+    probe.width = 320;
+    probe.height = Math.max(
+      1,
+      Math.round((canvas.height / canvas.width) * 320)
+    );
+
+    const context = probe.getContext("2d");
+
+    context.drawImage(canvas, 0, 0, probe.width, probe.height);
+
+    const pixels = context.getImageData(0, 0, probe.width, probe.height).data;
+
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (pixels[i] < 254 || pixels[i + 1] < 254 || pixels[i + 2] < 254) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  async function buildPDF() {
+    await loadPDFLibraries();
+
+    const frame = createExportFrame(getPDFContent());
+
+    try {
+      const doc = frame.contentDocument;
+      const root = doc.getElementById("noh-pdf-export");
+
+      if (!root || !root.querySelector(".cv-document") ||
+          !root.textContent.trim()) {
+        throw new Error(
+          "The document is empty. Please complete your details and try again."
+        );
+      }
+
+      // Let the iframe lay out before measuring.
+      await wait(150);
+
+      const totalHeight = Math.ceil(root.getBoundingClientRect().height);
+
+      if (totalHeight < 50) {
+        throw new Error("The document could not be prepared for PDF export.");
+      }
+
+      frame.style.height = `${totalHeight}px`;
+
+      await wait(50);
+
+      const pages = computePages(doc, root, totalHeight);
+      const scale = chooseScale(totalHeight);
+
+      const canvas = await window.html2canvas(root, {
+        scale,
+        backgroundColor: "#ffffff",
+        logging: false,
+        useCORS: true,
+        windowWidth: PAGE_PX_WIDTH,
+        windowHeight: totalHeight
+      });
+
+      console.info("[NOH Career Kit] PDF render", {
+        totalHeight,
+        scale,
+        pages: pages.length,
+        canvas: `${canvas.width}x${canvas.height}`
+      });
+
+      if (!canvas.width || !canvas.height || canvasLooksBlank(canvas)) {
+        throw new Error(
+          "Your browser could not draw the document. Please try again, or use Google Chrome."
+        );
+      }
+
+      const ratio = canvas.width / PAGE_PX_WIDTH;
+      const pdf = new window.jspdf.jsPDF({
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+        compress: true
+      });
+
+      pages.forEach(([top, bottom], index) => {
+        const sliceHeight = bottom - top;
+        const sourceY = Math.min(Math.round(top * ratio), canvas.height - 1);
+        const sourceHeight = Math.max(
+          1,
+          Math.min(Math.round(sliceHeight * ratio), canvas.height - sourceY)
+        );
+
+        const pageCanvas = document.createElement("canvas");
+
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sourceHeight;
+
+        const context = pageCanvas.getContext("2d");
+
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+        context.drawImage(
+          canvas,
+          0, sourceY, canvas.width, sourceHeight,
+          0, 0, pageCanvas.width, pageCanvas.height
+        );
+
+        if (index > 0) pdf.addPage();
+
+        pdf.addImage(
+          pageCanvas.toDataURL("image/jpeg", 0.95),
+          "JPEG",
+          0,
+          PAGE_MARGIN_MM,
+          210,
+          (sliceHeight / PAGE_PX_WIDTH) * 210,
+          undefined,
+          "FAST"
+        );
+      });
+
+      return pdf;
+
+    } finally {
+      if (frame.parentNode) frame.parentNode.removeChild(frame);
+    }
+  }
+
   async function downloadDocument() {
     const button = $("download-button");
 
@@ -1117,67 +1390,20 @@
     try {
       updatePreview();
 
-      const html2pdf = await loadPDFLibrary();
+      const pdf = await buildPDF();
 
-      // Plain detached element: no position, no z-index, not appended.
-      // html2pdf clones it into its own overlay and handles placement.
-      const pdfContainer = document.createElement("div");
+      pdf.save(getPDFFileName());
 
-      pdfContainer.id = "noh-pdf-export";
-      pdfContainer.innerHTML = getPDFContent();
+      const inAppBrowser =
+        /FBAN|FBAV|Instagram|WhatsApp|Line\/|MicroMessenger|Snapchat|TikTok/i
+          .test(navigator.userAgent);
 
-      const exportDocument = pdfContainer.querySelector(".cv-document");
-
-      if (!exportDocument || !exportDocument.textContent.trim()) {
-        throw new Error(
-          "The document is empty. Please complete your details and try again."
-        );
-      }
-
-      if (document.fonts && document.fonts.ready) {
-        await document.fonts.ready;
-      }
-
-      const options = {
-        // Vertical margins only: the page is 794px wide, so the
-        // document prints at true size with its own side padding.
-        margin: [10, 0, 10, 0],
-
-        filename: getPDFFileName(),
-
-        image: {
-          type: "jpeg",
-          quality: 0.98
-        },
-
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-          logging: false,
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: 794
-        },
-
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait"
-        },
-
-        pagebreak: {
-          mode: ["css", "legacy"],
-          avoid: [".cv-entry", ".letter-sender"]
-        }
-      };
-
-      await html2pdf()
-        .set(options)
-        .from(pdfContainer)
-        .save();
-
-      setText("preview-status", "PDF downloaded successfully");
+      setText(
+        "preview-status",
+        inAppBrowser
+          ? "PDF created (v3). If nothing downloaded, open this page in Chrome or Safari."
+          : "PDF downloaded successfully (v3)"
+      );
 
     } catch (error) {
       console.error("PDF download error:", error);
@@ -1498,6 +1724,6 @@
   installDesignStyles();
   updatePreview();
 
-})();
+  console.info("[NOH Career Kit] v3 loaded (iframe PDF renderer)");
 
-                          
+})();
