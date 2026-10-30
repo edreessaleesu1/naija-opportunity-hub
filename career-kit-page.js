@@ -810,7 +810,6 @@
     }
   }
 
-
   // --------------------------------------------------
   // DIRECT PDF DOWNLOAD
   // --------------------------------------------------
@@ -922,7 +921,17 @@
 
       document.body.appendChild(pdfContainer);
 
-      const options = {
+if (document.fonts && document.fonts.ready) {
+  await document.fonts.ready;
+}
+
+await new Promise((resolve) => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(resolve);
+  });
+});
+
+const options = {
         margin: [12, 12, 12, 12],
 
         filename: getPDFFileName(),
@@ -1175,7 +1184,6 @@
         selected.button.textContent = originalText;
       }
     }
-  }
 
   // --------------------------------------------------
   // EVENT LISTENERS
