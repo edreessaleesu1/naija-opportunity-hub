@@ -1,33 +1,24 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#075b3b">
-
-  <meta name="description" content="Build professional CVs, create tailored cover letters and strengthen your job applications with Naija Opportunity Hub Career Kit.">
-
-  <title>Career Kit | Naija Opportunity Hub</title>
+  <meta name="theme-color" content="#fbf9f3">
+  <meta name="description" content="Create professional CVs, cover letters and stronger job applications with Naija Opportunity Hub Career Kit.">
+  <title>Career Kit Dashboard | Naija Opportunity Hub</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="career-kit-page.css">
-
-  <script src="career-kit-page.js" defer></script>
 </head>
 
 <body>
-
-  <!-- =========================================
-       TOP NAVIGATION
-  ========================================== -->
-
   <header class="topbar">
     <a class="brand" href="index.html" aria-label="Naija Opportunity Hub homepage">
       <span class="brand-icon">N</span>
-
       <span class="brand-copy">
         <strong>Naija Opportunity Hub</strong>
         <small>CAREER KIT</small>
@@ -35,8 +26,8 @@
     </a>
 
     <nav class="main-navigation" aria-label="Main navigation">
-      <a href="#dashboard" class="nav-link active">Dashboard</a>
-      <a href="#workspace-grid" class="nav-link">My Workspace</a>
+      <a href="career-kit.html" class="nav-link active" aria-current="page">Dashboard</a>
+      <a href="career-workspace.html?tool=cv" class="nav-link">My Workspace</a>
       <a href="application-assistance.html" class="nav-link">Career Services</a>
     </nav>
 
@@ -45,13 +36,7 @@
     </a>
   </header>
 
-
   <main class="workspace">
-
-    <!-- =========================================
-         DASHBOARD
-    ========================================== -->
-
     <section class="dashboard" id="dashboard">
 
       <div class="dashboard-welcome">
@@ -69,7 +54,7 @@
           </p>
 
           <div class="welcome-actions">
-            <a href="#workspace-grid" class="button button-primary">
+            <a href="career-workspace.html?tool=cv" class="button button-primary">
               Start Building <span aria-hidden="true">→</span>
             </a>
 
@@ -88,18 +73,14 @@
             <div class="document-avatar">CV</div>
             <div class="document-line document-line-long"></div>
             <div class="document-line document-line-short"></div>
-
             <div class="document-divider"></div>
-
             <div class="document-heading"></div>
             <div class="document-line"></div>
             <div class="document-line"></div>
             <div class="document-line document-line-short"></div>
-
             <div class="document-heading"></div>
             <div class="document-line"></div>
             <div class="document-line document-line-short"></div>
-
             <div class="document-heading"></div>
             <div class="document-line"></div>
           </div>
@@ -114,9 +95,6 @@
         </div>
       </div>
 
-
-      <!-- QUICK ACCESS -->
-
       <div class="dashboard-section-heading">
         <div>
           <span class="step-label">YOUR CAREER TOOLS</span>
@@ -125,732 +103,108 @@
         </div>
       </div>
 
-
       <div class="tool-cards">
 
-        <!-- CV BUILDER -->
-
-        <a class="tool-card featured-tool"
-           href="career-kit.html?tool=cv#workspace-grid">
-
+        <a class="tool-card featured-tool" href="career-workspace.html?tool=cv">
           <div class="tool-card-top">
             <span class="tool-icon">▤</span>
             <span class="tool-card-arrow">↗</span>
           </div>
-
           <span class="tool-card-label">BUILD YOUR PROFILE</span>
-
           <h3>Professional CV Builder</h3>
-
           <p>
             Create a polished, structured CV that highlights your
             qualifications, skills and achievements.
           </p>
-
           <span class="tool-card-action">Create your CV →</span>
         </a>
 
-
-        <!-- COVER LETTER -->
-
-        <a class="tool-card"
-           href="career-kit.html?tool=cover-letter#workspace-grid">
-
+        <a class="tool-card" href="career-workspace.html?tool=cover-letter">
           <div class="tool-card-top">
             <span class="tool-icon">✉</span>
             <span class="tool-card-arrow">↗</span>
           </div>
-
           <span class="tool-card-label">MAKE A STRONG IMPRESSION</span>
-
           <h3>Cover Letter Studio</h3>
-
           <p>
             Prepare professional cover letters tailored to specific
             employers and job opportunities.
           </p>
-
           <span class="tool-card-action">Write a cover letter →</span>
         </a>
 
-
-        <!-- CAREER BUNDLE -->
-
-        <a class="tool-card"
-           href="career-kit.html?tool=bundle#workspace-grid">
-
+        <a class="tool-card" href="career-workspace.html?tool=bundle">
           <div class="tool-card-top">
             <span class="tool-icon">▣</span>
             <span class="tool-card-arrow">↗</span>
           </div>
-
           <span class="tool-card-label">COMPLETE APPLICATION PACKAGE</span>
-
           <h3>Career Bundle</h3>
-
           <p>
             Prepare your CV and cover letter together for a more
             coordinated job application.
           </p>
-
           <span class="tool-card-action">Build your bundle →</span>
         </a>
 
-
-        <!-- APPLICATION ASSISTANCE -->
-
-        <a class="tool-card"
-           href="application-assistance.html">
-
+        <a class="tool-card" href="application-assistance.html">
           <div class="tool-card-top">
             <span class="tool-icon">✧</span>
             <span class="tool-card-arrow">↗</span>
           </div>
-
           <span class="tool-card-label">PERSONAL CAREER SUPPORT</span>
-
           <h3>Application Assistance</h3>
-
           <p>
             Get professional support with CV reviews, cover letters,
             LinkedIn profiles and job applications.
           </p>
-
           <span class="tool-card-action">Explore services →</span>
         </a>
 
       </div>
 
-
-      <!-- AI ASSISTANT PROMOTION -->
-
       <section class="ai-promo">
-
         <div class="ai-promo-content">
           <span class="eyebrow">SMARTER CAREER PREPARATION</span>
-
           <h2>Meet your AI Career Assistant</h2>
-
           <p>
             Improve your professional summary, strengthen your CV and
             prepare more relevant job applications with AI assistance.
           </p>
-
-          <a href="#ai-assistant" class="button button-gold">
+          <a href="career-workspace.html?tool=cv#ai-assistant" class="button button-gold">
             Explore AI Tools →
           </a>
         </div>
+        <div class="ai-promo-icon" aria-hidden="true">✦</div>
+      </section>
 
-        <div class="ai-promo-icon" aria-hidden="true">
-          ✦
+      <section class="help-card">
+        <div>
+          <span class="step-label">YOUR NEXT PROFESSIONAL MOVE</span>
+          <h2>Make every application count.</h2>
+          <p>
+            A strong application starts with a clear CV, a tailored
+            cover letter and the right opportunity.
+          </p>
         </div>
-
+        <a href="index.html#opportunities">Discover Opportunities →</a>
       </section>
 
     </section>
-
-
-    <!-- =========================================
-         DOCUMENT WORKSPACE
-    ========================================== -->
-
-    <section class="document-workspace" id="workspace-grid">
-
-      <div class="workspace-heading">
-        <div>
-          <span class="step-label">DOCUMENT CREATION STUDIO</span>
-          <h2 id="page-title">Professional CV Builder</h2>
-
-          <p id="page-description">
-            Create a clear, professional CV to showcase your skills
-            and experience.
-          </p>
-        </div>
-
-        <a href="#dashboard" class="workspace-back-link">
-          ↑ Back to Dashboard
-        </a>
-      </div>
-
-
-      <!-- TOOL NAVIGATION -->
-
-      <nav class="tool-tabs" aria-label="Career Kit document tools">
-
-        <a href="career-kit.html?tool=cv#workspace-grid"
-           data-tool="cv">
-          CV Builder
-        </a>
-
-        <a href="career-kit.html?tool=cover-letter#workspace-grid"
-           data-tool="cover-letter">
-          Cover Letter
-        </a>
-
-        <a href="career-kit.html?tool=bundle#workspace-grid"
-           data-tool="bundle">
-          Career Bundle
-        </a>
-
-      </nav>
-
-
-      <div class="workspace-grid">
-
-        <!-- =====================================
-             EDITOR
-        ====================================== -->
-
-        <section class="form-card">
-
-          <div class="card-heading">
-            <span class="step-label">DOCUMENT EDITOR</span>
-
-            <h2 id="form-heading">Your professional details</h2>
-
-            <p>
-              Add your information below. Your document preview
-              will update as you work.
-            </p>
-          </div>
-
-
-          <form id="career-form">
-
-            <!-- PERSONAL INFORMATION -->
-
-            <div class="form-section-heading">
-              <span class="form-section-number">01</span>
-
-              <div>
-                <h3>Personal Information</h3>
-                <p>Tell employers who you are and how to contact you.</p>
-              </div>
-            </div>
-
-
-            <div class="field">
-              <label for="full-name">Full name</label>
-
-              <input
-                id="full-name"
-                name="fullName"
-                type="text"
-                placeholder="Enter your full name"
-                autocomplete="name"
-                required
-              >
-            </div>
-
-
-            <div class="field-row">
-
-              <div class="field">
-                <label for="email">Email address</label>
-
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  autocomplete="email"
-                >
-              </div>
-
-              <div class="field">
-                <label for="phone">Phone number</label>
-
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder="+234..."
-                  autocomplete="tel"
-                >
-              </div>
-
-            </div>
-
-
-            <div class="field">
-              <label for="location">Location</label>
-
-              <input
-                id="location"
-                name="location"
-                type="text"
-                placeholder="City, State"
-              >
-            </div>
-
-
-            <!-- PROFESSIONAL PROFILE -->
-
-            <div class="form-section-heading">
-              <span class="form-section-number">02</span>
-
-              <div>
-                <h3>Professional Profile</h3>
-                <p>Introduce your professional identity and career goals.</p>
-              </div>
-            </div>
-
-
-            <div class="field" id="job-title-field">
-              <label for="job-title">Professional title / Target role</label>
-
-              <input
-                id="job-title"
-                name="jobTitle"
-                type="text"
-                placeholder="e.g. Graduate Trainee or Data Analyst"
-              >
-            </div>
-
-
-            <div class="field" id="summary-field">
-              <label for="summary">Professional summary</label>
-
-              <textarea
-                id="summary"
-                name="summary"
-                rows="4"
-                placeholder="Briefly introduce your qualifications, strengths and career goals."
-              ></textarea>
-            </div>
-
-
-            <!-- EDUCATION -->
-
-            <div class="form-section-heading">
-              <span class="form-section-number">03</span>
-
-              <div>
-                <h3>Education</h3>
-                <p>Showcase your academic background and qualifications.</p>
-              </div>
-            </div>
-
-
-            <div class="field" id="education-field">
-              <label for="education">Education</label>
-
-              <textarea
-                id="education"
-                name="education"
-                rows="4"
-                placeholder="Institution, qualification, course and graduation year."
-              ></textarea>
-            </div>
-
-
-            <!-- EXPERIENCE -->
-
-            <div class="form-section-heading">
-              <span class="form-section-number">04</span>
-
-              <div>
-                <h3>Professional Experience</h3>
-                <p>Highlight your experience and measurable achievements.</p>
-              </div>
-            </div>
-
-
-            <div class="field" id="experience-field">
-              <label for="experience">Work experience</label>
-
-              <textarea
-                id="experience"
-                name="experience"
-                rows="5"
-                placeholder="Job title, organisation, dates and key responsibilities or achievements."
-              ></textarea>
-            </div>
-
-
-            <!-- SKILLS -->
-
-            <div class="form-section-heading">
-              <span class="form-section-number">05</span>
-
-              <div>
-                <h3>Skills & Competencies</h3>
-                <p>Identify the skills that make you a strong candidate.</p>
-              </div>
-            </div>
-
-
-            <div class="field" id="skills-field">
-              <label for="skills">Skills</label>
-
-              <textarea
-                id="skills"
-                name="skills"
-                rows="3"
-                placeholder="e.g. Excel, communication, research, teamwork"
-              ></textarea>
-            </div>
-
-
-            <div class="field" id="certificates-field">
-              <label for="certificates">
-                Certifications / Additional Information
-              </label>
-
-              <textarea
-                id="certificates"
-                name="certificates"
-                rows="3"
-                placeholder="Relevant certifications, training, projects or awards."
-              ></textarea>
-            </div>
-
-
-            <!-- COVER LETTER FIELDS -->
-
-            <div class="conditional-fields">
-
-              <div class="field" id="employer-field" hidden>
-                <label for="employer">Employer / Organisation</label>
-
-                <input
-                  id="employer"
-                  name="employer"
-                  type="text"
-                  placeholder="Organisation you are applying to"
-                >
-              </div>
-
-
-              <div class="field" id="recipient-field" hidden>
-                <label for="recipient">
-                  Hiring manager's name (optional)
-                </label>
-
-                <input
-                  id="recipient"
-                  name="recipient"
-                  type="text"
-                  placeholder="Hiring manager or recruitment team"
-                >
-              </div>
-
-
-              <div class="field" id="job-description-field" hidden>
-                <label for="job-description">
-                  Job description / Requirements
-                </label>
-
-                <textarea
-                  id="job-description"
-                  name="jobDescription"
-                  rows="5"
-                  placeholder="Paste the job advertisement or list the key requirements."
-                ></textarea>
-              </div>
-
-
-              <div class="field" id="letter-body-field" hidden>
-                <label for="letter-body">
-                  Why are you a suitable candidate?
-                </label>
-
-                <textarea
-                  id="letter-body"
-                  name="letterBody"
-                  rows="5"
-                  placeholder="Describe your relevant experience, achievements and interest in the role."
-                ></textarea>
-              </div>
-
-            </div>
-
-
-            <!-- DOCUMENT DESIGN -->
-
-            <div class="form-section-heading">
-              <span class="form-section-number">06</span>
-
-              <div>
-                <h3>Document Design</h3>
-                <p>Choose the appearance of your professional document.</p>
-              </div>
-            </div>
-
-
-            <div class="field" id="template-field">
-              <label for="template">Document style</label>
-
-              <select id="template" name="template">
-                <option value="classic">Classic Professional</option>
-                <option value="modern">Modern Clean</option>
-              </select>
-            </div>
-
-
-            <!-- ACTION BUTTONS -->
-
-            <div class="form-actions">
-
-              <button
-                class="button button-primary"
-                type="button"
-                id="preview-button"
-              >
-                Update Preview →
-              </button>
-
-              <button
-                class="button button-secondary"
-                type="reset"
-                id="reset-button"
-              >
-                Clear Form
-              </button>
-
-            </div>
-
-
-            <!-- AI CAREER ASSISTANT -->
-
-            <section class="ai-assistant" id="ai-assistant">
-
-              <div class="ai-assistant-heading">
-                <span class="step-label">INTELLIGENT CAREER SUPPORT</span>
-
-                <h3 id="ai-assistant-title">
-                  AI Career Assistant
-                </h3>
-
-                <p id="ai-assistant-description">
-                  Get help improving your CV and preparing stronger
-                  job applications.
-                </p>
-              </div>
-
-
-              <div class="ai-actions">
-
-                <button
-                  class="button button-primary"
-                  type="button"
-                  id="ai-improve-cv"
-                >
-                  ✦ Improve My CV
-                </button>
-
-
-                <button
-                  class="button button-secondary"
-                  type="button"
-                  id="ai-improve-summary"
-                >
-                  Improve Professional Summary
-                </button>
-
-
-                <button
-                  class="button button-secondary"
-                  type="button"
-                  id="ai-write-letter"
-                >
-                  Write My Cover Letter
-                </button>
-
-              </div>
-
-
-              <div
-                id="ai-result"
-                class="ai-result"
-                role="status"
-                aria-live="polite"
-                hidden
-              ></div>
-
-            </section>
-
-
-            <p class="privacy-note">
-              Your entries are processed by the Career Kit tools.
-              Do not enter passwords, bank details or other sensitive
-              personal information. AI requests are sent to the
-              configured career-assistant service.
-            </p>
-
-          </form>
-
-        </section>
-
-
-        <!-- =====================================
-             LIVE DOCUMENT PREVIEW
-        ====================================== -->
-
-        <section class="preview-card">
-
-          <div class="preview-heading">
-
-            <div>
-              <span class="step-label">REAL-TIME DOCUMENT VIEW</span>
-              <h2>Your document</h2>
-            </div>
-
-            <span class="preview-status" id="preview-status">
-              Ready to edit
-            </span>
-
-          </div>
-
-
-          <article id="document-preview" class="document-preview">
-
-            <div class="document-top">
-
-              <h1 id="preview-name">Your Full Name</h1>
-
-              <p id="preview-title">Your Professional Title</p>
-
-              <p class="contact-line" id="preview-contact">
-                Email · Phone · Location
-              </p>
-
-            </div>
-
-
-            <section
-              class="document-section"
-              id="preview-summary-section"
-            >
-              <h3 id="preview-summary-heading">
-                Professional Summary
-              </h3>
-
-              <p id="preview-summary">
-                Your professional summary will appear here.
-              </p>
-            </section>
-
-
-            <section
-              class="document-section"
-              id="preview-education-section"
-            >
-              <h3 id="preview-education-heading">Education</h3>
-
-              <p id="preview-education">
-                Your educational background will appear here.
-              </p>
-            </section>
-
-
-            <section
-              class="document-section"
-              id="preview-experience-section"
-            >
-              <h3 id="preview-experience-heading">Experience</h3>
-
-              <p id="preview-experience">
-                Your work experience will appear here.
-              </p>
-            </section>
-
-
-            <section
-              class="document-section"
-              id="preview-skills-section"
-            >
-              <h3 id="preview-skills-heading">Skills</h3>
-
-              <p id="preview-skills">
-                Your skills will appear here.
-              </p>
-            </section>
-
-
-            <section
-              class="document-section"
-              id="preview-certificates-section"
-            >
-              <h3 id="preview-certificates-heading">
-                Certifications & Additional Information
-              </h3>
-
-              <p id="preview-certificates">
-                Your additional information will appear here.
-              </p>
-            </section>
-
-          </article>
-
-
-          <div class="download-actions">
-
-            <button
-              class="button button-primary"
-              type="button"
-              id="download-button"
-            >
-              Print / Save as PDF
-            </button>
-
-            <p>
-              Review your document before printing or saving it as PDF.
-            </p>
-
-          </div>
-
-        </section>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================================
-         CAREER GUIDANCE
-    ========================================== -->
-
-    <section class="help-card">
-
-      <div>
-        <span class="step-label">YOUR NEXT PROFESSIONAL MOVE</span>
-
-        <h2>Make every application count.</h2>
-
-        <p>
-          A strong application starts with a clear CV, a tailored
-          cover letter and the right opportunity.
-        </p>
-      </div>
-
-      <a href="index.html#opportunities">
-        Discover Opportunities →
-      </a>
-
-    </section>
-
   </main>
 
-
-  <!-- =========================================
-       FOOTER
-  ========================================== -->
-
   <footer class="footer">
-
-    <p>
-      © <span id="current-year"></span>
-      Naija Opportunity Hub. All rights reserved.
-    </p>
-
+    <p>© <span id="current-year"></span> Naija Opportunity Hub. All rights reserved.</p>
     <div class="footer-links">
       <a href="index.html">Home</a>
       <a href="application-assistance.html">Career Services</a>
       <a href="index.html#opportunities">Opportunities</a>
     </div>
-
   </footer>
 
+  <script>
+    document.getElementById("current-year").textContent =
+      new Date().getFullYear();
+  </script>
 </body>
-  </html>
+</html>
