@@ -1,1 +1,357 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#fbf9f3">
+  <meta name="description" content="Create and edit professional CVs and cover letters with Naija Opportunity Hub.">
+  <title>Career Workspace | Naija Opportunity Hub</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="career-kit-page.css">
+  <script src="career-kit-page.js" defer></script>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="Naija Opportunity Hub homepage">
+      <span class="brand-icon">N</span>
+      <span class="brand-copy">
+        <strong>Naija Opportunity Hub</strong>
+        <small>CAREER WORKSPACE</small>
+      </span>
+    </a>
+
+    <nav class="main-navigation" aria-label="Main navigation">
+      <a href="career-kit.html" class="nav-link">Dashboard</a>
+      <a href="career-workspace.html?tool=cv" class="nav-link active">My Workspace</a>
+      <a href="application-assistance.html" class="nav-link">Career Services</a>
+    </nav>
+
+    <a class="back-link" href="career-kit.html">
+      <span aria-hidden="true">←</span> Dashboard
+    </a>
+  </header>
+
+  <main class="workspace">
+
+    <section class="document-workspace" id="workspace-grid">
+
+      <div class="workspace-heading">
+        <div>
+          <span class="step-label">DOCUMENT CREATION STUDIO</span>
+          <h1 id="page-title">Professional CV Builder</h1>
+          <p id="page-description">
+            Create a clear, professional CV to showcase your skills and experience.
+          </p>
+        </div>
+
+        <a href="career-kit.html" class="workspace-back-link">
+          ← Back to Career Kit Dashboard
+        </a>
+      </div>
+
+      <nav class="tool-tabs" aria-label="Career Kit document tools">
+        <a href="career-workspace.html?tool=cv" data-tool="cv">CV Builder</a>
+        <a href="career-workspace.html?tool=cover-letter" data-tool="cover-letter">Cover Letter</a>
+        <a href="career-workspace.html?tool=bundle" data-tool="bundle">Career Bundle</a>
+      </nav>
+
+      <div class="workspace-grid">
+
+        <!-- DOCUMENT EDITOR -->
+
+        <section class="form-card">
+
+          <div class="card-heading">
+            <span class="step-label">DOCUMENT EDITOR</span>
+            <h2 id="form-heading">Your professional details</h2>
+            <p>
+              Add your information below. Your document preview
+              will update as you work.
+            </p>
+          </div>
+
+          <form id="career-form">
+
+            <div class="form-section-heading">
+              <span class="form-section-number">01</span>
+              <div>
+                <h3>Personal Information</h3>
+                <p>Tell employers who you are and how to contact you.</p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="full-name">Full name</label>
+              <input id="full-name" name="fullName" type="text"
+                placeholder="Enter your full name" autocomplete="name" required>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="email">Email address</label>
+                <input id="email" name="email" type="email"
+                  placeholder="you@example.com" autocomplete="email">
+              </div>
+              <div class="field">
+                <label for="phone">Phone number</label>
+                <input id="phone" name="phone" type="tel"
+                  placeholder="+234..." autocomplete="tel">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="location">Location</label>
+              <input id="location" name="location" type="text"
+                placeholder="City, State">
+            </div>
+
+            <div class="form-section-heading">
+              <span class="form-section-number">02</span>
+              <div>
+                <h3>Professional Profile</h3>
+                <p>Introduce your professional identity and career goals.</p>
+              </div>
+            </div>
+
+            <div class="field" id="job-title-field">
+              <label for="job-title">Professional title / Target role</label>
+              <input id="job-title" name="jobTitle" type="text"
+                placeholder="e.g. Graduate Trainee or Data Analyst">
+            </div>
+
+            <div class="field" id="summary-field">
+              <label for="summary">Professional summary</label>
+              <textarea id="summary" name="summary" rows="4"
+                placeholder="Briefly introduce your qualifications, strengths and career goals."></textarea>
+            </div>
+
+            <div class="form-section-heading">
+              <span class="form-section-number">03</span>
+              <div>
+                <h3>Education</h3>
+                <p>Showcase your academic background and qualifications.</p>
+              </div>
+            </div>
+
+            <div class="field" id="education-field">
+              <label for="education">Education</label>
+              <textarea id="education" name="education" rows="4"
+                placeholder="Institution, qualification, course and graduation year."></textarea>
+            </div>
+
+            <div class="form-section-heading">
+              <span class="form-section-number">04</span>
+              <div>
+                <h3>Professional Experience</h3>
+                <p>Highlight your experience and measurable achievements.</p>
+              </div>
+            </div>
+
+            <div class="field" id="experience-field">
+              <label for="experience">Work experience</label>
+              <textarea id="experience" name="experience" rows="5"
+                placeholder="Job title, organisation, dates and key responsibilities or achievements."></textarea>
+            </div>
+
+            <div class="form-section-heading">
+              <span class="form-section-number">05</span>
+              <div>
+                <h3>Skills & Competencies</h3>
+                <p>Identify the skills that make you a strong candidate.</p>
+              </div>
+            </div>
+
+            <div class="field" id="skills-field">
+              <label for="skills">Skills</label>
+              <textarea id="skills" name="skills" rows="3"
+                placeholder="e.g. Excel, communication, research, teamwork"></textarea>
+            </div>
+
+            <div class="field" id="certificates-field">
+              <label for="certificates">Certifications / Additional Information</label>
+              <textarea id="certificates" name="certificates" rows="3"
+                placeholder="Relevant certifications, training, projects or awards."></textarea>
+            </div>
+
+            <!-- COVER LETTER DETAILS -->
+
+            <div class="conditional-fields">
+
+              <div class="field" id="employer-field" hidden>
+                <label for="employer">Employer / Organisation</label>
+                <input id="employer" name="employer" type="text"
+                  placeholder="Organisation you are applying to">
+              </div>
+
+              <div class="field" id="recipient-field" hidden>
+                <label for="recipient">Hiring manager's name (optional)</label>
+                <input id="recipient" name="recipient" type="text"
+                  placeholder="Hiring manager or recruitment team">
+              </div>
+
+              <div class="field" id="job-description-field" hidden>
+                <label for="job-description">Job description / Requirements</label>
+                <textarea id="job-description" name="jobDescription" rows="5"
+                  placeholder="Paste the job advertisement or list the key requirements."></textarea>
+              </div>
+
+              <div class="field" id="letter-body-field" hidden>
+                <label for="letter-body">Why are you a suitable candidate?</label>
+                <textarea id="letter-body" name="letterBody" rows="5"
+                  placeholder="Describe your relevant experience, achievements and interest in the role."></textarea>
+              </div>
+
+            </div>
+
+            <div class="form-section-heading">
+              <span class="form-section-number">06</span>
+              <div>
+                <h3>Document Design</h3>
+                <p>Choose the appearance of your professional document.</p>
+              </div>
+            </div>
+
+            <div class="field" id="template-field">
+              <label for="template">Document style</label>
+              <select id="template" name="template">
+                <option value="classic">Classic Professional</option>
+                <option value="modern">Modern Clean</option>
+              </select>
+            </div>
+
+            <div class="form-actions">
+              <button class="button button-primary" type="button" id="preview-button">
+                Update Preview →
+              </button>
+
+              <button class="button button-secondary" type="reset" id="reset-button">
+                Clear Form
+              </button>
+            </div>
+
+            <!-- AI ASSISTANT -->
+
+            <section class="ai-assistant" id="ai-assistant">
+              <div class="ai-assistant-heading">
+                <span class="step-label">INTELLIGENT CAREER SUPPORT</span>
+                <h3 id="ai-assistant-title">AI Career Assistant</h3>
+                <p id="ai-assistant-description">
+                  Get help improving your CV and preparing stronger job applications.
+                </p>
+              </div>
+
+              <div class="ai-actions">
+                <button class="button button-primary" type="button" id="ai-improve-cv">
+                  ✦ Improve My CV
+                </button>
+
+                <button class="button button-secondary" type="button" id="ai-improve-summary">
+                  Improve Professional Summary
+                </button>
+
+                <button class="button button-secondary" type="button" id="ai-write-letter">
+                  Write My Cover Letter
+                </button>
+              </div>
+
+              <div id="ai-result" class="ai-result"
+                role="status" aria-live="polite" hidden></div>
+            </section>
+
+            <p class="privacy-note">
+              Your entries are processed by the Career Kit tools.
+              Do not enter passwords, bank details or other sensitive
+              personal information. AI requests are sent to the
+              configured career-assistant service.
+            </p>
+
+          </form>
+        </section>
+
+        <!-- LIVE PREVIEW -->
+
+        <section class="preview-card">
+
+          <div class="preview-heading">
+            <div>
+              <span class="step-label">REAL-TIME DOCUMENT VIEW</span>
+              <h2>Your document</h2>
+            </div>
+            <span class="preview-status" id="preview-status">Ready to edit</span>
+          </div>
+
+          <article id="document-preview" class="document-preview">
+
+            <div class="document-top">
+              <h1 id="preview-name">Your Full Name</h1>
+              <p id="preview-title">Your Professional Title</p>
+              <p class="contact-line" id="preview-contact">
+                Email · Phone · Location
+              </p>
+            </div>
+
+            <section class="document-section" id="preview-summary-section">
+              <h3 id="preview-summary-heading">Professional Summary</h3>
+              <p id="preview-summary">Your professional summary will appear here.</p>
+            </section>
+
+            <section class="document-section" id="preview-education-section">
+              <h3 id="preview-education-heading">Education</h3>
+              <p id="preview-education">Your educational background will appear here.</p>
+            </section>
+
+            <section class="document-section" id="preview-experience-section">
+              <h3 id="preview-experience-heading">Experience</h3>
+              <p id="preview-experience">Your work experience will appear here.</p>
+            </section>
+
+            <section class="document-section" id="preview-skills-section">
+              <h3 id="preview-skills-heading">Skills</h3>
+              <p id="preview-skills">Your skills will appear here.</p>
+            </section>
+
+            <section class="document-section" id="preview-certificates-section">
+              <h3 id="preview-certificates-heading">
+                Certifications & Additional Information
+              </h3>
+              <p id="preview-certificates">Your additional information will appear here.</p>
+            </section>
+
+          </article>
+
+          <div class="download-actions">
+            <button class="button button-primary" type="button" id="download-button">
+              Print / Save as PDF
+            </button>
+            <p>Review your document before printing or saving it as PDF.</p>
+          </div>
+
+        </section>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>
+      © <span id="current-year"></span>
+      Naija Opportunity Hub. All rights reserved.
+    </p>
+    <div class="footer-links">
+      <a href="career-kit.html">Career Kit Dashboard</a>
+      <a href="application-assistance.html">Career Services</a>
+      <a href="index.html">Home</a>
+    </div>
+  </footer>
+
+</body>
+          </html>
+
+                  
