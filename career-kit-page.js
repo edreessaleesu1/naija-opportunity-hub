@@ -559,17 +559,19 @@
   }
 
   // --------------------------------------------------
-  // DOCUMENT DESIGN
+  // DOCUMENT DESIGN — TIMES NEW ROMAN
   // --------------------------------------------------
 
   const designStyles = `
+    /* GLOBAL DOCUMENT FONT */
+
     .cv-document {
       width: 100%;
       background: #ffffff;
       color: #222222;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 10pt;
-      line-height: 1.5;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 11pt;
+      line-height: 1.15;
       padding: 36px 44px;
       overflow-wrap: anywhere;
     }
@@ -577,6 +579,7 @@
     .cv-document,
     .cv-document * {
       box-sizing: border-box;
+      font-family: "Times New Roman", Times, serif !important;
     }
 
     .cv-document h1 {
@@ -589,9 +592,9 @@
 
     .cv-document h2 {
       margin: 0 0 8px;
-      font-size: 9.5pt;
+      font-size: 12pt;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
       break-after: avoid;
       page-break-after: avoid;
@@ -607,7 +610,7 @@
     }
 
     .cv-contact {
-      font-size: 9.5pt;
+      font-size: 10pt;
       margin: 6px 0 0 !important;
     }
 
@@ -628,7 +631,7 @@
     }
 
     .cv-entry-sub {
-      font-size: 9.5pt;
+      font-size: 10pt;
       color: #5c5c5c;
       margin: 0 0 4px !important;
     }
@@ -646,7 +649,6 @@
     /* 1. BRITISH PROFESSIONAL */
 
     .cv-classic {
-      font-family: Georgia, "Times New Roman", serif;
       color: #1c1c1c;
     }
 
@@ -672,7 +674,6 @@
     }
 
     .cv-classic h2 {
-      font-family: Arial, Helvetica, sans-serif;
       color: #111111;
       padding-bottom: 4px;
       border-bottom: 1px solid #bdbdbd;
@@ -701,9 +702,9 @@
 
     .modern-contact {
       text-align: right;
-      font-size: 9pt;
+      font-size: 10pt;
       color: #444444;
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
     .modern-contact p {
@@ -722,7 +723,7 @@
 
     .cv-modern h2 {
       color: #075b3b;
-      font-size: 9pt;
+      font-size: 12pt;
       padding-top: 2px;
     }
 
@@ -803,9 +804,9 @@
 
     .graduate-contact {
       text-align: right;
-      font-size: 9pt;
+      font-size: 10pt;
       color: #455a64;
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
     .graduate-contact p {
@@ -825,14 +826,10 @@
     /* COVER LETTER */
 
     .letter-document {
-      font-size: 10.5pt;
-      line-height: 1.65;
+      font-size: 11pt;
+      line-height: 1.5;
       padding: 44px 52px;
       min-height: 700px;
-    }
-
-    .letter-classic {
-      font-family: Georgia, "Times New Roman", serif;
     }
 
     .letter-sender {
@@ -841,15 +838,15 @@
     }
 
     .letter-sender h1 {
-      font-size: 17pt;
+      font-size: 18pt;
       margin-bottom: 4px;
     }
 
     .letter-sender p {
       margin: 0;
-      font-size: 9.5pt;
+      font-size: 10pt;
       color: #555555;
-      line-height: 1.55;
+      line-height: 1.5;
     }
 
     .letter-modern .letter-sender h1 {
@@ -1252,6 +1249,7 @@
               padding: 0;
               background: #ffffff;
               overflow-x: hidden;
+              font-family: "Times New Roman", Times, serif;
             }
             ${designStyles}
           </style>
@@ -1498,8 +1496,8 @@
       setText(
         "preview-status",
         inAppBrowser
-          ? "PDF created (v3). If nothing downloaded, open this page in Chrome or Safari."
-          : "PDF downloaded successfully (v3)"
+          ? "PDF created (Times New Roman). If nothing downloaded, open this page in Chrome or Safari."
+          : "PDF downloaded successfully (Times New Roman)"
       );
 
     } catch (error) {
@@ -1821,6 +1819,8 @@
   installDesignStyles();
   updatePreview();
 
-  console.info("[NOH Career Kit] v4 loaded (centred CV headers)");
+  console.info(
+    "[NOH Career Kit] v5 loaded — Times New Roman, centred CV headers"
+  );
 
 })();
