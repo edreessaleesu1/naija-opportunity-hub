@@ -90,12 +90,16 @@
     })[character]);
   }
 
-  function contactDetails() {
+  function contactItems() {
     return [
       value("email"),
       value("phone"),
       value("location")
-    ].filter(Boolean).join(" | ");
+    ].filter(Boolean);
+  }
+
+  function contactDetails() {
+    return contactItems().join("  |  ");
   }
 
   function isLetter() {
@@ -117,44 +121,121 @@
       .filter(Boolean);
   }
 
-  function formatEntries(text) {
+  // --------------------------------------------------
+  // ENTRY FORMATTING
+  // Turns typed text into tidy CV entries:
+  //   Role, Company            -> bold title
+  //   2021 - Present           -> muted detail line
+  //   - Achievement            -> bullet list
+  // --------------------------------------------------
+
+  const BULLET = /^[-•*]\s*/;
+  const DATE_HINT = /\b(19|20)\d{2}\b|\b(present|current|to date|ongoing)\b/i;
+
+  function isBullet(line) {
+    return BULLET.test(line);
+  }
+
+  function isTitleLine(line, next) {
+    if (!line || isBullet(line) || line.length > 120) return false;
+
+    if (next && isBullet(next)) return true;
+    if (DATE_HINT.test(line)) return true;
+    if (next && !isBullet(next) && DATE_HINT.test(next) && next.length <= 120) {
+      return true;
+    }
+
+    return false;
+  }
+
+  function linesToHTML(lines, labelMode) {
+    let html = "";
+    let bullets = [];
+
+    const flush = () => {
+      if (!bullets.length) return;
+
+      html += `<ul class="cv-list">${bullets.map((item) =>
+        `<li>${escapeHTML(item)}</li>`
+      ).join("")}</ul>`;
+
+      bullets = [];
+    };
+
+    lines.forEach((line) => {
+      if (isBullet(line)) {
+        bullets.push(line.replace(BULLET, ""));
+        return;
+      }
+
+      flush();
+
+      const label = labelMode && line.match(/^([^:]{2,32}):\s*(.+)$/);
+
+      html += label
+        ? `<p><strong>${escapeHTML(label[1])}:</strong> ${escapeHTML(label[2])}</p>`
+        : `<p>${escapeHTML(line)}</p>`;
+    });
+
+    flush();
+
+    return html;
+  }
+
+  function formatEntries(text, kind = "entries") {
     const lines = getLines(text);
 
     if (!lines.length) return "";
 
-    const isBullet = (line) => /^[-•*]\s*/.test(line);
+    if (kind === "plain") return linesToHTML(lines, false);
+    if (kind === "skills") return linesToHTML(lines, true);
 
-    if (lines.every(isBullet)) {
-      return `
-        <ul class="cv-list">
-          ${lines.map((line) => `
-            <li>${escapeHTML(line.replace(/^[-•*]\s*/, ""))}</li>
-          `).join("")}
-        </ul>
-      `;
-    }
+    const groups = [];
+    let current = null;
 
-    return lines.map((line) => {
-      if (isBullet(line)) {
-        return `
-          <p class="cv-entry-bullet">
-            ${escapeHTML(line.replace(/^[-•*]\s*/, ""))}
-          </p>
-        `;
+    lines.forEach((line, index) => {
+      const next = lines[index + 1];
+
+      if (isTitleLine(line, next)) {
+        if (current && current.title && !current.sub && !current.body.length) {
+          current.sub = line;
+        } else {
+          current = { title: line, sub: "", body: [] };
+          groups.push(current);
+        }
+
+        return;
       }
 
-      return `<p>${escapeHTML(line)}</p>`;
-    }).join("");
+      if (!current) {
+        current = { title: "", sub: "", body: [] };
+        groups.push(current);
+      }
+
+      current.body.push(line);
+    });
+
+    return groups.map((group) => `
+      <div class="cv-entry">
+        ${group.title
+          ? `<p class="cv-entry-title">${escapeHTML(group.title)}</p>`
+          : ""}
+        ${group.sub
+          ? `<p class="cv-entry-sub">${escapeHTML(group.sub)}</p>`
+          : ""}
+        ${linesToHTML(group.body, false)}
+      </div>
+    `).join("");
   }
 
-  function sectionHTML(title, content, extraClass = "") {
+  function sectionHTML(title, content, kind = "entries", extraClass = "") {
     if (!content) return "";
 
     return `
       <section class="cv-section ${extraClass}">
         <h2>${escapeHTML(title)}</h2>
         <div class="cv-section-content">
-          ${formatEntries(content)}
+          ${formatEntries(content, kind)}
         </div>
       </section>
     `;
@@ -269,8 +350,9 @@
   function getCVData() {
     return {
       name: value("full-name", "Your Full Name"),
-      job: value("job-title", "Professional Title"),
+      job: value("job-title"),
       contact: contactDetails(),
+      contactItems: contactItems(),
       summary: value("summary"),
       education: value("education"),
       experience: value("experience"),
@@ -279,113 +361,118 @@
     };
   }
 
-  function renderCVSections(data) {
-    return `
-      ${sectionHTML("Professional Profile", data.summary, "profile-section")}
-      ${sectionHTML("Employment History", data.experience, "experience-section")}
-      ${sectionHTML("Education & Qualifications", data.education, "education-section")}
-      ${sectionHTML("Key Skills", data.skills, "skills-section")}
-      ${sectionHTML("Certifications & Additional Information", data.certificates, "certificates-section")}
-    `;
+  function roleHTML(data) {
+    return data.job
+      ? `<p class="cv-role">${escapeHTML(data.job)}</p>`
+      : "";
+  }
+
+  function contactHTML(data) {
+    return data.contact
+      ? `<p class="cv-contact">${escapeHTML(data.contact)}</p>`
+      : "";
+  }
+
+  function contactLinesHTML(data) {
+    return data.contactItems
+      .map((item) => `<p>${escapeHTML(item)}</p>`)
+      .join("");
   }
 
   // --------------------------------------------------
   // FOUR UK CV TEMPLATES
   // --------------------------------------------------
 
+  // 1. British Professional: traditional serif, centred header,
+  //    single column. The safest choice for UK recruiters and ATS.
   function britishProfessional(data) {
     return `
-      <article class="cv-document cv-british">
-        <header class="cv-header british-header">
+      <article class="cv-document cv-classic">
+        <header class="cv-head">
           <h1>${escapeHTML(data.name)}</h1>
-          <p class="cv-job-title">${escapeHTML(data.job)}</p>
-          <p class="cv-contact">${escapeHTML(data.contact)}</p>
+          ${roleHTML(data)}
+          ${contactHTML(data)}
         </header>
 
-        <div class="british-body">
-          ${renderCVSections(data)}
-        </div>
+        ${sectionHTML("Professional Profile", data.summary, "plain")}
+        ${sectionHTML("Work Experience", data.experience)}
+        ${sectionHTML("Education", data.education)}
+        ${sectionHTML("Skills", data.skills, "skills")}
+        ${sectionHTML("Certifications & Training", data.certificates, "plain")}
       </article>
     `;
   }
 
+  // 2. Modern UK: left-aligned header, section labels in a margin column.
   function modernUK(data) {
     return `
       <article class="cv-document cv-modern">
-        <header class="modern-header">
+        <header class="modern-head">
           <div>
-            <p class="modern-label">CURRICULUM VITAE</p>
             <h1>${escapeHTML(data.name)}</h1>
-            <p class="cv-job-title">${escapeHTML(data.job)}</p>
+            ${roleHTML(data)}
           </div>
 
           <div class="modern-contact">
-            ${escapeHTML(data.contact)}
+            ${contactLinesHTML(data)}
           </div>
         </header>
 
-        <div class="modern-body">
-          ${renderCVSections(data)}
-        </div>
+        ${sectionHTML("Profile", data.summary, "plain")}
+        ${sectionHTML("Experience", data.experience)}
+        ${sectionHTML("Education", data.education)}
+        ${sectionHTML("Skills", data.skills, "skills")}
+        ${sectionHTML("Training", data.certificates, "plain")}
       </article>
     `;
   }
 
+  // 3. Executive UK: dark header panel, main column plus a side panel.
   function executiveUK(data) {
     return `
       <article class="cv-document cv-executive">
-        <header class="executive-header">
-          <p class="executive-label">PROFESSIONAL PROFILE</p>
+        <header class="executive-head">
           <h1>${escapeHTML(data.name)}</h1>
-          <p class="cv-job-title">${escapeHTML(data.job)}</p>
-          <p class="cv-contact">${escapeHTML(data.contact)}</p>
+          ${roleHTML(data)}
+          ${contactHTML(data)}
         </header>
 
         <div class="executive-body">
           <div class="executive-main">
-            ${sectionHTML("Executive Profile", data.summary)}
+            ${sectionHTML("Profile", data.summary, "plain")}
             ${sectionHTML("Career History", data.experience)}
-            ${sectionHTML("Education & Qualifications", data.education)}
+            ${sectionHTML("Education", data.education)}
           </div>
 
-          <aside class="executive-sidebar">
-            ${sectionHTML("Core Competencies", data.skills)}
-            ${sectionHTML("Professional Development", data.certificates)}
+          <aside class="executive-side">
+            ${sectionHTML("Core Skills", data.skills, "skills")}
+            ${sectionHTML("Training & Certifications", data.certificates, "plain")}
           </aside>
         </div>
       </article>
     `;
   }
 
+  // 4. Graduate UK: education first, clean blue accents.
   function graduateUK(data) {
-    const initials = data.name
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((part) => part[0] || "")
-      .join("");
-
     return `
       <article class="cv-document cv-graduate">
-        <header class="graduate-header">
-          <div class="graduate-monogram">
-            ${escapeHTML(initials)}
+        <header class="graduate-head">
+          <div>
+            <h1>${escapeHTML(data.name)}</h1>
+            ${roleHTML(data)}
           </div>
 
-          <div>
-            <p class="graduate-label">GRADUATE CV</p>
-            <h1>${escapeHTML(data.name)}</h1>
-            <p class="cv-job-title">${escapeHTML(data.job)}</p>
-            <p class="cv-contact">${escapeHTML(data.contact)}</p>
+          <div class="graduate-contact">
+            ${contactLinesHTML(data)}
           </div>
         </header>
 
-        <div class="graduate-body">
-          ${sectionHTML("Career Objective / Profile", data.summary)}
-          ${sectionHTML("Education & Academic Background", data.education)}
-          ${sectionHTML("Projects & Experience", data.experience)}
-          ${sectionHTML("Technical & Professional Skills", data.skills)}
-          ${sectionHTML("Certifications, Training & Activities", data.certificates)}
-        </div>
+        ${sectionHTML("Profile", data.summary, "plain")}
+        ${sectionHTML("Education", data.education)}
+        ${sectionHTML("Experience & Projects", data.experience)}
+        ${sectionHTML("Skills", data.skills, "skills")}
+        ${sectionHTML("Certifications & Activities", data.certificates, "plain")}
       </article>
     `;
   }
@@ -410,69 +497,62 @@
   }
 
   // --------------------------------------------------
-  // COVER LETTER
+  // COVER LETTER (UK business letter format)
   // --------------------------------------------------
 
   function buildLetterHTML() {
     const name = value("full-name", "Your Full Name");
-    const job = value("job-title", "the advertised position");
-    const employer = value("employer", "the organisation");
-    const recipient = value("recipient", "Hiring Manager");
+    const job = value("job-title");
+    const employer = value("employer");
+    const recipient = value("recipient");
+    const items = contactItems();
 
-    const body = value(
-      "letter-body",
+    const genericRecipient =
+      !recipient ||
+      /^(hiring|recruit|human resources|hr\b|talent|sir|madam|to whom)/i
+        .test(recipient);
+
+    const greetingName = recipient || "Hiring Manager";
+    const signOff = genericRecipient ? "Yours faithfully" : "Yours sincerely";
+
+    const fallbackBody = [
+      `I am writing to apply for ${job ? `the ${job} position` : "the advertised position"}${employer ? ` at ${employer}` : ""}.`,
       "Use this space to explain your suitability for the role."
-    );
+    ].join("\n");
 
-    const description = value("job-description");
+    const body = value("letter-body", fallbackBody);
+
+    const date = new Intl.DateTimeFormat("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }).format(new Date());
 
     return `
-      <article class="cv-document letter-document">
-        <header class="letter-header">
+      <article class="cv-document letter-document letter-${getTemplate()}">
+        <header class="letter-sender">
           <h1>${escapeHTML(name)}</h1>
-          <p class="cv-contact">${escapeHTML(contactDetails())}</p>
+          ${items.map((item) => `<p>${escapeHTML(item)}</p>`).join("")}
         </header>
 
-        <div class="letter-body">
-          <p class="letter-date">
-            ${escapeHTML(
-              new Intl.DateTimeFormat("en-GB", {
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-              }).format(new Date())
-            )}
-          </p>
+        <p class="letter-date">${escapeHTML(date)}</p>
 
-          <p><strong>${escapeHTML(recipient)}</strong></p>
-          <p>${escapeHTML(employer)}</p>
+        <div class="letter-recipient">
+          ${recipient ? `<p>${escapeHTML(recipient)}</p>` : ""}
+          ${employer ? `<p>${escapeHTML(employer)}</p>` : ""}
+        </div>
 
-          <p><strong>Re: Application for ${escapeHTML(job)}</strong></p>
+        <div class="letter-content">
+          <p>Dear ${escapeHTML(greetingName)},</p>
 
-          <p>Dear ${escapeHTML(recipient)},</p>
+          ${job
+            ? `<p class="letter-subject">Application for ${escapeHTML(job)}</p>`
+            : ""}
 
-          <p>
-            I am writing to express my interest in the
-            ${escapeHTML(job)} position at ${escapeHTML(employer)}.
-          </p>
+          ${formatEntries(body, "plain")}
 
-          ${description ? `
-            <section class="cv-section">
-              <h2>Role Requirements</h2>
-              ${formatEntries(description)}
-            </section>
-          ` : ""}
-
-          ${formatEntries(body)}
-
-          <p>
-            Thank you for considering my application.
-            I would welcome the opportunity to discuss my suitability
-            for this position.
-          </p>
-
-          <p>Yours sincerely,</p>
-          <p><strong>${escapeHTML(name)}</strong></p>
+          <p class="letter-close">${signOff},</p>
+          <p class="letter-name">${escapeHTML(name)}</p>
         </div>
       </article>
     `;
@@ -480,17 +560,18 @@
 
   // --------------------------------------------------
   // DOCUMENT DESIGN
+  // Web-safe fonts only, so the PDF matches the preview.
   // --------------------------------------------------
 
   const designStyles = `
     .cv-document {
       width: 100%;
       background: #ffffff;
-      color: #26332d;
+      color: #222222;
       font-family: Arial, Helvetica, sans-serif;
       font-size: 10pt;
-      line-height: 1.55;
-      padding: 30px;
+      line-height: 1.5;
+      padding: 36px 44px;
       overflow-wrap: anywhere;
     }
 
@@ -499,246 +580,321 @@
     }
 
     .cv-document h1 {
-      font-size: 25pt;
-      line-height: 1.15;
-      margin: 0 0 7px;
-      color: #173d2c;
+      margin: 0;
+      font-size: 26pt;
+      line-height: 1.1;
       font-weight: 700;
+      color: #111111;
     }
 
     .cv-document h2 {
-      font-size: 10.5pt;
-      letter-spacing: 1px;
+      margin: 0 0 8px;
+      font-size: 9.5pt;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      margin: 20px 0 8px;
-      padding-bottom: 5px;
-      color: #075b3b;
-      border-bottom: 1px solid #d9e1dc;
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .cv-document p {
-      margin: 0 0 7px;
+      margin: 0 0 5px;
     }
 
-    .cv-document .cv-job-title {
+    .cv-role {
       font-size: 12pt;
-      color: #a9822d;
-      font-weight: 600;
-      margin: 4px 0;
+      margin: 5px 0 0 !important;
     }
 
     .cv-contact {
-      color: #68766e;
-      font-size: 9pt;
-      margin-top: 7px !important;
-    }
-
-    .cv-header {
-      margin-bottom: 20px;
+      font-size: 9.5pt;
+      margin: 6px 0 0 !important;
     }
 
     .cv-section {
-      margin-bottom: 15px;
+      margin: 0 0 16px;
+    }
+
+    .cv-entry {
+      margin: 0 0 11px;
       break-inside: avoid;
       page-break-inside: avoid;
     }
 
+    .cv-entry-title {
+      font-weight: 700;
+      color: #111111;
+      margin: 0 0 1px !important;
+    }
+
+    .cv-entry-sub {
+      font-size: 9.5pt;
+      color: #5c5c5c;
+      margin: 0 0 4px !important;
+    }
+
     .cv-list {
-      padding-left: 19px;
-      margin: 5px 0 10px;
+      margin: 3px 0 0;
+      padding-left: 18px;
     }
 
     .cv-list li {
-      margin-bottom: 5px;
-      padding-left: 3px;
+      margin: 0 0 3px;
+      padding-left: 2px;
     }
 
-    .cv-entry-bullet {
-      padding-left: 15px;
-      position: relative;
+    /* 1. BRITISH PROFESSIONAL */
+
+    .cv-classic {
+      font-family: Georgia, "Times New Roman", serif;
+      color: #1c1c1c;
     }
 
-    .cv-entry-bullet::before {
-      content: "•";
-      position: absolute;
-      left: 2px;
-      color: #a9822d;
+    .cv-classic .cv-head {
+      text-align: center;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1.5px solid #1c1c1c;
     }
 
-    /* BRITISH PROFESSIONAL */
+    .cv-classic h1 {
+      font-size: 25pt;
+      letter-spacing: 0.02em;
+    }
 
-    .cv-british {
+    .cv-classic .cv-role {
+      font-style: italic;
+      color: #444444;
+    }
+
+    .cv-classic .cv-contact {
+      color: #444444;
+    }
+
+    .cv-classic h2 {
       font-family: Arial, Helvetica, sans-serif;
-      padding: 34px;
+      color: #111111;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #bdbdbd;
     }
 
-    .british-header {
-      border-bottom: 2px solid #173d2c;
-      padding-bottom: 15px;
-    }
+    /* 2. MODERN UK */
 
-    .cv-british h1 {
-      font-size: 27pt;
-      letter-spacing: -.5px;
-    }
-
-    .cv-british h2 {
-      color: #173d2c;
-      border-bottom: 1px solid #b8c5bc;
-      letter-spacing: 1.2px;
-    }
-
-    /* MODERN UK */
-
-    .cv-modern {
-      padding: 0;
-    }
-
-    .modern-header {
-      background: #f0f4f1;
-      border-left: 7px solid #075b3b;
-      padding: 27px 30px;
+    .cv-modern .modern-head {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #075b3b;
     }
 
-    .modern-label,
-    .executive-label,
-    .graduate-label {
-      font-size: 8pt;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: #a9822d;
-      margin-bottom: 7px !important;
+    .cv-modern h1 {
+      color: #075b3b;
+      font-size: 27pt;
+    }
+
+    .cv-modern .cv-role {
+      color: #444444;
     }
 
     .modern-contact {
-      color: #59685f;
+      text-align: right;
       font-size: 9pt;
+      color: #444444;
+      line-height: 1.6;
     }
 
-    .modern-body {
-      padding: 10px 30px 30px;
+    .modern-contact p {
+      margin: 0;
+    }
+
+    .cv-modern .cv-section {
+      display: grid;
+      grid-template-columns: 128px 1fr;
+      column-gap: 20px;
+    }
+
+    .cv-modern .cv-section-content {
+      min-width: 0;
     }
 
     .cv-modern h2 {
       color: #075b3b;
-      border-bottom: 2px solid #e5eae6;
+      font-size: 9pt;
+      padding-top: 2px;
     }
 
-    /* EXECUTIVE UK */
-
-    .cv-executive {
-      padding: 0;
+    .cv-modern .cv-entry-title {
+      color: #111111;
     }
 
-    .executive-header {
-      background: #173d2c;
+    /* 3. EXECUTIVE UK */
+
+    .cv-executive .executive-head {
+      background: #1b2a41;
       color: #ffffff;
-      padding: 32px;
-      border-bottom: 5px solid #c6a24a;
+      padding: 26px 30px;
+      border-bottom: 4px solid #b08d3c;
     }
 
-    .cv-executive .executive-header h1 {
+    .cv-executive .executive-head h1 {
       color: #ffffff;
-      font-size: 27pt;
+      font-size: 25pt;
     }
 
-    .cv-executive .executive-header .cv-job-title {
-      color: #e8cf91;
+    .cv-executive .executive-head .cv-role {
+      color: #e3c77f;
     }
 
-    .cv-executive .executive-header .cv-contact {
-      color: #e0e9e3;
+    .cv-executive .executive-head .cv-contact {
+      color: #d6dde8;
     }
 
     .executive-body {
       display: grid;
-      grid-template-columns: 1.7fr 1fr;
-      gap: 22px;
-      padding: 12px 30px 30px;
+      grid-template-columns: 1.85fr 1fr;
+      gap: 26px;
+      padding-top: 20px;
+    }
+
+    .executive-main,
+    .executive-side {
+      min-width: 0;
     }
 
     .cv-executive h2 {
-      color: #765812;
-      border-bottom: 2px solid #d8c18a;
+      color: #1b2a41;
+      padding-bottom: 4px;
+      border-bottom: 2px solid #b08d3c;
     }
 
-    .executive-sidebar {
-      background: #f7f5ef;
-      padding: 12px;
+    .executive-side {
+      background: #f4f1ea;
+      padding: 16px 16px 4px;
       align-self: start;
     }
 
-    /* GRADUATE UK */
+    /* 4. GRADUATE UK */
 
-    .cv-graduate {
-      padding: 0;
-    }
-
-    .graduate-header {
-      background: #f5f3ed;
-      padding: 28px;
+    .cv-graduate .graduate-head {
       display: flex;
-      align-items: center;
-      gap: 18px;
-      border-bottom: 3px solid #c6a24a;
-    }
-
-    .graduate-monogram {
-      width: 58px;
-      height: 58px;
-      min-width: 58px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: #075b3b;
-      color: #ffffff;
-      font-size: 18pt;
-      font-weight: 700;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid #cfd8dc;
     }
 
     .cv-graduate h1 {
       font-size: 23pt;
+      color: #0b4f6c;
     }
 
-    .graduate-body {
-      padding: 12px 30px 30px;
+    .cv-graduate .cv-role {
+      color: #455a64;
+    }
+
+    .graduate-contact {
+      text-align: right;
+      font-size: 9pt;
+      color: #455a64;
+      line-height: 1.6;
+    }
+
+    .graduate-contact p {
+      margin: 0;
     }
 
     .cv-graduate h2 {
-      color: #8b6a22;
-      border-bottom: 1px solid #e3d7b6;
+      color: #0b4f6c;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #cfd8dc;
+    }
+
+    .cv-graduate .cv-entry-title {
+      color: #0b4f6c;
     }
 
     /* COVER LETTER */
 
     .letter-document {
-      padding: 38px;
+      font-size: 10.5pt;
+      line-height: 1.65;
+      padding: 44px 52px;
       min-height: 700px;
     }
 
-    .letter-header {
-      border-bottom: 2px solid #173d2c;
-      padding-bottom: 14px;
-      margin-bottom: 25px;
+    .letter-classic {
+      font-family: Georgia, "Times New Roman", serif;
     }
 
-    .letter-body {
-      line-height: 1.8;
+    .letter-sender {
+      text-align: right;
+      margin-bottom: 26px;
     }
 
-    .letter-body p {
-      margin-bottom: 15px;
+    .letter-sender h1 {
+      font-size: 17pt;
+      margin-bottom: 4px;
+    }
+
+    .letter-sender p {
+      margin: 0;
+      font-size: 9.5pt;
+      color: #555555;
+      line-height: 1.55;
+    }
+
+    .letter-modern .letter-sender h1 {
+      color: #075b3b;
+    }
+
+    .letter-executive .letter-sender h1 {
+      color: #1b2a41;
+    }
+
+    .letter-graduate .letter-sender h1 {
+      color: #0b4f6c;
     }
 
     .letter-date {
       text-align: right;
-      margin-bottom: 25px !important;
+      margin: 0 0 22px !important;
     }
 
-    /* CAREER BUNDLE PAGE BREAK */
+    .letter-recipient {
+      margin-bottom: 22px;
+    }
+
+    .letter-recipient p {
+      margin: 0;
+    }
+
+    .letter-content p {
+      margin: 0 0 13px;
+    }
+
+    .letter-subject {
+      font-weight: 700;
+    }
+
+    .letter-close {
+      margin-top: 20px !important;
+      margin-bottom: 34px !important;
+    }
+
+    .letter-name {
+      font-weight: 700;
+    }
+
+    /* CAREER BUNDLE */
+
+    .bundle-preview-divider {
+      height: 24px;
+    }
 
     .page-break {
       display: block;
@@ -751,9 +907,8 @@
 
     #noh-pdf-export {
       width: 794px !important;
-      min-height: 1123px;
       background: #ffffff !important;
-      color: #26332d !important;
+      color: #222222 !important;
       box-sizing: border-box !important;
       overflow: visible !important;
     }
@@ -763,12 +918,12 @@
       max-width: none !important;
     }
 
-    #noh-pdf-export .executive-body {
-      grid-template-columns: 1.7fr 1fr !important;
+    #noh-pdf-export .cv-modern .cv-section {
+      grid-template-columns: 128px 1fr !important;
     }
 
-    #noh-pdf-export .graduate-header {
-      align-items: center !important;
+    #noh-pdf-export .executive-body {
+      grid-template-columns: 1.85fr 1fr !important;
     }
 
     #noh-pdf-export .page-break {
@@ -777,28 +932,35 @@
       break-before: page !important;
     }
 
-    /* MOBILE RESPONSIVENESS */
+    /* MOBILE RESPONSIVENESS (preview only) */
 
     @media (max-width: 650px) {
       .cv-document {
-        padding: 18px;
+        padding: 22px 18px;
       }
 
+      .letter-document {
+        padding: 24px 20px;
+      }
+
+      .modern-head,
+      .graduate-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .modern-contact,
+      .graduate-contact {
+        text-align: left;
+      }
+
+      .cv-modern .cv-section,
       .executive-body {
         grid-template-columns: 1fr;
       }
 
-      .graduate-header {
-        align-items: flex-start;
-      }
-
-      .modern-header {
+      .cv-executive .executive-head {
         padding: 20px;
-      }
-
-      .modern-body,
-      .graduate-body {
-        padding: 10px 20px 20px;
       }
     }
   `;
@@ -939,7 +1101,7 @@
   }
 
   // --------------------------------------------------
-  // FIXED PDF DOWNLOAD
+  // PDF DOWNLOAD
   // --------------------------------------------------
 
   async function downloadDocument() {
@@ -977,7 +1139,9 @@
       }
 
       const options = {
-        margin: [12, 12, 12, 12],
+        // Vertical margins only: the page is 794px wide, so the
+        // document prints at true size with its own side padding.
+        margin: [10, 0, 10, 0],
 
         filename: getPDFFileName(),
 
@@ -1004,7 +1168,7 @@
 
         pagebreak: {
           mode: ["css", "legacy"],
-          avoid: [".cv-section", ".letter-header"]
+          avoid: [".cv-entry", ".letter-sender"]
         }
       };
 
@@ -1336,4 +1500,4 @@
 
 })();
 
-      
+                          
