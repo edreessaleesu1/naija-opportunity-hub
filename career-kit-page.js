@@ -1,3 +1,4 @@
+
 (() => {
   "use strict";
 
@@ -24,6 +25,13 @@
     tool = "cv";
   }
 
+  const templates = [
+    { value: "classic", label: "British Professional — UK Standard" },
+    { value: "modern", label: "Modern UK — Contemporary" },
+    { value: "executive", label: "Executive UK — Leadership" },
+    { value: "graduate", label: "Graduate UK — Early Career" }
+  ];
+
   const titles = {
     cv: "Professional CV Builder",
     "cover-letter": "Cover Letter Studio",
@@ -31,9 +39,9 @@
   };
 
   const descriptions = {
-    cv: "Build a professional CV that presents your qualifications, experience and skills.",
-    "cover-letter": "Create a tailored cover letter for your next career opportunity.",
-    bundle: "Prepare your CV and cover letter together for a complete application."
+    cv: "Build a professional CV using recruitment-friendly layouts.",
+    "cover-letter": "Create a tailored cover letter for your next opportunity.",
+    bundle: "Prepare your CV and cover letter together."
   };
 
   const cvFields = [
@@ -49,13 +57,6 @@
     "recipient-field",
     "job-description-field",
     "letter-body-field"
-  ];
-
-  const templates = [
-    { value: "classic", label: "Classic Professional" },
-    { value: "modern", label: "Modern Clean" },
-    { value: "executive", label: "Executive Gold" },
-    { value: "graduate", label: "Graduate Starter" }
   ];
 
   // --------------------------------------------------
@@ -89,17 +90,6 @@
     })[character]);
   }
 
-  function formatText(text) {
-    if (!text) return "";
-
-    return escapeHTML(text)
-      .split(/\n+/)
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => `<p>${line}</p>`)
-      .join("");
-  }
-
   function contactDetails() {
     return [
       value("email"),
@@ -116,8 +106,64 @@
     return tool === "cv" || tool === "bundle";
   }
 
+  function getTemplate() {
+    const selected = value("template", "classic");
+
+    return templates.some((item) => item.value === selected)
+      ? selected
+      : "classic";
+  }
+
+  function getLines(text) {
+    return String(text || "")
+      .split(/\n+/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+  }
+
+  function formatEntries(text) {
+    const lines = getLines(text);
+
+    if (!lines.length) return "";
+
+    const isBullet = (line) => /^[-•*]\s*/.test(line);
+
+    if (lines.every(isBullet)) {
+      return `
+        <ul class="cv-list">
+          ${lines.map((line) => `
+            <li>${escapeHTML(line.replace(/^[-•*]\s*/, ""))}</li>
+          `).join("")}
+        </ul>
+      `;
+    }
+
+    return lines.map((line) => {
+      if (isBullet(line)) {
+        return `<p class="cv-entry-bullet">${escapeHTML(
+          line.replace(/^[-•*]\s*/, "")
+        )}</p>`;
+      }
+
+      return `<p>${escapeHTML(line)}</p>`;
+    }).join("");
+  }
+
+  function sectionHTML(title, content, extraClass = "") {
+    if (!content) return "";
+
+    return `
+      <section class="cv-section ${extraClass}">
+        <h2>${escapeHTML(title)}</h2>
+        <div class="cv-section-content">
+          ${formatEntries(content)}
+        </div>
+      </section>
+    `;
+  }
+
   // --------------------------------------------------
-  // TEMPLATE SETUP
+  // TEMPLATE SELECTOR
   // --------------------------------------------------
 
   function configureTemplates() {
@@ -137,7 +183,7 @@
 
     select.value = templates.some(
       (template) => template.value === previousValue
-    ) ? previousValue : "modern";
+    ) ? previousValue : "classic";
   }
 
   // --------------------------------------------------
@@ -146,7 +192,6 @@
 
   function configureTool() {
     const coverOnly = tool === "cover-letter";
-    const bundle = tool === "bundle";
 
     setText("page-title", titles[tool]);
     setText("page-description", descriptions[tool]);
@@ -192,38 +237,14 @@
     }
 
     setText(
-      "preview-summary-heading",
-      coverOnly ? "Application" : "Professional Summary"
-    );
-
-    setText(
-      "preview-education-heading",
-      coverOnly ? "Employer" : "Education"
-    );
-
-    setText(
-      "preview-experience-heading",
-      coverOnly ? "Cover Letter" : "Experience"
-    );
-
-    setText(
-      "preview-skills-heading",
-      coverOnly ? "Why I Am Applying" : "Skills"
-    );
-
-    setText(
-      "preview-certificates-heading",
-      coverOnly ? "Closing" : "Certifications & Additional Information"
-    );
-
-    setText(
       "download-button",
-      bundle
+      tool === "bundle"
         ? "Print / Save CV and Cover Letter as PDF"
         : "Print / Save as PDF"
     );
 
     setText("ai-assistant-title", "AI Career Assistant");
+
     setText(
       "ai-assistant-description",
       "Improve your CV, strengthen your professional summary or prepare a tailored cover letter."
@@ -237,178 +258,531 @@
   }
 
   // --------------------------------------------------
-  // PREVIEW SECTIONS
+  // CV CONTENT
   // --------------------------------------------------
 
-  function setSection(id, heading, content) {
-    const section = $(id);
-    if (!section) return;
-
-    const headingElement = section.querySelector("h3");
-    const paragraph = section.querySelector("p");
-
-    if (headingElement) headingElement.textContent = heading;
-
-    if (paragraph) {
-      paragraph.innerHTML = formatText(content);
-    }
-
-    section.hidden = !content;
+  function getCVData() {
+    return {
+      name: value("full-name", "Your Full Name"),
+      job: value("job-title", "Professional Title"),
+      contact: contactDetails(),
+      summary: value("summary"),
+      education: value("education"),
+      experience: value("experience"),
+      skills: value("skills"),
+      certificates: value("certificates")
+    };
   }
 
-  function renderCVPreview() {
-    const name = value("full-name", "Your Full Name");
-    const job = value("job-title", "Your Professional Title");
-
-    setText("preview-name", name);
-    setText("preview-title", job);
-    setHidden("preview-title", false);
-
-    setSection(
-      "preview-summary-section",
-      "Professional Summary",
-      value("summary")
-    );
-
-    setSection(
-      "preview-education-section",
-      "Education",
-      value("education")
-    );
-
-    setSection(
-      "preview-experience-section",
-      "Experience",
-      value("experience")
-    );
-
-    setSection(
-      "preview-skills-section",
-      "Skills",
-      value("skills")
-    );
-
-    setSection(
-      "preview-certificates-section",
-      "Certifications & Additional Information",
-      value("certificates")
-    );
-  }
-
-  function renderLetterPreview() {
-    const name = value("full-name", "Your Full Name");
-    const job = value("job-title", "the advertised position");
-    const employer = value("employer", "your organisation");
-    const recipient = value("recipient", "Hiring Manager");
-
-    setText("preview-name", name);
-    setHidden("preview-title", true);
-
-    setSection(
-      "preview-summary-section",
-      "Application",
-      `Application for: ${job}`
-    );
-
-    setSection(
-      "preview-education-section",
-      "Employer",
-      employer
-    );
-
-    setSection(
-      "preview-experience-section",
-      "Cover Letter",
-      `Dear ${recipient},
-
-I am writing to express my interest in the ${job} position at ${employer}.`
-    );
-
-    setSection(
-      "preview-skills-section",
-      "Why I Am Applying",
-      value(
-        "letter-body",
-        "Explain your qualifications, relevant skills and motivation for applying."
-      )
-    );
-
-    setSection(
-      "preview-certificates-section",
-      "Closing",
-      `Yours sincerely,\n${name}`
-    );
-  }
-
-  // A separate letter preview is added for Career Bundle.
-  function updateBundlePreview() {
-    const preview = $("document-preview");
-    if (!preview) return;
-
-    let bundleLetter = $("bundle-letter-preview");
-
-    if (!bundleLetter) {
-      bundleLetter = document.createElement("article");
-      bundleLetter.id = "bundle-letter-preview";
-      bundleLetter.className = "bundle-letter-preview";
-      preview.appendChild(bundleLetter);
-    }
-
-    const name = value("full-name", "Your Full Name");
-    const job = value("job-title", "the advertised position");
-    const employer = value("employer", "your organisation");
-    const recipient = value("recipient", "Hiring Manager");
-    const body = value(
-      "letter-body",
-      "I believe my qualifications, skills and experience would enable me to contribute positively to your organisation."
-    );
-
-    bundleLetter.innerHTML = `
-      <div class="bundle-preview-divider"></div>
-      <h2>Cover Letter</h2>
-      <p><strong>${escapeHTML(name)}</strong></p>
-      <p>${escapeHTML(contactDetails())}</p>
-      <p>Dear ${escapeHTML(recipient)},</p>
-      <p>I am writing to apply for the ${escapeHTML(job)} position at ${escapeHTML(employer)}.</p>
-      ${formatText(value("job-description"))}
-      ${formatText(body)}
-      <p>Thank you for considering my application. I look forward to discussing my suitability for this role.</p>
-      <p>Yours sincerely,<br>${escapeHTML(name)}</p>
+  function renderCVSections(data) {
+    return `
+      ${sectionHTML("Professional Profile", data.summary, "profile-section")}
+      ${sectionHTML("Employment History", data.experience, "experience-section")}
+      ${sectionHTML("Education & Qualifications", data.education, "education-section")}
+      ${sectionHTML("Key Skills", data.skills, "skills-section")}
+      ${sectionHTML("Certifications & Additional Information", data.certificates, "certificates-section")}
     `;
   }
 
-  function updatePreview() {
-    if (tool === "cover-letter") {
-      renderLetterPreview();
-    } else {
-      renderCVPreview();
-    }
+  // --------------------------------------------------
+  // FOUR DISTINCT CV DESIGNS
+  // --------------------------------------------------
 
-    if (tool === "bundle") {
-      updateBundlePreview();
-    } else {
-      const oldBundlePreview = $("bundle-letter-preview");
-      if (oldBundlePreview) oldBundlePreview.remove();
-    }
+  function britishProfessional(data) {
+    return `
+      <article class="cv-document cv-british">
+        <header class="cv-header british-header">
+          <h1>${escapeHTML(data.name)}</h1>
+          <p class="cv-job-title">${escapeHTML(data.job)}</p>
+          <p class="cv-contact">${escapeHTML(data.contact)}</p>
+        </header>
 
-    setText(
-      "preview-contact",
-      contactDetails() || "Add your contact details"
+        <div class="british-body">
+          ${renderCVSections(data)}
+        </div>
+      </article>
+    `;
+  }
+
+  function modernUK(data) {
+    return `
+      <article class="cv-document cv-modern">
+        <header class="modern-header">
+          <div>
+            <p class="modern-label">CURRICULUM VITAE</p>
+            <h1>${escapeHTML(data.name)}</h1>
+            <p class="cv-job-title">${escapeHTML(data.job)}</p>
+          </div>
+          <div class="modern-contact">
+            ${escapeHTML(data.contact)}
+          </div>
+        </header>
+
+        <div class="modern-body">
+          ${renderCVSections(data)}
+        </div>
+      </article>
+    `;
+  }
+
+  function executiveUK(data) {
+    return `
+      <article class="cv-document cv-executive">
+        <header class="executive-header">
+          <p class="executive-label">PROFESSIONAL PROFILE</p>
+          <h1>${escapeHTML(data.name)}</h1>
+          <p class="cv-job-title">${escapeHTML(data.job)}</p>
+          <p class="cv-contact">${escapeHTML(data.contact)}</p>
+        </header>
+
+        <div class="executive-body">
+          <div class="executive-main">
+            ${sectionHTML("Executive Profile", data.summary)}
+            ${sectionHTML("Career History", data.experience)}
+            ${sectionHTML("Education & Qualifications", data.education)}
+          </div>
+
+          <aside class="executive-sidebar">
+            ${sectionHTML("Core Competencies", data.skills)}
+            ${sectionHTML("Professional Development", data.certificates)}
+          </aside>
+        </div>
+      </article>
+    `;
+  }
+
+  function graduateUK(data) {
+    return `
+      <article class="cv-document cv-graduate">
+        <header class="graduate-header">
+          <div class="graduate-monogram">
+            ${escapeHTML(
+              data.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("")
+            )}
+          </div>
+
+          <div>
+            <p class="graduate-label">GRADUATE CV</p>
+            <h1>${escapeHTML(data.name)}</h1>
+            <p class="cv-job-title">${escapeHTML(data.job)}</p>
+            <p class="cv-contact">${escapeHTML(data.contact)}</p>
+          </div>
+        </header>
+
+        <div class="graduate-body">
+          ${sectionHTML("Career Objective / Profile", data.summary)}
+          ${sectionHTML("Education & Academic Background", data.education)}
+          ${sectionHTML("Projects & Experience", data.experience)}
+          ${sectionHTML("Technical & Professional Skills", data.skills)}
+          ${sectionHTML("Certifications, Training & Activities", data.certificates)}
+        </div>
+      </article>
+    `;
+  }
+
+  function buildCVHTML() {
+    const data = getCVData();
+
+    switch (getTemplate()) {
+      case "modern":
+        return modernUK(data);
+
+      case "executive":
+        return executiveUK(data);
+
+      case "graduate":
+        return graduateUK(data);
+
+      case "classic":
+      default:
+        return britishProfessional(data);
+    }
+  }
+
+  // --------------------------------------------------
+  // COVER LETTER
+  // --------------------------------------------------
+
+  function buildLetterHTML() {
+    const name = value("full-name", "Your Full Name");
+    const job = value("job-title", "the advertised position");
+    const employer = value("employer", "the organisation");
+    const recipient = value("recipient", "Hiring Manager");
+    const body = value(
+      "letter-body",
+      "Use this space to explain your suitability for the role."
     );
 
+    const description = value("job-description");
+
+    return `
+      <article class="cv-document letter-document">
+        <header class="letter-header">
+          <h1>${escapeHTML(name)}</h1>
+          <p class="cv-contact">${escapeHTML(contactDetails())}</p>
+        </header>
+
+        <div class="letter-body">
+          <p class="letter-date">${escapeHTML(
+            new Intl.DateTimeFormat("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric"
+            }).format(new Date())
+          )}</p>
+
+          <p><strong>${escapeHTML(recipient)}</strong></p>
+          <p>${escapeHTML(employer)}</p>
+
+          <p><strong>Re: Application for ${escapeHTML(job)}</strong></p>
+
+          <p>Dear ${escapeHTML(recipient)},</p>
+
+          <p>
+            I am writing to express my interest in the
+            ${escapeHTML(job)} position at ${escapeHTML(employer)}.
+          </p>
+
+          ${description ? `
+            <section class="cv-section">
+              <h2>Role Requirements</h2>
+              ${formatEntries(description)}
+            </section>
+          ` : ""}
+
+          ${formatEntries(body)}
+
+          <p>
+            Thank you for considering my application.
+            I would welcome the opportunity to discuss my suitability
+            for this position.
+          </p>
+
+          <p>Yours sincerely,</p>
+          <p><strong>${escapeHTML(name)}</strong></p>
+        </div>
+      </article>
+    `;
+  }
+
+  // --------------------------------------------------
+  // TEMPLATE STYLES
+  // --------------------------------------------------
+
+  const designStyles = `
+    .cv-document {
+      width: 100%;
+      background: #fff;
+      color: #26332d;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10pt;
+      line-height: 1.55;
+      padding: 30px;
+      overflow-wrap: anywhere;
+    }
+
+    .cv-document * {
+      box-sizing: border-box;
+    }
+
+    .cv-document h1 {
+      font-size: 25pt;
+      line-height: 1.15;
+      margin: 0 0 7px;
+      color: #173d2c;
+      font-weight: 700;
+    }
+
+    .cv-document h2 {
+      font-size: 10.5pt;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin: 20px 0 8px;
+      padding-bottom: 5px;
+      color: #075b3b;
+      border-bottom: 1px solid #d9e1dc;
+    }
+
+    .cv-document p {
+      margin: 0 0 7px;
+    }
+
+    .cv-document .cv-job-title {
+      font-size: 12pt;
+      color: #a9822d;
+      font-weight: 600;
+      margin: 4px 0;
+    }
+
+    .cv-contact {
+      color: #68766e;
+      font-size: 9pt;
+      margin-top: 7px !important;
+    }
+
+    .cv-header {
+      margin-bottom: 20px;
+    }
+
+    .cv-section {
+      margin-bottom: 15px;
+      break-inside: avoid;
+    }
+
+    .cv-list {
+      padding-left: 19px;
+      margin: 5px 0 10px;
+    }
+
+    .cv-list li {
+      margin-bottom: 5px;
+      padding-left: 3px;
+    }
+
+    .cv-entry-bullet {
+      padding-left: 15px;
+      position: relative;
+    }
+
+    .cv-entry-bullet::before {
+      content: "•";
+      position: absolute;
+      left: 2px;
+      color: #a9822d;
+    }
+
+    /* BRITISH PROFESSIONAL */
+
+    .cv-british {
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 34px;
+    }
+
+    .british-header {
+      border-bottom: 2px solid #173d2c;
+      padding-bottom: 15px;
+    }
+
+    .cv-british h1 {
+      font-size: 27pt;
+      letter-spacing: -.5px;
+    }
+
+    .cv-british h2 {
+      color: #173d2c;
+      border-bottom: 1px solid #b8c5bc;
+      letter-spacing: 1.2px;
+    }
+
+    .british-body {
+      max-width: 100%;
+    }
+
+    /* MODERN UK */
+
+    .cv-modern {
+      padding: 0;
+    }
+
+    .modern-header {
+      background: #f0f4f1;
+      border-left: 7px solid #075b3b;
+      padding: 27px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modern-label,
+    .executive-label,
+    .graduate-label {
+      font-size: 8pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #a9822d;
+      margin-bottom: 7px !important;
+    }
+
+    .modern-contact {
+      color: #59685f;
+      font-size: 9pt;
+    }
+
+    .modern-body {
+      padding: 10px 30px 30px;
+    }
+
+    .cv-modern h2 {
+      color: #075b3b;
+      border-bottom: 2px solid #e5eae6;
+    }
+
+    /* EXECUTIVE UK */
+
+    .cv-executive {
+      padding: 0;
+    }
+
+    .executive-header {
+      background: #173d2c;
+      color: #fff;
+      padding: 32px;
+      border-bottom: 5px solid #c6a24a;
+    }
+
+    .cv-executive .executive-header h1 {
+      color: #fff;
+      font-size: 27pt;
+    }
+
+    .cv-executive .executive-header .cv-job-title {
+      color: #e8cf91;
+    }
+
+    .cv-executive .executive-header .cv-contact {
+      color: #e0e9e3;
+    }
+
+    .executive-body {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+      gap: 22px;
+      padding: 12px 30px 30px;
+    }
+
+    .cv-executive h2 {
+      color: #765812;
+      border-bottom: 2px solid #d8c18a;
+    }
+
+    .executive-sidebar {
+      background: #f7f5ef;
+      padding: 12px;
+      align-self: start;
+    }
+
+    /* GRADUATE UK */
+
+    .cv-graduate {
+      padding: 0;
+    }
+
+    .graduate-header {
+      background: #f5f3ed;
+      padding: 28px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      border-bottom: 3px solid #c6a24a;
+    }
+
+    .graduate-monogram {
+      width: 58px;
+      height: 58px;
+      min-width: 58px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #075b3b;
+      color: #fff;
+      font-size: 18pt;
+      font-weight: 700;
+    }
+
+    .cv-graduate h1 {
+      font-size: 23pt;
+    }
+
+    .graduate-body {
+      padding: 12px 30px 30px;
+    }
+
+    .cv-graduate h2 {
+      color: #8b6a22;
+      border-bottom: 1px solid #e3d7b6;
+    }
+
+    /* COVER LETTER */
+
+    .letter-document {
+      padding: 38px;
+      min-height: 700px;
+    }
+
+    .letter-header {
+      border-bottom: 2px solid #173d2c;
+      padding-bottom: 14px;
+      margin-bottom: 25px;
+    }
+
+    .letter-body {
+      line-height: 1.8;
+    }
+
+    .letter-body p {
+      margin-bottom: 15px;
+    }
+
+    .letter-date {
+      text-align: right;
+      margin-bottom: 25px !important;
+    }
+
+    @media (max-width: 650px) {
+      .cv-document {
+        padding: 18px;
+      }
+
+      .executive-body {
+        grid-template-columns: 1fr;
+      }
+
+      .graduate-header {
+        align-items: flex-start;
+      }
+
+      .modern-header {
+        padding: 20px;
+      }
+
+      .modern-body,
+      .graduate-body {
+        padding: 10px 20px 20px;
+      }
+    }
+  `;
+
+  function installDesignStyles() {
+    if ($("noh-cv-design-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "noh-cv-design-styles";
+    style.textContent = designStyles;
+
+    document.head.appendChild(style);
+  }
+
+  // --------------------------------------------------
+  // LIVE PREVIEW
+  // --------------------------------------------------
+
+  function updatePreview() {
     const preview = $("document-preview");
 
-    if (preview) {
-      const selectedTemplate = value("template", "modern");
+    if (!preview) return;
 
-      preview.classList.remove(
-        "classic",
-        "modern",
-        "executive",
-        "graduate"
-      );
+    installDesignStyles();
 
-      preview.classList.add(selectedTemplate);
+    if (tool === "cover-letter") {
+      preview.innerHTML = buildLetterHTML();
+    } else if (tool === "bundle") {
+      preview.innerHTML = `
+        ${buildCVHTML()}
+        <div class="bundle-preview-divider"></div>
+        ${buildLetterHTML()}
+      `;
+    } else {
+      preview.innerHTML = buildCVHTML();
     }
 
     setText(
@@ -433,91 +807,7 @@ I am writing to express my interest in the ${job} position at ${employer}.`
   }
 
   // --------------------------------------------------
-  // PRINT CONTENT
-  // --------------------------------------------------
-
-  function buildCVForPrint() {
-    const name = value("full-name", "Your Name");
-    const job = value("job-title", "Professional Title");
-
-    const sections = [
-      ["PROFESSIONAL SUMMARY", value("summary")],
-      ["EDUCATION", value("education")],
-      ["WORK EXPERIENCE", value("experience")],
-      ["SKILLS", value("skills")],
-      ["CERTIFICATIONS & TRAINING", value("certificates")]
-    ];
-
-    return `
-      <article class="document">
-        <header>
-          <h1>${escapeHTML(name)}</h1>
-          <p class="job-title">${escapeHTML(job)}</p>
-          <p class="contact">${escapeHTML(contactDetails())}</p>
-        </header>
-
-        ${sections.filter(([, content]) => content).map(([heading, content]) => `
-          <section>
-            <h2>${escapeHTML(heading)}</h2>
-            ${formatText(content)}
-          </section>
-        `).join("")}
-      </article>
-    `;
-  }
-
-  function buildLetterForPrint() {
-    const name = value("full-name", "Your Name");
-    const job = value("job-title", "the advertised position");
-    const employer = value("employer", "your organisation");
-    const recipient = value("recipient", "Hiring Manager");
-
-    const body = value(
-      "letter-body",
-      "I believe my qualifications, skills and experience would enable me to contribute positively to your organisation. I would welcome the opportunity to discuss my application."
-    );
-
-    const description = value("job-description");
-
-    return `
-      <article class="document letter-document">
-        <header>
-          <h1>${escapeHTML(name)}</h1>
-          <p class="contact">${escapeHTML(contactDetails())}</p>
-        </header>
-
-        <p>Dear ${escapeHTML(recipient)},</p>
-
-        <p>
-          I am writing to apply for the
-          ${escapeHTML(job)} position at
-          ${escapeHTML(employer)}.
-        </p>
-
-        ${description ? `
-          <section>
-            <h2>Role Requirements</h2>
-            ${formatText(description)}
-          </section>
-        ` : ""}
-
-        ${formatText(body)}
-
-        <p>
-          Thank you for considering my application. I look forward
-          to the opportunity to discuss my suitability for this role.
-        </p>
-
-        <p>
-          Yours sincerely,<br>
-          ${escapeHTML(name)}
-        </p>
-      </article>
-    `;
-  }
-
-  // --------------------------------------------------
-  // PRINT / SAVE AS PDF
+  // PRINT / PDF
   // --------------------------------------------------
 
   function printDocument() {
@@ -535,18 +825,16 @@ I am writing to express my interest in the ${job} position at ${employer}.`
     let content = "";
 
     if (tool === "cover-letter") {
-      content = buildLetterForPrint();
+      content = buildLetterHTML();
     } else if (tool === "bundle") {
       content = `
-        ${buildCVForPrint()}
+        ${buildCVHTML()}
         <div class="page-break"></div>
-        ${buildLetterForPrint()}
+        ${buildLetterHTML()}
       `;
     } else {
-      content = buildCVForPrint();
+      content = buildCVHTML();
     }
-
-    const selectedTemplate = value("template", "modern");
 
     printWindow.document.open();
 
@@ -559,9 +847,11 @@ I am writing to express my interest in the ${job} position at ${employer}.`
         <title>${escapeHTML(titles[tool])}</title>
 
         <style>
+          ${designStyles}
+
           @page {
             size: A4;
-            margin: 18mm;
+            margin: 15mm;
           }
 
           * {
@@ -570,73 +860,35 @@ I am writing to express my interest in the ${job} position at ${employer}.`
 
           body {
             margin: 0;
-            color: #25332b;
+            background: #fff;
+            color: #26332d;
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 10.5pt;
-            line-height: 1.65;
           }
 
-          .document {
+          .cv-document {
             width: 100%;
+            padding: 0;
+            font-size: 9.5pt;
           }
 
-          header {
-            border-bottom: 3px solid #c6a24a;
-            padding-bottom: 12px;
-            margin-bottom: 20px;
+          .cv-document h1 {
+            font-size: 23pt;
           }
 
-          h1 {
-            color: #075b3b;
-            font-size: 24pt;
-            margin: 0 0 5px;
-            overflow-wrap: anywhere;
+          .cv-document h2 {
+            font-size: 10pt;
           }
 
-          .job-title {
-            color: #a9822d;
-            font-size: 12pt;
-            margin: 5px 0;
+          .modern-header,
+          .executive-header,
+          .graduate-header {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
           }
 
-          .contact {
-            color: #647168;
-            font-size: 9pt;
-            overflow-wrap: anywhere;
-          }
-
-          h2 {
-            color: #075b3b;
-            font-size: 11pt;
-            border-bottom: 1px solid #e8dfc9;
-            padding-bottom: 5px;
-            margin-top: 18px;
-          }
-
-          section {
-            margin-bottom: 18px;
-          }
-
-          p {
-            overflow-wrap: anywhere;
-          }
-
-          .executive header {
-            border-bottom-color: #a9822d;
-            border-bottom-width: 5px;
-          }
-
-          .executive h1,
-          .executive h2 {
-            color: #765812;
-          }
-
-          .graduate h1 {
-            color: #075b3b;
-          }
-
-          .graduate h2 {
-            color: #a9822d;
+          .executive-sidebar {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
           }
 
           .page-break {
@@ -644,17 +896,36 @@ I am writing to express my interest in the ${job} position at ${employer}.`
             page-break-before: always;
           }
 
+          .bundle-preview-divider {
+            display: none;
+          }
+
+          .letter-document {
+            min-height: auto;
+          }
+
+          .cv-section {
+            break-inside: avoid;
+          }
+
           @media screen {
             body {
-              padding: 24px;
-              max-width: 800px;
-              margin: 0 auto;
+              max-width: 850px;
+              margin: 25px auto;
+              padding: 25px;
+              background: #f5f5f5;
+            }
+
+            .cv-document {
+              background: #fff;
+              padding: 30px;
+              box-shadow: 0 3px 18px rgba(0,0,0,.08);
             }
           }
         </style>
       </head>
 
-      <body class="${escapeHTML(selectedTemplate)}">
+      <body>
         ${content}
       </body>
       </html>
@@ -663,7 +934,6 @@ I am writing to express my interest in the ${job} position at ${employer}.`
     printWindow.document.close();
     printWindow.focus();
 
-    // Allow the new document to render before opening the print dialog.
     setTimeout(() => {
       try {
         printWindow.focus();
@@ -883,15 +1153,23 @@ I am writing to express my interest in the ${job} position at ${employer}.`
   const resetButton = $("reset-button");
 
   if (previewButton) {
-    previewButton.addEventListener("click", previewDocument);
+    previewButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      previewDocument();
+    });
   }
 
   if (downloadButton) {
-    downloadButton.addEventListener("click", printDocument);
+    downloadButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      printDocument();
+    });
   }
 
   if (resetButton) {
-    resetButton.addEventListener("click", () => {
+    resetButton.addEventListener("click", (event) => {
+      event.preventDefault();
+
       const confirmed = window.confirm(
         "Are you sure you want to clear the information in this form?"
       );
@@ -899,7 +1177,6 @@ I am writing to express my interest in the ${job} position at ${employer}.`
       if (!confirmed) return;
 
       form.reset();
-
       configureTemplates();
       updatePreview();
 
@@ -940,6 +1217,8 @@ I am writing to express my interest in the ${job} position at ${employer}.`
   // --------------------------------------------------
 
   configureTool();
+  installDesignStyles();
   updatePreview();
 
 })();
+    
