@@ -885,6 +885,7 @@
         if (window.html2pdf) {
           resolve(window.html2pdf);
         } else {
+          pdfLibraryPromise = null;
           reject(new Error("The PDF library could not be loaded."));
         }
       };
@@ -951,55 +952,18 @@
     button.disabled = true;
     button.textContent = "Preparing PDF...";
 
-    let pdfContainer = null;
-
     try {
       updatePreview();
 
       const html2pdf = await loadPDFLibrary();
 
-      // Create a correctly positioned A4 export container.
-      // Do not position this element far below the page.
-      pdfContainer = document.createElement("div");
+      // Plain detached element: no position, no z-index, not appended.
+      // html2pdf clones it into its own overlay and handles placement.
+      const pdfContainer = document.createElement("div");
 
       pdfContainer.id = "noh-pdf-export";
-      pdfContainer.setAttribute("aria-hidden", "true");
-
-      pdfContainer.style.cssText = [
-        "position:fixed",
-        "top:0",
-        "left:0",
-        "width:794px",
-        "min-height:1123px",
-        "padding:0",
-        "margin:0",
-        "background:#ffffff",
-        "color:#26332d",
-        "display:block",
-        "visibility:visible",
-        "opacity:1",
-        "z-index:2147483647",
-        "overflow:visible",
-        "pointer-events:none",
-        "box-sizing:border-box"
-      ].join(";");
-
       pdfContainer.innerHTML = getPDFContent();
 
-      document.body.appendChild(pdfContainer);
-
-      // Ensure the document content is rendered.
-      if (document.fonts && document.fonts.ready) {
-        await document.fonts.ready;
-      }
-
-      await new Promise((resolve) => {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(resolve);
-        });
-      });
-
-      // Check that the export container actually contains content.
       const exportDocument = pdfContainer.querySelector(".cv-document");
 
       if (!exportDocument || !exportDocument.textContent.trim()) {
@@ -1008,12 +972,8 @@
         );
       }
 
-      const dimensions = pdfContainer.getBoundingClientRect();
-
-      if (dimensions.width < 100 || dimensions.height < 100) {
-        throw new Error(
-          "The document could not be prepared for PDF export."
-        );
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
       }
 
       const options = {
@@ -1033,8 +993,7 @@
           logging: false,
           scrollX: 0,
           scrollY: 0,
-          windowWidth: 794,
-          windowHeight: 1123
+          windowWidth: 794
         },
 
         jsPDF: {
@@ -1065,10 +1024,6 @@
       );
 
     } finally {
-      if (pdfContainer && pdfContainer.parentNode) {
-        pdfContainer.parentNode.removeChild(pdfContainer);
-      }
-
       button.disabled = false;
       button.textContent = originalText;
     }
@@ -1380,3 +1335,5 @@
   updatePreview();
 
 })();
+
+      
