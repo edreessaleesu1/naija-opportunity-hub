@@ -236,12 +236,16 @@
       }
     }
 
+    
     setText(
       "download-button",
       tool === "bundle"
-        ? "Print / Save CV and Cover Letter as PDF"
-        : "Print / Save as PDF"
+        ? "Download Career Bundle"
+        : tool === "cover-letter"
+          ? "Download Cover Letter"
+          : "Download CV"
     );
+
 
     setText("ai-assistant-title", "AI Career Assistant");
 
