@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#075b3b">
+
+  <title>Application Assistance | Naija Opportunity Hub</title>
+
+  <meta
+    name="description"
+    content="Get practical guidance with job, scholarship, internship and grant applications from Naija Opportunity Hub."
+  >
+
+  <link rel="stylesheet" href="./application-assistance.css">
+  <script src="./application-assistance.js" defer></script>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="container nav-inner">
+      <a href="./index.html" class="brand">
+        <span class="brand-icon">N</span>
+        <span>
+          <strong>Naija Opportunity Hub</strong>
+          <small>Discover. Apply. Grow.</small>
+        </span>
+      </a>
+
+      <a href="./index.html#career-kit" class="back-link">
+        ← Back to Career Kit
+      </a>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <div class="container hero-content">
+
+        <span class="eyebrow">PERSONAL APPLICATION SUPPORT</span>
+
+        <h1>
+          Don't let a great opportunity
+          <span>pass you by.</span>
+        </h1>
+
+        <p>
+          Not sure how to prepare your application? Tell us what you need.
+          Our team will review your request and guide you through the next steps.
+        </p>
+
+        <a href="#request-form" class="gold-button">
+          Request Assistance →
+        </a>
+
+        <div class="hero-note">
+          <span>✓</span> Human guidance
+          <span>✓</span> Personalised support
+          <span>✓</span> Clear next steps
+        </div>
+
+      </div>
+    </section>
+
+    <section class="services-section">
+      <div class="container">
+
+        <div class="section-heading">
+          <span class="eyebrow">HOW WE CAN HELP</span>
+          <h2>Support for your next big step</h2>
+          <p>
+            Whether you're applying for a job, scholarship or training
+            programme, we can help you prepare.
+          </p>
+        </div>
+
+        <div class="service-grid">
+
+          <article class="service-card">
+            <div class="service-icon">📄</div>
+            <h3>CV & Resume Guidance</h3>
+            <p>
+              Get help improving your CV and presenting your qualifications
+              professionally.
+            </p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-icon">✍️</div>
+            <h3>Cover Letter Support</h3>
+            <p>
+              Prepare a clear, relevant cover letter for your intended
+              opportunity.
+            </p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-icon">🎓</div>
+            <h3>Scholarship Applications</h3>
+            <p>
+              Get guidance on application requirements, personal statements
+              and supporting information.
+            </p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-icon">💼</div>
+            <h3>Job Applications</h3>
+            <p>
+              Get practical guidance on preparing and submitting job
+              applications.
+            </p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-icon">🚀</div>
+            <h3>Internships & Fellowships</h3>
+            <p>
+              Understand application requirements and present your experience
+              effectively.
+            </p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-icon">🤝</div>
+            <h3>General Application Guidance</h3>
+            <p>
+              Tell us where you're stuck, and we'll help you identify
+              the next steps.
+            </p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="request-section" id="request-form">
+      <div class="container request-layout">
+
+        <div class="request-info">
+          <span class="eyebrow">LET'S GET STARTED</span>
+
+          <h2>Tell us what you need help with.</h2>
+
+          <p>
+            Complete the short form. Your information will be organised
+            into a WhatsApp message so you can review and send your request
+            directly to our team.
+          </p>
+
+          <div class="info-item">
+            <span>01</span>
+            <div>
+              <strong>Submit your request</strong>
+              <p>Tell us about the opportunity and the support you need.</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span>02</span>
+            <div>
+              <strong>Connect with our team</strong>
+              <p>Your message opens in WhatsApp for you to send.</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span>03</span>
+            <div>
+              <strong>Agree on the next steps</strong>
+              <p>We'll discuss the service, pricing and how to proceed.</p>
+            </div>
+          </div>
+
+          <div class="contact-note">
+            <strong>Have a question?</strong>
+            <p>
+              You can also contact our team directly through WhatsApp.
+            </p>
+            <a
+              href="https://wa.me/2349026473284"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Chat with our team →
+            </a>
+          </div>
+        </div>
+
+        <div class="form-card">
+
+          <div class="form-heading">
+            <span class="eyebrow">APPLICATION SUPPORT REQUEST</span>
+            <h2>Request assistance</h2>
+            <p>Fields marked with * are required.</p>
+          </div>
+
+          <form id="assistance-form">
+
+            <div class="form-group">
+              <label for="full-name">Full name *</label>
+              <input
+                type="text"
+                id="full-name"
+                name="fullName"
+                placeholder="Enter your full name"
+                autocomplete="name"
+                required
+              >
+            </div>
+
+            <div class="form-row">
+
+              <div class="form-group">
+                <label for="email">Email address</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="you@example.com"
+                  autocomplete="email"
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="phone">WhatsApp number *</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="+234..."
+                  autocomplete="tel"
+                  required
+                >
+              </div>
+
+            </div>
+
+            <div class="form-group">
+              <label for="assistance-type">What do you need help with? *</label>
+
+              <select
+                id="assistance-type"
+                name="assistanceType"
+                required
+              >
+                <option value="">Select assistance type</option>
+                <option>CV or Resume Improvement</option>
+                <option>Cover Letter Preparation</option>
+                <option>Scholarship Application</option>
+                <option>Job Application</option>
+                <option>Internship or Fellowship Application</option>
+                <option>Grant Application</option>
+                <option>General Application Guidance</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="opportunity-link">
+                Opportunity link
+                <span class="optional">(Optional)</span>
+              </label>
+
+              <input
+                type="url"
+                id="opportunity-link"
+                name="opportunityLink"
+                placeholder="https://example.com/application"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="description">
+                Tell us briefly what you need help with *
+              </label>
+
+              <textarea
+                id="description"
+                name="description"
+                rows="5"
+                placeholder="Describe the opportunity and the assistance you need..."
+                required
+              ></textarea>
+            </div>
+
+            <label class="privacy-check">
+              <input type="checkbox" id="privacy-consent" required>
+              <span>
+                I agree to share these details with Naija Opportunity Hub
+                for the purpose of responding to my request.
+              </span>
+            </label>
+
+            <button type="submit" class="submit-button">
+              Continue to WhatsApp →
+            </button>
+
+            <p class="form-message" id="form-message" aria-live="polite"></p>
+
+            <p class="privacy-note">
+              Your request is not automatically submitted to our website.
+              You will review and send the prepared message through WhatsApp.
+              Please do not include passwords, bank details or sensitive
+              identity documents.
+            </p>
+
+          </form>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p>
+        © <span id="current-year"></span>
+        Naija Opportunity Hub. All rights reserved.
+      </p>
+
+      <a href="./index.html">Back to Home</a>
+    </div>
+  </footer>
+
+</body>
+</html>
