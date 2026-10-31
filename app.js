@@ -41,8 +41,11 @@
   const FALLBACK_IMAGE =
     "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80";
 
-  const DETAILS_PAGE = "opportunity-details.html";
+  /* Official website configuration */
 
+const SITE_URL = "https://naijaopportunityhub.com.ng";
+
+const DETAILS_PAGE = `${SITE_URL}/opportunity-details`;
   const DEBUG =
     new URLSearchParams(window.location.search).get("debug") === "1";
 
