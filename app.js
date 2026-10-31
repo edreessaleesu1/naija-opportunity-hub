@@ -2,10 +2,10 @@
 /*
  * NAIJA OPPORTUNITY HUB
  * Main Front-End Application
- * Version 3.1
+ * Version 3.2
  *
- * Opportunity card:
- * Clickable image → Clickable title → Details page
+ * Official domain:
+ * https://naijaopportunityhub.com.ng
  *
  * Features:
  * - Supabase opportunity loading
@@ -16,6 +16,7 @@
  * - CSV export
  * - View All / Show Less
  * - Loading, empty and error states
+ * - Custom-domain opportunity links
  */
 
 (() => {
@@ -33,6 +34,13 @@
 
   const TABLE_NAME = "opportunities";
 
+  // Official website configuration
+  const SITE_URL = "https://naijaopportunityhub.com.ng";
+
+  // Public opportunity details route
+  const DETAILS_PAGE =
+    `${SITE_URL}/opportunity-details`;
+
   const BOOKMARKS_KEY = "noh_bookmarks_v1";
   const TRACKER_KEY = "noh_tracker_v1";
 
@@ -41,11 +49,6 @@
   const FALLBACK_IMAGE =
     "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80";
 
-  /* Official website configuration */
-
-const SITE_URL = "https://naijaopportunityhub.com.ng";
-
-const DETAILS_PAGE = `${SITE_URL}/opportunity-details`;
   const DEBUG =
     new URLSearchParams(window.location.search).get("debug") === "1";
 
@@ -215,6 +218,15 @@ const DETAILS_PAGE = `${SITE_URL}/opportunity-details`;
     } catch {
       return "";
     }
+  }
+
+  // Generate official opportunity details links.
+  function getOpportunityDetailsURL(id) {
+    const url = new URL(DETAILS_PAGE);
+
+    url.searchParams.set("id", String(id));
+
+    return url.href;
   }
 
   function formatDate(value) {
@@ -568,7 +580,7 @@ const DETAILS_PAGE = `${SITE_URL}/opportunity-details`;
 
   /* =========================================================
      10. OPPORTUNITY CARD
-     Image and title both open the details page.
+     Image and title open the official details page.
   ========================================================= */
 
   function createOpportunityCard(item) {
@@ -576,8 +588,7 @@ const DETAILS_PAGE = `${SITE_URL}/opportunity-details`;
 
     const image = item.image_url || FALLBACK_IMAGE;
 
-    const detailsURL =
-      `${DETAILS_PAGE}?id=${encodeURIComponent(id)}`;
+    const detailsURL = getOpportunityDetailsURL(id);
 
     const title = escapeHTML(item.title);
     const category = escapeHTML(item.category);
@@ -970,7 +981,8 @@ const DETAILS_PAGE = `${SITE_URL}/opportunity-details`;
   ========================================================= */
 
   function init() {
-    debugLog("Naija Opportunity Hub initialising...");
+    debugLog("Naija Opportunity Hub v3.2 initialising...");
+    debugLog("Official website:", SITE_URL);
 
     setupCategoryButtons();
     setupEventListeners();
