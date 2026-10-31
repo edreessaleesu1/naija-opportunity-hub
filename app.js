@@ -2,20 +2,20 @@
 /*
  * NAIJA OPPORTUNITY HUB
  * Main Front-End Application
- * Version 2.0
+ * Version 3.0
  *
- * Features:
- * - Supabase opportunity loading
+ * Opportunity card layout:
+ * Image → Title → Access Opportunity
+ *
+ * Preserved features:
+ * - Supabase loading
  * - Search and category filtering
- * - Sorting by newest, deadline and title
- * - Image validation and fallback
- * - Bookmarks using localStorage
- * - Application tracker using localStorage
+ * - Sorting
+ * - Bookmarks
+ * - Application tracker
  * - CSV export
  * - View All / Show Less
- * - Expired deadline labels
  * - Loading, empty and error states
- * - Debug mode: add ?debug=1 to the URL
  */
 
 (() => {
@@ -33,7 +33,6 @@
 
   const TABLE_NAME = "opportunities";
 
-  // Preserve existing user data.
   const BOOKMARKS_KEY = "noh_bookmarks_v1";
   const TRACKER_KEY = "noh_tracker_v1";
 
@@ -41,6 +40,8 @@
 
   const FALLBACK_IMAGE =
     "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80";
+
+  const DETAILS_PAGE = "opportunity-details.html";
 
   const DEBUG =
     new URLSearchParams(window.location.search).get("debug") === "1";
@@ -60,7 +61,6 @@
       const element = document.getElementById(id);
       if (element) return element;
     }
-
     return null;
   }
 
@@ -77,9 +77,7 @@
       "search"
     ),
 
-    categoryFilter: getElement(
-      "categoryFilter"
-    ),
+    categoryFilter: getElement("categoryFilter"),
 
     sort: getElement(
       "sortFilter",
@@ -87,21 +85,10 @@
       "sortOpportunities"
     ),
 
-    clearFilters: getElement(
-      "clearFilters"
-    ),
-
-    resultsCount: getElement(
-      "resultsCount"
-    ),
-
-    dataNotice: getElement(
-      "dataNotice"
-    ),
-
-    dataStatus: getElement(
-      "dataStatus"
-    ),
+    clearFilters: getElement("clearFilters"),
+    resultsCount: getElement("resultsCount"),
+    dataNotice: getElement("dataNotice"),
+    dataStatus: getElement("dataStatus"),
 
     viewAll: getElement(
       "viewAllBtn",
@@ -156,7 +143,6 @@
   function readStorage(key, fallback) {
     try {
       const value = JSON.parse(localStorage.getItem(key));
-
       return value ?? fallback;
     } catch (error) {
       console.warn("Storage could not be read:", key, error);
@@ -186,15 +172,11 @@
   }
 
   function normalize(value) {
-    return String(value ?? "")
-      .trim()
-      .toLowerCase();
+    return String(value ?? "").trim().toLowerCase();
   }
 
   function debugLog(...args) {
-    if (DEBUG) {
-      console.log("[NOH]", ...args);
-    }
+    if (DEBUG) console.log("[NOH]", ...args);
   }
 
   function getOpportunityId(item) {
@@ -214,9 +196,7 @@
   }
 
   function showElement(element, visible) {
-    if (element) {
-      element.hidden = !visible;
-    }
+    if (element) element.hidden = !visible;
   }
 
   function safeURL(value) {
@@ -271,7 +251,6 @@
       };
     }
 
-    // Compare calendar dates rather than exact hours.
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -386,8 +365,7 @@
         String(item.title || "").trim() ||
         "Untitled Opportunity",
 
-      organization:
-        String(organization).trim(),
+      organization: String(organization).trim(),
 
       category:
         String(item.category || "Other").trim(),
@@ -435,7 +413,6 @@
 
       try {
         data = await fetchOpportunities(true);
-
         debugLog("Loaded opportunities with image_url.");
       } catch (error) {
         const missingImageColumn =
@@ -443,13 +420,9 @@
             error.message
           );
 
-        if (!missingImageColumn) {
-          throw error;
-        }
+        if (!missingImageColumn) throw error;
 
-        debugLog(
-          "image_url unavailable. Retrying without it."
-        );
+        debugLog("Retrying without image_url.");
 
         data = await fetchOpportunities(false);
       }
@@ -458,10 +431,7 @@
         .map(normalizeOpportunity)
         .filter(item => item.id);
 
-      debugLog(
-        "Opportunities loaded:",
-        allOpportunities
-      );
+      debugLog("Opportunities loaded:", allOpportunities);
 
       applyFilters();
 
@@ -485,14 +455,9 @@
       if (elements.error) {
         elements.error.innerHTML = `
           <p>We couldn't load opportunities right now.</p>
-
-          <button
-            type="button"
-            id="retryOpportunities"
-          >
+          <button type="button" id="retryOpportunities">
             Try Again
           </button>
-
           ${
             DEBUG
               ? `<pre>${escapeHTML(error.message)}</pre>`
@@ -519,7 +484,6 @@
       elements.search?.value || ""
     );
 
-    // Keep dropdown and category buttons synchronised.
     if (elements.categoryFilter) {
       elements.categoryFilter.value = activeCategory;
     }
@@ -558,9 +522,7 @@
 
     const timestamp = new Date(value).getTime();
 
-    return Number.isNaN(timestamp)
-      ? null
-      : timestamp;
+    return Number.isNaN(timestamp) ? null : timestamp;
   }
 
   function sortOpportunities() {
@@ -576,23 +538,17 @@
 
         const todayTime = today.getTime();
 
-        // Upcoming deadlines first, expired dates next,
-        // and missing dates last.
         const getPriority = date => {
           if (date === null) return 3;
           if (date >= todayTime) return 1;
           return 2;
         };
 
-        const priorityDifference =
+        const difference =
           getPriority(dateA) - getPriority(dateB);
 
-        if (priorityDifference !== 0) {
-          return priorityDifference;
-        }
-
-        if (dateA === null) return 0;
-        if (dateB === null) return 0;
+        if (difference !== 0) return difference;
+        if (dateA === null || dateB === null) return 0;
 
         return dateA - dateB;
       }
@@ -612,28 +568,16 @@
   }
 
   /* =========================================================
-     10. OPPORTUNITY CARD
+     10. OPPORTUNITY CARD — NEW SIMPLE DESIGN
   ========================================================= */
 
   function createOpportunityCard(item) {
     const id = getOpportunityId(item);
 
-    const bookmarked = isBookmarked(id);
-    const tracked = isTracked(id);
+    const image = item.image_url || FALLBACK_IMAGE;
 
-    const image =
-      item.image_url || FALLBACK_IMAGE;
-
-    const applicationURL =
-      item.application_url || "";
-
-    const description = item.description.length > 180
-      ? `${item.description.slice(0, 180).trim()}...`
-      : item.description;
-
-    const verified = Boolean(item.verified_at);
-
-    const deadline = getDeadlineStatus(item.deadline);
+    const detailsURL =
+      `${DETAILS_PAGE}?id=${encodeURIComponent(id)}`;
 
     return `
       <article
@@ -641,106 +585,41 @@
         data-id="${escapeHTML(id)}"
       >
 
-        <div class="opportunity-image">
+        <a
+          class="opportunity-card-link"
+          href="${escapeHTML(detailsURL)}"
+          aria-label="Read details for ${escapeHTML(item.title)}"
+        >
 
-          <img
-            src="${escapeHTML(image)}"
-            alt="${escapeHTML(item.title)}"
-            loading="lazy"
-            onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
-          >
+          <div class="opportunity-image">
 
-          <span class="opportunity-category">
-            ${escapeHTML(item.category)}
-          </span>
-
-          <button
-            type="button"
-            class="bookmark-btn ${bookmarked ? "active" : ""}"
-            data-action="bookmark"
-            data-id="${escapeHTML(id)}"
-            aria-label="${bookmarked ? "Remove bookmark" : "Bookmark opportunity"}"
-            aria-pressed="${bookmarked}"
-          >
-            ${bookmarked ? "♥" : "♡"}
-          </button>
-
-        </div>
-
-        <div class="opportunity-content">
-
-          <div class="opportunity-organisation">
-            <span>
-              ${escapeHTML(item.organization)}
-            </span>
-
-            ${
-              verified
-                ? '<span class="verified-label">✓ Verified</span>'
-                : ""
-            }
-          </div>
-
-          <h3 class="opportunity-title">
-            ${escapeHTML(item.title)}
-          </h3>
-
-          <p class="opportunity-description">
-            ${escapeHTML(description)}
-          </p>
-
-          <div class="opportunity-meta">
-
-            <span class="opportunity-location">
-              <span aria-hidden="true">📍</span>
-              ${escapeHTML(item.location || "Location not specified")}
-            </span>
-
-            <span
-              class="opportunity-deadline deadline-${deadline.type}"
+            <img
+              src="${escapeHTML(image)}"
+              alt="${escapeHTML(item.title)}"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
             >
-              <span aria-hidden="true">📅</span>
-              ${escapeHTML(deadline.label)}
+
+            <span class="opportunity-category">
+              ${escapeHTML(item.category)}
             </span>
 
           </div>
 
-          <div class="opportunity-actions">
+          <div class="opportunity-content">
 
-            ${
-              applicationURL
-                ? `
-                  <a
-                    href="${escapeHTML(applicationURL)}"
-                    class="apply-btn"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-action="apply"
-                    data-id="${escapeHTML(id)}"
-                  >
-                    Apply Now
-                  </a>
-                `
-                : `
-                  <span class="apply-btn disabled">
-                    Application link unavailable
-                  </span>
-                `
-            }
+            <h3 class="opportunity-title">
+              ${escapeHTML(item.title)}
+            </h3>
 
-            <button
-              type="button"
-              class="track-btn ${tracked ? "active" : ""}"
-              data-action="track"
-              data-id="${escapeHTML(id)}"
-              aria-pressed="${tracked}"
-            >
-              ${tracked ? "✓ Tracking" : "Track Application"}
-            </button>
+            <span class="opportunity-access-label">
+              Access Opportunity
+              <span aria-hidden="true">→</span>
+            </span>
 
           </div>
 
-        </div>
+        </a>
 
       </article>
     `;
@@ -752,10 +631,7 @@
 
   function renderOpportunities() {
     if (!elements.opportunities) {
-      debugLog(
-        "Opportunity grid not found. Check the HTML element ID."
-      );
-
+      debugLog("Opportunity grid not found.");
       return;
     }
 
@@ -807,34 +683,23 @@
   ========================================================= */
 
   function getCategoryButtons() {
-    const categoryContainer = getElement(
-      "categoryButtons"
-    );
+    const categoryContainer = getElement("categoryButtons");
 
-    if (!categoryContainer) {
-      return [];
-    }
+    if (!categoryContainer) return [];
 
-    return $$(
-      "[data-category]",
-      categoryContainer
-    );
+    return $$("[data-category]", categoryContainer);
   }
 
   function syncCategoryButtons() {
     getCategoryButtons().forEach(button => {
-      const category =
-        button.dataset.category || "";
+      const category = button.dataset.category || "";
 
       const active =
         normalize(category) === normalize(activeCategory);
 
       button.classList.toggle("active", active);
 
-      button.setAttribute(
-        "aria-pressed",
-        String(active)
-      );
+      button.setAttribute("aria-pressed", String(active));
     });
   }
 
@@ -844,10 +709,7 @@
 
     applyFilters();
 
-    debugLog(
-      "Category selected:",
-      activeCategory
-    );
+    debugLog("Category selected:", activeCategory);
   }
 
   function setupCategoryButtons() {
@@ -878,8 +740,7 @@
     }
 
     saveStorage(BOOKMARKS_KEY, bookmarks);
-
-    renderOpportunities();
+    updateCounters();
   }
 
   /* =========================================================
@@ -913,8 +774,7 @@
     }
 
     saveStorage(TRACKER_KEY, tracker);
-
-    renderOpportunities();
+    updateCounters();
   }
 
   /* =========================================================
@@ -923,13 +783,11 @@
 
   function updateCounters() {
     if (elements.bookmarks) {
-      elements.bookmarks.textContent =
-        bookmarks.length;
+      elements.bookmarks.textContent = bookmarks.length;
     }
 
     if (elements.tracker) {
-      elements.tracker.textContent =
-        tracker.length;
+      elements.tracker.textContent = tracker.length;
     }
   }
 
@@ -972,21 +830,16 @@
 
     const blob = new Blob(
       ["\uFEFF" + csv],
-      {
-        type: "text/csv;charset=utf-8;"
-      }
+      { type: "text/csv;charset=utf-8;" }
     );
 
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");
-
     link.href = url;
-    link.download =
-      "naija-opportunity-hub-tracker.csv";
+    link.download = "naija-opportunity-hub-tracker.csv";
 
     document.body.appendChild(link);
-
     link.click();
     link.remove();
 
@@ -1012,8 +865,7 @@
     tracker = [];
 
     saveStorage(TRACKER_KEY, tracker);
-
-    renderOpportunities();
+    updateCounters();
   }
 
   /* =========================================================
@@ -1045,7 +897,6 @@
 
   function setupEventListeners() {
 
-    // Search
     elements.search?.addEventListener(
       "input",
       () => {
@@ -1054,7 +905,6 @@
       }
     );
 
-    // Category dropdown
     elements.categoryFilter?.addEventListener(
       "change",
       () => {
@@ -1064,21 +914,16 @@
       }
     );
 
-    // Sorting
     elements.sort?.addEventListener(
       "change",
-      () => {
-        applyFilters();
-      }
+      applyFilters
     );
 
-    // Clear filters
     elements.clearFilters?.addEventListener(
       "click",
       resetFilters
     );
 
-    // View all / Show less
     elements.viewAll?.addEventListener(
       "click",
       () => {
@@ -1087,32 +932,6 @@
       }
     );
 
-    // Opportunity card actions
-    elements.opportunities?.addEventListener(
-      "click",
-      event => {
-        const button = event.target.closest(
-          "[data-action]"
-        );
-
-        if (!button) return;
-
-        const action = button.dataset.action;
-        const id = button.dataset.id;
-
-        if (!id) return;
-
-        if (action === "bookmark") {
-          toggleBookmark(id);
-        }
-
-        if (action === "track") {
-          toggleTracker(id);
-        }
-      }
-    );
-
-    // CSV export
     const exportButton = getElement(
       "exportTracker",
       "exportCSV",
@@ -1124,7 +943,6 @@
       exportTrackerCSV
     );
 
-    // Clear tracker
     const clearButton = getElement(
       "clearTracker",
       "clearTrackerBtn"
@@ -1135,7 +953,6 @@
       clearTracker
     );
 
-    // Refresh opportunities
     const refreshButton = getElement(
       "refreshOpportunities",
       "refreshBtn"
@@ -1152,9 +969,7 @@
   ========================================================= */
 
   function init() {
-    debugLog(
-      "Naija Opportunity Hub initialising..."
-    );
+    debugLog("Naija Opportunity Hub initialising...");
 
     setupCategoryButtons();
     setupEventListeners();
@@ -1165,10 +980,7 @@
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener(
-      "DOMContentLoaded",
-      init
-    );
+    document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }
