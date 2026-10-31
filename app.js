@@ -1,19 +1,21 @@
 
 /*
  * NAIJA OPPORTUNITY HUB
- * Main front-end application script
+ * Main Front-End Application
+ * Version 2.0
  *
  * Features:
- * - Loads published opportunities from Supabase
+ * - Supabase opportunity loading
  * - Search and category filtering
  * - Sorting by newest, deadline and title
- * - Opportunity images with fallback
+ * - Image validation and fallback
  * - Bookmarks using localStorage
  * - Application tracker using localStorage
  * - CSV export
  * - View All / Show Less
+ * - Expired deadline labels
  * - Loading, empty and error states
- * - Optional debug mode: add ?debug=1 to the URL
+ * - Debug mode: add ?debug=1 to the URL
  */
 
 (() => {
@@ -31,6 +33,7 @@
 
   const TABLE_NAME = "opportunities";
 
+  // Preserve existing user data.
   const BOOKMARKS_KEY = "noh_bookmarks_v1";
   const TRACKER_KEY = "noh_tracker_v1";
 
@@ -57,13 +60,14 @@
       const element = document.getElementById(id);
       if (element) return element;
     }
+
     return null;
   }
 
   const elements = {
     opportunities: getElement(
-      "opportunitiesGrid",
       "opportunityGrid",
+      "opportunitiesGrid",
       "opportunitiesContainer"
     ),
 
@@ -73,9 +77,30 @@
       "search"
     ),
 
+    categoryFilter: getElement(
+      "categoryFilter"
+    ),
+
     sort: getElement(
+      "sortFilter",
       "sortSelect",
       "sortOpportunities"
+    ),
+
+    clearFilters: getElement(
+      "clearFilters"
+    ),
+
+    resultsCount: getElement(
+      "resultsCount"
+    ),
+
+    dataNotice: getElement(
+      "dataNotice"
+    ),
+
+    dataStatus: getElement(
+      "dataStatus"
     ),
 
     viewAll: getElement(
@@ -131,6 +156,7 @@
   function readStorage(key, fallback) {
     try {
       const value = JSON.parse(localStorage.getItem(key));
+
       return value ?? fallback;
     } catch (error) {
       console.warn("Storage could not be read:", key, error);
@@ -142,7 +168,7 @@
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
-      console.error("Storage could not be saved:", error);
+      console.error("Storage could not be saved:", key, error);
     }
   }
 
@@ -160,7 +186,56 @@
   }
 
   function normalize(value) {
-    return String(value ?? "").trim().toLowerCase();
+    return String(value ?? "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function debugLog(...args) {
+    if (DEBUG) {
+      console.log("[NOH]", ...args);
+    }
+  }
+
+  function getOpportunityId(item) {
+    return String(item.id ?? "");
+  }
+
+  function isBookmarked(id) {
+    return bookmarks.some(
+      item => String(item) === String(id)
+    );
+  }
+
+  function isTracked(id) {
+    return tracker.some(
+      item => String(item.id) === String(id)
+    );
+  }
+
+  function showElement(element, visible) {
+    if (element) {
+      element.hidden = !visible;
+    }
+  }
+
+  function safeURL(value) {
+    if (!value) return "";
+
+    try {
+      const url = new URL(String(value).trim());
+
+      if (
+        url.protocol === "https:" ||
+        url.protocol === "http:"
+      ) {
+        return url.href;
+      }
+
+      return "";
+    } catch {
+      return "";
+    }
   }
 
   function formatDate(value) {
@@ -179,28 +254,48 @@
     });
   }
 
-  function getOpportunityId(item) {
-    return String(item.id ?? "");
-  }
-
-  function isBookmarked(id) {
-    return bookmarks.some(item => String(item) === String(id));
-  }
-
-  function isTracked(id) {
-    return tracker.some(item => String(item.id) === String(id));
-  }
-
-  function showElement(element, visible) {
-    if (element) {
-      element.hidden = !visible;
+  function getDeadlineStatus(value) {
+    if (!value) {
+      return {
+        label: "Deadline not specified",
+        type: "unknown"
+      };
     }
-  }
 
-  function debugLog(...args) {
-    if (DEBUG) {
-      console.log("[NOH]", ...args);
+    const deadline = new Date(value);
+
+    if (Number.isNaN(deadline.getTime())) {
+      return {
+        label: "Deadline not specified",
+        type: "unknown"
+      };
     }
+
+    // Compare calendar dates rather than exact hours.
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const deadlineDay = new Date(deadline);
+    deadlineDay.setHours(0, 0, 0, 0);
+
+    if (deadlineDay < today) {
+      return {
+        label: "Application closed",
+        type: "expired"
+      };
+    }
+
+    if (deadlineDay.getTime() === today.getTime()) {
+      return {
+        label: "Deadline today",
+        type: "today"
+      };
+    }
+
+    return {
+      label: `Deadline: ${formatDate(value)}`,
+      type: "upcoming"
+    };
   }
 
   /* =========================================================
@@ -264,6 +359,58 @@
     return Array.isArray(result) ? result : [];
   }
 
+  /* =========================================================
+     6. NORMALISE OPPORTUNITY DATA
+  ========================================================= */
+
+  function normalizeOpportunity(item) {
+    const organization =
+      item.organization ||
+      item.organisation ||
+      "Organisation not specified";
+
+    const applicationURL = safeURL(
+      item.application_url ||
+      item.source_url ||
+      ""
+    );
+
+    const imageURL = safeURL(item.image_url || "");
+
+    return {
+      ...item,
+
+      id: String(item.id ?? ""),
+
+      title:
+        String(item.title || "").trim() ||
+        "Untitled Opportunity",
+
+      organization:
+        String(organization).trim(),
+
+      category:
+        String(item.category || "Other").trim(),
+
+      description:
+        String(item.description || "").trim(),
+
+      eligibility:
+        String(item.eligibility || "").trim(),
+
+      location:
+        String(item.location || "").trim(),
+
+      image_url: imageURL,
+
+      application_url: applicationURL
+    };
+  }
+
+  /* =========================================================
+     7. LOAD OPPORTUNITIES
+  ========================================================= */
+
   async function loadOpportunities() {
     if (isLoading) return;
 
@@ -272,6 +419,12 @@
     showElement(elements.loading, true);
     showElement(elements.empty, false);
     showElement(elements.error, false);
+    showElement(elements.dataNotice, true);
+
+    if (elements.dataStatus) {
+      elements.dataStatus.textContent =
+        "Loading opportunities...";
+    }
 
     if (elements.opportunities) {
       elements.opportunities.innerHTML = "";
@@ -282,6 +435,7 @@
 
       try {
         data = await fetchOpportunities(true);
+
         debugLog("Loaded opportunities with image_url.");
       } catch (error) {
         const missingImageColumn =
@@ -294,43 +448,51 @@
         }
 
         debugLog(
-          "image_url column unavailable. Retrying without it."
+          "image_url unavailable. Retrying without it."
         );
 
         data = await fetchOpportunities(false);
       }
 
-      allOpportunities = data.map(item => ({
-        ...item,
-        title: item.title || "Untitled Opportunity",
-        organization:
-          item.organization ||
-          item.organisation ||
-          "Organisation not specified",
-        category: item.category || "Other",
-        description: item.description || "",
-        image_url: item.image_url || "",
-        application_url:
-          item.application_url ||
-          item.source_url ||
-          ""
-      }));
+      allOpportunities = data
+        .map(normalizeOpportunity)
+        .filter(item => item.id);
 
-      debugLog("Opportunities loaded:", allOpportunities);
+      debugLog(
+        "Opportunities loaded:",
+        allOpportunities
+      );
 
       applyFilters();
+
+      if (elements.dataStatus) {
+        elements.dataStatus.textContent =
+          `${allOpportunities.length} published opportunities available`;
+      }
+
+      showElement(elements.dataNotice, true);
 
     } catch (error) {
       console.error("Unable to load opportunities:", error);
 
       showElement(elements.error, true);
 
+      if (elements.dataStatus) {
+        elements.dataStatus.textContent =
+          "Unable to load opportunities.";
+      }
+
       if (elements.error) {
         elements.error.innerHTML = `
           <p>We couldn't load opportunities right now.</p>
-          <button type="button" id="retryOpportunities">
+
+          <button
+            type="button"
+            id="retryOpportunities"
+          >
             Try Again
           </button>
+
           ${
             DEBUG
               ? `<pre>${escapeHTML(error.message)}</pre>`
@@ -338,13 +500,10 @@
           }
         `;
 
-        const retryButton = $("#retryOpportunities", elements.error);
-
-        retryButton?.addEventListener(
-          "click",
-          loadOpportunities
-        );
+        $("#retryOpportunities", elements.error)
+          ?.addEventListener("click", loadOpportunities);
       }
+
     } finally {
       isLoading = false;
       showElement(elements.loading, false);
@@ -352,13 +511,18 @@
   }
 
   /* =========================================================
-     6. FILTERING AND SORTING
+     8. FILTERING
   ========================================================= */
 
   function applyFilters() {
     const searchTerm = normalize(
       elements.search?.value || ""
     );
+
+    // Keep dropdown and category buttons synchronised.
+    if (elements.categoryFilter) {
+      elements.categoryFilter.value = activeCategory;
+    }
 
     filteredOpportunities = allOpportunities.filter(item => {
       const matchesCategory =
@@ -385,60 +549,100 @@
     renderOpportunities();
   }
 
+  /* =========================================================
+     9. SORTING
+  ========================================================= */
+
+  function getDateTimestamp(value) {
+    if (!value) return null;
+
+    const timestamp = new Date(value).getTime();
+
+    return Number.isNaN(timestamp)
+      ? null
+      : timestamp;
+  }
+
   function sortOpportunities() {
     const sortValue = elements.sort?.value || "newest";
 
     filteredOpportunities.sort((a, b) => {
       if (sortValue === "deadline") {
-        const dateA = a.deadline
-          ? new Date(a.deadline).getTime()
-          : Infinity;
+        const dateA = getDateTimestamp(a.deadline);
+        const dateB = getDateTimestamp(b.deadline);
 
-        const dateB = b.deadline
-          ? new Date(b.deadline).getTime()
-          : Infinity;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const todayTime = today.getTime();
+
+        // Upcoming deadlines first, expired dates next,
+        // and missing dates last.
+        const getPriority = date => {
+          if (date === null) return 3;
+          if (date >= todayTime) return 1;
+          return 2;
+        };
+
+        const priorityDifference =
+          getPriority(dateA) - getPriority(dateB);
+
+        if (priorityDifference !== 0) {
+          return priorityDifference;
+        }
+
+        if (dateA === null) return 0;
+        if (dateB === null) return 0;
 
         return dateA - dateB;
       }
 
       if (sortValue === "title") {
-        return String(a.title).localeCompare(String(b.title));
+        return a.title.localeCompare(b.title);
       }
 
-      return (
-        new Date(b.created_at || 0).getTime() -
-        new Date(a.created_at || 0).getTime()
-      );
+      const createdA =
+        getDateTimestamp(a.created_at) || 0;
+
+      const createdB =
+        getDateTimestamp(b.created_at) || 0;
+
+      return createdB - createdA;
     });
   }
 
   /* =========================================================
-     7. OPPORTUNITY CARD
+     10. OPPORTUNITY CARD
   ========================================================= */
 
   function createOpportunityCard(item) {
     const id = getOpportunityId(item);
+
     const bookmarked = isBookmarked(id);
     const tracked = isTracked(id);
 
-    const image = item.image_url || FALLBACK_IMAGE;
+    const image =
+      item.image_url || FALLBACK_IMAGE;
 
-    const applicationURL = item.application_url || "";
-
-    const safeApplicationURL = /^https?:\/\//i.test(applicationURL)
-      ? applicationURL
-      : "";
+    const applicationURL =
+      item.application_url || "";
 
     const description = item.description.length > 180
-      ? `${item.description.slice(0, 180)}...`
+      ? `${item.description.slice(0, 180).trim()}...`
       : item.description;
 
     const verified = Boolean(item.verified_at);
 
+    const deadline = getDeadlineStatus(item.deadline);
+
     return `
-      <article class="opportunity-card" data-id="${escapeHTML(id)}">
+      <article
+        class="opportunity-card"
+        data-id="${escapeHTML(id)}"
+      >
 
         <div class="opportunity-image">
+
           <img
             src="${escapeHTML(image)}"
             alt="${escapeHTML(item.title)}"
@@ -460,33 +664,54 @@
           >
             ${bookmarked ? "♥" : "♡"}
           </button>
+
         </div>
 
         <div class="opportunity-content">
 
           <div class="opportunity-organisation">
-            ${escapeHTML(item.organization)}
-            ${verified ? '<span class="verified-label">✓ Verified</span>' : ""}
+            <span>
+              ${escapeHTML(item.organization)}
+            </span>
+
+            ${
+              verified
+                ? '<span class="verified-label">✓ Verified</span>'
+                : ""
+            }
           </div>
 
-          <h3>${escapeHTML(item.title)}</h3>
+          <h3 class="opportunity-title">
+            ${escapeHTML(item.title)}
+          </h3>
 
           <p class="opportunity-description">
             ${escapeHTML(description)}
           </p>
 
           <div class="opportunity-meta">
-            <span>📍 ${escapeHTML(item.location || "Location not specified")}</span>
-            <span>📅 Deadline: ${escapeHTML(formatDate(item.deadline))}</span>
+
+            <span class="opportunity-location">
+              <span aria-hidden="true">📍</span>
+              ${escapeHTML(item.location || "Location not specified")}
+            </span>
+
+            <span
+              class="opportunity-deadline deadline-${deadline.type}"
+            >
+              <span aria-hidden="true">📅</span>
+              ${escapeHTML(deadline.label)}
+            </span>
+
           </div>
 
           <div class="opportunity-actions">
 
             ${
-              safeApplicationURL
+              applicationURL
                 ? `
                   <a
-                    href="${escapeHTML(safeApplicationURL)}"
+                    href="${escapeHTML(applicationURL)}"
                     class="apply-btn"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -508,6 +733,7 @@
               class="track-btn ${tracked ? "active" : ""}"
               data-action="track"
               data-id="${escapeHTML(id)}"
+              aria-pressed="${tracked}"
             >
               ${tracked ? "✓ Tracking" : "Track Application"}
             </button>
@@ -515,37 +741,50 @@
           </div>
 
         </div>
+
       </article>
     `;
   }
 
   /* =========================================================
-     8. RENDER OPPORTUNITIES
+     11. RENDER OPPORTUNITIES
   ========================================================= */
 
   function renderOpportunities() {
     if (!elements.opportunities) {
       debugLog(
-        "Opportunity grid not found. Check your HTML element ID."
+        "Opportunity grid not found. Check the HTML element ID."
       );
+
       return;
     }
 
     const visibleItems = showAll
       ? filteredOpportunities
-      : filteredOpportunities.slice(0, DEFAULT_VISIBLE_COUNT);
+      : filteredOpportunities.slice(
+          0,
+          DEFAULT_VISIBLE_COUNT
+        );
 
     elements.opportunities.innerHTML = visibleItems
       .map(createOpportunityCard)
       .join("");
 
-    const hasResults = filteredOpportunities.length > 0;
+    const hasResults =
+      filteredOpportunities.length > 0;
 
     showElement(elements.empty, !hasResults);
 
     if (elements.empty && !hasResults) {
       elements.empty.textContent =
         "No opportunities found. Try another search or category.";
+    }
+
+    if (elements.resultsCount) {
+      const count = filteredOpportunities.length;
+
+      elements.resultsCount.textContent =
+        `${count} ${count === 1 ? "opportunity" : "opportunities"} found`;
     }
 
     if (elements.viewAll) {
@@ -564,38 +803,51 @@
   }
 
   /* =========================================================
-     9. CATEGORY BUTTONS
+     12. CATEGORY BUTTONS
   ========================================================= */
 
   function getCategoryButtons() {
+    const categoryContainer = getElement(
+      "categoryButtons"
+    );
+
+    if (!categoryContainer) {
+      return [];
+    }
+
     return $$(
-      "[data-category], .category, .category-button, .category-card"
-    ).filter(button => {
-      return (
-        button.tagName === "BUTTON" ||
-        button.tagName === "A" ||
-        button.hasAttribute("data-category")
-      );
-    });
+      "[data-category]",
+      categoryContainer
+    );
   }
 
   function syncCategoryButtons() {
     getCategoryButtons().forEach(button => {
       const category =
-        button.dataset.category ||
-        button.textContent.trim();
+        button.dataset.category || "";
 
       const active =
         normalize(category) === normalize(activeCategory);
 
       button.classList.toggle("active", active);
 
-      if (active) {
-        button.setAttribute("aria-pressed", "true");
-      } else {
-        button.setAttribute("aria-pressed", "false");
-      }
+      button.setAttribute(
+        "aria-pressed",
+        String(active)
+      );
     });
+  }
+
+  function selectCategory(category) {
+    activeCategory = category || "All";
+    showAll = false;
+
+    applyFilters();
+
+    debugLog(
+      "Category selected:",
+      activeCategory
+    );
   }
 
   function setupCategoryButtons() {
@@ -603,20 +855,15 @@
       button.addEventListener("click", event => {
         event.preventDefault();
 
-        activeCategory =
-          button.dataset.category ||
-          button.textContent.trim();
-
-        showAll = false;
-        applyFilters();
-
-        debugLog("Category selected:", activeCategory);
+        selectCategory(
+          button.dataset.category || "All"
+        );
       });
     });
   }
 
   /* =========================================================
-     10. BOOKMARKS
+     13. BOOKMARKS
   ========================================================= */
 
   function toggleBookmark(id) {
@@ -631,11 +878,12 @@
     }
 
     saveStorage(BOOKMARKS_KEY, bookmarks);
+
     renderOpportunities();
   }
 
   /* =========================================================
-     11. APPLICATION TRACKER
+     14. APPLICATION TRACKER
   ========================================================= */
 
   function toggleTracker(id) {
@@ -645,6 +893,7 @@
       tracker = tracker.filter(
         item => String(item.id) !== id
       );
+
     } else {
       const opportunity = allOpportunities.find(
         item => getOpportunityId(item) === id
@@ -664,25 +913,28 @@
     }
 
     saveStorage(TRACKER_KEY, tracker);
+
     renderOpportunities();
   }
 
   /* =========================================================
-     12. COUNTERS
+     15. COUNTERS
   ========================================================= */
 
   function updateCounters() {
     if (elements.bookmarks) {
-      elements.bookmarks.textContent = bookmarks.length;
+      elements.bookmarks.textContent =
+        bookmarks.length;
     }
 
     if (elements.tracker) {
-      elements.tracker.textContent = tracker.length;
+      elements.tracker.textContent =
+        tracker.length;
     }
   }
 
   /* =========================================================
-     13. CSV EXPORT
+     16. CSV EXPORT
   ========================================================= */
 
   function exportTrackerCSV() {
@@ -720,16 +972,21 @@
 
     const blob = new Blob(
       ["\uFEFF" + csv],
-      { type: "text/csv;charset=utf-8;" }
+      {
+        type: "text/csv;charset=utf-8;"
+      }
     );
 
     const url = URL.createObjectURL(blob);
+
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "naija-opportunity-hub-tracker.csv";
+    link.download =
+      "naija-opportunity-hub-tracker.csv";
 
     document.body.appendChild(link);
+
     link.click();
     link.remove();
 
@@ -737,7 +994,7 @@
   }
 
   /* =========================================================
-     14. CLEAR TRACKER
+     17. CLEAR TRACKER
   ========================================================= */
 
   function clearTracker() {
@@ -753,17 +1010,42 @@
     if (!confirmed) return;
 
     tracker = [];
+
     saveStorage(TRACKER_KEY, tracker);
 
     renderOpportunities();
   }
 
   /* =========================================================
-     15. EVENT LISTENERS
+     18. CLEAR FILTERS
+  ========================================================= */
+
+  function resetFilters() {
+    activeCategory = "All";
+    showAll = false;
+
+    if (elements.search) {
+      elements.search.value = "";
+    }
+
+    if (elements.categoryFilter) {
+      elements.categoryFilter.value = "All";
+    }
+
+    if (elements.sort) {
+      elements.sort.value = "newest";
+    }
+
+    applyFilters();
+  }
+
+  /* =========================================================
+     19. EVENT LISTENERS
   ========================================================= */
 
   function setupEventListeners() {
 
+    // Search
     elements.search?.addEventListener(
       "input",
       () => {
@@ -772,6 +1054,17 @@
       }
     );
 
+    // Category dropdown
+    elements.categoryFilter?.addEventListener(
+      "change",
+      () => {
+        selectCategory(
+          elements.categoryFilter.value || "All"
+        );
+      }
+    );
+
+    // Sorting
     elements.sort?.addEventListener(
       "change",
       () => {
@@ -779,6 +1072,13 @@
       }
     );
 
+    // Clear filters
+    elements.clearFilters?.addEventListener(
+      "click",
+      resetFilters
+    );
+
+    // View all / Show less
     elements.viewAll?.addEventListener(
       "click",
       () => {
@@ -787,10 +1087,13 @@
       }
     );
 
+    // Opportunity card actions
     elements.opportunities?.addEventListener(
       "click",
       event => {
-        const button = event.target.closest("[data-action]");
+        const button = event.target.closest(
+          "[data-action]"
+        );
 
         if (!button) return;
 
@@ -809,6 +1112,7 @@
       }
     );
 
+    // CSV export
     const exportButton = getElement(
       "exportTracker",
       "exportCSV",
@@ -820,6 +1124,7 @@
       exportTrackerCSV
     );
 
+    // Clear tracker
     const clearButton = getElement(
       "clearTracker",
       "clearTrackerBtn"
@@ -830,6 +1135,7 @@
       clearTracker
     );
 
+    // Refresh opportunities
     const refreshButton = getElement(
       "refreshOpportunities",
       "refreshBtn"
@@ -842,21 +1148,27 @@
   }
 
   /* =========================================================
-     16. INITIALISE APPLICATION
+     20. INITIALISE APPLICATION
   ========================================================= */
 
   function init() {
-    debugLog("Naija Opportunity Hub initialising...");
+    debugLog(
+      "Naija Opportunity Hub initialising..."
+    );
 
     setupCategoryButtons();
     setupEventListeners();
+
     updateCounters();
 
     loadOpportunities();
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener(
+      "DOMContentLoaded",
+      init
+    );
   } else {
     init();
   }
