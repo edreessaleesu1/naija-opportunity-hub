@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,6 +36,11 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    /* Makes the hidden attribute always win over display rules */
+    [hidden] {
+      display: none !important;
     }
 
     body {
@@ -202,6 +206,7 @@
       font-size: clamp(1.7rem, 4vw, 2.45rem);
       line-height: 1.2;
       letter-spacing: -.8px;
+      overflow-wrap: anywhere;
     }
 
     .organisation {
@@ -376,6 +381,7 @@
       color: var(--muted);
       border-bottom: 1px solid var(--border);
       font-size: .85rem;
+      overflow-wrap: anywhere;
     }
 
     .quick-info p:last-child {
@@ -417,6 +423,12 @@
 
     .status-panel.error h2 {
       color: var(--danger);
+    }
+
+    .status-panel .apply-button {
+      display: inline-flex;
+      width: auto;
+      margin-top: 18px;
     }
 
     .spinner {
@@ -582,7 +594,6 @@
       <p id="errorMessage">
         We could not retrieve this opportunity.
       </p>
-      <br>
       <a href="index.html#opportunities" class="apply-button">
         Return to Opportunities
       </a>
@@ -778,9 +789,7 @@
 
     /* ------------------------------------------------------
        SUPABASE CONFIGURATION
-
-       Use the SAME project URL and publishable key
-       already used in your existing app.js.
+       Same project URL and publishable key as app.js.
     ------------------------------------------------------ */
 
     const SUPABASE_URL =
@@ -789,8 +798,10 @@
     const SUPABASE_PUBLISHABLE_KEY =
       "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
 
+    const TABLE_NAME = "opportunities";
 
- /* ------------------------------------------------------
+
+    /* ------------------------------------------------------
        ELEMENT HELPERS
     ------------------------------------------------------ */
 
@@ -801,7 +812,8 @@
     const detailsContent = $("detailsContent");
 
     const setText = (id, value) => {
-      $(id).textContent = value || "";
+      const element = $(id);
+      if (element) element.textContent = value || "";
     };
 
     const formatDate = (value) => {
@@ -875,16 +887,17 @@
         return;
       }
 
-if (
-  !SUPABASE_PUBLISHABLE_KEY ||
-  !SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_")
-) {
-  showError(
-    "The Supabase publishable key is missing or invalid.",
-    "Configuration required"
-  );
-  return;
-}
+      if (
+        !SUPABASE_PUBLISHABLE_KEY ||
+        !SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_")
+      ) {
+        showError(
+          "The Supabase publishable key is missing or invalid.",
+          "Configuration required"
+        );
+        return;
+      }
+
       try {
 
         const query = new URLSearchParams({
@@ -894,10 +907,26 @@ if (
           limit: "1"
         });
 
-showError(
-  error.message || "Unknown error",
-  "Unable to load opportunity"
-);       const opportunities = await response.json();
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?${query}`,
+          {
+            method: "GET",
+            headers: {
+              apikey: SUPABASE_PUBLISHABLE_KEY,
+              Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+              Accept: "application/json"
+            }
+          }
+        );
+
+        const opportunities = await response.json().catch(() => null);
+
+        if (!response.ok) {
+          throw new Error(
+            opportunities?.message ||
+            `Supabase request failed: ${response.status}`
+          );
+        }
 
         if (!Array.isArray(opportunities) || opportunities.length === 0) {
           showError(
@@ -911,14 +940,14 @@ showError(
 
       } catch (error) {
 
-  console.error("Opportunity loading error:", error);
+        console.error("Opportunity loading error:", error);
 
-  showError(
-    error.message || "Unknown error. Check the browser console.",
-    "Unable to load opportunity"
-  );
+        showError(
+          error.message || "Unknown error. Check the browser console.",
+          "Unable to load opportunity"
+        );
 
-}
+      }
     }
 
 
@@ -967,6 +996,7 @@ showError(
       const image = $("opportunityImage");
 
       if (imageURL) {
+        image.alt = data.title || "Opportunity image";
         image.onload = () => image.classList.add("loaded");
         image.onerror = () => image.classList.remove("loaded");
         image.src = imageURL;
@@ -1034,27 +1064,27 @@ showError(
       }
 
 
-      /* Official application URL */
+      /* Official application URL (falls back to the source URL) */
 
-      const applicationURL = safeURL(data.application_url);
+      const applicationURL =
+        safeURL(data.application_url) || safeURL(data.source_url);
       const applyButton = $("applyButton");
 
       if (applicationURL) {
         applyButton.href = applicationURL;
-        applyButton.hidden = false;
       } else {
-        applyButton.href = "#";
+        applyButton.removeAttribute("href");
         applyButton.classList.add("disabled");
         applyButton.textContent = "Application Link Unavailable";
         applyButton.setAttribute("aria-disabled", "true");
       }
 
 
-      /* Original source URL */
+      /* Original source URL (only when different from the apply link) */
 
       const sourceURL = safeURL(data.source_url);
 
-      if (sourceURL) {
+      if (sourceURL && sourceURL !== applicationURL) {
         $("sourceLink").href = sourceURL;
         $("sourceLink").hidden = false;
       }
@@ -1124,4 +1154,3 @@ showError(
 
 </body>
 </html>
-
