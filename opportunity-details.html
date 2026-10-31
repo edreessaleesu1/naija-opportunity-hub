@@ -894,16 +894,10 @@ if (
           limit: "1"
         });
 
-        if (!response.ok) {
-  const details = await response.text();
-
-  console.error("Supabase response:", response.status, details);
-
-  throw new Error(
-    `Supabase error ${response.status}: ${details}`
-  );
-}
-        const opportunities = await response.json();
+showError(
+  error.message || "Unknown error",
+  "Unable to load opportunity"
+);       const opportunities = await response.json();
 
         if (!Array.isArray(opportunities) || opportunities.length === 0) {
           showError(
