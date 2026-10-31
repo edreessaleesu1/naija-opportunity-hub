@@ -2,17 +2,17 @@
 /*
  * NAIJA OPPORTUNITY HUB
  * Main Front-End Application
- * Version 3.0
+ * Version 3.1
  *
- * Opportunity card layout:
- * Image → Title → Access Opportunity
+ * Opportunity card:
+ * Clickable image → Clickable title → Details page
  *
- * Preserved features:
- * - Supabase loading
+ * Features:
+ * - Supabase opportunity loading
  * - Search and category filtering
  * - Sorting
- * - Bookmarks
- * - Application tracker
+ * - Bookmarks storage
+ * - Application tracker storage
  * - CSV export
  * - View All / Show Less
  * - Loading, empty and error states
@@ -143,7 +143,7 @@
   function readStorage(key, fallback) {
     try {
       const value = JSON.parse(localStorage.getItem(key));
-      return value ?? fallback;
+      return Array.isArray(value) ? value : fallback;
     } catch (error) {
       console.warn("Storage could not be read:", key, error);
       return fallback;
@@ -184,15 +184,11 @@
   }
 
   function isBookmarked(id) {
-    return bookmarks.some(
-      item => String(item) === String(id)
-    );
+    return bookmarks.some(item => String(item) === String(id));
   }
 
   function isTracked(id) {
-    return tracker.some(
-      item => String(item.id) === String(id)
-    );
+    return tracker.some(item => String(item.id) === String(id));
   }
 
   function showElement(element, visible) {
@@ -227,7 +223,7 @@
       return "Not specified";
     }
 
-    return date.toLocaleDateString("en-NG", {
+    return date.toLocaleDateString("en-GB", {
       day: "numeric",
       month: "short",
       year: "numeric"
@@ -568,7 +564,8 @@
   }
 
   /* =========================================================
-     10. OPPORTUNITY CARD — NEW SIMPLE DESIGN
+     10. OPPORTUNITY CARD
+     Image and title both open the details page.
   ========================================================= */
 
   function createOpportunityCard(item) {
@@ -579,47 +576,48 @@
     const detailsURL =
       `${DETAILS_PAGE}?id=${encodeURIComponent(id)}`;
 
+    const title = escapeHTML(item.title);
+    const category = escapeHTML(item.category);
+
     return `
       <article
         class="opportunity-card"
         data-id="${escapeHTML(id)}"
       >
 
-        <a
-          class="opportunity-card-link"
-          href="${escapeHTML(detailsURL)}"
-          aria-label="Read details for ${escapeHTML(item.title)}"
-        >
+        <div class="opportunity-image">
 
-          <div class="opportunity-image">
-
+          <a
+            class="opportunity-image-link"
+            href="${escapeHTML(detailsURL)}"
+            aria-label="View ${title}"
+          >
             <img
               src="${escapeHTML(image)}"
-              alt="${escapeHTML(item.title)}"
+              alt="${title}"
               loading="lazy"
               onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
             >
+          </a>
 
-            <span class="opportunity-category">
-              ${escapeHTML(item.category)}
-            </span>
+          <span class="opportunity-category">
+            ${category}
+          </span>
 
-          </div>
+        </div>
 
-          <div class="opportunity-content">
+        <div class="opportunity-content">
 
-            <h3 class="opportunity-title">
-              ${escapeHTML(item.title)}
-            </h3>
+          <h3 class="opportunity-title">
+            <a
+              class="opportunity-title-link"
+              href="${escapeHTML(detailsURL)}"
+            >
+              ${title}
+            </a>
+          </h3>
 
-            <span class="opportunity-access-label">
-              Access Opportunity
-              <span aria-hidden="true">→</span>
-            </span>
-
-          </div>
-
-        </a>
+        </div>
 
       </article>
     `;
@@ -852,11 +850,11 @@
 
   function clearTracker() {
     if (!tracker.length) {
-      alert("Your tracker is already empty.");
+      alert("Your application tracker is already empty.");
       return;
     }
 
-    const confirmed = confirm(
+    const confirmed = window.confirm(
       "Are you sure you want to clear your application tracker?"
     );
 
