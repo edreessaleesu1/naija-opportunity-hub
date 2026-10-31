@@ -911,14 +911,14 @@ showError(
 
       } catch (error) {
 
-        console.error("Opportunity loading error:", error);
+  console.error("Opportunity loading error:", error);
 
-        showError(
-          "We could not load this opportunity. Please check your internet connection and try again.",
-          "Unable to load opportunity"
-        );
+  showError(
+    error.message || "Unknown error. Check the browser console.",
+    "Unable to load opportunity"
+  );
 
-      }
+}
     }
 
 
