@@ -875,17 +875,16 @@
         return;
       }
 
-      if (
-        SUPABASE_PUBLISHABLE_KEY ===
-        "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq"
-      ) {
-        showError(
-          "The Supabase publishable key has not been configured yet.",
-          "Configuration required"
-        );
-        return;
-      }
-
+if (
+  !SUPABASE_PUBLISHABLE_KEY ||
+  !SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_")
+) {
+  showError(
+    "The Supabase publishable key is missing or invalid.",
+    "Configuration required"
+  );
+  return;
+}
       try {
 
         const query = new URLSearchParams({
