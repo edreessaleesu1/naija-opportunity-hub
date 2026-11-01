@@ -204,51 +204,52 @@
   --------------------------------------------------------- */
 
   function updateHomepageNavigation(user) {
-    const signInLink = $("signInLink");
-    const createAccountLink = $("createAccountLink");
-    const accountMenu = $("accountMenu");
-    const myAccountLink = $("myAccountLink");
+  const signInLink = $("signInLink");
+  const createAccountLink = $("createAccountLink");
+  const accountMenu = $("accountMenu");
+  const myAccountLink = $("myAccountLink");
+  const navLogoutButton = $("navLogoutButton");
 
-    const navLogoutButton = $("navLogoutButton");
+  const signedIn = Boolean(user);
 
-    const signedIn = Boolean(user);
-
-    if (signInLink) {
-      signInLink.hidden = signedIn;
-    }
-
-    if (createAccountLink) {
-      createAccountLink.hidden = signedIn;
-    }
-
-    if (accountMenu) {
-      accountMenu.hidden = !signedIn;
-    }
-
-    if (myAccountLink && user) {
-      myAccountLink.textContent = user.email || "My account";
-      myAccountLink.href = "./auth.html";
-    }
-
-    if (navLogoutButton && !navLogoutButton.dataset.authBound) {
-      navLogoutButton.dataset.authBound = "true";
-
-      navLogoutButton.addEventListener("click", async () => {
-        navLogoutButton.disabled = true;
-
-        const { error } = await supabase.auth.signOut();
-
-        navLogoutButton.disabled = false;
-
-        if (error) {
-          console.error("NOH sign-out error:", error.message);
-          alert("We could not sign you out. Please try again.");
-        } else {
-          window.location.href = "./index.html";
-        }
-      });
-    }
+  if (signInLink) {
+    signInLink.hidden = signedIn;
   }
+
+  if (createAccountLink) {
+    createAccountLink.hidden = signedIn;
+  }
+
+  if (accountMenu) {
+    accountMenu.hidden = !signedIn;
+  }
+
+  // Never display the user's email in the homepage navigation.
+  if (myAccountLink) {
+    myAccountLink.textContent = signedIn ? "Signed in" : "My Account";
+    myAccountLink.href = "./auth.html";
+  }
+
+  if (navLogoutButton && !navLogoutButton.dataset.authBound) {
+    navLogoutButton.dataset.authBound = "true";
+
+    navLogoutButton.addEventListener("click", async () => {
+      navLogoutButton.disabled = true;
+
+      const { error } = await supabase.auth.signOut();
+
+      navLogoutButton.disabled = false;
+
+      if (error) {
+        console.error("NOH sign-out error:", error.message);
+        alert("We could not sign you out. Please try again.");
+      } else {
+        window.location.href = "./index.html";
+      }
+    });
+  }
+}
+
 
   /* ---------------------------------------------------------
      Signup
