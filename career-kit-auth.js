@@ -35,19 +35,18 @@
   window.NOH_CAREER_SUPABASE = careerSupabase;
 
   function displaySession(session) {
-    if (session?.user) {
-      status.textContent = "Signed in";
-      indicator.classList.add("is-active");
-      indicator.classList.remove("is-inactive");
-      signOutButton.hidden = false;
-    } else {
-      status.textContent = "Not signed in";
-      indicator.classList.remove("is-active");
-      indicator.classList.add("is-inactive");
-      signOutButton.hidden = true;
-    }
+  if (session?.user) {
+    status.textContent = "Signed in";
+    indicator.classList.add("is-active");
+    indicator.classList.remove("is-inactive");
+    signOutButton.hidden = false;
+  } else {
+    status.textContent = "Not signed in";
+    indicator.classList.remove("is-active");
+    indicator.classList.add("is-inactive");
+    signOutButton.hidden = true;
   }
-
+}
   async function checkSession() {
     status.textContent = "Checking session...";
 
