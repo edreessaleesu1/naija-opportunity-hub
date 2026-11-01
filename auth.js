@@ -1,360 +1,631 @@
+
+/*
+ * Naija Opportunity Hub
+ * Main account authentication
+ * Version 2.0
+ *
+ * Shared by:
+ * - Homepage navigation
+ * - auth.html
+ *
+ * Career Kit authentication should use a separate Supabase
+ * storage key/client after its current code has been reviewed.
+ */
+
 (() => {
   "use strict";
 
-  const SUPABASE_URL = "https://djxornmwvkauhkcuhgxc.supabase.co";
+  if (window.NOH_AUTH_INITIALISED) return;
+  window.NOH_AUTH_INITIALISED = true;
+
+  const SUPABASE_URL =
+    "https://djxornmwvkauhkcuhgxc.supabase.co";
+
   const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
 
   const $ = (id) => document.getElementById(id);
 
-  function initAuth() {
-    const signupForm = $("signupForm");
-    const loginForm = $("loginForm");
-    const resetForm = $("resetForm");
-    const loggedInPanel = $("loggedInPanel");
-    const authMessage = $("authMessage");
+  const supabaseLibrary = window.supabase;
 
-    // Do nothing if the account forms are not on this page.
-    if (!signupForm || !loginForm || !loggedInPanel) return;
-
-    if (!window.supabase?.createClient) {
-      if (authMessage) {
-        authMessage.textContent =
-          "Account services could not load. Please refresh the page.";
-        authMessage.classList.add("error");
-      }
-      return;
-    }
-
-    // Read the URL hash BEFORE creating the client, because the client
-    // consumes and clears it when it processes email links.
-    const hashParams = new URLSearchParams(
-      window.location.hash.replace(/^#/, "")
+  if (!supabaseLibrary || !supabaseLibrary.createClient) {
+    console.error(
+      "NOH Auth: Supabase library was not loaded. Check the Supabase CDN script."
     );
-    const linkError = hashParams.get("error_description");
-    let recoveryMode = hashParams.get("type") === "recovery";
+    return;
+  }
 
-    const supabase = window.supabase.createClient(
+  /*
+   * Use one shared client on the main NOH website.
+   * The default Supabase storage key is shared by pages
+   * using this same project and client configuration.
+   */
+  const supabase = window.NOH_SUPABASE_CLIENT ||
+    supabaseLibrary.createClient(
       SUPABASE_URL,
       SUPABASE_PUBLISHABLE_KEY
     );
 
-    // ---------- UI helpers ----------
+  window.NOH_SUPABASE_CLIENT = supabase;
 
-    function message(text, isError = false) {
-      if (!authMessage) return;
-      authMessage.textContent = text;
-      authMessage.classList.toggle("error", isError && Boolean(text));
-      authMessage.classList.toggle("success", !isError && Boolean(text));
+  const signupForm = $("signupForm");
+  const loginForm = $("loginForm");
+  const resetForm = $("resetForm");
+  const loggedInPanel = $("loggedInPanel");
+
+  const authMessage = $("authMessage");
+  const authHeading = $("authHeading");
+  const authSubheading = $("authSubheading");
+
+  const signupButton = $("signupButton");
+  const loginButton = $("loginButton");
+  const resetButton = $("resetButton");
+
+  const accountEmail = $("accountEmail");
+
+  const authPageExists = Boolean(
+    signupForm && loginForm && resetForm && loggedInPanel
+  );
+
+  let currentMode = "signup";
+  let recoveryMode = false;
+
+  /* ---------------------------------------------------------
+     Helpers
+  --------------------------------------------------------- */
+
+  function setVisible(element, visible) {
+    if (!element) return;
+    element.hidden = !visible;
+  }
+
+  function showMessage(message, type = "error") {
+    if (!authMessage) return;
+
+    authMessage.textContent = message;
+    authMessage.className = `auth-message show ${type}`;
+  }
+
+  function clearMessage() {
+    if (!authMessage) return;
+
+    authMessage.textContent = "";
+    authMessage.className = "auth-message";
+  }
+
+  function setLoading(button, loading, loadingText, normalText) {
+    if (!button) return;
+
+    button.disabled = loading;
+    button.textContent = loading ? loadingText : normalText;
+  }
+
+  function getAuthPageURL() {
+    return `${window.location.origin}/auth.html`;
+  }
+
+  function setAuthMode(mode) {
+    if (!authPageExists) return;
+
+    currentMode = mode;
+    recoveryMode = false;
+    clearMessage();
+
+    setVisible(signupForm, mode === "signup");
+    setVisible(loginForm, mode === "login");
+    setVisible(resetForm, false);
+    setVisible(loggedInPanel, false);
+
+    if (authHeading) {
+      authHeading.textContent =
+        mode === "login" ? "Welcome back" : "Create your account";
     }
 
-    // Sets both the hidden attribute and inline display so site CSS
-    // can never keep a "hidden" panel visible.
-    function setVisible(element, visible) {
-      if (!element) return;
-      element.hidden = !visible;
-      element.style.display = visible ? "" : "none";
+    if (authSubheading) {
+      authSubheading.textContent =
+        mode === "login"
+          ? "Sign in to continue managing your opportunities."
+          : "Join NOH and keep track of opportunities that matter to you.";
     }
 
-    function showOnly(panel) {
-      setVisible(signupForm, panel === signupForm);
-      setVisible(loginForm, panel === loginForm);
-      setVisible(resetForm, panel === resetForm);
-      setVisible(loggedInPanel, panel === loggedInPanel);
-    }
+    document.querySelectorAll("[data-auth-action]").forEach((button) => {
+      const active =
+        (mode === "signup" &&
+          button.dataset.authAction === "show-signup") ||
+        (mode === "login" &&
+          button.dataset.authAction === "show-login");
 
-    function showForm(form) {
-      showOnly(form);
-      message("");
-
-      const navLink = $("accountNavLink");
-      if (navLink) navLink.textContent = "Account";
-    }
-
-    function showUser(user, text = "You are signed in.") {
-      showOnly(loggedInPanel);
-
-      const email = $("accountEmail");
-      if (email) email.textContent = user.email || "Signed-in user";
-
-      const navLink = $("accountNavLink");
-      if (navLink) navLink.textContent = "My Account";
-
-      message(text);
-    }
-
-    function showReset() {
-      showOnly(resetForm);
-      message("Choose a new password for your account.");
-    }
-
-    // Disables a button while an async action runs, then restores it.
-    async function withButton(button, busyLabel, idleLabel, action) {
-      if (button) {
-        button.disabled = true;
-        button.textContent = busyLabel;
+      if (button.closest(".auth-tabs")) {
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", String(active));
       }
-      try {
-        await action();
-      } finally {
-        if (button) {
-          button.disabled = false;
-          button.textContent = idleLabel;
-        }
-      }
-    }
-
-    // ---------- Switch between registration and login ----------
-
-    $("showLogin")?.addEventListener("click", () => showForm(loginForm));
-    $("showSignup")?.addEventListener("click", () => showForm(signupForm));
-
-    // ---------- Register ----------
-
-    signupForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      message("");
-
-      const email = $("signupEmail").value.trim();
-      const password = $("signupPassword").value;
-      const confirmation = $("confirmPassword").value;
-
-      if (password.length < 8) {
-        message("Use a password containing at least 8 characters.", true);
-        return;
-      }
-
-      if (password !== confirmation) {
-        message("Your passwords do not match.", true);
-        return;
-      }
-
-      await withButton(
-        $("signupButton"),
-        "Creating account...",
-        "Create Free Account",
-        async () => {
-          try {
-            const { data, error } = await supabase.auth.signUp({
-              email,
-              password,
-              options: {
-                emailRedirectTo: window.location.origin + "/account.html"
-              }
-            });
-
-            if (error) throw error;
-
-            signupForm.reset();
-
-            // Supabase returns an empty identities list when the email
-            // is already registered (and confirmation is required).
-            if (
-              data.user &&
-              Array.isArray(data.user.identities) &&
-              data.user.identities.length === 0
-            ) {
-              showForm(loginForm);
-              $("loginEmail").value = email;
-              message(
-                "An account with this email already exists. Please log in.",
-                true
-              );
-              return;
-            }
-
-            if (data.session && data.user) {
-              showUser(data.user, "Your account has been created.");
-            } else {
-              showForm(loginForm);
-              message(
-                "Registration received. Check your email and confirm your account before logging in."
-              );
-            }
-          } catch (error) {
-            message(
-              error.message || "Registration failed. Please try again.",
-              true
-            );
-          }
-        }
-      );
     });
+  }
 
-    // ---------- Log in ----------
+  function showPasswordReset() {
+    if (!authPageExists) return;
 
-    loginForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      message("");
+    recoveryMode = true;
+    clearMessage();
 
-      const email = $("loginEmail").value.trim();
-      const password = $("loginPassword").value;
+    setVisible(signupForm, false);
+    setVisible(loginForm, false);
+    setVisible(resetForm, true);
+    setVisible(loggedInPanel, false);
 
-      await withButton($("loginButton"), "Logging in...", "Log In", async () => {
-        try {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-          });
+    if (authHeading) {
+      authHeading.textContent = "Reset your password";
+    }
 
-          if (error) throw error;
+    if (authSubheading) {
+      authSubheading.textContent =
+        "Choose a new password for your NOH account.";
+    }
+  }
 
-          loginForm.reset();
-          showUser(data.user, "Login successful. Welcome back!");
-        } catch (error) {
-          message(
-            error.message || "Login failed. Check your email and password.",
-            true
-          );
+  function showLoggedInUser(user) {
+    const email = user?.email || "Signed-in user";
+
+    if (accountEmail) {
+      accountEmail.textContent = email;
+    }
+
+    if (authPageExists) {
+      clearMessage();
+      setVisible(signupForm, false);
+      setVisible(loginForm, false);
+      setVisible(resetForm, false);
+      setVisible(loggedInPanel, true);
+
+      if (authHeading) {
+        authHeading.textContent = "Your NOH account";
+      }
+
+      if (authSubheading) {
+        authSubheading.textContent =
+          "You are signed in and ready to continue.";
+      }
+    }
+  }
+
+  function showSignedOutState() {
+    if (authPageExists) {
+      const params = new URLSearchParams(window.location.search);
+      const requestedMode = params.get("mode");
+
+      setAuthMode(
+        requestedMode === "login" ? "login" : "signup"
+      );
+    }
+  }
+
+  /* ---------------------------------------------------------
+     Homepage navigation
+  --------------------------------------------------------- */
+
+  function updateHomepageNavigation(user) {
+    const signInLink = $("signInLink");
+    const createAccountLink = $("createAccountLink");
+    const accountMenu = $("accountMenu");
+    const myAccountLink = $("myAccountLink");
+
+    const navLogoutButton = $("navLogoutButton");
+
+    const signedIn = Boolean(user);
+
+    if (signInLink) {
+      signInLink.hidden = signedIn;
+    }
+
+    if (createAccountLink) {
+      createAccountLink.hidden = signedIn;
+    }
+
+    if (accountMenu) {
+      accountMenu.hidden = !signedIn;
+    }
+
+    if (myAccountLink && user) {
+      myAccountLink.textContent = user.email || "My account";
+      myAccountLink.href = "./auth.html";
+    }
+
+    if (navLogoutButton && !navLogoutButton.dataset.authBound) {
+      navLogoutButton.dataset.authBound = "true";
+
+      navLogoutButton.addEventListener("click", async () => {
+        navLogoutButton.disabled = true;
+
+        const { error } = await supabase.auth.signOut();
+
+        navLogoutButton.disabled = false;
+
+        if (error) {
+          console.error("NOH sign-out error:", error.message);
+          alert("We could not sign you out. Please try again.");
+        } else {
+          window.location.href = "./index.html";
         }
       });
-    });
+    }
+  }
 
-    // ---------- Forgot password (request the email) ----------
+  /* ---------------------------------------------------------
+     Signup
+  --------------------------------------------------------- */
 
-    $("forgotPassword")?.addEventListener("click", async () => {
-      const email = $("loginEmail").value.trim();
+  if (signupForm) {
+    signupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearMessage();
 
-      if (!email) {
-        message("Enter your email address first.", true);
-        $("loginEmail").focus();
+      const email = $("signupEmail")?.value.trim();
+      const password = $("signupPassword")?.value;
+      const confirmPassword = $("confirmPassword")?.value;
+
+      if (!email || !password || !confirmPassword) {
+        showMessage("Please complete all the required fields.");
         return;
       }
 
+      if (password.length < 8) {
+        showMessage("Your password must contain at least 8 characters.");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showMessage("Your passwords do not match.");
+        return;
+      }
+
+      setLoading(
+        signupButton,
+        true,
+        "Creating account...",
+        "Create account"
+      );
+
       try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + "/account.html"
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: getAuthPageURL()
+          }
         });
 
         if (error) throw error;
 
-        message(
-          "If an account exists for this email, a password-reset email will be sent."
-        );
+        if (data.session && data.user) {
+          showLoggedInUser(data.user);
+          updateHomepageNavigation(data.user);
+          showMessage("Your account has been created successfully.", "success");
+        } else {
+          showMessage(
+            "Your account has been created. Please check your email and follow the confirmation link before signing in.",
+            "success"
+          );
+
+          signupForm.reset();
+        }
       } catch (error) {
-        message(error.message || "Could not request a password reset.", true);
+        console.error("NOH signup error:", error);
+
+        const message = /already registered|already exists/i.test(
+          error.message || ""
+        )
+          ? "An account with this email may already exist. Please sign in instead."
+          : error.message || "We could not create your account. Please try again.";
+
+        showMessage(message);
+      } finally {
+        setLoading(
+          signupButton,
+          false,
+          "Creating account...",
+          "Create account"
+        );
       }
     });
+  }
 
-    // ---------- Set a new password (after clicking the reset email) ----------
+  /* ---------------------------------------------------------
+     Login
+  --------------------------------------------------------- */
 
-    resetForm?.addEventListener("submit", async (event) => {
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      message("");
+      clearMessage();
 
-      const password = $("newPassword").value;
-      const confirmation = $("confirmNewPassword").value;
+      const email = $("loginEmail")?.value.trim();
+      const password = $("loginPassword")?.value;
 
-      if (password.length < 8) {
-        message("Use a password containing at least 8 characters.", true);
+      if (!email || !password) {
+        showMessage("Enter your email address and password.");
         return;
       }
 
-      if (password !== confirmation) {
-        message("Your passwords do not match.", true);
-        return;
-      }
+      setLoading(
+        loginButton,
+        true,
+        "Signing in...",
+        "Sign in"
+      );
 
-      await withButton(
-        $("resetButton"),
-        "Saving...",
-        "Save New Password",
-        async () => {
-          try {
-            const { data, error } = await supabase.auth.updateUser({ password });
-            if (error) throw error;
+      try {
+        const { data, error } =
+          await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
 
-            resetForm.reset();
-            recoveryMode = false;
+        if (error) throw error;
 
-            // Remove leftover tokens from the address bar.
-            window.history.replaceState(
-              null,
-              "",
-              window.location.pathname + window.location.search
-            );
+        if (data.user) {
+          showLoggedInUser(data.user);
+          updateHomepageNavigation(data.user);
+          showMessage("You have signed in successfully.", "success");
 
-            showUser(data.user, "Your password has been updated.");
-          } catch (error) {
-            message(
-              error.message || "Could not update your password. Try again.",
-              true
-            );
+          const redirectTo = new URLSearchParams(
+            window.location.search
+          ).get("redirect");
+
+          if (redirectTo && redirectTo.startsWith("/")) {
+            window.location.href = redirectTo;
           }
         }
-      );
+      } catch (error) {
+        console.error("NOH login error:", error);
+
+        showMessage(
+          error.message || "Sign-in failed. Check your details and try again."
+        );
+      } finally {
+        setLoading(
+          loginButton,
+          false,
+          "Signing in...",
+          "Sign in"
+        );
+      }
     });
+  }
 
-    // ---------- Log out ----------
+  /* ---------------------------------------------------------
+     Forgot password
+  --------------------------------------------------------- */
 
-    $("logoutButton")?.addEventListener("click", async (event) => {
-      const button = event.currentTarget;
-      button.disabled = true;
+  const forgotPasswordButton = $("forgotPassword");
+
+  if (forgotPasswordButton) {
+    forgotPasswordButton.addEventListener("click", async () => {
+      clearMessage();
+
+      const email = $("loginEmail")?.value.trim();
+
+      if (!email) {
+        showMessage("Enter your email address first.");
+        $("loginEmail")?.focus();
+        return;
+      }
+
+      forgotPasswordButton.disabled = true;
+
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(
+          email,
+          {
+            redirectTo: getAuthPageURL()
+          }
+        );
+
+        if (error) throw error;
+
+        showMessage(
+          "If an account exists for that email, a password-reset link will be sent. Please check your inbox.",
+          "success"
+        );
+      } catch (error) {
+        console.error("NOH password reset request error:", error);
+        showMessage(
+          error.message || "We could not send the reset email. Please try again."
+        );
+      } finally {
+        forgotPasswordButton.disabled = false;
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------
+     Set a new password
+  --------------------------------------------------------- */
+
+  if (resetForm) {
+    resetForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearMessage();
+
+      const password = $("newPassword")?.value;
+      const confirmPassword = $("confirmNewPassword")?.value;
+
+      if (!password || !confirmPassword) {
+        showMessage("Please complete both password fields.");
+        return;
+      }
+
+      if (password.length < 8) {
+        showMessage("Your new password must contain at least 8 characters.");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showMessage("Your new passwords do not match.");
+        return;
+      }
+
+      setLoading(
+        resetButton,
+        true,
+        "Updating password...",
+        "Update password"
+      );
+
+      try {
+        const { error } = await supabase.auth.updateUser({
+          password
+        });
+
+        if (error) throw error;
+
+        resetForm.reset();
+        recoveryMode = false;
+
+        showMessage(
+          "Your password has been updated successfully. You can now continue to NOH.",
+          "success"
+        );
+
+        const { data } = await supabase.auth.getUser();
+
+        if (data.user) {
+          showLoggedInUser(data.user);
+        }
+      } catch (error) {
+        console.error("NOH password update error:", error);
+        showMessage(
+          error.message || "We could not update your password. Please try again."
+        );
+      } finally {
+        setLoading(
+          resetButton,
+          false,
+          "Updating password...",
+          "Update password"
+        );
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------
+     Sign out from the authentication page
+  --------------------------------------------------------- */
+
+  const logoutButton = $("logoutButton");
+
+  if (logoutButton) {
+    logoutButton.addEventListener("click", async () => {
+      logoutButton.disabled = true;
 
       try {
         const { error } = await supabase.auth.signOut();
+
         if (error) throw error;
 
-        showForm(loginForm);
-        message("You have logged out.");
+        window.location.href = "./index.html";
       } catch (error) {
-        message("Logout failed. Please try again.", true);
-      } finally {
-        button.disabled = false;
+        console.error("NOH sign-out error:", error);
+        showMessage("We could not sign you out. Please try again.");
+        logoutButton.disabled = false;
       }
     });
+  }
 
-    // ---------- Session handling ----------
+  /* ---------------------------------------------------------
+     Switch between sign-in and signup
+  --------------------------------------------------------- */
 
-    // Keeps the page in sync (e.g. sign-in/out in another tab) without
-    // overwriting messages already on screen. Never calls supabase here.
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY") {
-        recoveryMode = true;
-        showReset();
-      } else if (event === "SIGNED_OUT") {
-        recoveryMode = false;
-        if (!loggedInPanel.hidden) showForm(loginForm);
-      } else if (session?.user && !recoveryMode && loggedInPanel.hidden) {
-        showUser(session.user, "");
+  document.addEventListener("click", (event) => {
+    const actionButton = event.target.closest("[data-auth-action]");
+
+    if (!actionButton) return;
+
+    const action = actionButton.dataset.authAction;
+
+    if (action === "show-login") {
+      setAuthMode("login");
+    }
+
+    if (action === "show-signup") {
+      setAuthMode("signup");
+    }
+  });
+
+  /* ---------------------------------------------------------
+     Restore and monitor the main NOH session
+  --------------------------------------------------------- */
+
+  supabase.auth.onAuthStateChange((event, session) => {
+    const user = session?.user || null;
+
+    updateHomepageNavigation(user);
+
+    if (!authPageExists) return;
+
+    if (event === "PASSWORD_RECOVERY") {
+      showPasswordReset();
+      return;
+    }
+
+    if (user) {
+      if (!recoveryMode) {
+        showLoggedInUser(user);
       }
-    });
+    } else if (event === "SIGNED_OUT") {
+      showSignedOutState();
+    }
+  });
 
-    // Restore the existing session when the page loads.
-    supabase.auth
-      .getSession()
-      .then(({ data, error }) => {
-        if (error) {
-          showForm(loginForm);
-          message(
-            "Unable to check your session. Refresh the page to retry.",
-            true
-          );
-        } else if (recoveryMode && data.session?.user) {
-          showReset();
-        } else if (data.session?.user) {
-          showUser(data.session.user);
-        } else if (linkError) {
-          // Expired or already-used email link.
-          showForm(loginForm);
-          message(linkError, true);
-        } else {
-          showForm(signupForm);
-        }
-      })
-      .catch(() => {
-        showForm(loginForm);
-        message(
-          "Unable to check your session. Refresh the page to retry.",
-          true
+  async function initialiseAuth() {
+    updateHomepageNavigation(null);
+
+    try {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) throw error;
+
+      const user = data.session?.user || null;
+
+      updateHomepageNavigation(user);
+
+      if (!authPageExists) return;
+
+      const hashParams = new URLSearchParams(
+        window.location.hash.replace(/^#/, "")
+      );
+
+      const isRecoveryLink =
+        hashParams.get("type") === "recovery";
+
+      if (isRecoveryLink) {
+        showPasswordReset();
+        return;
+      }
+
+      if (user) {
+        showLoggedInUser(user);
+        return;
+      }
+
+      const requestedMode = new URLSearchParams(
+        window.location.search
+      ).get("mode");
+
+      setAuthMode(
+        requestedMode === "login" ? "login" : "signup"
+      );
+    } catch (error) {
+      console.error("NOH session initialisation error:", error);
+
+      if (authPageExists) {
+        setAuthMode("signup");
+        showMessage(
+          "We could not check your sign-in session. Please refresh the page and try again."
         );
-      });
+      }
+    }
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initAuth, { once: true });
-  } else {
-    initAuth();
-  }
+  initialiseAuth();
+
 })();
-          
