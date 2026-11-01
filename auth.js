@@ -1,15 +1,14 @@
 
 /*
  * Naija Opportunity Hub
- * Main account authentication
- * Version 2.0
+ * Main account authentication and navigation
+ * Version 3.0
  *
- * Shared by:
- * - Homepage navigation
+ * Used by:
+ * - Homepage
  * - auth.html
  *
- * Career Kit authentication should use a separate Supabase
- * storage key/client after its current code has been reviewed.
+ * Career Kit authentication remains separate.
  */
 
 (() => {
@@ -26,28 +25,19 @@
 
   const $ = (id) => document.getElementById(id);
 
-  const supabaseLibrary = window.supabase;
+  const library = window.supabase;
 
-  if (!supabaseLibrary || !supabaseLibrary.createClient) {
-    console.error(
-      "NOH Auth: Supabase library was not loaded. Check the Supabase CDN script."
-    );
+  if (!library?.createClient) {
+    console.error("NOH Auth: Supabase library was not loaded.");
     return;
   }
 
-  /*
-   * Use one shared client on the main NOH website.
-   * The default Supabase storage key is shared by pages
-   * using this same project and client configuration.
-   */
   const supabase = window.NOH_SUPABASE_CLIENT ||
-    supabaseLibrary.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
+    library.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
   window.NOH_SUPABASE_CLIENT = supabase;
 
+  // Authentication page elements
   const signupForm = $("signupForm");
   const loginForm = $("loginForm");
   const resetForm = $("resetForm");
@@ -67,16 +57,36 @@
     signupForm && loginForm && resetForm && loggedInPanel
   );
 
-  let currentMode = "signup";
   let recoveryMode = false;
+  let currentUser = null;
+
+  // Homepage account elements
+  const signInLink = $("signInLink");
+  const createAccountLink = $("createAccountLink");
+  const accountMenu = $("accountMenu");
+  const accountMenuButton = $("accountMenuButton");
+  const accountDropdown = $("accountDropdown");
+  const navLogoutButton = $("navLogoutButton");
+
+  // Account dashboard elements
+  const accountDashboard = $("accountDashboard");
+  const accountDashboardEmail = $("accountDashboardEmail");
+  const accountDashboardTitle = $("accountDashboardTitle");
+  const accountOverview = $("accountOverview");
+  const accountSettings = $("accountSettings");
+
+  const accountPasswordForm = $("accountPasswordForm");
+  const accountPasswordButton = $("accountPasswordButton");
+  const accountSettingsMessage = $("accountSettingsMessage");
+
+  let previousFocus = null;
 
   /* ---------------------------------------------------------
-     Helpers
+     General helpers
   --------------------------------------------------------- */
 
   function setVisible(element, visible) {
-    if (!element) return;
-    element.hidden = !visible;
+    if (element) element.hidden = !visible;
   }
 
   function showMessage(message, type = "error") {
@@ -104,10 +114,286 @@
     return `${window.location.origin}/auth.html`;
   }
 
+  function safeRedirect(path) {
+    if (
+      typeof path === "string" &&
+      path.startsWith("/") &&
+      !path.startsWith("//") &&
+      !path.includes("\\")
+    ) {
+      window.location.assign(path);
+    }
+  }
+
+  /* ---------------------------------------------------------
+     Homepage navigation
+  --------------------------------------------------------- */
+
+  function closeAccountDropdown() {
+    setVisible(accountDropdown, false);
+
+    if (accountMenuButton) {
+      accountMenuButton.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  function updateHomepageNavigation(user) {
+    const signedIn = Boolean(user);
+
+    setVisible(signInLink, !signedIn);
+    setVisible(createAccountLink, !signedIn);
+    setVisible(accountMenu, signedIn);
+
+    if (!signedIn) {
+      closeAccountDropdown();
+      closeAccountDashboard();
+    }
+
+    // Do not show the user's email in the navigation.
+    if (accountDashboardEmail && user?.email) {
+      accountDashboardEmail.textContent = user.email;
+    }
+  }
+
+  if (accountMenuButton) {
+    accountMenuButton.addEventListener("click", () => {
+      if (!currentUser) return;
+
+      const isOpen =
+        accountMenuButton.getAttribute("aria-expanded") === "true";
+
+      setVisible(accountDropdown, !isOpen);
+      accountMenuButton.setAttribute(
+        "aria-expanded",
+        String(!isOpen)
+      );
+    });
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!accountMenu || accountMenu.hidden) return;
+
+    if (!accountMenu.contains(event.target)) {
+      closeAccountDropdown();
+    }
+  });
+
+  /* ---------------------------------------------------------
+     Account dashboard
+  --------------------------------------------------------- */
+
+  function showAccountView(view) {
+    const settings = view === "settings";
+
+    setVisible(accountOverview, !settings);
+    setVisible(accountSettings, settings);
+
+    if (accountDashboardTitle) {
+      accountDashboardTitle.textContent = settings
+        ? "Account Settings"
+        : "My Account";
+    }
+
+    document.querySelectorAll("[data-account-tab]").forEach((tab) => {
+      const active = tab.dataset.accountTab === view;
+
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", String(active));
+    });
+
+    if (settings) {
+      $("accountNewPassword")?.focus();
+    }
+  }
+
+  function openAccountDashboard(view = "overview") {
+    if (!currentUser || !accountDashboard) return;
+
+    previousFocus = document.activeElement;
+
+    closeAccountDropdown();
+    setVisible(accountDashboard, true);
+    document.body.classList.add("account-dashboard-open");
+
+    if (accountDashboardEmail) {
+      accountDashboardEmail.textContent =
+        currentUser.email || "Account email unavailable";
+    }
+
+    showAccountView(view);
+
+    accountDashboard
+      .querySelector(".account-dashboard-close")
+      ?.focus();
+  }
+
+  function closeAccountDashboard() {
+    if (!accountDashboard || accountDashboard.hidden) return;
+
+    setVisible(accountDashboard, false);
+    document.body.classList.remove("account-dashboard-open");
+
+    if (previousFocus && typeof previousFocus.focus === "function") {
+      previousFocus.focus();
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    const viewButton = event.target.closest("[data-account-view]");
+
+    if (viewButton) {
+      event.preventDefault();
+
+      openAccountDashboard(
+        viewButton.dataset.accountView || "overview"
+      );
+
+      return;
+    }
+
+    const tabButton = event.target.closest("[data-account-tab]");
+
+    if (tabButton) {
+      showAccountView(tabButton.dataset.accountTab);
+      return;
+    }
+
+    if (event.target.closest("[data-close-account]")) {
+      closeAccountDashboard();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeAccountDropdown();
+      closeAccountDashboard();
+    }
+  });
+
+  /* ---------------------------------------------------------
+     Sign out
+  --------------------------------------------------------- */
+
+  async function signOut(button) {
+    if (button) button.disabled = true;
+
+    try {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) throw error;
+
+      currentUser = null;
+      closeAccountDropdown();
+      closeAccountDashboard();
+
+      window.location.assign("/");
+    } catch (error) {
+      console.error("NOH sign-out error:", error);
+
+      alert("We could not sign you out. Please try again.");
+
+      if (button) button.disabled = false;
+    }
+  }
+
+  if (navLogoutButton) {
+    navLogoutButton.addEventListener("click", () => {
+      signOut(navLogoutButton);
+    });
+  }
+
+  const logoutButton = $("logoutButton");
+
+  if (logoutButton) {
+    logoutButton.addEventListener("click", () => {
+      signOut(logoutButton);
+    });
+  }
+
+  /* ---------------------------------------------------------
+     Account password settings
+  --------------------------------------------------------- */
+
+  if (accountPasswordForm) {
+    accountPasswordForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (!currentUser) {
+        if (accountSettingsMessage) {
+          accountSettingsMessage.textContent =
+            "Please sign in again to update your password.";
+        }
+        return;
+      }
+
+      const password = $("accountNewPassword")?.value || "";
+      const confirmation = $("accountConfirmPassword")?.value || "";
+
+      if (password.length < 8) {
+        if (accountSettingsMessage) {
+          accountSettingsMessage.textContent =
+            "Your password must contain at least 8 characters.";
+        }
+        return;
+      }
+
+      if (password !== confirmation) {
+        if (accountSettingsMessage) {
+          accountSettingsMessage.textContent =
+            "Your passwords do not match.";
+        }
+        return;
+      }
+
+      setLoading(
+        accountPasswordButton,
+        true,
+        "Updating password...",
+        "Update Password"
+      );
+
+      if (accountSettingsMessage) {
+        accountSettingsMessage.textContent = "";
+      }
+
+      try {
+        const { error } = await supabase.auth.updateUser({ password });
+
+        if (error) throw error;
+
+        accountPasswordForm.reset();
+
+        if (accountSettingsMessage) {
+          accountSettingsMessage.textContent =
+            "Your password has been updated successfully.";
+          accountSettingsMessage.classList.add("success");
+        }
+      } catch (error) {
+        console.error("NOH account password update error:", error);
+
+        if (accountSettingsMessage) {
+          accountSettingsMessage.textContent =
+            error.message || "We could not update your password. Please try again.";
+          accountSettingsMessage.classList.remove("success");
+        }
+      } finally {
+        setLoading(
+          accountPasswordButton,
+          false,
+          "Updating password...",
+          "Update Password"
+        );
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------
+     Authentication page view controls
+  --------------------------------------------------------- */
+
   function setAuthMode(mode) {
     if (!authPageExists) return;
 
-    currentMode = mode;
     recoveryMode = false;
     clearMessage();
 
@@ -129,16 +415,13 @@
     }
 
     document.querySelectorAll("[data-auth-action]").forEach((button) => {
-      const active =
-        (mode === "signup" &&
-          button.dataset.authAction === "show-signup") ||
-        (mode === "login" &&
-          button.dataset.authAction === "show-login");
+      if (!button.closest(".auth-tabs")) return;
 
-      if (button.closest(".auth-tabs")) {
-        button.classList.toggle("active", active);
-        button.setAttribute("aria-selected", String(active));
-      }
+      const active = button.dataset.authAction ===
+        (mode === "login" ? "show-login" : "show-signup");
+
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-selected", String(active));
     });
   }
 
@@ -164,92 +447,39 @@
   }
 
   function showLoggedInUser(user) {
-    const email = user?.email || "Signed-in user";
+    if (!user) return;
 
     if (accountEmail) {
-      accountEmail.textContent = email;
+      accountEmail.textContent = user.email || "Signed-in user";
     }
 
-    if (authPageExists) {
-      clearMessage();
-      setVisible(signupForm, false);
-      setVisible(loginForm, false);
-      setVisible(resetForm, false);
-      setVisible(loggedInPanel, true);
+    if (!authPageExists) return;
 
-      if (authHeading) {
-        authHeading.textContent = "Your NOH account";
-      }
+    clearMessage();
 
-      if (authSubheading) {
-        authSubheading.textContent =
-          "You are signed in and ready to continue.";
-      }
+    setVisible(signupForm, false);
+    setVisible(loginForm, false);
+    setVisible(resetForm, false);
+    setVisible(loggedInPanel, true);
+
+    if (authHeading) {
+      authHeading.textContent = "Your NOH account";
+    }
+
+    if (authSubheading) {
+      authSubheading.textContent =
+        "You are signed in and ready to continue.";
     }
   }
 
   function showSignedOutState() {
-    if (authPageExists) {
-      const params = new URLSearchParams(window.location.search);
-      const requestedMode = params.get("mode");
+    if (!authPageExists) return;
 
-      setAuthMode(
-        requestedMode === "login" ? "login" : "signup"
-      );
-    }
+    const requestedMode =
+      new URLSearchParams(window.location.search).get("mode");
+
+    setAuthMode(requestedMode === "login" ? "login" : "signup");
   }
-
-  /* ---------------------------------------------------------
-     Homepage navigation
-  --------------------------------------------------------- */
-
-  function updateHomepageNavigation(user) {
-  const signInLink = $("signInLink");
-  const createAccountLink = $("createAccountLink");
-  const accountMenu = $("accountMenu");
-  const myAccountLink = $("myAccountLink");
-  const navLogoutButton = $("navLogoutButton");
-
-  const signedIn = Boolean(user);
-
-  if (signInLink) {
-    signInLink.hidden = signedIn;
-  }
-
-  if (createAccountLink) {
-    createAccountLink.hidden = signedIn;
-  }
-
-  if (accountMenu) {
-    accountMenu.hidden = !signedIn;
-  }
-
-  // Never display the user's email in the homepage navigation.
-  if (myAccountLink) {
-    myAccountLink.textContent = signedIn ? "Signed in" : "My Account";
-    myAccountLink.href = "./auth.html";
-  }
-
-  if (navLogoutButton && !navLogoutButton.dataset.authBound) {
-    navLogoutButton.dataset.authBound = "true";
-
-    navLogoutButton.addEventListener("click", async () => {
-      navLogoutButton.disabled = true;
-
-      const { error } = await supabase.auth.signOut();
-
-      navLogoutButton.disabled = false;
-
-      if (error) {
-        console.error("NOH sign-out error:", error.message);
-        alert("We could not sign you out. Please try again.");
-      } else {
-        window.location.href = "./index.html";
-      }
-    });
-  }
-}
-
 
   /* ---------------------------------------------------------
      Signup
@@ -262,9 +492,9 @@
 
       const email = $("signupEmail")?.value.trim();
       const password = $("signupPassword")?.value;
-      const confirmPassword = $("confirmPassword")?.value;
+      const confirmation = $("confirmPassword")?.value;
 
-      if (!email || !password || !confirmPassword) {
+      if (!email || !password || !confirmation) {
         showMessage("Please complete all the required fields.");
         return;
       }
@@ -274,7 +504,7 @@
         return;
       }
 
-      if (password !== confirmPassword) {
+      if (password !== confirmation) {
         showMessage("Your passwords do not match.");
         return;
       }
@@ -298,6 +528,7 @@
         if (error) throw error;
 
         if (data.session && data.user) {
+          currentUser = data.user;
           showLoggedInUser(data.user);
           updateHomepageNavigation(data.user);
           showMessage("Your account has been created successfully.", "success");
@@ -312,11 +543,10 @@
       } catch (error) {
         console.error("NOH signup error:", error);
 
-        const message = /already registered|already exists/i.test(
-          error.message || ""
-        )
-          ? "An account with this email may already exist. Please sign in instead."
-          : error.message || "We could not create your account. Please try again.";
+        const message =
+          /already registered|already exists/i.test(error.message || "")
+            ? "An account with this email may already exist. Please sign in instead."
+            : error.message || "We could not create your account. Please try again.";
 
         showMessage(message);
       } finally {
@@ -356,24 +586,22 @@
 
       try {
         const { data, error } =
-          await supabase.auth.signInWithPassword({
-            email,
-            password
-          });
+          await supabase.auth.signInWithPassword({ email, password });
 
         if (error) throw error;
 
-        if (data.user) {
-          showLoggedInUser(data.user);
-          updateHomepageNavigation(data.user);
+        currentUser = data.user || null;
+
+        if (currentUser) {
+          showLoggedInUser(currentUser);
+          updateHomepageNavigation(currentUser);
           showMessage("You have signed in successfully.", "success");
 
-          const redirectTo = new URLSearchParams(
-            window.location.search
-          ).get("redirect");
+          const redirect =
+            new URLSearchParams(window.location.search).get("redirect");
 
-          if (redirectTo && redirectTo.startsWith("/")) {
-            window.location.href = redirectTo;
+          if (redirect) {
+            safeRedirect(redirect);
           }
         }
       } catch (error) {
@@ -416,9 +644,7 @@
       try {
         const { error } = await supabase.auth.resetPasswordForEmail(
           email,
-          {
-            redirectTo: getAuthPageURL()
-          }
+          { redirectTo: getAuthPageURL() }
         );
 
         if (error) throw error;
@@ -429,6 +655,7 @@
         );
       } catch (error) {
         console.error("NOH password reset request error:", error);
+
         showMessage(
           error.message || "We could not send the reset email. Please try again."
         );
@@ -439,7 +666,7 @@
   }
 
   /* ---------------------------------------------------------
-     Set a new password
+     Set a new password from recovery email
   --------------------------------------------------------- */
 
   if (resetForm) {
@@ -447,10 +674,10 @@
       event.preventDefault();
       clearMessage();
 
-      const password = $("newPassword")?.value;
-      const confirmPassword = $("confirmNewPassword")?.value;
+      const password = $("newPassword")?.value || "";
+      const confirmation = $("confirmNewPassword")?.value || "";
 
-      if (!password || !confirmPassword) {
+      if (!password || !confirmation) {
         showMessage("Please complete both password fields.");
         return;
       }
@@ -460,7 +687,7 @@
         return;
       }
 
-      if (password !== confirmPassword) {
+      if (password !== confirmation) {
         showMessage("Your new passwords do not match.");
         return;
       }
@@ -473,9 +700,7 @@
       );
 
       try {
-        const { error } = await supabase.auth.updateUser({
-          password
-        });
+        const { error } = await supabase.auth.updateUser({ password });
 
         if (error) throw error;
 
@@ -483,17 +708,19 @@
         recoveryMode = false;
 
         showMessage(
-          "Your password has been updated successfully. You can now continue to NOH.",
+          "Your password has been updated successfully.",
           "success"
         );
 
         const { data } = await supabase.auth.getUser();
 
         if (data.user) {
+          currentUser = data.user;
           showLoggedInUser(data.user);
         }
       } catch (error) {
         console.error("NOH password update error:", error);
+
         showMessage(
           error.message || "We could not update your password. Please try again."
         );
@@ -509,45 +736,19 @@
   }
 
   /* ---------------------------------------------------------
-     Sign out from the authentication page
-  --------------------------------------------------------- */
-
-  const logoutButton = $("logoutButton");
-
-  if (logoutButton) {
-    logoutButton.addEventListener("click", async () => {
-      logoutButton.disabled = true;
-
-      try {
-        const { error } = await supabase.auth.signOut();
-
-        if (error) throw error;
-
-        window.location.href = "./index.html";
-      } catch (error) {
-        console.error("NOH sign-out error:", error);
-        showMessage("We could not sign you out. Please try again.");
-        logoutButton.disabled = false;
-      }
-    });
-  }
-
-  /* ---------------------------------------------------------
-     Switch between sign-in and signup
+     Switch login/signup tabs
   --------------------------------------------------------- */
 
   document.addEventListener("click", (event) => {
-    const actionButton = event.target.closest("[data-auth-action]");
+    const button = event.target.closest("[data-auth-action]");
 
-    if (!actionButton) return;
+    if (!button) return;
 
-    const action = actionButton.dataset.authAction;
-
-    if (action === "show-login") {
+    if (button.dataset.authAction === "show-login") {
       setAuthMode("login");
     }
 
-    if (action === "show-signup") {
+    if (button.dataset.authAction === "show-signup") {
       setAuthMode("signup");
     }
   });
@@ -557,9 +758,9 @@
   --------------------------------------------------------- */
 
   supabase.auth.onAuthStateChange((event, session) => {
-    const user = session?.user || null;
+    currentUser = session?.user || null;
 
-    updateHomepageNavigation(user);
+    updateHomepageNavigation(currentUser);
 
     if (!authPageExists) return;
 
@@ -568,9 +769,9 @@
       return;
     }
 
-    if (user) {
+    if (currentUser) {
       if (!recoveryMode) {
-        showLoggedInUser(user);
+        showLoggedInUser(currentUser);
       }
     } else if (event === "SIGNED_OUT") {
       showSignedOutState();
@@ -578,16 +779,16 @@
   });
 
   async function initialiseAuth() {
-    updateHomepageNavigation(null);
+    // Avoid displaying account controls before session restoration.
+    setVisible(accountMenu, false);
 
     try {
       const { data, error } = await supabase.auth.getSession();
 
       if (error) throw error;
 
-      const user = data.session?.user || null;
-
-      updateHomepageNavigation(user);
+      currentUser = data.session?.user || null;
+      updateHomepageNavigation(currentUser);
 
       if (!authPageExists) return;
 
@@ -595,28 +796,22 @@
         window.location.hash.replace(/^#/, "")
       );
 
-      const isRecoveryLink =
-        hashParams.get("type") === "recovery";
-
-      if (isRecoveryLink) {
+      if (hashParams.get("type") === "recovery") {
         showPasswordReset();
         return;
       }
 
-      if (user) {
-        showLoggedInUser(user);
+      if (currentUser) {
+        showLoggedInUser(currentUser);
         return;
       }
 
-      const requestedMode = new URLSearchParams(
-        window.location.search
-      ).get("mode");
-
-      setAuthMode(
-        requestedMode === "login" ? "login" : "signup"
-      );
+      showSignedOutState();
     } catch (error) {
       console.error("NOH session initialisation error:", error);
+
+      currentUser = null;
+      updateHomepageNavigation(null);
 
       if (authPageExists) {
         setAuthMode("signup");
