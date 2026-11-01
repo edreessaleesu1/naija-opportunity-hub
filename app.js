@@ -2,17 +2,17 @@
 /*
  * NAIJA OPPORTUNITY HUB
  * Main Front-End Application
- * Version 3.3
+ * Version 3.4
  *
  * Official domain:
  * https://naijaopportunityhub.com.ng
  *
  * Features:
  * - Supabase opportunity loading
- * - Search and category filtering
- * - Sorting
- * - Bookmarks storage
- * - Application tracker storage
+ * - Search, category filtering and sorting
+ * - Complete opportunity cards
+ * - Working bookmarks
+ * - Application tracker with status updates
  * - CSV export
  * - View All / Show Less
  * - Loading, empty and error states
@@ -34,10 +34,8 @@
 
   const TABLE_NAME = "opportunities";
 
-  // Official website configuration
   const SITE_URL = "https://naijaopportunityhub.com.ng";
 
-  // Actual published HTML details page
   const DETAILS_PAGE =
     `${SITE_URL}/opportunity-details.html`;
 
@@ -48,6 +46,14 @@
 
   const FALLBACK_IMAGE =
     "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80";
+
+  const TRACKER_STATUSES = [
+    "Interested",
+    "Applied",
+    "Interview",
+    "Successful",
+    "Unsuccessful"
+  ];
 
   const DEBUG =
     new URLSearchParams(window.location.search).get("debug") === "1";
@@ -112,6 +118,8 @@
       "applicationCount"
     ),
 
+    trackerList: getElement("trackerList"),
+
     loading: getElement(
       "loadingState",
       "opportunitiesLoading"
@@ -125,7 +133,9 @@
     error: getElement(
       "errorState",
       "opportunitiesError"
-    )
+    ),
+
+    toast: getElement("toast")
   };
 
   /* =========================================================
@@ -138,9 +148,34 @@
   let activeCategory = "All";
   let showAll = false;
   let isLoading = false;
+  let toastTimer = null;
 
   let bookmarks = readStorage(BOOKMARKS_KEY, []);
   let tracker = readStorage(TRACKER_KEY, []);
+
+  // Normalise previously saved tracker records.
+  tracker = tracker
+    .filter(item => item && item.id)
+    .map(item => ({
+      ...item,
+      id: String(item.id),
+      title: String(item.title || "Untitled Opportunity"),
+      organization: String(
+        item.organization ||
+        item.organisation ||
+        "Organisation not specified"
+      ),
+      category: String(item.category || "Other"),
+      application_url: safeURL(item.application_url || ""),
+      date_added: item.date_added || new Date().toISOString(),
+      status: TRACKER_STATUSES.includes(item.status)
+        ? item.status
+        : "Interested"
+    }));
+
+  bookmarks = [
+    ...new Set(bookmarks.map(String).filter(Boolean))
+  ];
 
   /* =========================================================
      4. GENERAL HELPERS
@@ -159,8 +194,11 @@
   function saveStorage(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+      return true;
     } catch (error) {
       console.error("Storage could not be saved:", key, error);
+      showToast("Unable to save changes on this device.");
+      return false;
     }
   }
 
@@ -186,7 +224,7 @@
   }
 
   function getOpportunityId(item) {
-    return String(item.id ?? "");
+    return String(item?.id ?? "");
   }
 
   function isBookmarked(id) {
@@ -220,12 +258,9 @@
     }
   }
 
-  // Generate official opportunity details links.
   function getOpportunityDetailsURL(id) {
     const url = new URL(DETAILS_PAGE);
-
     url.searchParams.set("id", String(id));
-
     return url.href;
   }
 
@@ -286,6 +321,26 @@
       label: `Deadline: ${formatDate(value)}`,
       type: "upcoming"
     };
+  }
+
+  function showToast(message) {
+    if (!elements.toast) {
+      debugLog(message);
+      return;
+    }
+
+    elements.toast.textContent = message;
+    elements.toast.classList.add("show");
+    elements.toast.hidden = false;
+
+    if (toastTimer) {
+      clearTimeout(toastTimer);
+    }
+
+    toastTimer = setTimeout(() => {
+      elements.toast.classList.remove("show");
+      elements.toast.hidden = true;
+    }, 2800);
   }
 
   /* =========================================================
@@ -359,14 +414,6 @@
       item.organisation ||
       "Organisation not specified";
 
-    const applicationURL = safeURL(
-      item.application_url ||
-      item.source_url ||
-      ""
-    );
-
-    const imageURL = safeURL(item.image_url || "");
-
     return {
       ...item,
 
@@ -390,9 +437,15 @@
       location:
         String(item.location || "").trim(),
 
-      image_url: imageURL,
+      image_url: safeURL(item.image_url || ""),
 
-      application_url: applicationURL
+      application_url: safeURL(
+        item.application_url ||
+        item.source_url ||
+        ""
+      ),
+
+      source_url: safeURL(item.source_url || "")
     };
   }
 
@@ -408,7 +461,11 @@
     showElement(elements.loading, true);
     showElement(elements.empty, false);
     showElement(elements.error, false);
-    showElement(elements.dataNotice, true);
+
+    if (elements.dataNotice) {
+      elements.dataNotice.textContent = "";
+      showElement(elements.dataNotice, false);
+    }
 
     if (elements.dataStatus) {
       elements.dataStatus.textContent =
@@ -424,7 +481,6 @@
 
       try {
         data = await fetchOpportunities(true);
-        debugLog("Loaded opportunities with image_url.");
       } catch (error) {
         const missingImageColumn =
           /image_url|column.*does not exist|schema cache/i.test(
@@ -434,7 +490,6 @@
         if (!missingImageColumn) throw error;
 
         debugLog("Retrying without image_url.");
-
         data = await fetchOpportunities(false);
       }
 
@@ -445,28 +500,30 @@
       debugLog("Opportunities loaded:", allOpportunities);
 
       applyFilters();
+      renderTracker();
 
       if (elements.dataStatus) {
         elements.dataStatus.textContent =
           `${allOpportunities.length} published opportunities available`;
       }
 
-      showElement(elements.dataNotice, true);
-
     } catch (error) {
       console.error("Unable to load opportunities:", error);
-
-      showElement(elements.error, true);
 
       if (elements.dataStatus) {
         elements.dataStatus.textContent =
           "Unable to load opportunities.";
       }
 
-      if (elements.error) {
-        elements.error.innerHTML = `
-          <p>We couldn't load opportunities right now.</p>
-          <button type="button" id="retryOpportunities">
+      const errorHTML = `
+        <div class="empty-state">
+          <h3>Unable to load opportunities</h3>
+          <p>Please check your internet connection and try again.</p>
+          <button
+            type="button"
+            class="button button-primary"
+            id="retryOpportunities"
+          >
             Try Again
           </button>
           ${
@@ -474,10 +531,14 @@
               ? `<pre>${escapeHTML(error.message)}</pre>`
               : ""
           }
-        `;
+        </div>
+      `;
 
-        $("#retryOpportunities", elements.error)
-          ?.addEventListener("click", loadOpportunities);
+      if (elements.error) {
+        elements.error.innerHTML = errorHTML;
+        showElement(elements.error, true);
+      } else if (elements.opportunities) {
+        elements.opportunities.innerHTML = errorHTML;
       }
 
     } finally {
@@ -559,6 +620,7 @@
           getPriority(dateA) - getPriority(dateB);
 
         if (difference !== 0) return difference;
+
         if (dateA === null || dateB === null) return 0;
 
         return dateA - dateB;
@@ -580,18 +642,31 @@
 
   /* =========================================================
      10. OPPORTUNITY CARD
-     Image and title open the official details page.
   ========================================================= */
 
   function createOpportunityCard(item) {
     const id = getOpportunityId(item);
 
     const image = item.image_url || FALLBACK_IMAGE;
-
     const detailsURL = getOpportunityDetailsURL(id);
 
     const title = escapeHTML(item.title);
     const category = escapeHTML(item.category);
+    const organization = escapeHTML(item.organization);
+
+    const description = escapeHTML(
+      item.description || "View the full details to learn more about this opportunity."
+    );
+
+    const location = escapeHTML(item.location);
+    const eligibility = escapeHTML(item.eligibility);
+
+    const deadline = getDeadlineStatus(item.deadline);
+
+    const bookmarked = isBookmarked(id);
+    const tracked = isTracked(id);
+
+    const applicationURL = safeURL(item.application_url);
 
     return `
       <article
@@ -618,9 +693,24 @@
             ${category}
           </span>
 
+          <button
+            type="button"
+            class="bookmark-btn ${bookmarked ? "is-bookmarked" : ""}"
+            data-action="bookmark"
+            data-id="${escapeHTML(id)}"
+            aria-label="${bookmarked ? "Remove bookmark" : "Bookmark opportunity"}"
+            aria-pressed="${bookmarked}"
+          >
+            ${bookmarked ? "♥ Saved" : "♡ Save"}
+          </button>
+
         </div>
 
         <div class="opportunity-content">
+
+          <p class="opportunity-organization">
+            ${organization}
+          </p>
 
           <h3 class="opportunity-title">
             <a
@@ -630,6 +720,72 @@
               ${title}
             </a>
           </h3>
+
+          <p class="opportunity-description">
+            ${description}
+          </p>
+
+          ${
+            location
+              ? `
+                <p class="opportunity-location">
+                  <span aria-hidden="true">📍</span>
+                  ${location}
+                </p>
+              `
+              : ""
+          }
+
+          ${
+            eligibility
+              ? `
+                <p class="opportunity-eligibility">
+                  <strong>Eligibility:</strong>
+                  ${eligibility}
+                </p>
+              `
+              : ""
+          }
+
+          <p class="opportunity-deadline deadline-${deadline.type}">
+            ${escapeHTML(deadline.label)}
+          </p>
+
+          <div class="opportunity-actions">
+
+            <a
+              class="button button-primary"
+              href="${escapeHTML(detailsURL)}"
+            >
+              View Details
+            </a>
+
+            ${
+              applicationURL
+                ? `
+                  <a
+                    class="button button-outline"
+                    href="${escapeHTML(applicationURL)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Apply
+                  </a>
+                `
+                : ""
+            }
+
+            <button
+              type="button"
+              class="track-btn ${tracked ? "is-tracked" : ""}"
+              data-action="track"
+              data-id="${escapeHTML(id)}"
+              aria-pressed="${tracked}"
+            >
+              ${tracked ? "✓ Tracking" : "+ Track"}
+            </button>
+
+          </div>
 
         </div>
 
@@ -654,18 +810,29 @@
           DEFAULT_VISIBLE_COUNT
         );
 
-    elements.opportunities.innerHTML = visibleItems
-      .map(createOpportunityCard)
-      .join("");
+    if (visibleItems.length) {
+      elements.opportunities.innerHTML = visibleItems
+        .map(createOpportunityCard)
+        .join("");
+    } else {
+      elements.opportunities.innerHTML = "";
+    }
 
     const hasResults =
       filteredOpportunities.length > 0;
 
-    showElement(elements.empty, !hasResults);
-
-    if (elements.empty && !hasResults) {
+    if (elements.empty) {
       elements.empty.textContent =
         "No opportunities found. Try another search or category.";
+
+      showElement(elements.empty, !hasResults);
+    } else if (!hasResults) {
+      elements.opportunities.innerHTML = `
+        <div class="empty-state">
+          <h3>No opportunities found</h3>
+          <p>Try another search or category.</p>
+        </div>
+      `;
     }
 
     if (elements.resultsCount) {
@@ -710,7 +877,6 @@
         normalize(category) === normalize(activeCategory);
 
       button.classList.toggle("active", active);
-
       button.setAttribute("aria-pressed", String(active));
     });
   }
@@ -718,21 +884,22 @@
   function selectCategory(category) {
     activeCategory = category || "All";
     showAll = false;
-
     applyFilters();
-
-    debugLog("Category selected:", activeCategory);
   }
 
   function setupCategoryButtons() {
-    getCategoryButtons().forEach(button => {
-      button.addEventListener("click", event => {
-        event.preventDefault();
+    const container = getElement("categoryButtons");
 
-        selectCategory(
-          button.dataset.category || "All"
-        );
-      });
+    container?.addEventListener("click", event => {
+      const button = event.target.closest("[data-category]");
+
+      if (!button || !container.contains(button)) return;
+
+      event.preventDefault();
+
+      selectCategory(
+        button.dataset.category || "All"
+      );
     });
   }
 
@@ -747,12 +914,15 @@
       bookmarks = bookmarks.filter(
         item => String(item) !== id
       );
+
+      showToast("Bookmark removed.");
     } else {
       bookmarks.push(id);
+      showToast("Opportunity saved to bookmarks.");
     }
 
     saveStorage(BOOKMARKS_KEY, bookmarks);
-    updateCounters();
+    renderOpportunities();
   }
 
   /* =========================================================
@@ -766,6 +936,8 @@
       tracker = tracker.filter(
         item => String(item.id) !== id
       );
+
+      showToast("Removed from your application tracker.");
 
     } else {
       const opportunity = allOpportunities.find(
@@ -783,9 +955,146 @@
         date_added: new Date().toISOString(),
         status: "Interested"
       });
+
+      showToast("Added to your application tracker.");
     }
 
     saveStorage(TRACKER_KEY, tracker);
+
+    renderOpportunities();
+    renderTracker();
+  }
+
+  function updateTrackerStatus(id, status) {
+    if (!TRACKER_STATUSES.includes(status)) return;
+
+    const item = tracker.find(
+      entry => String(entry.id) === String(id)
+    );
+
+    if (!item) return;
+
+    item.status = status;
+
+    saveStorage(TRACKER_KEY, tracker);
+
+    renderTracker();
+    updateCounters();
+
+    showToast("Application status updated.");
+  }
+
+  function removeTrackerItem(id) {
+    tracker = tracker.filter(
+      item => String(item.id) !== String(id)
+    );
+
+    saveStorage(TRACKER_KEY, tracker);
+
+    renderTracker();
+    renderOpportunities();
+
+    showToast("Application removed from tracker.");
+  }
+
+  function renderTracker() {
+    if (!elements.trackerList) return;
+
+    if (!tracker.length) {
+      elements.trackerList.innerHTML = `
+        <div class="tracker-empty">
+          <p>You haven't added any opportunities to your tracker yet.</p>
+          <p>Use the Track button on an opportunity to get started.</p>
+        </div>
+      `;
+
+      updateCounters();
+      return;
+    }
+
+    elements.trackerList.innerHTML = tracker.map(item => {
+      const id = escapeHTML(item.id);
+      const title = escapeHTML(item.title);
+      const organization = escapeHTML(item.organization);
+      const category = escapeHTML(item.category);
+      const status = TRACKER_STATUSES.includes(item.status)
+        ? item.status
+        : "Interested";
+
+      const applicationURL = safeURL(item.application_url);
+
+      const statusOptions = TRACKER_STATUSES.map(option => `
+        <option
+          value="${escapeHTML(option)}"
+          ${option === status ? "selected" : ""}
+        >
+          ${escapeHTML(option)}
+        </option>
+      `).join("");
+
+      return `
+        <article class="tracker-item" data-id="${id}">
+
+          <div class="tracker-item-info">
+
+            <h4>${title}</h4>
+
+            <p>${organization}</p>
+
+            <span class="tracker-category">
+              ${category}
+            </span>
+
+            <p class="tracker-date">
+              Added: ${formatDate(item.date_added)}
+            </p>
+
+          </div>
+
+          <div class="tracker-item-actions">
+
+            <label>
+              <span>Application status</span>
+
+              <select
+                class="tracker-status"
+                data-action="tracker-status"
+                data-id="${id}"
+              >
+                ${statusOptions}
+              </select>
+            </label>
+
+            ${
+              applicationURL
+                ? `
+                  <a
+                    href="${escapeHTML(applicationURL)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="tracker-apply-link"
+                  >
+                    Open Application
+                  </a>
+                `
+                : ""
+            }
+
+            <button
+              type="button"
+              class="tracker-remove-btn"
+              data-action="tracker-remove"
+              data-id="${id}"
+            >
+              Remove
+            </button>
+
+          </div>
+
+        </article>
+      `;
+    }).join("");
+
     updateCounters();
   }
 
@@ -809,7 +1118,7 @@
 
   function exportTrackerCSV() {
     if (!tracker.length) {
-      alert("Your application tracker is empty.");
+      showToast("Your application tracker is empty.");
       return;
     }
 
@@ -856,6 +1165,8 @@
     link.remove();
 
     URL.revokeObjectURL(url);
+
+    showToast("Your tracker has been exported.");
   }
 
   /* =========================================================
@@ -864,7 +1175,7 @@
 
   function clearTracker() {
     if (!tracker.length) {
-      alert("Your application tracker is already empty.");
+      showToast("Your application tracker is already empty.");
       return;
     }
 
@@ -877,7 +1188,11 @@
     tracker = [];
 
     saveStorage(TRACKER_KEY, tracker);
-    updateCounters();
+
+    renderTracker();
+    renderOpportunities();
+
+    showToast("Application tracker cleared.");
   }
 
   /* =========================================================
@@ -904,7 +1219,67 @@
   }
 
   /* =========================================================
-     19. EVENT LISTENERS
+     19. DELEGATED ACTIONS
+  ========================================================= */
+
+  function setupOpportunityActions() {
+    if (!elements.opportunities) return;
+
+    elements.opportunities.addEventListener("click", event => {
+      const button = event.target.closest("[data-action]");
+
+      if (!button || !elements.opportunities.contains(button)) {
+        return;
+      }
+
+      const id = button.dataset.id;
+      const action = button.dataset.action;
+
+      if (!id) return;
+
+      if (action === "bookmark") {
+        toggleBookmark(id);
+      }
+
+      if (action === "track") {
+        toggleTracker(id);
+      }
+
+      if (action === "retry") {
+        loadOpportunities();
+      }
+    });
+  }
+
+  function setupTrackerActions() {
+    if (!elements.trackerList) return;
+
+    elements.trackerList.addEventListener("change", event => {
+      const select = event.target.closest(
+        '[data-action="tracker-status"]'
+      );
+
+      if (!select) return;
+
+      updateTrackerStatus(
+        select.dataset.id,
+        select.value
+      );
+    });
+
+    elements.trackerList.addEventListener("click", event => {
+      const button = event.target.closest(
+        '[data-action="tracker-remove"]'
+      );
+
+      if (!button) return;
+
+      removeTrackerItem(button.dataset.id);
+    });
+  }
+
+  /* =========================================================
+     20. EVENT LISTENERS
   ========================================================= */
 
   function setupEventListeners() {
@@ -974,14 +1349,24 @@
       "click",
       loadOpportunities
     );
+
+    // Support the retry button in the error state.
+    document.addEventListener("click", event => {
+      if (event.target.closest("#retryOpportunities")) {
+        loadOpportunities();
+      }
+    });
+
+    setupOpportunityActions();
+    setupTrackerActions();
   }
 
   /* =========================================================
-     20. INITIALISE APPLICATION
+     21. INITIALISE APPLICATION
   ========================================================= */
 
   function init() {
-    debugLog("Naija Opportunity Hub v3.3 initialising...");
+    debugLog("Naija Opportunity Hub v3.4 initialising...");
     debugLog("Official website:", SITE_URL);
     debugLog("Details page:", DETAILS_PAGE);
 
@@ -989,6 +1374,7 @@
     setupEventListeners();
 
     updateCounters();
+    renderTracker();
 
     loadOpportunities();
   }
