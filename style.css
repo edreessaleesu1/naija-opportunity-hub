@@ -2241,103 +2241,451 @@ section {
 
 
 /* ==========================================================================
-   15. ABOUT
+   15. ABOUT NOH — PREMIUM EDITORIAL DESIGN
+   British-inspired | Forest green | Champagne gold | Warm ivory
    ========================================================================== */
 
 .about-section {
-  background: var(--ivory);
+  position: relative;
+  padding-block: 100px;
+  overflow: hidden;
+  background: #f8f6ef;
 }
+
+.about-section .wrap {
+  max-width: 1160px;
+}
+
+/* Editorial introduction */
+
+.about-heading {
+  max-width: 760px;
+  margin: 0 auto 46px;
+  text-align: center;
+}
+
+.about-heading .section-kicker {
+  color: #a7833e;
+  letter-spacing: 2.5px;
+}
+
+.about-heading h2 {
+  margin-top: 8px;
+  color: #123a2c;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(34px, 4vw, 48px);
+  font-weight: 500;
+  line-height: 1.16;
+  letter-spacing: -1.2px;
+}
+
+.about-heading p {
+  max-width: 620px;
+  margin: 17px auto 0;
+  color: #69766d;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+/* Main story panel */
 
 .about-panel {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 220px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(250px, .65fr);
   align-items: center;
-  gap: 35px;
-  padding: 48px;
+  gap: 55px;
+  min-height: 390px;
+  padding: 65px;
   overflow: hidden;
-  border: 1px solid #e4ede6;
-  border-radius: 22px;
-  background: linear-gradient(120deg, #f0f8f3, #fff 75%);
+  border: 1px solid rgba(207, 177, 111, .35);
+  border-radius: 4px;
+  background:
+    radial-gradient(
+      circle at 90% 15%,
+      rgba(196, 154, 67, .16),
+      transparent 30%
+    ),
+    linear-gradient(125deg, #102d23, #064c36);
+  box-shadow: 0 24px 60px rgba(12, 43, 31, .12);
 }
 
 .about-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
+}
+
+.about-content .section-kicker {
+  color: #e1c27b;
 }
 
 .about-content h2 {
   max-width: 650px;
-  line-height: 1.2;
+  margin-top: 12px;
+  color: #fffdf6;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(34px, 4vw, 49px);
+  font-weight: 500;
+  line-height: 1.17;
+  letter-spacing: -1.3px;
+}
+
+.about-content h2 span {
+  color: #e3c77f;
+  font-style: italic;
 }
 
 .about-content > p {
-  max-width: 720px;
-  margin-top: 16px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.95;
+  max-width: 620px;
+  margin-top: 21px;
+  color: rgba(255, 255, 255, .79);
+  font-size: 14px;
+  line-height: 2;
 }
 
 .about-content .button {
-  margin-top: 24px;
+  margin-top: 29px;
+  border: 1px solid #d6b86f;
+  border-radius: 3px;
+  background: #d6b86f;
+  color: #193527;
+  font-weight: 800;
+  letter-spacing: .2px;
 }
+
+.about-content .button:hover {
+  background: #ebd49b;
+  border-color: #ebd49b;
+}
+
+/* Decorative identity */
 
 .about-decoration {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 210px;
+  min-height: 245px;
 }
 
 .decoration-circle {
   position: absolute;
-  width: 180px;
-  height: 180px;
-  border: 22px solid rgba(8, 107, 69, 0.08);
+  width: 225px;
+  height: 225px;
+  border: 1px solid rgba(222, 194, 125, .45);
   border-radius: 50%;
+}
+
+.decoration-circle::before,
+.decoration-circle::after {
+  content: "";
+  position: absolute;
+  inset: 17px;
+  border: 1px solid rgba(222, 194, 125, .24);
+  border-radius: 50%;
+}
+
+.decoration-circle::after {
+  inset: 36px;
 }
 
 .decoration-star {
   position: absolute;
-  top: 20px;
-  right: 15px;
-  color: var(--gold);
-  font-size: 38px;
+  top: 5px;
+  right: 5px;
+  color: #e4c77d;
+  font-size: 35px;
 }
 
 .decoration-text {
   position: relative;
-  color: var(--green);
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 1.4;
+  color: #f1d994;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 31px;
+  font-weight: 500;
+  line-height: 1.35;
   text-align: center;
 }
 
-@media (max-width: 720px) {
+/* Mission and vision */
+
+.about-principles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 24px;
+}
+
+.about-principle {
+  position: relative;
+  padding: 32px;
+  border: 1px solid #e9e2d3;
+  border-top: 3px solid #bd984d;
+  background: #fffefa;
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.about-principle:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(25, 54, 38, .07);
+}
+
+.about-principle .principle-number {
+  display: block;
+  margin-bottom: 18px;
+  color: #b38c45;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.about-principle h3 {
+  margin-bottom: 10px;
+  color: #143d2d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.about-principle p {
+  color: #68756b;
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+/* Our values */
+
+.about-values {
+  margin-top: 75px;
+}
+
+.about-values-heading {
+  max-width: 650px;
+  margin-bottom: 28px;
+}
+
+.about-values-heading .section-kicker {
+  color: #a7833e;
+}
+
+.about-values-heading h3 {
+  margin-top: 7px;
+  color: #143d2d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(27px, 3vw, 35px);
+  font-weight: 500;
+}
+
+.about-values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.about-value {
+  padding: 25px 20px;
+  border: 1px solid #e8e4d9;
+  background: rgba(255, 254, 250, .85);
+  transition: border-color .2s ease, transform .2s ease;
+}
+
+.about-value:hover {
+  transform: translateY(-3px);
+  border-color: #c9a65f;
+}
+
+.about-value-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 43px;
+  height: 43px;
+  margin-bottom: 17px;
+  border: 1px solid #eadfc4;
+  border-radius: 50%;
+  background: #f7f0df;
+  color: #9b7736;
+  font-size: 19px;
+}
+
+.about-value h4 {
+  margin-bottom: 8px;
+  color: #153c2d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.about-value p {
+  color: #718077;
+  font-size: 12px;
+  line-height: 1.85;
+}
+
+/* Closing promise */
+
+.about-promise {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  margin-top: 28px;
+  padding: 29px 34px;
+  border: 1px solid #e4dccb;
+  background: #f0ecdf;
+}
+
+.about-promise p {
+  max-width: 730px;
+  color: #43574a;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  line-height: 1.65;
+}
+
+.about-promise strong {
+  color: #a17c39;
+  font-weight: 600;
+}
+
+.about-promise span {
+  flex-shrink: 0;
+  color: #a17c39;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+/* Responsive design */
+
+@media (max-width: 900px) {
   .about-panel {
     grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 27px 21px;
-    border-radius: 17px;
+    gap: 15px;
+    padding: 48px;
   }
 
   .about-decoration {
-    min-height: 150px;
+    min-height: 190px;
   }
 
   .decoration-circle {
-    width: 135px;
-    height: 135px;
-    border-width: 17px;
+    width: 180px;
+    height: 180px;
+  }
+
+  .about-values-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .about-section {
+    padding-block: 65px;
+  }
+
+  .about-heading {
+    margin-bottom: 30px;
+  }
+
+  .about-heading h2 {
+    font-size: 34px;
+  }
+
+  .about-heading p {
+    font-size: 13px;
+  }
+
+  .about-panel {
+    gap: 5px;
+    min-height: auto;
+    padding: 34px 24px 25px;
+  }
+
+  .about-content h2 {
+    font-size: 35px;
+    line-height: 1.2;
+  }
+
+  .about-content > p {
+    font-size: 13px;
+    line-height: 1.85;
+  }
+
+  .about-content .button {
+    width: 100%;
+  }
+
+  .about-decoration {
+    min-height: 170px;
+  }
+
+  .decoration-circle {
+    width: 155px;
+    height: 155px;
   }
 
   .decoration-text {
-    font-size: 21px;
+    font-size: 25px;
+  }
+
+  .about-principles {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .about-principle {
+    padding: 25px;
+  }
+
+  .about-values {
+    margin-top: 55px;
+  }
+
+  .about-values-grid {
+    gap: 11px;
+  }
+
+  .about-value {
+    padding: 19px 15px;
+  }
+
+  .about-value h4 {
+    font-size: 17px;
+  }
+
+  .about-value p {
+    font-size: 11px;
+  }
+
+  .about-promise {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 23px;
+  }
+
+  .about-promise p {
+    font-size: 17px;
   }
 }
+
+@media (max-width: 380px) {
+  .about-values-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-panel {
+    padding-inline: 19px;
+  }
+
+  .about-content h2 {
+    font-size: 31px;
+  }
+}
+
 
 
 /* ==========================================================================
