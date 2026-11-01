@@ -446,49 +446,32 @@
   }
 
   // Agreed homepage card: clickable image + clickable title + Track only.
-  function createOpportunityCard(item) {
-    const id = escapeHTML(item.id);
-    const title = escapeHTML(item.title);
-    const url = escapeHTML(detailsURL(item.id));
-    const image = escapeHTML(item.image_url || FALLBACK_IMAGE);
-    const tracked = isTracked(item.id);
+function createOpportunityCard(item) {
+  const id = escapeHTML(item.id);
+  const title = escapeHTML(item.title);
+  const url = escapeHTML(detailsURL(item.id));
+  const image = escapeHTML(item.image_url || FALLBACK_IMAGE);
+  const tracked = isTracked(item.id);
 
-    return `
-      <article class="opportunity-card" data-id="${id}">
-        <a
-          class="opportunity-image-link"
-          href="${url}"
-          aria-label="View ${title}"
-        >
-          <img
-            class="opportunity-image"
-            src="${image}"
-            alt="${title}"
-            loading="lazy"
-            onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
-          >
+  return `
+    <article class="opportunity-card" data-id="${id}">
+      <div class="opportunity-image">
+        <a class="opportunity-image-link" href="${url}" aria-label="View ${title}">
+          <img src="${image}" alt="${title}" loading="lazy"
+            onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'">
         </a>
-
-        <div class="opportunity-content">
-          <h3 class="opportunity-title">
-            <a class="opportunity-title-link" href="${url}">
-              ${title}
-            </a>
-          </h3>
-
-          <button
-            type="button"
-            class="track-btn ${tracked ? "is-tracked" : ""}"
-            data-action="track"
-            data-id="${id}"
-            aria-pressed="${tracked}"
-          >
-            ${tracked ? "✓ Tracking" : "+ Track Opportunity"}
-          </button>
-        </div>
-      </article>
-    `;
-  }
+      </div>
+      <div class="opportunity-content">
+        <h3 class="opportunity-title">
+          <a class="opportunity-title-link" href="${url}">${title}</a>
+        </h3>
+        <button type="button" class="track-btn ${tracked ? "is-tracked" : ""}"
+          data-action="track" data-id="${id}" aria-pressed="${tracked}">
+          ${tracked ? "✓ Tracking" : "+ Track Opportunity"}
+        </button>
+      </div>
+    </article>`;
+}
 
   function renderOpportunities() {
     if (!el.grid) {
