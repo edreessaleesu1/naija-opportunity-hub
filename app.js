@@ -1,192 +1,75 @@
 
 /*
- * NAIJA OPPORTUNITY HUB
- * Main Front-End Application
- * Version 3.4
- *
- * Official domain:
- * https://naijaopportunityhub.com.ng
- *
- * Features:
- * - Supabase opportunity loading
- * - Search, category filtering and sorting
- * - Complete opportunity cards
- * - Working bookmarks
- * - Application tracker with status updates
- * - CSV export
- * - View All / Show Less
- * - Loading, empty and error states
- * - Custom-domain opportunity details links
+ * NAIJA OPPORTUNITY HUB — Main Front-End Application
+ * Version 3.5 | British English | 3-element opportunity cards
+ * Official domain: https://naijaopportunityhub.com.ng
  */
-
 (() => {
   "use strict";
 
-  /* =========================================================
-     1. CONFIGURATION
-  ========================================================= */
-
-  const SUPABASE_URL =
-    "https://djxornmwvkauhkcuhgxc.supabase.co";
-
-  const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
-
+  const SUPABASE_URL = "https://djxornmwvkauhkcuhgxc.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
   const TABLE_NAME = "opportunities";
-
   const SITE_URL = "https://naijaopportunityhub.com.ng";
-
-  const DETAILS_PAGE =
-    `${SITE_URL}/opportunity-details.html`;
-
+  const DETAILS_PAGE = `${SITE_URL}/opportunity-details.html`;
   const BOOKMARKS_KEY = "noh_bookmarks_v1";
   const TRACKER_KEY = "noh_tracker_v1";
-
   const DEFAULT_VISIBLE_COUNT = 6;
+  const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80";
+  const TRACKER_STATUSES = ["Interested", "Applied", "Interview", "Successful", "Unsuccessful"];
+  const DEBUG = new URLSearchParams(location.search).get("debug") === "1";
+  const $ = (selector, parent = document) => parent.querySelector(selector);
+  const getElement = (...ids) => ids.map(id => document.getElementById(id)).find(Boolean) || null;
 
-  const FALLBACK_IMAGE =
-    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80";
-
-  const TRACKER_STATUSES = [
-    "Interested",
-    "Applied",
-    "Interview",
-    "Successful",
-    "Unsuccessful"
-  ];
-
-  const DEBUG =
-    new URLSearchParams(window.location.search).get("debug") === "1";
-
-  /* =========================================================
-     2. DOM HELPERS
-  ========================================================= */
-
-  const $ = (selector, parent = document) =>
-    parent.querySelector(selector);
-
-  const $$ = (selector, parent = document) =>
-    Array.from(parent.querySelectorAll(selector));
-
-  function getElement(...ids) {
-    for (const id of ids) {
-      const element = document.getElementById(id);
-      if (element) return element;
-    }
-    return null;
-  }
-
-  const elements = {
-    opportunities: getElement(
-      "opportunityGrid",
-      "opportunitiesGrid",
-      "opportunitiesContainer"
-    ),
-
-    search: getElement(
-      "searchInput",
-      "opportunitySearch",
-      "search"
-    ),
-
-    categoryFilter: getElement("categoryFilter"),
-
-    sort: getElement(
-      "sortFilter",
-      "sortSelect",
-      "sortOpportunities"
-    ),
-
+  const el = {
+    grid: getElement("opportunityGrid", "opportunitiesGrid", "opportunitiesContainer"),
+    search: getElement("searchInput", "opportunitySearch", "search"),
+    category: getElement("categoryFilter"),
+    sort: getElement("sortFilter", "sortSelect", "sortOpportunities"),
     clearFilters: getElement("clearFilters"),
-    resultsCount: getElement("resultsCount"),
-    dataNotice: getElement("dataNotice"),
-    dataStatus: getElement("dataStatus"),
-
-    viewAll: getElement(
-      "viewAllBtn",
-      "viewAll",
-      "showAllBtn"
-    ),
-
-    bookmarks: getElement(
-      "bookmarksCount",
-      "bookmarkCount"
-    ),
-
-    tracker: getElement(
-      "trackerCount",
-      "applicationCount"
-    ),
-
+    results: getElement("resultsCount"),
+    notice: getElement("dataNotice"),
+    status: getElement("dataStatus"),
+    viewAll: getElement("viewAllBtn", "viewAll", "showAllBtn"),
+    bookmarks: getElement("bookmarksCount", "bookmarkCount"),
+    trackerCount: getElement("trackerCount", "applicationCount"),
     trackerList: getElement("trackerList"),
-
-    loading: getElement(
-      "loadingState",
-      "opportunitiesLoading"
-    ),
-
-    empty: getElement(
-      "emptyState",
-      "noOpportunities"
-    ),
-
-    error: getElement(
-      "errorState",
-      "opportunitiesError"
-    ),
-
+    loading: getElement("loadingState", "opportunitiesLoading"),
+    empty: getElement("emptyState", "noOpportunities"),
+    error: getElement("errorState", "opportunitiesError"),
     toast: getElement("toast")
   };
 
-  /* =========================================================
-     3. APPLICATION STATE
-  ========================================================= */
-
   let allOpportunities = [];
   let filteredOpportunities = [];
-
   let activeCategory = "All";
   let showAll = false;
   let isLoading = false;
   let toastTimer = null;
 
-  let bookmarks = readStorage(BOOKMARKS_KEY, []);
-  let tracker = readStorage(TRACKER_KEY, []);
+  let bookmarks = readStorage(BOOKMARKS_KEY, [])
+    .map(String)
+    .filter(Boolean);
 
-  // Normalise previously saved tracker records.
-  tracker = tracker
+  let tracker = readStorage(TRACKER_KEY, [])
     .filter(item => item && item.id)
     .map(item => ({
       ...item,
       id: String(item.id),
       title: String(item.title || "Untitled Opportunity"),
-      organization: String(
-        item.organization ||
-        item.organisation ||
-        "Organisation not specified"
-      ),
+      organization: String(item.organization || item.organisation || "Organisation not specified"),
       category: String(item.category || "Other"),
       application_url: safeURL(item.application_url || ""),
       date_added: item.date_added || new Date().toISOString(),
-      status: TRACKER_STATUSES.includes(item.status)
-        ? item.status
-        : "Interested"
+      status: TRACKER_STATUSES.includes(item.status) ? item.status : "Interested"
     }));
-
-  bookmarks = [
-    ...new Set(bookmarks.map(String).filter(Boolean))
-  ];
-
-  /* =========================================================
-     4. GENERAL HELPERS
-  ========================================================= */
 
   function readStorage(key, fallback) {
     try {
       const value = JSON.parse(localStorage.getItem(key));
       return Array.isArray(value) ? value : fallback;
     } catch (error) {
-      console.warn("Storage could not be read:", key, error);
+      console.warn("Unable to read local storage:", key, error);
       return fallback;
     }
   }
@@ -196,69 +79,41 @@
       localStorage.setItem(key, JSON.stringify(value));
       return true;
     } catch (error) {
-      console.error("Storage could not be saved:", key, error);
+      console.error("Unable to save local storage:", key, error);
       showToast("Unable to save changes on this device.");
       return false;
     }
   }
 
   function escapeHTML(value) {
-    return String(value ?? "").replace(
-      /[&<>"']/g,
-      character => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-      })[character]
-    );
+    return String(value ?? "").replace(/[&<>"']/g, ch => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[ch]);
   }
 
-  function normalize(value) {
-    return String(value ?? "").trim().toLowerCase();
+  function normalise(value) {
+    return String(value ?? "").trim().toLocaleLowerCase("en-GB");
   }
 
   function debugLog(...args) {
     if (DEBUG) console.log("[NOH]", ...args);
   }
 
-  function getOpportunityId(item) {
-    return String(item?.id ?? "");
-  }
-
-  function isBookmarked(id) {
-    return bookmarks.some(item => String(item) === String(id));
-  }
-
-  function isTracked(id) {
-    return tracker.some(item => String(item.id) === String(id));
-  }
-
-  function showElement(element, visible) {
-    if (element) element.hidden = !visible;
-  }
-
   function safeURL(value) {
     if (!value) return "";
-
     try {
       const url = new URL(String(value).trim());
-
-      if (
-        url.protocol === "https:" ||
-        url.protocol === "http:"
-      ) {
-        return url.href;
-      }
-
-      return "";
+      return ["https:", "http:"].includes(url.protocol) ? url.href : "";
     } catch {
       return "";
     }
   }
 
-  function getOpportunityDetailsURL(id) {
+  function detailsURL(id) {
     const url = new URL(DETAILS_PAGE);
     url.searchParams.set("id", String(id));
     return url.href;
@@ -266,55 +121,61 @@
 
   function formatDate(value) {
     if (!value) return "Not specified";
+    const date = parseDate(value);
 
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return "Not specified";
-    }
-
-    return date.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric"
-    });
+    return date
+      ? date.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric"
+        })
+      : "Not specified";
   }
 
-  function getDeadlineStatus(value) {
+  // Parse date-only values as local dates to avoid UTC timezone shifts.
+  function parseDate(value) {
+    if (!value) return null;
+
+    const raw = String(value);
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+
+    const date = match
+      ? new Date(
+          Number(match[1]),
+          Number(match[2]) - 1,
+          Number(match[3])
+        )
+      : new Date(raw);
+
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  function dateTimestamp(value) {
+    const date = parseDate(value);
+    return date ? date.getTime() : null;
+  }
+
+  function deadlineStatus(value) {
     if (!value) {
-      return {
-        label: "Deadline not specified",
-        type: "unknown"
-      };
+      return { label: "Deadline not specified", type: "unknown" };
     }
 
-    const deadline = new Date(value);
+    const deadline = parseDate(value);
 
-    if (Number.isNaN(deadline.getTime())) {
-      return {
-        label: "Deadline not specified",
-        type: "unknown"
-      };
+    if (!deadline) {
+      return { label: "Deadline not specified", type: "unknown" };
     }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    deadline.setHours(0, 0, 0, 0);
 
-    const deadlineDay = new Date(deadline);
-    deadlineDay.setHours(0, 0, 0, 0);
-
-    if (deadlineDay < today) {
-      return {
-        label: "Application closed",
-        type: "expired"
-      };
+    if (deadline < today) {
+      return { label: "Application closed", type: "expired" };
     }
 
-    if (deadlineDay.getTime() === today.getTime()) {
-      return {
-        label: "Deadline today",
-        type: "today"
-      };
+    if (deadline.getTime() === today.getTime()) {
+      return { label: "Deadline today", type: "today" };
     }
 
     return {
@@ -323,29 +184,35 @@
     };
   }
 
+  function showElement(element, visible) {
+    if (element) element.hidden = !visible;
+  }
+
   function showToast(message) {
-    if (!elements.toast) {
+    if (!el.toast) {
       debugLog(message);
       return;
     }
 
-    elements.toast.textContent = message;
-    elements.toast.classList.add("show");
-    elements.toast.hidden = false;
+    el.toast.textContent = message;
+    el.toast.classList.add("show");
+    el.toast.hidden = false;
 
-    if (toastTimer) {
-      clearTimeout(toastTimer);
-    }
+    clearTimeout(toastTimer);
 
     toastTimer = setTimeout(() => {
-      elements.toast.classList.remove("show");
-      elements.toast.hidden = true;
+      el.toast.classList.remove("show");
+      el.toast.hidden = true;
     }, 2800);
   }
 
-  /* =========================================================
-     5. SUPABASE CONNECTION
-  ========================================================= */
+  function isBookmarked(id) {
+    return bookmarks.includes(String(id));
+  }
+
+  function isTracked(id) {
+    return tracker.some(item => String(item.id) === String(id));
+  }
 
   async function fetchOpportunities(includeImages = true) {
     const columns = [
@@ -364,9 +231,7 @@
       "created_at"
     ];
 
-    if (includeImages) {
-      columns.push("image_url");
-    }
+    if (includeImages) columns.push("image_url");
 
     const query = new URLSearchParams({
       select: columns.join(","),
@@ -377,7 +242,6 @@
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?${query}`,
       {
-        method: "GET",
         headers: {
           apikey: SUPABASE_PUBLISHABLE_KEY,
           Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
@@ -397,84 +261,53 @@
 
       error.status = response.status;
       error.details = result;
-
       throw error;
     }
 
     return Array.isArray(result) ? result : [];
   }
 
-  /* =========================================================
-     6. NORMALISE OPPORTUNITY DATA
-  ========================================================= */
-
-  function normalizeOpportunity(item) {
-    const organization =
-      item.organization ||
-      item.organisation ||
-      "Organisation not specified";
-
+  function normaliseOpportunity(item) {
     return {
       ...item,
-
       id: String(item.id ?? ""),
-
-      title:
-        String(item.title || "").trim() ||
-        "Untitled Opportunity",
-
-      organization: String(organization).trim(),
-
-      category:
-        String(item.category || "Other").trim(),
-
-      description:
-        String(item.description || "").trim(),
-
-      eligibility:
-        String(item.eligibility || "").trim(),
-
-      location:
-        String(item.location || "").trim(),
-
+      title: String(item.title || "").trim() || "Untitled Opportunity",
+      organization: String(
+        item.organization ||
+        item.organisation ||
+        "Organisation not specified"
+      ).trim(),
+      category: String(item.category || "Other").trim(),
+      description: String(item.description || "").trim(),
+      eligibility: String(item.eligibility || "").trim(),
+      location: String(item.location || "").trim(),
       image_url: safeURL(item.image_url || ""),
-
       application_url: safeURL(
-        item.application_url ||
-        item.source_url ||
-        ""
+        item.application_url || item.source_url || ""
       ),
-
       source_url: safeURL(item.source_url || "")
     };
   }
-
-  /* =========================================================
-     7. LOAD OPPORTUNITIES
-  ========================================================= */
 
   async function loadOpportunities() {
     if (isLoading) return;
 
     isLoading = true;
 
-    showElement(elements.loading, true);
-    showElement(elements.empty, false);
-    showElement(elements.error, false);
+    showElement(el.loading, true);
+    showElement(el.empty, false);
+    showElement(el.error, false);
 
-    if (elements.dataNotice) {
-      elements.dataNotice.textContent = "";
-      showElement(elements.dataNotice, false);
+    if (el.notice) {
+      el.notice.textContent = "";
+      showElement(el.notice, false);
     }
 
-    if (elements.dataStatus) {
-      elements.dataStatus.textContent =
-        "Loading opportunities...";
+    if (el.status) {
+      el.status.textContent = "Loading opportunities…";
     }
 
-    if (elements.opportunities) {
-      elements.opportunities.innerHTML = "";
-    }
+    if (el.grid) el.grid.innerHTML = "";
 
     try {
       let data;
@@ -489,33 +322,43 @@
 
         if (!missingImageColumn) throw error;
 
-        debugLog("Retrying without image_url.");
+        debugLog("image_url column missing; retrying without it.");
+
         data = await fetchOpportunities(false);
+
+        if (el.notice) {
+          el.notice.textContent =
+            "Opportunity images are not configured in the database yet.";
+          showElement(el.notice, true);
+        }
       }
 
       allOpportunities = data
-        .map(normalizeOpportunity)
+        .map(normaliseOpportunity)
         .filter(item => item.id);
 
-      debugLog("Opportunities loaded:", allOpportunities);
+      debugLog("Loaded opportunities:", allOpportunities.length);
 
       applyFilters();
       renderTracker();
 
-      if (elements.dataStatus) {
-        elements.dataStatus.textContent =
+      if (el.status) {
+        el.status.textContent =
           `${allOpportunities.length} published opportunities available`;
       }
 
     } catch (error) {
       console.error("Unable to load opportunities:", error);
 
-      if (elements.dataStatus) {
-        elements.dataStatus.textContent =
-          "Unable to load opportunities.";
+      if (el.status) {
+        el.status.textContent = "Unable to load opportunities.";
       }
 
-      const errorHTML = `
+      const message = DEBUG
+        ? `<pre>${escapeHTML(error.message)}</pre>`
+        : "";
+
+      const markup = `
         <div class="empty-state">
           <h3>Unable to load opportunities</h3>
           <p>Please check your internet connection and try again.</p>
@@ -523,49 +366,38 @@
             type="button"
             class="button button-primary"
             id="retryOpportunities"
-          >
-            Try Again
-          </button>
-          ${
-            DEBUG
-              ? `<pre>${escapeHTML(error.message)}</pre>`
-              : ""
-          }
+          >Try Again</button>
+          ${message}
         </div>
       `;
 
-      if (elements.error) {
-        elements.error.innerHTML = errorHTML;
-        showElement(elements.error, true);
-      } else if (elements.opportunities) {
-        elements.opportunities.innerHTML = errorHTML;
+      if (el.error) {
+        el.error.innerHTML = markup;
+        showElement(el.error, true);
+      } else if (el.grid) {
+        el.grid.innerHTML = markup;
       }
 
     } finally {
       isLoading = false;
-      showElement(elements.loading, false);
+      showElement(el.loading, false);
     }
   }
 
-  /* =========================================================
-     8. FILTERING
-  ========================================================= */
-
   function applyFilters() {
-    const searchTerm = normalize(
-      elements.search?.value || ""
-    );
+    const term = normalise(el.search?.value || "");
 
-    if (elements.categoryFilter) {
-      elements.categoryFilter.value = activeCategory;
+    if (el.category) {
+      el.category.value =
+        activeCategory === "All" ? "all" : activeCategory;
     }
 
     filteredOpportunities = allOpportunities.filter(item => {
-      const matchesCategory =
+      const categoryMatch =
         activeCategory === "All" ||
-        normalize(item.category) === normalize(activeCategory);
+        normalise(item.category) === normalise(activeCategory);
 
-      const searchableText = [
+      const searchable = [
         item.title,
         item.organization,
         item.category,
@@ -574,260 +406,114 @@
         item.location
       ].join(" ");
 
-      const matchesSearch =
-        !searchTerm ||
-        normalize(searchableText).includes(searchTerm);
-
-      return matchesCategory && matchesSearch;
+      return categoryMatch &&
+        (!term || normalise(searchable).includes(term));
     });
 
     sortOpportunities();
     renderOpportunities();
   }
 
-  /* =========================================================
-     9. SORTING
-  ========================================================= */
-
-  function getDateTimestamp(value) {
-    if (!value) return null;
-
-    const timestamp = new Date(value).getTime();
-
-    return Number.isNaN(timestamp) ? null : timestamp;
-  }
-
   function sortOpportunities() {
-    const sortValue = elements.sort?.value || "newest";
+    const mode = el.sort?.value || "newest";
 
     filteredOpportunities.sort((a, b) => {
-      if (sortValue === "deadline") {
-        const dateA = getDateTimestamp(a.deadline);
-        const dateB = getDateTimestamp(b.deadline);
+      if (mode === "title") {
+        return a.title.localeCompare(b.title, "en-GB");
+      }
+
+      if (mode === "deadline") {
+        const da = dateTimestamp(a.deadline);
+        const db = dateTimestamp(b.deadline);
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const todayTime = today.getTime();
+        const priority = d =>
+          d === null ? 3 : d >= today.getTime() ? 1 : 2;
 
-        const getPriority = date => {
-          if (date === null) return 3;
-          if (date >= todayTime) return 1;
-          return 2;
-        };
+        const diff = priority(da) - priority(db);
 
-        const difference =
-          getPriority(dateA) - getPriority(dateB);
-
-        if (difference !== 0) return difference;
-
-        if (dateA === null || dateB === null) return 0;
-
-        return dateA - dateB;
+        return diff ||
+          (da === null || db === null ? 0 : da - db);
       }
 
-      if (sortValue === "title") {
-        return a.title.localeCompare(b.title);
-      }
-
-      const createdA =
-        getDateTimestamp(a.created_at) || 0;
-
-      const createdB =
-        getDateTimestamp(b.created_at) || 0;
-
-      return createdB - createdA;
+      return (
+        (dateTimestamp(b.created_at) || 0) -
+        (dateTimestamp(a.created_at) || 0)
+      );
     });
   }
 
-  /* =========================================================
-     10. OPPORTUNITY CARD
-  ========================================================= */
-
+  // Agreed homepage card: clickable image + clickable title + Track only.
   function createOpportunityCard(item) {
-    const id = getOpportunityId(item);
-
-    const image = item.image_url || FALLBACK_IMAGE;
-    const detailsURL = getOpportunityDetailsURL(id);
-
+    const id = escapeHTML(item.id);
     const title = escapeHTML(item.title);
-    const category = escapeHTML(item.category);
-    const organization = escapeHTML(item.organization);
-
-    const description = escapeHTML(
-      item.description || "View the full details to learn more about this opportunity."
-    );
-
-    const location = escapeHTML(item.location);
-    const eligibility = escapeHTML(item.eligibility);
-
-    const deadline = getDeadlineStatus(item.deadline);
-
-    const bookmarked = isBookmarked(id);
-    const tracked = isTracked(id);
-
-    const applicationURL = safeURL(item.application_url);
+    const url = escapeHTML(detailsURL(item.id));
+    const image = escapeHTML(item.image_url || FALLBACK_IMAGE);
+    const tracked = isTracked(item.id);
 
     return `
-      <article
-        class="opportunity-card"
-        data-id="${escapeHTML(id)}"
-      >
-
-        <div class="opportunity-image">
-
-          <a
-            class="opportunity-image-link"
-            href="${escapeHTML(detailsURL)}"
-            aria-label="View ${title}"
+      <article class="opportunity-card" data-id="${id}">
+        <a
+          class="opportunity-image-link"
+          href="${url}"
+          aria-label="View ${title}"
+        >
+          <img
+            class="opportunity-image"
+            src="${image}"
+            alt="${title}"
+            loading="lazy"
+            onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
           >
-            <img
-              src="${escapeHTML(image)}"
-              alt="${title}"
-              loading="lazy"
-              onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
-            >
-          </a>
-
-          <span class="opportunity-category">
-            ${category}
-          </span>
-
-          <button
-            type="button"
-            class="bookmark-btn ${bookmarked ? "is-bookmarked" : ""}"
-            data-action="bookmark"
-            data-id="${escapeHTML(id)}"
-            aria-label="${bookmarked ? "Remove bookmark" : "Bookmark opportunity"}"
-            aria-pressed="${bookmarked}"
-          >
-            ${bookmarked ? "♥ Saved" : "♡ Save"}
-          </button>
-
-        </div>
+        </a>
 
         <div class="opportunity-content">
-
-          <p class="opportunity-organization">
-            ${organization}
-          </p>
-
           <h3 class="opportunity-title">
-            <a
-              class="opportunity-title-link"
-              href="${escapeHTML(detailsURL)}"
-            >
+            <a class="opportunity-title-link" href="${url}">
               ${title}
             </a>
           </h3>
 
-          <p class="opportunity-description">
-            ${description}
-          </p>
-
-          ${
-            location
-              ? `
-                <p class="opportunity-location">
-                  <span aria-hidden="true">📍</span>
-                  ${location}
-                </p>
-              `
-              : ""
-          }
-
-          ${
-            eligibility
-              ? `
-                <p class="opportunity-eligibility">
-                  <strong>Eligibility:</strong>
-                  ${eligibility}
-                </p>
-              `
-              : ""
-          }
-
-          <p class="opportunity-deadline deadline-${deadline.type}">
-            ${escapeHTML(deadline.label)}
-          </p>
-
-          <div class="opportunity-actions">
-
-            <a
-              class="button button-primary"
-              href="${escapeHTML(detailsURL)}"
-            >
-              View Details
-            </a>
-
-            ${
-              applicationURL
-                ? `
-                  <a
-                    class="button button-outline"
-                    href="${escapeHTML(applicationURL)}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Apply
-                  </a>
-                `
-                : ""
-            }
-
-            <button
-              type="button"
-              class="track-btn ${tracked ? "is-tracked" : ""}"
-              data-action="track"
-              data-id="${escapeHTML(id)}"
-              aria-pressed="${tracked}"
-            >
-              ${tracked ? "✓ Tracking" : "+ Track"}
-            </button>
-
-          </div>
-
+          <button
+            type="button"
+            class="track-btn ${tracked ? "is-tracked" : ""}"
+            data-action="track"
+            data-id="${id}"
+            aria-pressed="${tracked}"
+          >
+            ${tracked ? "✓ Tracking" : "+ Track Opportunity"}
+          </button>
         </div>
-
       </article>
     `;
   }
 
-  /* =========================================================
-     11. RENDER OPPORTUNITIES
-  ========================================================= */
-
   function renderOpportunities() {
-    if (!elements.opportunities) {
+    if (!el.grid) {
       debugLog("Opportunity grid not found.");
       return;
     }
 
-    const visibleItems = showAll
+    const visible = showAll
       ? filteredOpportunities
-      : filteredOpportunities.slice(
-          0,
-          DEFAULT_VISIBLE_COUNT
-        );
+      : filteredOpportunities.slice(0, DEFAULT_VISIBLE_COUNT);
 
-    if (visibleItems.length) {
-      elements.opportunities.innerHTML = visibleItems
-        .map(createOpportunityCard)
-        .join("");
-    } else {
-      elements.opportunities.innerHTML = "";
-    }
+    el.grid.innerHTML = visible.length
+      ? visible.map(createOpportunityCard).join("")
+      : "";
 
-    const hasResults =
-      filteredOpportunities.length > 0;
+    const hasResults = filteredOpportunities.length > 0;
 
-    if (elements.empty) {
-      elements.empty.textContent =
+    if (el.empty) {
+      el.empty.textContent =
         "No opportunities found. Try another search or category.";
 
-      showElement(elements.empty, !hasResults);
+      showElement(el.empty, !hasResults);
+
     } else if (!hasResults) {
-      elements.opportunities.innerHTML = `
+      el.grid.innerHTML = `
         <div class="empty-state">
           <h3>No opportunities found</h3>
           <p>Try another search or category.</p>
@@ -835,20 +521,20 @@
       `;
     }
 
-    if (elements.resultsCount) {
-      const count = filteredOpportunities.length;
+    if (el.results) {
+      const n = filteredOpportunities.length;
 
-      elements.resultsCount.textContent =
-        `${count} ${count === 1 ? "opportunity" : "opportunities"} found`;
+      el.results.textContent =
+        `${n} ${n === 1 ? "opportunity" : "opportunities"} found`;
     }
 
-    if (elements.viewAll) {
-      const shouldShowButton =
-        filteredOpportunities.length > DEFAULT_VISIBLE_COUNT;
+    if (el.viewAll) {
+      showElement(
+        el.viewAll,
+        filteredOpportunities.length > DEFAULT_VISIBLE_COUNT
+      );
 
-      showElement(elements.viewAll, shouldShowButton);
-
-      elements.viewAll.textContent = showAll
+      el.viewAll.textContent = showAll
         ? "Show Less"
         : `View All (${filteredOpportunities.length})`;
     }
@@ -857,24 +543,19 @@
     syncCategoryButtons();
   }
 
-  /* =========================================================
-     12. CATEGORY BUTTONS
-  ========================================================= */
+  function categoryButtons() {
+    const container = getElement("categoryButtons");
 
-  function getCategoryButtons() {
-    const categoryContainer = getElement("categoryButtons");
-
-    if (!categoryContainer) return [];
-
-    return $$("[data-category]", categoryContainer);
+    return container
+      ? Array.from(container.querySelectorAll("[data-category]"))
+      : [];
   }
 
   function syncCategoryButtons() {
-    getCategoryButtons().forEach(button => {
-      const category = button.dataset.category || "";
-
+    categoryButtons().forEach(button => {
       const active =
-        normalize(category) === normalize(activeCategory);
+        normalise(button.dataset.category) ===
+        normalise(activeCategory);
 
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
@@ -887,71 +568,26 @@
     applyFilters();
   }
 
-  function setupCategoryButtons() {
-    const container = getElement("categoryButtons");
-
-    container?.addEventListener("click", event => {
-      const button = event.target.closest("[data-category]");
-
-      if (!button || !container.contains(button)) return;
-
-      event.preventDefault();
-
-      selectCategory(
-        button.dataset.category || "All"
-      );
-    });
-  }
-
-  /* =========================================================
-     13. BOOKMARKS
-  ========================================================= */
-
-  function toggleBookmark(id) {
-    id = String(id);
-
-    if (isBookmarked(id)) {
-      bookmarks = bookmarks.filter(
-        item => String(item) !== id
-      );
-
-      showToast("Bookmark removed.");
-    } else {
-      bookmarks.push(id);
-      showToast("Opportunity saved to bookmarks.");
-    }
-
-    saveStorage(BOOKMARKS_KEY, bookmarks);
-    renderOpportunities();
-  }
-
-  /* =========================================================
-     14. APPLICATION TRACKER
-  ========================================================= */
-
   function toggleTracker(id) {
     id = String(id);
 
     if (isTracked(id)) {
-      tracker = tracker.filter(
-        item => String(item.id) !== id
-      );
-
+      tracker = tracker.filter(item => String(item.id) !== id);
       showToast("Removed from your application tracker.");
 
     } else {
-      const opportunity = allOpportunities.find(
-        item => getOpportunityId(item) === id
+      const item = allOpportunities.find(
+        entry => entry.id === id
       );
 
-      if (!opportunity) return;
+      if (!item) return;
 
       tracker.push({
         id,
-        title: opportunity.title,
-        organization: opportunity.organization,
-        category: opportunity.category,
-        application_url: opportunity.application_url,
+        title: item.title,
+        organization: item.organization,
+        category: item.category,
+        application_url: item.application_url,
         date_added: new Date().toISOString(),
         status: "Interested"
       });
@@ -960,7 +596,6 @@
     }
 
     saveStorage(TRACKER_KEY, tracker);
-
     renderOpportunities();
     renderTracker();
   }
@@ -977,7 +612,6 @@
     item.status = status;
 
     saveStorage(TRACKER_KEY, tracker);
-
     renderTracker();
     updateCounters();
 
@@ -990,7 +624,6 @@
     );
 
     saveStorage(TRACKER_KEY, tracker);
-
     renderTracker();
     renderOpportunities();
 
@@ -998,10 +631,10 @@
   }
 
   function renderTracker() {
-    if (!elements.trackerList) return;
+    if (!el.trackerList) return;
 
     if (!tracker.length) {
-      elements.trackerList.innerHTML = `
+      el.trackerList.innerHTML = `
         <div class="tracker-empty">
           <p>You haven't added any opportunities to your tracker yet.</p>
           <p>Use the Track button on an opportunity to get started.</p>
@@ -1012,85 +645,62 @@
       return;
     }
 
-    elements.trackerList.innerHTML = tracker.map(item => {
+    el.trackerList.innerHTML = tracker.map(item => {
       const id = escapeHTML(item.id);
       const title = escapeHTML(item.title);
-      const organization = escapeHTML(item.organization);
+      const organisation = escapeHTML(item.organization);
       const category = escapeHTML(item.category);
+
       const status = TRACKER_STATUSES.includes(item.status)
         ? item.status
         : "Interested";
 
-      const applicationURL = safeURL(item.application_url);
-
-      const statusOptions = TRACKER_STATUSES.map(option => `
+      const options = TRACKER_STATUSES.map(option => `
         <option
           value="${escapeHTML(option)}"
           ${option === status ? "selected" : ""}
-        >
-          ${escapeHTML(option)}
-        </option>
+        >${escapeHTML(option)}</option>
       `).join("");
+
+      const application = safeURL(item.application_url);
 
       return `
         <article class="tracker-item" data-id="${id}">
-
           <div class="tracker-item-info">
-
             <h4>${title}</h4>
-
-            <p>${organization}</p>
-
-            <span class="tracker-category">
-              ${category}
-            </span>
-
+            <p>${organisation}</p>
+            <span class="tracker-category">${category}</span>
             <p class="tracker-date">
               Added: ${formatDate(item.date_added)}
             </p>
-
           </div>
 
           <div class="tracker-item-actions">
-
             <label>
               <span>Application status</span>
-
               <select
                 class="tracker-status"
                 data-action="tracker-status"
                 data-id="${id}"
-              >
-                ${statusOptions}
-              </select>
+              >${options}</select>
             </label>
 
-            ${
-              applicationURL
-                ? `
-                  <a
-                    href="${escapeHTML(applicationURL)}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="tracker-apply-link"
-                  >
-                    Open Application
-                  </a>
-                `
-                : ""
-            }
+            ${application ? `
+              <a
+                href="${escapeHTML(application)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="tracker-apply-link"
+              >Open Application</a>
+            ` : ""}
 
             <button
               type="button"
               class="tracker-remove-btn"
               data-action="tracker-remove"
               data-id="${id}"
-            >
-              Remove
-            </button>
-
+            >Remove</button>
           </div>
-
         </article>
       `;
     }).join("");
@@ -1098,23 +708,26 @@
     updateCounters();
   }
 
-  /* =========================================================
-     15. COUNTERS
-  ========================================================= */
-
   function updateCounters() {
-    if (elements.bookmarks) {
-      elements.bookmarks.textContent = bookmarks.length;
+    if (el.bookmarks) {
+      el.bookmarks.textContent = bookmarks.length;
     }
 
-    if (elements.tracker) {
-      elements.tracker.textContent = tracker.length;
+    if (el.trackerCount) {
+      el.trackerCount.textContent = tracker.length;
     }
   }
 
-  /* =========================================================
-     16. CSV EXPORT
-  ========================================================= */
+  function csvCell(value) {
+    let text = String(value ?? "");
+
+    // Prevent spreadsheet formula injection in exported user-controlled fields.
+    if (/^[\s]*[=+@\-]/.test(text)) {
+      text = `'${text}`;
+    }
+
+    return `"${text.replace(/"/g, '""')}"`;
+  }
 
   function exportTrackerCSV() {
     if (!tracker.length) {
@@ -1122,32 +735,28 @@
       return;
     }
 
-    const headers = [
-      "Title",
-      "Organisation",
-      "Category",
-      "Application URL",
-      "Date Added",
-      "Status"
+    const rows = [
+      [
+        "Title",
+        "Organisation",
+        "Category",
+        "Application URL",
+        "Date Added",
+        "Status"
+      ],
+      ...tracker.map(item => [
+        item.title,
+        item.organization,
+        item.category,
+        item.application_url,
+        item.date_added,
+        item.status
+      ])
     ];
 
-    const rows = tracker.map(item => [
-      item.title,
-      item.organization,
-      item.category,
-      item.application_url,
-      item.date_added,
-      item.status
-    ]);
-
-    const csv = [
-      headers,
-      ...rows
-    ].map(row =>
-      row.map(value =>
-        `"${String(value ?? "").replace(/"/g, '""')}"`
-      ).join(",")
-    ).join("\n");
+    const csv = rows
+      .map(row => row.map(csvCell).join(","))
+      .join("\r\n");
 
     const blob = new Blob(
       ["\uFEFF" + csv],
@@ -1155,8 +764,8 @@
     );
 
     const url = URL.createObjectURL(blob);
-
     const link = document.createElement("a");
+
     link.href = url;
     link.download = "naija-opportunity-hub-tracker.csv";
 
@@ -1169,213 +778,128 @@
     showToast("Your tracker has been exported.");
   }
 
-  /* =========================================================
-     17. CLEAR TRACKER
-  ========================================================= */
-
   function clearTracker() {
     if (!tracker.length) {
       showToast("Your application tracker is already empty.");
       return;
     }
 
-    const confirmed = window.confirm(
+    if (!window.confirm(
       "Are you sure you want to clear your application tracker?"
-    );
-
-    if (!confirmed) return;
+    )) return;
 
     tracker = [];
 
     saveStorage(TRACKER_KEY, tracker);
-
     renderTracker();
     renderOpportunities();
 
     showToast("Application tracker cleared.");
   }
 
-  /* =========================================================
-     18. CLEAR FILTERS
-  ========================================================= */
-
   function resetFilters() {
     activeCategory = "All";
     showAll = false;
 
-    if (elements.search) {
-      elements.search.value = "";
-    }
-
-    if (elements.categoryFilter) {
-      elements.categoryFilter.value = "All";
-    }
-
-    if (elements.sort) {
-      elements.sort.value = "newest";
-    }
+    if (el.search) el.search.value = "";
+    if (el.category) el.category.value = "All";
+    if (el.sort) el.sort.value = "newest";
 
     applyFilters();
   }
 
-  /* =========================================================
-     19. DELEGATED ACTIONS
-  ========================================================= */
+  function setupEvents() {
+    el.search?.addEventListener("input", () => {
+      showAll = false;
+      applyFilters();
+    });
 
-  function setupOpportunityActions() {
-    if (!elements.opportunities) return;
+    el.category?.addEventListener("change", () => {
+      selectCategory(el.category.value || "All");
+    });
 
-    elements.opportunities.addEventListener("click", event => {
-      const button = event.target.closest("[data-action]");
+    el.sort?.addEventListener("change", applyFilters);
+    el.clearFilters?.addEventListener("click", resetFilters);
 
-      if (!button || !elements.opportunities.contains(button)) {
-        return;
+    el.viewAll?.addEventListener("click", () => {
+      showAll = !showAll;
+      renderOpportunities();
+    });
+
+    getElement(
+      "exportTracker",
+      "exportCSV",
+      "exportTrackerBtn"
+    )?.addEventListener("click", exportTrackerCSV);
+
+    getElement(
+      "clearTracker",
+      "clearTrackerBtn"
+    )?.addEventListener("click", clearTracker);
+
+    getElement(
+      "refreshOpportunities",
+      "refreshBtn"
+    )?.addEventListener("click", loadOpportunities);
+
+    getElement("categoryButtons")?.addEventListener(
+      "click",
+      event => {
+        const button = event.target.closest("[data-category]");
+
+        if (button) {
+          event.preventDefault();
+          selectCategory(button.dataset.category || "All");
+        }
       }
+    );
 
-      const id = button.dataset.id;
-      const action = button.dataset.action;
+    el.grid?.addEventListener("click", event => {
+      const button = event.target.closest(
+        '[data-action="track"]'
+      );
 
-      if (!id) return;
-
-      if (action === "bookmark") {
-        toggleBookmark(id);
-      }
-
-      if (action === "track") {
-        toggleTracker(id);
-      }
-
-      if (action === "retry") {
-        loadOpportunities();
+      if (button && el.grid.contains(button)) {
+        toggleTracker(button.dataset.id);
       }
     });
-  }
 
-  function setupTrackerActions() {
-    if (!elements.trackerList) return;
-
-    elements.trackerList.addEventListener("change", event => {
+    el.trackerList?.addEventListener("change", event => {
       const select = event.target.closest(
         '[data-action="tracker-status"]'
       );
 
-      if (!select) return;
-
-      updateTrackerStatus(
-        select.dataset.id,
-        select.value
-      );
+      if (select) {
+        updateTrackerStatus(select.dataset.id, select.value);
+      }
     });
 
-    elements.trackerList.addEventListener("click", event => {
+    el.trackerList?.addEventListener("click", event => {
       const button = event.target.closest(
         '[data-action="tracker-remove"]'
       );
 
-      if (!button) return;
-
-      removeTrackerItem(button.dataset.id);
+      if (button) {
+        removeTrackerItem(button.dataset.id);
+      }
     });
-  }
 
-  /* =========================================================
-     20. EVENT LISTENERS
-  ========================================================= */
-
-  function setupEventListeners() {
-
-    elements.search?.addEventListener(
-      "input",
-      () => {
-        showAll = false;
-        applyFilters();
-      }
-    );
-
-    elements.categoryFilter?.addEventListener(
-      "change",
-      () => {
-        selectCategory(
-          elements.categoryFilter.value || "All"
-        );
-      }
-    );
-
-    elements.sort?.addEventListener(
-      "change",
-      applyFilters
-    );
-
-    elements.clearFilters?.addEventListener(
-      "click",
-      resetFilters
-    );
-
-    elements.viewAll?.addEventListener(
-      "click",
-      () => {
-        showAll = !showAll;
-        renderOpportunities();
-      }
-    );
-
-    const exportButton = getElement(
-      "exportTracker",
-      "exportCSV",
-      "exportTrackerBtn"
-    );
-
-    exportButton?.addEventListener(
-      "click",
-      exportTrackerCSV
-    );
-
-    const clearButton = getElement(
-      "clearTracker",
-      "clearTrackerBtn"
-    );
-
-    clearButton?.addEventListener(
-      "click",
-      clearTracker
-    );
-
-    const refreshButton = getElement(
-      "refreshOpportunities",
-      "refreshBtn"
-    );
-
-    refreshButton?.addEventListener(
-      "click",
-      loadOpportunities
-    );
-
-    // Support the retry button in the error state.
     document.addEventListener("click", event => {
       if (event.target.closest("#retryOpportunities")) {
         loadOpportunities();
       }
     });
-
-    setupOpportunityActions();
-    setupTrackerActions();
   }
 
-  /* =========================================================
-     21. INITIALISE APPLICATION
-  ========================================================= */
-
   function init() {
-    debugLog("Naija Opportunity Hub v3.4 initialising...");
-    debugLog("Official website:", SITE_URL);
-    debugLog("Details page:", DETAILS_PAGE);
+    debugLog(
+      "Naija Opportunity Hub v3.5 initialising",
+      SITE_URL
+    );
 
-    setupCategoryButtons();
-    setupEventListeners();
-
+    setupEvents();
     updateCounters();
     renderTracker();
-
     loadOpportunities();
   }
 
