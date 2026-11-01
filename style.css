@@ -1,16 +1,12 @@
-/* ==========================================================================
-   NAIJA OPPORTUNITY HUB — style.css (consolidated)
-   Emerald, champagne gold and warm ivory.
-   Sections: 1 Tokens · 2 Base · 3 Header · 4 Buttons · 5 Hero · 6 Categories
-   7 Trust bar · 8 Headings · 9 Opportunities · 10 Showcase · 11 Career Kit
-   12 Access portal · 13 Tracker · 14 Trust cards · 15 About · 16 CTA
-   17 Footer · 18 Toast · 19 CV builder · 20 Motion
-   ========================================================================== */
-
 
 /* ==========================================================================
-   1. TOKENS
-   ========================================================================== */
+   NAIJA OPPORTUNITY HUB — style.css
+   Shared website stylesheet
+   Emerald · Champagne Gold · Warm Ivory
+   About page styles are maintained separately in about.css.
+========================================================================== */
+
+/* 1. DESIGN TOKENS */
 
 :root {
   --green: #087a55;
@@ -32,6 +28,7 @@
   --muted: #718078;
   --border: #e6ece8;
   --danger: #b42318;
+  --success: #087a55;
 
   --radius-sm: 10px;
   --radius-md: 16px;
@@ -45,10 +42,7 @@
   --font: Inter, "Segoe UI", Arial, sans-serif;
 }
 
-
-/* ==========================================================================
-   2. BASE
-   ========================================================================== */
+/* 2. BASE */
 
 * {
   box-sizing: border-box;
@@ -163,13 +157,13 @@ section {
   box-shadow: var(--shadow-sm);
 }
 
-/* Shared vertical rhythm for the main sections */
+/* Shared section spacing. About page spacing is in about.css. */
+
 .opportunities-section,
 .showcase-section,
 .career-section,
 .tracker-section,
-.trust-section,
-.about-section {
+.trust-section {
   padding-block: 88px;
 }
 
@@ -178,8 +172,7 @@ section {
   .showcase-section,
   .career-section,
   .tracker-section,
-  .trust-section,
-  .about-section {
+  .trust-section {
     padding-block: 65px;
   }
 }
@@ -197,8 +190,7 @@ section {
   .showcase-section,
   .career-section,
   .tracker-section,
-  .trust-section,
-  .about-section {
+  .trust-section {
     padding-block: 58px;
   }
 }
@@ -209,10 +201,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   3. HEADER AND NAVIGATION
-   ========================================================================== */
+/* 3. HEADER AND NAVIGATION */
 
 .site-header {
   position: sticky;
@@ -291,7 +280,6 @@ section {
   color: var(--green);
 }
 
-/* Gold underline that slides in on hover */
 .navlinks a:not(:last-child)::after {
   content: "";
   position: absolute;
@@ -308,7 +296,6 @@ section {
   right: 0;
 }
 
-/* Last link is the call-to-action button */
 .navlinks a:last-child {
   padding: 11px 19px;
   border-radius: 9px;
@@ -427,7 +414,6 @@ section {
     font-size: 12px;
   }
 
-  /* Dropdown menu */
   .navlinks {
     display: none;
     position: absolute;
@@ -485,10 +471,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   4. BUTTONS
-   ========================================================================== */
+/* 4. BUTTONS */
 
 .button {
   display: inline-flex;
@@ -556,14 +539,7 @@ section {
   background: #ffe9e6;
 }
 
-
-/* ==========================================================================
-   5. HERO BANNER
-   Layers, back to front: blurred photo, sharp photo, dark overlay, content.
-   The photo comes from --hero-photo (hero-image.css). If that is missing, it
-   falls back to images/hero-study-group.jpg, and if that is missing too the
-   banner stays a clean dark colour with the headline on it.
-   ========================================================================== */
+/* 5. HERO BANNER */
 
 .hero-banner {
   position: relative;
@@ -574,7 +550,6 @@ section {
   color: #fff;
 }
 
-/* Dark gradient overlay for text contrast */
 .hero-banner::after {
   content: "";
   position: absolute;
@@ -716,7 +691,6 @@ section {
   background: rgba(255, 255, 255, 0.14);
 }
 
-/* Phones and tablets: headline on top, photo rising from the bottom */
 @media (max-width: 1199px) {
   .hero-banner::after {
     background: linear-gradient(
@@ -817,10 +791,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   6. CATEGORY STRIP
-   ========================================================================== */
+/* 6. CATEGORY STRIP */
 
 .category-strip {
   background: var(--ivory);
@@ -925,10 +896,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   7. TRUST BAR
-   ========================================================================== */
+/* 7. TRUST BAR */
 
 .trust-bar {
   background: linear-gradient(110deg, var(--forest), var(--emerald));
@@ -984,10 +952,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   8. SECTION HEADINGS
-   ========================================================================== */
+/* 8. SECTION HEADINGS */
 
 .section-intro {
   max-width: 690px;
@@ -1006,8 +971,7 @@ section {
 
 .section-intro h2,
 .section-head h2,
-.showcase-copy h2,
-.about-content h2 {
+.showcase-copy h2 {
   color: var(--green-deep);
   font-size: clamp(26px, 3vw, 36px);
   font-weight: 800;
@@ -1053,8 +1017,7 @@ section {
 
   .section-intro h2,
   .section-head h2,
-  .showcase-copy h2,
-  .about-content h2 {
+  .showcase-copy h2 {
     font-size: 27px;
     line-height: 1.3;
   }
@@ -1076,10 +1039,7 @@ section {
   }
 }
 
-
-/* =========================================================
-   9. OPPORTUNITIES SECTION
-========================================================= */
+/* 9. OPPORTUNITIES SECTION */
 
 .opportunities-section {
   padding: 85px 0;
@@ -1215,7 +1175,7 @@ section {
   font-size: .85rem;
 }
 
-/* Opportunity grid */
+/* Opportunity grid and cards */
 
 #opportunityGrid,
 .opportunity-grid {
@@ -1226,6 +1186,8 @@ section {
 }
 
 .opportunity-card {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   overflow: hidden;
   background: var(--white);
@@ -1240,10 +1202,10 @@ section {
   box-shadow: var(--shadow-md);
 }
 
-/* Opportunity image and image link */
-
 .opportunity-image {
   position: relative;
+  display: block;
+  width: 100%;
   height: 210px;
   overflow: hidden;
   background: #e9efeb;
@@ -1257,6 +1219,7 @@ section {
 }
 
 .opportunity-image img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1291,7 +1254,10 @@ section {
 /* Opportunity content */
 
 .opportunity-content {
-  padding: 21px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
 }
 
 .opportunity-organisation {
@@ -1302,7 +1268,7 @@ section {
 }
 
 .opportunity-title {
-  margin-bottom: 10px;
+  margin: 0 0 10px;
   color: var(--green-deep);
   font-size: 1.12rem;
   line-height: 1.4;
@@ -1365,6 +1331,30 @@ section {
 
 .deadline.expired {
   color: var(--danger);
+}
+
+/* Track button */
+
+.track-btn {
+  width: 100%;
+  min-height: 44px;
+  margin-top: auto;
+  padding: 10px;
+  border: 1px solid var(--green);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--green-dark);
+  font-weight: 700;
+  transition: .2s ease;
+}
+
+.track-btn:hover {
+  background: var(--green-light);
+}
+
+.track-btn.is-tracked {
+  background: var(--green);
+  color: var(--white);
 }
 
 /* Loading and empty states */
@@ -1497,9 +1487,9 @@ section {
     grid-column: auto;
   }
 }
-/* ==========================================================================
-   11. CAREER KIT
-   ========================================================================== */
+
+
+/* 11. CAREER KIT */
 
 .career-section {
   --panel-pad: 30px;
@@ -1548,8 +1538,6 @@ section {
   letter-spacing: 0.5px;
 }
 
-/* Illustrated header of each card; sized from --panel-pad so it always
-   bleeds exactly to the card edge */
 .career-visual {
   align-self: stretch;
   width: calc(100% + var(--panel-pad) * 2);
@@ -1696,10 +1684,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   12. CAREER KIT ACCESS PORTAL
-   ========================================================================== */
+/* 12. CAREER KIT ACCESS PORTAL */
 
 .account-section {
   padding: 38px 20px;
@@ -1965,10 +1950,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   13. APPLICATION TRACKER
-   ========================================================================== */
+/* 13. APPLICATION TRACKER */
 
 .tracker-section {
   background: var(--white);
@@ -2035,8 +2017,6 @@ section {
 .tracker-list > * + * {
   margin-top: 12px;
 }
-
-/* Rows created by app.js */
 
 .tracker-item {
   display: grid;
@@ -2137,10 +2117,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   14. TRUST CARDS
-   ========================================================================== */
+/* 14. TRUST CARDS */
 
 .trust-section {
   padding-block: 85px;
@@ -2239,458 +2216,11 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   15. ABOUT NOH — PREMIUM EDITORIAL DESIGN
-   British-inspired | Forest green | Champagne gold | Warm ivory
-   ========================================================================== */
-
-.about-section {
-  position: relative;
-  padding-block: 100px;
-  overflow: hidden;
-  background: #f8f6ef;
-}
-
-.about-section .wrap {
-  max-width: 1160px;
-}
-
-/* Editorial introduction */
-
-.about-heading {
-  max-width: 760px;
-  margin: 0 auto 46px;
-  text-align: center;
-}
-
-.about-heading .section-kicker {
-  color: #a7833e;
-  letter-spacing: 2.5px;
-}
-
-.about-heading h2 {
-  margin-top: 8px;
-  color: #123a2c;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(34px, 4vw, 48px);
-  font-weight: 500;
-  line-height: 1.16;
-  letter-spacing: -1.2px;
-}
-
-.about-heading p {
-  max-width: 620px;
-  margin: 17px auto 0;
-  color: #69766d;
-  font-size: 15px;
-  line-height: 1.9;
-}
-
-/* Main story panel */
-
-.about-panel {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(250px, .65fr);
-  align-items: center;
-  gap: 55px;
-  min-height: 390px;
-  padding: 65px;
-  overflow: hidden;
-  border: 1px solid rgba(207, 177, 111, .35);
-  border-radius: 4px;
-  background:
-    radial-gradient(
-      circle at 90% 15%,
-      rgba(196, 154, 67, .16),
-      transparent 30%
-    ),
-    linear-gradient(125deg, #102d23, #064c36);
-  box-shadow: 0 24px 60px rgba(12, 43, 31, .12);
-}
-
-.about-content {
-  position: relative;
-  z-index: 2;
-}
-
-.about-content .section-kicker {
-  color: #e1c27b;
-}
-
-.about-content h2 {
-  max-width: 650px;
-  margin-top: 12px;
-  color: #fffdf6;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(34px, 4vw, 49px);
-  font-weight: 500;
-  line-height: 1.17;
-  letter-spacing: -1.3px;
-}
-
-.about-content h2 span {
-  color: #e3c77f;
-  font-style: italic;
-}
-
-.about-content > p {
-  max-width: 620px;
-  margin-top: 21px;
-  color: rgba(255, 255, 255, .79);
-  font-size: 14px;
-  line-height: 2;
-}
-
-.about-content .button {
-  margin-top: 29px;
-  border: 1px solid #d6b86f;
-  border-radius: 3px;
-  background: #d6b86f;
-  color: #193527;
-  font-weight: 800;
-  letter-spacing: .2px;
-}
-
-.about-content .button:hover {
-  background: #ebd49b;
-  border-color: #ebd49b;
-}
-
-/* Decorative identity */
-
-.about-decoration {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 245px;
-}
-
-.decoration-circle {
-  position: absolute;
-  width: 225px;
-  height: 225px;
-  border: 1px solid rgba(222, 194, 125, .45);
-  border-radius: 50%;
-}
-
-.decoration-circle::before,
-.decoration-circle::after {
-  content: "";
-  position: absolute;
-  inset: 17px;
-  border: 1px solid rgba(222, 194, 125, .24);
-  border-radius: 50%;
-}
-
-.decoration-circle::after {
-  inset: 36px;
-}
-
-.decoration-star {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  color: #e4c77d;
-  font-size: 35px;
-}
-
-.decoration-text {
-  position: relative;
-  color: #f1d994;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 31px;
-  font-weight: 500;
-  line-height: 1.35;
-  text-align: center;
-}
-
-/* Mission and vision */
-
-.about-principles {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
-  margin-top: 24px;
-}
-
-.about-principle {
-  position: relative;
-  padding: 32px;
-  border: 1px solid #e9e2d3;
-  border-top: 3px solid #bd984d;
-  background: #fffefa;
-  transition: transform .25s ease, box-shadow .25s ease;
-}
-
-.about-principle:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 35px rgba(25, 54, 38, .07);
-}
-
-.about-principle .principle-number {
-  display: block;
-  margin-bottom: 18px;
-  color: #b38c45;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 14px;
-  letter-spacing: 2px;
-}
-
-.about-principle h3 {
-  margin-bottom: 10px;
-  color: #143d2d;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 25px;
-  font-weight: 500;
-}
-
-.about-principle p {
-  color: #68756b;
-  font-size: 13px;
-  line-height: 1.9;
-}
-
-/* Our values */
-
-.about-values {
-  margin-top: 75px;
-}
-
-.about-values-heading {
-  max-width: 650px;
-  margin-bottom: 28px;
-}
-
-.about-values-heading .section-kicker {
-  color: #a7833e;
-}
-
-.about-values-heading h3 {
-  margin-top: 7px;
-  color: #143d2d;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(27px, 3vw, 35px);
-  font-weight: 500;
-}
-
-.about-values-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 15px;
-}
-
-.about-value {
-  padding: 25px 20px;
-  border: 1px solid #e8e4d9;
-  background: rgba(255, 254, 250, .85);
-  transition: border-color .2s ease, transform .2s ease;
-}
-
-.about-value:hover {
-  transform: translateY(-3px);
-  border-color: #c9a65f;
-}
-
-.about-value-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 43px;
-  height: 43px;
-  margin-bottom: 17px;
-  border: 1px solid #eadfc4;
-  border-radius: 50%;
-  background: #f7f0df;
-  color: #9b7736;
-  font-size: 19px;
-}
-
-.about-value h4 {
-  margin-bottom: 8px;
-  color: #153c2d;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 19px;
-  font-weight: 500;
-}
-
-.about-value p {
-  color: #718077;
-  font-size: 12px;
-  line-height: 1.85;
-}
-
-/* Closing promise */
-
-.about-promise {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 25px;
-  margin-top: 28px;
-  padding: 29px 34px;
-  border: 1px solid #e4dccb;
-  background: #f0ecdf;
-}
-
-.about-promise p {
-  max-width: 730px;
-  color: #43574a;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 19px;
-  line-height: 1.65;
-}
-
-.about-promise strong {
-  color: #a17c39;
-  font-weight: 600;
-}
-
-.about-promise span {
-  flex-shrink: 0;
-  color: #a17c39;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-}
-
-/* Responsive design */
-
-@media (max-width: 900px) {
-  .about-panel {
-    grid-template-columns: 1fr;
-    gap: 15px;
-    padding: 48px;
-  }
-
-  .about-decoration {
-    min-height: 190px;
-  }
-
-  .decoration-circle {
-    width: 180px;
-    height: 180px;
-  }
-
-  .about-values-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
-  .about-section {
-    padding-block: 65px;
-  }
-
-  .about-heading {
-    margin-bottom: 30px;
-  }
-
-  .about-heading h2 {
-    font-size: 34px;
-  }
-
-  .about-heading p {
-    font-size: 13px;
-  }
-
-  .about-panel {
-    gap: 5px;
-    min-height: auto;
-    padding: 34px 24px 25px;
-  }
-
-  .about-content h2 {
-    font-size: 35px;
-    line-height: 1.2;
-  }
-
-  .about-content > p {
-    font-size: 13px;
-    line-height: 1.85;
-  }
-
-  .about-content .button {
-    width: 100%;
-  }
-
-  .about-decoration {
-    min-height: 170px;
-  }
-
-  .decoration-circle {
-    width: 155px;
-    height: 155px;
-  }
-
-  .decoration-text {
-    font-size: 25px;
-  }
-
-  .about-principles {
-    grid-template-columns: 1fr;
-    gap: 14px;
-    margin-top: 16px;
-  }
-
-  .about-principle {
-    padding: 25px;
-  }
-
-  .about-values {
-    margin-top: 55px;
-  }
-
-  .about-values-grid {
-    gap: 11px;
-  }
-
-  .about-value {
-    padding: 19px 15px;
-  }
-
-  .about-value h4 {
-    font-size: 17px;
-  }
-
-  .about-value p {
-    font-size: 11px;
-  }
-
-  .about-promise {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 13px;
-    padding: 23px;
-  }
-
-  .about-promise p {
-    font-size: 17px;
-  }
-}
-
-@media (max-width: 380px) {
-  .about-values-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .about-panel {
-    padding-inline: 19px;
-  }
-
-  .about-content h2 {
-    font-size: 31px;
-  }
-}
-
-
-
-/* ==========================================================================
-   16. CALL TO ACTION
-   ========================================================================== */
+/* 15. ABOUT
+   Intentionally moved to about.css.
+*/
+
+/* 16. CALL TO ACTION */
 
 .cta-banner {
   padding: 78px 0;
@@ -2748,10 +2278,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   17. FOOTER
-   ========================================================================== */
+/* 17. FOOTER */
 
 .footer {
   padding: 62px 0 22px;
@@ -2875,10 +2402,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   18. TOAST
-   ========================================================================== */
+/* 18. TOAST */
 
 .toast {
   position: fixed;
@@ -2914,10 +2438,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   19. CV BUILDER
-   ========================================================================== */
+/* 19. CV BUILDER */
 
 .cv-builder {
   margin-top: 35px;
@@ -3040,7 +2561,6 @@ section {
   font-size: 16px;
 }
 
-/* Added: the builder had no responsive rule, so the two columns never stacked */
 @media (max-width: 900px) {
   .cv-builder-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -3053,10 +2573,7 @@ section {
   }
 }
 
-
-/* ==========================================================================
-   20. REDUCED MOTION
-   ========================================================================== */
+/* 20. REDUCED MOTION */
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -3068,28 +2585,8 @@ section {
     transition-duration: 0.01ms !important;
   }
 }
-.opportunity-card { display: flex; flex-direction: column; }
-.opportunity-image { display: block; width: 100%; height: 210px; overflow: hidden; }
-.opportunity-image-link { display: block; width: 100%; height: 100%; }
-.opportunity-image img {
-  display: block; width: 100%; height: 100%; object-fit: cover;
-}
-.opportunity-content {
-  display: flex; flex-direction: column; gap: 12px; padding: 18px;
-}
-.opportunity-title { margin: 0; }
-.track-btn {
-  width: 100%; min-height: 44px; padding: 10px;
-  border: 1px solid var(--green); border-radius: 10px;
-  background: var(--white); color: var(--green-dark);
-  font-weight: 700; transition: .2s ease;
-}
-.track-btn:hover { background: var(--green-light); }
-.track-btn.is-tracked { background: var(--green); color: var(--white); }
 
-/* =========================================================
-   NOH ACCOUNT MENU AND DASHBOARD — VERSION 3
-========================================================= */
+/* ACCOUNT MENU AND DASHBOARD — VERSION 3 */
 
 .account-menu {
   position: relative;
@@ -3193,7 +2690,8 @@ section {
   color: #922626;
 }
 
-/* Prevent existing last-link CTA styles from affecting menu links. */
+/* Prevent navigation CTA styles from affecting dropdown links. */
+
 .navlinks .account-dropdown a.account-dropdown-item {
   display: flex;
   width: 100%;
@@ -3211,6 +2709,7 @@ section {
 }
 
 /* Dashboard overlay */
+
 .account-dashboard {
   position: fixed;
   z-index: 2000;
@@ -3484,4 +2983,4 @@ section {
   .account-profile-card {
     align-items: flex-start;
   }
-   }
+}
