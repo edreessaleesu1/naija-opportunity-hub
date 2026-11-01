@@ -36,7 +36,7 @@
 
   function displaySession(session) {
     if (session?.user) {
-      status.textContent = `Signed in as ${session.user.email}`;
+      status.textContent = "Signed in";
       indicator.classList.add("is-active");
       indicator.classList.remove("is-inactive");
       signOutButton.hidden = false;
