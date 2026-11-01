@@ -162,51 +162,84 @@
         <a href="/#about">About</a>
 
         <!-- Authentication and installation -->
-        <div class="nav-auth" id="navAuth">
+        
+<div class="nav-auth" id="navAuth">
 
-          <button
-            type="button"
-            class="nav-install-button"
-            id="installAppButton"
-            hidden
-          >
-            <span aria-hidden="true">📲</span>
-            Install App
-          </button>
+  <button
+    type="button"
+    class="nav-install-button"
+    id="installAppButton"
+    hidden
+  >
+    <span aria-hidden="true">📲</span>
+    Install App
+  </button>
 
-          <a
-            href="/account.html"
-            class="nav-signin"
-            id="signInLink"
-          >
-            Sign In
-          </a>
+  <!-- Shown to visitors -->
+  <a href="/auth.html?mode=login" class="nav-signin" id="signInLink">
+    Sign In
+  </a>
 
-          <a
-            href="/account.html"
-            class="nav-register"
-            id="createAccountLink"
-          >
-            Create Account
-          </a>
+  <a href="/auth.html?mode=signup" class="nav-register" id="createAccountLink">
+    Create Account
+  </a>
 
-          <div class="account-menu" id="accountMenu" hidden>
-            <a href="/account.html" id="myAccountLink">
-              My Account
-            </a>
+  <!-- Shown to signed-in users -->
+  <div class="account-menu" id="accountMenu" hidden>
 
-            <button
-              type="button"
-              id="navLogoutButton"
-            >
-              Sign Out
-            </button>
-          </div>
+    <button
+      type="button"
+      class="account-menu-trigger"
+      id="accountMenuButton"
+      aria-expanded="false"
+      aria-controls="accountDropdown"
+    >
+      <span class="account-avatar" aria-hidden="true">👤</span>
+      <span>My Account</span>
+      <span class="account-chevron" aria-hidden="true">⌄</span>
+    </button>
 
-        </div>
-      </nav>
+    <div class="account-dropdown" id="accountDropdown" hidden>
+
+      <button
+        type="button"
+        class="account-dropdown-item"
+        data-account-view="overview"
+      >
+        <span aria-hidden="true">👤</span>
+        <span>My Account</span>
+      </button>
+
+      <a href="/#tracker" class="account-dropdown-item">
+        <span aria-hidden="true">⭐</span>
+        <span>My Saved Opportunities</span>
+      </a>
+
+      <button
+        type="button"
+        class="account-dropdown-item"
+        data-account-view="settings"
+      >
+        <span aria-hidden="true">⚙️</span>
+        <span>Account Settings</span>
+      </button>
+
+      <div class="account-dropdown-divider"></div>
+
+      <button
+        type="button"
+        class="account-dropdown-item account-signout"
+        id="navLogoutButton"
+      >
+        <span aria-hidden="true">↪</span>
+        <span>Sign Out</span>
+      </button>
 
     </div>
+  </div>
+
+</div>
+
   </header>
 
   <main>
