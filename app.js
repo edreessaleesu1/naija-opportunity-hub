@@ -2,7 +2,7 @@
 /*
  * NAIJA OPPORTUNITY HUB
  * Main Front-End Application
- * Version 3.2
+ * Version 3.3
  *
  * Official domain:
  * https://naijaopportunityhub.com.ng
@@ -16,7 +16,7 @@
  * - CSV export
  * - View All / Show Less
  * - Loading, empty and error states
- * - Custom-domain opportunity links
+ * - Custom-domain opportunity details links
  */
 
 (() => {
@@ -37,9 +37,9 @@
   // Official website configuration
   const SITE_URL = "https://naijaopportunityhub.com.ng";
 
-  // Public opportunity details route
+  // Actual published HTML details page
   const DETAILS_PAGE =
-    `${SITE_URL}/opportunity-details`;
+    `${SITE_URL}/opportunity-details.html`;
 
   const BOOKMARKS_KEY = "noh_bookmarks_v1";
   const TRACKER_KEY = "noh_tracker_v1";
@@ -981,8 +981,9 @@
   ========================================================= */
 
   function init() {
-    debugLog("Naija Opportunity Hub v3.2 initialising...");
+    debugLog("Naija Opportunity Hub v3.3 initialising...");
     debugLog("Official website:", SITE_URL);
+    debugLog("Details page:", DETAILS_PAGE);
 
     setupCategoryButtons();
     setupEventListeners();
