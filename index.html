@@ -27,7 +27,7 @@
   >
 
   <!-- Progressive Web App -->
-  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="manifest" href="/manifest.webmanifest">
 
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -36,7 +36,7 @@
 
   <link
     rel="apple-touch-icon"
-    href="./naija-opportunity-hub-logo.png"
+    href="/naija-opportunity-hub-logo.png"
   >
 
   <!-- Social sharing metadata -->
@@ -83,12 +83,12 @@
   <link
     rel="icon"
     type="image/png"
-    href="./naija-opportunity-hub-logo.png"
+    href="/naija-opportunity-hub-logo.png"
   >
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="./hero-image.css">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="/hero-image.css">
+  <link rel="stylesheet" href="/style.css">
 
   <!-- Supabase -->
   <script
@@ -96,12 +96,10 @@
     src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
   ></script>
 
-  <!-- Existing application scripts -->
-  <script defer src="./auth.js"></script>
-  <script defer src="./app.js"></script>
-
-  <!-- PWA registration and installation -->
-  <script defer src="./pwa.js"></script>
+  <!-- Application scripts -->
+  <script defer src="/auth.js"></script>
+  <script defer src="/app.js"></script>
+  <script defer src="/pwa.js"></script>
 </head>
 
 <body>
@@ -116,11 +114,11 @@
 
       <a
         class="brand"
-        href="#home"
+        href="/#home"
         aria-label="Naija Opportunity Hub homepage"
       >
         <img
-          src="./naija-opportunity-hub-logo.png"
+          src="/naija-opportunity-hub-logo.png"
           alt="Naija Opportunity Hub logo"
           class="brand-logo"
           width="48"
@@ -157,11 +155,11 @@
         id="navLinks"
         aria-label="Main navigation"
       >
-        <a href="#home">Home</a>
-        <a href="#opportunities">Opportunities</a>
-        <a href="#career-kit">Career Kit</a>
-        <a href="#tracker">Application Tracker</a>
-        <a href="#about">About</a>
+        <a href="/#home">Home</a>
+        <a href="/#opportunities">Opportunities</a>
+        <a href="/#career-kit">Career Kit</a>
+        <a href="/#tracker">Application Tracker</a>
+        <a href="/#about">About</a>
 
         <!-- Authentication and installation -->
         <div class="nav-auth" id="navAuth">
@@ -177,7 +175,7 @@
           </button>
 
           <a
-            href="./account.html"
+            href="/account.html"
             class="nav-signin"
             id="signInLink"
           >
@@ -185,7 +183,7 @@
           </a>
 
           <a
-            href="./account.html"
+            href="/account.html"
             class="nav-register"
             id="createAccountLink"
           >
@@ -193,7 +191,7 @@
           </a>
 
           <div class="account-menu" id="accountMenu" hidden>
-            <a href="./account.html" id="myAccountLink">
+            <a href="/account.html" id="myAccountLink">
               My Account
             </a>
 
@@ -243,12 +241,12 @@
           </p>
 
           <div class="hero-actions">
-            <a href="#opportunities" class="button button-hero">
+            <a href="/#opportunities" class="button button-hero">
               Explore Opportunities
               <span aria-hidden="true">→</span>
             </a>
 
-            <a href="#career-kit" class="button button-hero-ghost">
+            <a href="/#career-kit" class="button button-hero-ghost">
               Build Your Career
             </a>
           </div>
@@ -300,7 +298,7 @@
             <span>Volunteering</span>
           </button>
 
-          <a class="category category-link" href="#career-kit">
+          <a class="category category-link" href="/#career-kit">
             <span class="category-icon tint-blue" aria-hidden="true">📋</span>
             <span>Career Kit</span>
           </a>
@@ -359,6 +357,7 @@
               <option value="Fellowship">Fellowships</option>
               <option value="Training">Training</option>
               <option value="Volunteering">Volunteering</option>
+              <option value="Other">Other</option>
             </select>
           </label>
 
@@ -420,7 +419,7 @@
             application, organise your deadlines and take practical steps
             towards your career goals.
           </p>
-          <a href="#career-kit" class="text-link">
+          <a href="/#career-kit" class="text-link">
             Discover the Career Kit <span aria-hidden="true">→</span>
           </a>
         </div>
@@ -484,7 +483,7 @@
               Create a clear, professional CV that highlights your education,
               skills, experience and achievements.
             </p>
-            <a href="./career-kit.html?tool=cv" class="button button-outline">
+            <a href="/career-kit.html?tool=cv" class="button button-outline">
               Open CV Builder
             </a>
           </article>
@@ -523,7 +522,7 @@
               Prepare tailored cover letters for jobs, scholarships,
               internships and other applications.
             </p>
-            <a href="./career-kit.html?tool=cover-letter" class="button button-primary">
+            <a href="/career-kit.html?tool=cover-letter" class="button button-primary">
               Explore service
             </a>
           </article>
@@ -565,7 +564,7 @@
               Get help understanding application requirements and organising
               the information you need to apply.
             </p>
-            <a href="./application-assistance.html" class="button button-primary">
+            <a href="/application-assistance.html" class="button button-primary">
               Get Assistance
             </a>
           </article>
@@ -656,7 +655,7 @@
         <p>
           Take the next step. Discover opportunities that match your ambitions.
         </p>
-        <a href="#opportunities" class="button button-gold">
+        <a href="/#opportunities" class="button button-gold">
           Start Exploring <span aria-hidden="true">→</span>
         </a>
       </div>
@@ -679,7 +678,7 @@
               We encourage every applicant to verify information directly
               with the relevant organisation before submitting an application.
             </p>
-            <a href="#opportunities" class="button button-primary">
+            <a href="/#opportunities" class="button button-primary">
               Start exploring <span aria-hidden="true">→</span>
             </a>
           </div>
@@ -702,9 +701,9 @@
       <div class="footer-grid">
 
         <div class="footer-brand">
-          <a class="brand footer-brand-link" href="#home">
+          <a class="brand footer-brand-link" href="/#home">
             <img
-              src="./naija-opportunity-hub-logo.png"
+              src="/naija-opportunity-hub-logo.png"
               alt=""
               class="brand-logo"
               width="48"
@@ -727,27 +726,27 @@
 
         <div class="footer-links">
           <h3>Explore</h3>
-          <a href="#opportunities">Opportunities</a>
-          <a href="#career-kit">Career Kit</a>
-          <a href="#tracker">Application Tracker</a>
+          <a href="/#opportunities">Opportunities</a>
+          <a href="/#career-kit">Career Kit</a>
+          <a href="/#tracker">Application Tracker</a>
         </div>
 
         <div class="footer-links">
           <h3>Categories</h3>
-          <a href="#opportunities">Scholarships</a>
-          <a href="#opportunities">Jobs</a>
-          <a href="#opportunities">Internships</a>
-          <a href="#opportunities">Grants</a>
-          <a href="#opportunities">Fellowships</a>
-          <a href="#opportunities">Training</a>
-          <a href="#opportunities">Volunteering</a>
+          <a href="/#opportunities">Scholarships</a>
+          <a href="/#opportunities">Jobs</a>
+          <a href="/#opportunities">Internships</a>
+          <a href="/#opportunities">Grants</a>
+          <a href="/#opportunities">Fellowships</a>
+          <a href="/#opportunities">Training</a>
+          <a href="/#opportunities">Volunteering</a>
         </div>
 
         <div class="footer-links">
           <h3>Information</h3>
-          <a href="#about">About Us</a>
-          <a href="#home">Back to Top</a>
-          <a href="./account.html">Sign In / Create Account</a>
+          <a href="/#about">About Us</a>
+          <a href="/#home">Back to Top</a>
+          <a href="/account.html">Sign In / Create Account</a>
         </div>
 
       </div>
