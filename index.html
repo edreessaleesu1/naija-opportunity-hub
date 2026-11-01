@@ -1240,15 +1240,26 @@
   </footer>
 
   <!-- ACCOUNT DASHBOARD -->
+  
+  <!-- ACCOUNT DASHBOARD -->
   <div
     class="account-dashboard"
     id="accountDashboard"
     role="dialog"
     aria-modal="true"
     aria-labelledby="accountDashboardTitle"
+    aria-hidden="true"
     hidden
   >
 
+    <!-- Premium backdrop: click outside to close -->
+    <div
+      class="account-dashboard-backdrop"
+      data-close-account
+      aria-hidden="true"
+    ></div>
+
+    <!-- Dashboard panel -->
     <div class="account-dashboard-panel">
 
       <div class="account-dashboard-header">
@@ -1270,25 +1281,167 @@
 
       </div>
 
-      <div class="account-dashboard-tabs">
+      <!-- Dashboard navigation -->
+      <div
+        class="account-dashboard-tabs"
+        role="tablist"
+        aria-label="Account sections"
+      >
 
         <button
           type="button"
+          class="account-tab active"
+          id="accountOverviewTab"
           data-account-tab="overview"
-          aria-pressed="true"
+          role="tab"
+          aria-selected="true"
+          aria-controls="accountOverview"
         >
           Overview
         </button>
 
         <button
           type="button"
+          class="account-tab"
+          id="accountSettingsTab"
           data-account-tab="settings"
-          aria-pressed="false"
+          role="tab"
+          aria-selected="false"
+          aria-controls="accountSettings"
         >
           Settings
         </button>
 
       </div>
+
+      <!-- ACCOUNT OVERVIEW -->
+      <div
+        class="account-view"
+        id="accountOverview"
+        role="tabpanel"
+        aria-labelledby="accountOverviewTab"
+      >
+
+        <div class="account-profile-card">
+
+          <span class="account-profile-icon" aria-hidden="true">
+            👤
+          </span>
+
+          <div>
+            <span class="section-kicker">ACCOUNT OVERVIEW</span>
+            <h3>Welcome to your account</h3>
+            <p>
+              Your personal space to manage your account
+              and follow your career opportunities.
+            </p>
+          </div>
+
+        </div>
+
+        <div class="account-dashboard-shortcuts">
+
+          <a
+            href="/#tracker"
+            class="account-shortcut"
+          >
+            <span class="account-shortcut-icon" aria-hidden="true">⭐</span>
+            <span>
+              <strong>Saved Opportunities</strong>
+              <small>View and manage your application tracker.</small>
+            </span>
+            <span aria-hidden="true">→</span>
+          </a>
+
+          <button
+            type="button"
+            class="account-shortcut"
+            data-account-view="settings"
+          >
+            <span class="account-shortcut-icon" aria-hidden="true">⚙️</span>
+            <span>
+              <strong>Account Settings</strong>
+              <small>Update your account password.</small>
+            </span>
+            <span aria-hidden="true">→</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- ACCOUNT SETTINGS -->
+      <div
+        class="account-view"
+        id="accountSettings"
+        role="tabpanel"
+        aria-labelledby="accountSettingsTab"
+        hidden
+      >
+
+        <div class="account-settings-intro">
+          <span class="section-kicker">SECURITY &amp; PRIVACY</span>
+          <h3>Change your password</h3>
+          <p>
+            Choose a strong password that you do not use
+            on other websites.
+          </p>
+        </div>
+
+        <form
+          id="accountPasswordForm"
+          class="account-password-form"
+        >
+
+          <label for="accountNewPassword">
+            New password
+          </label>
+
+          <input
+            type="password"
+            id="accountNewPassword"
+            name="newPassword"
+            minlength="8"
+            autocomplete="new-password"
+            placeholder="Enter your new password"
+            required
+          >
+
+          <label for="accountConfirmPassword">
+            Confirm new password
+          </label>
+
+          <input
+            type="password"
+            id="accountConfirmPassword"
+            name="confirmPassword"
+            minlength="8"
+            autocomplete="new-password"
+            placeholder="Confirm your new password"
+            required
+          >
+
+          <p
+            id="accountSettingsMessage"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+          <button
+            type="submit"
+            class="button button-primary"
+            id="accountPasswordButton"
+          >
+            Update Password
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+
 
       <!-- ACCOUNT OVERVIEW -->
       <div id="accountOverview">
