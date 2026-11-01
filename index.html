@@ -391,42 +391,50 @@
       </div>
     </section>
 
-    <!-- FEATURE SHOWCASE -->
-    <section class="showcase-section">
-      <div class="wrap showcase-grid">
+    <!-- APPLICATION TRACKER -->
+    <section class="tracker-section" id="tracker">
+      <div class="wrap">
 
-        <div class="showcase-image">
-          <img
-            src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=85"
-            alt="A person studying and preparing written work"
-            loading="lazy"
-          >
+        <div class="section-head">
+          <div>
+            <span class="section-kicker">STAY ORGANISED</span>
+            <h2>Your application tracker</h2>
+            <p>Keep track of opportunities you want to pursue.</p>
+          </div>
 
-          <div class="showcase-caption">
-            <span class="caption-mark" aria-hidden="true">✦</span>
-            <span>
-              <strong>Your goals matter.</strong>
-              <small>Take the next step with confidence.</small>
-            </span>
+          <div class="tracker-actions">
+            <button class="button button-outline" id="exportTracker" type="button">
+              Export CSV
+            </button>
+            <button class="button button-danger" id="clearTracker" type="button">
+              Clear tracker
+            </button>
           </div>
         </div>
 
-        <div class="showcase-copy">
-          <span class="section-kicker">MORE THAN OPPORTUNITY LISTINGS</span>
-          <h2>Build skills. Prepare confidently. Move forward.</h2>
-          <p>
-            Finding an opportunity is only the beginning. Prepare your
-            application, organise your deadlines and take practical steps
-            towards your career goals.
-          </p>
-          <a href="/#career-kit" class="text-link">
-            Discover the Career Kit <span aria-hidden="true">→</span>
-          </a>
+        <div class="tracker-container panel">
+          <div class="tracker-heading">
+            <span class="tracker-heading-icon" aria-hidden="true">✓</span>
+            <div>
+              <h3>Saved opportunities</h3>
+              <p>Your personal list of opportunities to follow up on.</p>
+            </div>
+          </div>
+
+          <div id="trackerList" class="tracker-list">
+            <p class="empty">
+              Your tracker is ready for your saved opportunities.
+            </p>
+          </div>
+
+          <div class="privacy-note">
+            Your saved tracker information may be stored in your browser.
+            Avoid saving sensitive personal information.
+          </div>
         </div>
 
       </div>
     </section>
-
     <!-- CAREER KIT -->
     <section class="career-section" id="career-kit">
       <div class="wrap">
@@ -598,51 +606,6 @@
             Contact us for service details and pricing. Review all terms
             before making a payment.
           </p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- APPLICATION TRACKER -->
-    <section class="tracker-section" id="tracker">
-      <div class="wrap">
-
-        <div class="section-head">
-          <div>
-            <span class="section-kicker">STAY ORGANISED</span>
-            <h2>Your application tracker</h2>
-            <p>Keep track of opportunities you want to pursue.</p>
-          </div>
-
-          <div class="tracker-actions">
-            <button class="button button-outline" id="exportTracker" type="button">
-              Export CSV
-            </button>
-            <button class="button button-danger" id="clearTracker" type="button">
-              Clear tracker
-            </button>
-          </div>
-        </div>
-
-        <div class="tracker-container panel">
-          <div class="tracker-heading">
-            <span class="tracker-heading-icon" aria-hidden="true">✓</span>
-            <div>
-              <h3>Saved opportunities</h3>
-              <p>Your personal list of opportunities to follow up on.</p>
-            </div>
-          </div>
-
-          <div id="trackerList" class="tracker-list">
-            <p class="empty">
-              Your tracker is ready for your saved opportunities.
-            </p>
-          </div>
-
-          <div class="privacy-note">
-            Your saved tracker information may be stored in your browser.
-            Avoid saving sensitive personal information.
-          </div>
         </div>
 
       </div>
