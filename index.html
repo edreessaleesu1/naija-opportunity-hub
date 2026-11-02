@@ -19,10 +19,7 @@
 
   <meta name="author" content="Naija Opportunity Hub">
 
-  <link
-    rel="canonical"
-    href="https://naijaopportunityhub.com.ng/"
-  >
+  <link rel="canonical" href="https://naijaopportunityhub.com.ng/">
 
   <!-- Progressive Web App -->
   <link rel="manifest" href="/manifest.webmanifest">
@@ -32,46 +29,33 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Naija Hub">
 
-  <link
-    rel="apple-touch-icon"
-    href="/naija-opportunity-hub-logo.png"
-  >
+  <link rel="apple-touch-icon" href="/naija-opportunity-hub-logo.png">
 
   <!-- Social sharing metadata -->
   <meta property="og:type" content="website">
-
   <meta
     property="og:title"
     content="Naija Opportunity Hub | Discover Opportunities. Build Your Future."
   >
-
   <meta
     property="og:description"
     content="Discover scholarships, jobs, internships, grants, fellowships and training opportunities for Nigerians."
   >
-
   <meta
     property="og:url"
     content="https://naijaopportunityhub.com.ng/"
   >
-
   <meta
     property="og:image"
     content="https://naijaopportunityhub.com.ng/naija-opportunity-hub-logo.png"
   >
 
   <meta name="twitter:card" content="summary_large_image">
-
-  <meta
-    name="twitter:title"
-    content="Naija Opportunity Hub"
-  >
-
+  <meta name="twitter:title" content="Naija Opportunity Hub">
   <meta
     name="twitter:description"
     content="Discover Opportunities. Build Your Future."
   >
-
   <meta
     name="twitter:image"
     content="https://naijaopportunityhub.com.ng/naija-opportunity-hub-logo.png"
@@ -144,7 +128,6 @@
           <span></span>
           <span></span>
         </span>
-
         <span class="menu-label">Menu</span>
       </button>
 
@@ -171,7 +154,24 @@
             Install App
           </button>
 
-          <!-- ACCOUNT MENU -->
+          <!-- SIGNED-OUT LINKS -->
+          <a
+            href="/auth.html?mode=login"
+            class="nav-auth-link"
+            id="signInLink"
+          >
+            Sign In
+          </a>
+
+          <a
+            href="/auth.html?mode=signup"
+            class="nav-auth-button"
+            id="createAccountLink"
+          >
+            Create Account
+          </a>
+
+          <!-- SIGNED-IN ACCOUNT MENU -->
           <div class="account-menu" id="accountMenu" hidden>
 
             <button
@@ -272,18 +272,12 @@
 
           <div class="hero-actions">
 
-            <a
-              href="/#opportunities"
-              class="button button-hero"
-            >
+            <a href="/#opportunities" class="button button-hero">
               Explore Opportunities
               <span aria-hidden="true">→</span>
             </a>
 
-            <a
-              href="/#career-kit"
-              class="button button-hero-ghost"
-            >
+            <a href="/#career-kit" class="button button-hero-ghost">
               Build Your Career
             </a>
 
@@ -767,7 +761,6 @@
 
             <span class="brand-copy">
               <span class="brand-name">Naija Opportunity Hub</span>
-
               <span class="brand-tagline">
                 Discover Opportunities. Build Your Future.
               </span>
