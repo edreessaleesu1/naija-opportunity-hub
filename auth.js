@@ -35,8 +35,6 @@
     library.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
   window.NOH_SUPABASE_CLIENT = supabase;
-
-  // Set the guard only after Supabase is available and the client is ready.
   window.NOH_AUTH_INITIALISED = true;
 
   // Authentication page elements
@@ -140,11 +138,11 @@
   function updateHomepageNavigation(user) {
     const signedIn = Boolean(user);
 
-    // Keep the Me control visible for both signed-in and signed-out visitors.
+    // Keep the Me account control visible for everyone.
     setVisible(accountMenu, true);
 
+    // Preserve the avatar, Me label and dropdown arrow.
     if (accountMenuButton) {
-      accountMenuButton.textContent = "Me";
       accountMenuButton.setAttribute(
         "aria-label",
         signedIn
@@ -153,10 +151,14 @@
       );
     }
 
-    // Signed-out visitors use Me to reach the authentication page.
+    // Signed-out visitors cannot access the account dropdown.
     if (!signedIn) {
       closeAccountDropdown();
       closeAccountDashboard();
+
+      if (accountDashboardEmail) {
+        accountDashboardEmail.textContent = "";
+      }
     }
 
     if (accountDashboardEmail && user?.email) {
@@ -166,9 +168,10 @@
 
   if (accountMenuButton) {
     accountMenuButton.addEventListener("click", () => {
-      // If the visitor is signed out, take them to authentication.
+
+      // Send signed-out visitors to the login page.
       if (!currentUser) {
-        window.location.assign("/auth.html");
+        window.location.assign("/auth.html?mode=login");
         return;
       }
 
@@ -227,6 +230,7 @@
 
     closeAccountDropdown();
     setVisible(accountDashboard, true);
+
     document.body.classList.add("account-dashboard-open");
 
     if (accountDashboardEmail) {
@@ -245,6 +249,7 @@
     if (!accountDashboard || accountDashboard.hidden) return;
 
     setVisible(accountDashboard, false);
+
     document.body.classList.remove("account-dashboard-open");
 
     if (previousFocus && typeof previousFocus.focus === "function") {
@@ -253,10 +258,7 @@
   }
 
   document.addEventListener("click", (event) => {
-    const target = event.target instanceof Element ? event.target : null;
-    if (!target) return;
-
-    const viewButton = target.closest("[data-account-view]");
+    const viewButton = event.target.closest("[data-account-view]");
 
     if (viewButton) {
       event.preventDefault();
@@ -268,14 +270,14 @@
       return;
     }
 
-    const tabButton = target.closest("[data-account-tab]");
+    const tabButton = event.target.closest("[data-account-tab]");
 
     if (tabButton) {
       showAccountView(tabButton.dataset.accountTab);
       return;
     }
 
-    if (target.closest("[data-close-account]")) {
+    if (event.target.closest("[data-close-account]")) {
       closeAccountDashboard();
     }
   });
@@ -300,10 +302,12 @@
       if (error) throw error;
 
       currentUser = null;
+
       closeAccountDropdown();
       closeAccountDashboard();
 
       window.location.assign("/");
+
     } catch (error) {
       console.error("NOH sign-out error:", error);
 
@@ -371,6 +375,7 @@
 
       if (accountSettingsMessage) {
         accountSettingsMessage.textContent = "";
+        accountSettingsMessage.classList.remove("success");
       }
 
       try {
@@ -385,6 +390,7 @@
             "Your password has been updated successfully.";
           accountSettingsMessage.classList.add("success");
         }
+
       } catch (error) {
         console.error("NOH account password update error:", error);
 
@@ -395,6 +401,7 @@
 
           accountSettingsMessage.classList.remove("success");
         }
+
       } finally {
         setLoading(
           accountPasswordButton,
@@ -548,6 +555,7 @@
 
         if (data.session && data.user) {
           currentUser = data.user;
+
           showLoggedInUser(data.user);
           updateHomepageNavigation(data.user);
 
@@ -555,6 +563,7 @@
             "Your account has been created successfully.",
             "success"
           );
+
         } else {
           showMessage(
             "Your account has been created. Please check your email and follow the confirmation link before signing in.",
@@ -563,6 +572,7 @@
 
           signupForm.reset();
         }
+
       } catch (error) {
         console.error("NOH signup error:", error);
 
@@ -573,6 +583,7 @@
               "We could not create your account. Please try again.";
 
         showMessage(message);
+
       } finally {
         setLoading(
           signupButton,
@@ -632,6 +643,7 @@
             safeRedirect(redirect);
           }
         }
+
       } catch (error) {
         console.error("NOH login error:", error);
 
@@ -639,6 +651,7 @@
           error.message ||
           "Sign-in failed. Check your details and try again."
         );
+
       } finally {
         setLoading(
           loginButton,
@@ -682,6 +695,7 @@
           "If an account exists for that email, a password-reset link will be sent. Please check your inbox.",
           "success"
         );
+
       } catch (error) {
         console.error("NOH password reset request error:", error);
 
@@ -689,6 +703,7 @@
           error.message ||
           "We could not send the reset email. Please try again."
         );
+
       } finally {
         forgotPasswordButton.disabled = false;
       }
@@ -713,7 +728,9 @@
       }
 
       if (password.length < 8) {
-        showMessage("Your new password must contain at least 8 characters.");
+        showMessage(
+          "Your new password must contain at least 8 characters."
+        );
         return;
       }
 
@@ -747,7 +764,9 @@
         if (data.user) {
           currentUser = data.user;
           showLoggedInUser(data.user);
+          updateHomepageNavigation(data.user);
         }
+
       } catch (error) {
         console.error("NOH password update error:", error);
 
@@ -755,6 +774,7 @@
           error.message ||
           "We could not update your password. Please try again."
         );
+
       } finally {
         setLoading(
           resetButton,
@@ -771,10 +791,7 @@
   --------------------------------------------------------- */
 
   document.addEventListener("click", (event) => {
-    const target = event.target instanceof Element ? event.target : null;
-    if (!target) return;
-
-    const button = target.closest("[data-auth-action]");
+    const button = event.target.closest("[data-auth-action]");
 
     if (!button) return;
 
@@ -813,8 +830,7 @@
   });
 
   async function initialiseAuth() {
-    // Temporarily hide the account control until the saved session is checked.
-    // It becomes visible for both signed-in and signed-out visitors afterwards.
+    // Hide the account control briefly while restoring the session.
     setVisible(accountMenu, false);
 
     try {
@@ -823,6 +839,7 @@
       if (error) throw error;
 
       currentUser = data.session?.user || null;
+
       updateHomepageNavigation(currentUser);
 
       if (!authPageExists) return;
@@ -842,10 +859,12 @@
       }
 
       showSignedOutState();
+
     } catch (error) {
       console.error("NOH session initialisation error:", error);
 
       currentUser = null;
+
       updateHomepageNavigation(null);
 
       if (authPageExists) {
