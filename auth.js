@@ -1,7 +1,7 @@
-/* 
+/*
  * Naija Opportunity Hub
  * Main account authentication and navigation
- * Version 3.0
+ * Version 3.1
  *
  * Used by:
  * - Homepage
@@ -37,7 +37,6 @@
   window.NOH_SUPABASE_CLIENT = supabase;
 
   // Set the guard only after Supabase is available and the client is ready.
-  // This allows a later retry if the Supabase library failed to load initially.
   window.NOH_AUTH_INITIALISED = true;
 
   // Authentication page elements
@@ -64,8 +63,6 @@
   let currentUser = null;
 
   // Homepage account elements
-  const signInLink = $("signInLink");
-  const createAccountLink = $("createAccountLink");
   const accountMenu = $("accountMenu");
   const accountMenuButton = $("accountMenuButton");
   const accountDropdown = $("accountDropdown");
@@ -143,16 +140,25 @@
   function updateHomepageNavigation(user) {
     const signedIn = Boolean(user);
 
-    setVisible(signInLink, !signedIn);
-    setVisible(createAccountLink, !signedIn);
-    setVisible(accountMenu, signedIn);
+    // Keep the Me control visible for both signed-in and signed-out visitors.
+    setVisible(accountMenu, true);
 
+    if (accountMenuButton) {
+      accountMenuButton.textContent = "Me";
+      accountMenuButton.setAttribute(
+        "aria-label",
+        signedIn
+          ? "Open your account menu"
+          : "Sign in or create an account"
+      );
+    }
+
+    // Signed-out visitors use Me to reach the authentication page.
     if (!signedIn) {
       closeAccountDropdown();
       closeAccountDashboard();
     }
 
-    // Do not show the user's email in the navigation.
     if (accountDashboardEmail && user?.email) {
       accountDashboardEmail.textContent = user.email;
     }
@@ -160,12 +166,17 @@
 
   if (accountMenuButton) {
     accountMenuButton.addEventListener("click", () => {
-      if (!currentUser) return;
+      // If the visitor is signed out, take them to authentication.
+      if (!currentUser) {
+        window.location.assign("/auth.html");
+        return;
+      }
 
       const isOpen =
         accountMenuButton.getAttribute("aria-expanded") === "true";
 
       setVisible(accountDropdown, !isOpen);
+
       accountMenuButton.setAttribute(
         "aria-expanded",
         String(!isOpen)
@@ -242,7 +253,10 @@
   }
 
   document.addEventListener("click", (event) => {
-    const viewButton = event.target.closest("[data-account-view]");
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const viewButton = target.closest("[data-account-view]");
 
     if (viewButton) {
       event.preventDefault();
@@ -254,14 +268,14 @@
       return;
     }
 
-    const tabButton = event.target.closest("[data-account-tab]");
+    const tabButton = target.closest("[data-account-tab]");
 
     if (tabButton) {
       showAccountView(tabButton.dataset.accountTab);
       return;
     }
 
-    if (event.target.closest("[data-close-account]")) {
+    if (target.closest("[data-close-account]")) {
       closeAccountDashboard();
     }
   });
@@ -376,7 +390,9 @@
 
         if (accountSettingsMessage) {
           accountSettingsMessage.textContent =
-            error.message || "We could not update your password. Please try again.";
+            error.message ||
+            "We could not update your password. Please try again.";
+
           accountSettingsMessage.classList.remove("success");
         }
       } finally {
@@ -534,7 +550,11 @@
           currentUser = data.user;
           showLoggedInUser(data.user);
           updateHomepageNavigation(data.user);
-          showMessage("Your account has been created successfully.", "success");
+
+          showMessage(
+            "Your account has been created successfully.",
+            "success"
+          );
         } else {
           showMessage(
             "Your account has been created. Please check your email and follow the confirmation link before signing in.",
@@ -549,7 +569,8 @@
         const message =
           /already registered|already exists/i.test(error.message || "")
             ? "An account with this email may already exist. Please sign in instead."
-            : error.message || "We could not create your account. Please try again.";
+            : error.message ||
+              "We could not create your account. Please try again.";
 
         showMessage(message);
       } finally {
@@ -598,7 +619,11 @@
         if (currentUser) {
           showLoggedInUser(currentUser);
           updateHomepageNavigation(currentUser);
-          showMessage("You have signed in successfully.", "success");
+
+          showMessage(
+            "You have signed in successfully.",
+            "success"
+          );
 
           const redirect =
             new URLSearchParams(window.location.search).get("redirect");
@@ -611,7 +636,8 @@
         console.error("NOH login error:", error);
 
         showMessage(
-          error.message || "Sign-in failed. Check your details and try again."
+          error.message ||
+          "Sign-in failed. Check your details and try again."
         );
       } finally {
         setLoading(
@@ -660,7 +686,8 @@
         console.error("NOH password reset request error:", error);
 
         showMessage(
-          error.message || "We could not send the reset email. Please try again."
+          error.message ||
+          "We could not send the reset email. Please try again."
         );
       } finally {
         forgotPasswordButton.disabled = false;
@@ -725,7 +752,8 @@
         console.error("NOH password update error:", error);
 
         showMessage(
-          error.message || "We could not update your password. Please try again."
+          error.message ||
+          "We could not update your password. Please try again."
         );
       } finally {
         setLoading(
@@ -743,7 +771,10 @@
   --------------------------------------------------------- */
 
   document.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-auth-action]");
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const button = target.closest("[data-auth-action]");
 
     if (!button) return;
 
@@ -782,7 +813,8 @@
   });
 
   async function initialiseAuth() {
-    // Avoid displaying account controls before session restoration.
+    // Temporarily hide the account control until the saved session is checked.
+    // It becomes visible for both signed-in and signed-out visitors afterwards.
     setVisible(accountMenu, false);
 
     try {
@@ -818,6 +850,7 @@
 
       if (authPageExists) {
         setAuthMode("signup");
+
         showMessage(
           "We could not check your sign-in session. Please refresh the page and try again."
         );
