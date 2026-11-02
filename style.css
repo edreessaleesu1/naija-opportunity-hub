@@ -2980,3 +2980,8 @@ section {
     align-items: flex-start;
   }
 }
+
+/* Respect hidden attributes throughout the homepage */
+[hidden] {
+  display: none !important;
+}
