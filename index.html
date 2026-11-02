@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -172,24 +171,7 @@
             Install App
           </button>
 
-          <!-- Shown to visitors -->
-          <a
-            href="/auth.html?mode=login"
-            class="nav-signin"
-            id="signInLink"
-          >
-            Sign In
-          </a>
-
-          <a
-            href="/auth.html?mode=signup"
-            class="nav-register"
-            id="createAccountLink"
-          >
-            Create Account
-          </a>
-
-          <!-- Shown to signed-in users -->
+          <!-- ACCOUNT MENU -->
           <div class="account-menu" id="accountMenu" hidden>
 
             <button
@@ -198,9 +180,10 @@
               id="accountMenuButton"
               aria-expanded="false"
               aria-controls="accountDropdown"
+              aria-label="Open your account menu"
             >
               <span class="account-avatar" aria-hidden="true">👤</span>
-              <span>My Account</span>
+              <span>Me</span>
               <span class="account-chevron" aria-hidden="true">⌄</span>
             </button>
 
@@ -250,10 +233,9 @@
             </div>
           </div>
 
-        </div><!-- End nav-auth -->
-
+        </div>
       </nav>
-    </div><!-- End wrap nav -->
+    </div>
   </header>
 
   <main>
@@ -319,73 +301,42 @@
 
         <div class="category-row" id="categoryButtons">
 
-          <button
-            class="category"
-            type="button"
-            data-category="Scholarship"
-          >
+          <button class="category" type="button" data-category="Scholarship">
             <span class="category-icon tint-green" aria-hidden="true">🎓</span>
             <span>Scholarships</span>
           </button>
 
-          <button
-            class="category"
-            type="button"
-            data-category="Job"
-          >
+          <button class="category" type="button" data-category="Job">
             <span class="category-icon tint-blue" aria-hidden="true">💼</span>
             <span>Jobs</span>
           </button>
 
-          <button
-            class="category"
-            type="button"
-            data-category="Internship"
-          >
+          <button class="category" type="button" data-category="Internship">
             <span class="category-icon tint-purple" aria-hidden="true">💻</span>
             <span>Internships</span>
           </button>
 
-          <button
-            class="category"
-            type="button"
-            data-category="Fellowship"
-          >
+          <button class="category" type="button" data-category="Fellowship">
             <span class="category-icon tint-yellow" aria-hidden="true">👥</span>
             <span>Fellowships</span>
           </button>
 
-          <button
-            class="category"
-            type="button"
-            data-category="Grant"
-          >
+          <button class="category" type="button" data-category="Grant">
             <span class="category-icon tint-green" aria-hidden="true">💰</span>
             <span>Grants</span>
           </button>
 
-          <button
-            class="category"
-            type="button"
-            data-category="Training"
-          >
+          <button class="category" type="button" data-category="Training">
             <span class="category-icon tint-orange" aria-hidden="true">🧑‍🏫</span>
             <span>Training</span>
           </button>
 
-          <button
-            class="category"
-            type="button"
-            data-category="Volunteering"
-          >
+          <button class="category" type="button" data-category="Volunteering">
             <span class="category-icon tint-pink" aria-hidden="true">💖</span>
             <span>Volunteering</span>
           </button>
 
-          <a
-            class="category category-link"
-            href="/#career-kit"
-          >
+          <a class="category category-link" href="/#career-kit">
             <span class="category-icon tint-blue" aria-hidden="true">📋</span>
             <span>Career Kit</span>
           </a>
@@ -404,10 +355,7 @@
     </section>
 
     <!-- OPPORTUNITIES -->
-    <section
-      class="opportunities-section"
-      id="opportunities"
-    >
+    <section class="opportunities-section" id="opportunities">
       <div class="wrap main-content">
 
         <div class="section-head">
@@ -421,11 +369,7 @@
             </p>
           </div>
 
-          <div
-            class="results-badge"
-            id="resultsCount"
-            aria-live="polite"
-          >
+          <div class="results-badge" id="resultsCount" aria-live="polite">
             Loading opportunities...
           </div>
 
@@ -471,32 +415,17 @@
             </select>
           </label>
 
-          <button
-            class="button button-outline"
-            id="clearFilters"
-            type="button"
-          >
+          <button class="button button-outline" id="clearFilters" type="button">
             Clear filters
           </button>
 
         </div>
 
-        <div
-          class="data-notice"
-          id="dataNotice"
-          hidden
-        ></div>
+        <div class="data-notice" id="dataNotice" hidden></div>
 
-        <div
-          class="data-status"
-          id="dataStatus"
-          aria-live="polite"
-        ></div>
+        <div class="data-status" id="dataStatus" aria-live="polite"></div>
 
-        <div
-          class="opportunity-grid"
-          id="opportunityGrid"
-        >
+        <div class="opportunity-grid" id="opportunityGrid">
           <div class="loading-card">
             Loading opportunities...
           </div>
@@ -511,10 +440,7 @@
     </section>
 
     <!-- APPLICATION TRACKER -->
-    <section
-      class="tracker-section"
-      id="tracker"
-    >
+    <section class="tracker-section" id="tracker">
       <div class="wrap">
 
         <div class="section-head">
@@ -529,19 +455,11 @@
 
           <div class="tracker-actions">
 
-            <button
-              class="button button-outline"
-              id="exportTracker"
-              type="button"
-            >
+            <button class="button button-outline" id="exportTracker" type="button">
               Export CSV
             </button>
 
-            <button
-              class="button button-danger"
-              id="clearTracker"
-              type="button"
-            >
+            <button class="button button-danger" id="clearTracker" type="button">
               Clear tracker
             </button>
 
@@ -561,10 +479,7 @@
             </div>
           </div>
 
-          <div
-            id="trackerList"
-            class="tracker-list"
-          >
+          <div id="trackerList" class="tracker-list">
             <p class="empty">
               Your tracker is ready for your saved opportunities.
             </p>
@@ -580,10 +495,7 @@
     </section>
 
     <!-- CAREER KIT -->
-    <section
-      class="career-section"
-      id="career-kit"
-    >
+    <section class="career-section" id="career-kit">
       <div class="wrap">
 
         <div class="section-intro">
@@ -603,11 +515,7 @@
           <article class="panel career-panel">
 
             <div class="career-visual" aria-hidden="true">
-              <svg
-                viewBox="0 0 400 190"
-                preserveAspectRatio="xMidYMid slice"
-                focusable="false"
-              >
+              <svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice" focusable="false">
                 <defs>
                   <linearGradient id="cvg" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0" stop-color="#0a6b47"/>
@@ -619,23 +527,10 @@
                 <circle cx="350" cy="28" r="72" fill="#c6a24a" opacity=".16"/>
                 <circle cx="36" cy="172" r="62" fill="#fff" opacity=".06"/>
 
-                <rect
-                  x="150"
-                  y="30"
-                  width="130"
-                  height="160"
-                  rx="10"
-                  fill="#fff"
-                  opacity=".35"
-                  transform="rotate(7 215 110)"
-                />
-
+                <rect x="150" y="30" width="130" height="160" rx="10" fill="#fff" opacity=".35" transform="rotate(7 215 110)"/>
                 <rect x="118" y="22" width="140" height="176" rx="10" fill="#fff"/>
 
-                <path
-                  d="M118 66V32a10 10 0 0 1 10-10h120a10 10 0 0 1 10 10v34z"
-                  fill="#e8f2ee"
-                />
+                <path d="M118 66V32a10 10 0 0 1 10-10h120a10 10 0 0 1 10 10v34z" fill="#e8f2ee"/>
 
                 <circle cx="146" cy="44" r="14" fill="#086b45"/>
                 <circle cx="146" cy="40" r="5" fill="#fff"/>
@@ -658,14 +553,7 @@
                 <rect x="132" y="172" width="76" height="4" rx="2" fill="#d4dfd7"/>
 
                 <circle cx="270" cy="150" r="21" fill="#c6a24a"/>
-                <path
-                  d="M261 150l7 7 13-14"
-                  stroke="#fff"
-                  stroke-width="4"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
+                <path d="M261 150l7 7 13-14" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
 
@@ -680,10 +568,7 @@
               skills, experience and achievements.
             </p>
 
-            <a
-              href="/career-kit.html?tool=cv"
-              class="button button-outline"
-            >
+            <a href="/career-kit.html?tool=cv" class="button button-outline">
               Open CV Builder
             </a>
 
@@ -695,11 +580,7 @@
             <div class="featured-label">POPULAR SERVICE</div>
 
             <div class="career-visual" aria-hidden="true">
-              <svg
-                viewBox="0 0 400 190"
-                preserveAspectRatio="xMidYMid slice"
-                focusable="false"
-              >
+              <svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice" focusable="false">
                 <defs>
                   <linearGradient id="clg" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0" stop-color="#fff8e5"/>
@@ -720,26 +601,10 @@
                 <rect x="138" y="78" width="118" height="4" rx="2" fill="#d4dfd7"/>
                 <rect x="138" y="88" width="84" height="4" rx="2" fill="#d4dfd7"/>
 
-                <path
-                  d="M138 118q8-16 14 0t14 0 14-8"
-                  stroke="#b58a20"
-                  stroke-width="2.6"
-                  fill="none"
-                  stroke-linecap="round"
-                />
+                <path d="M138 118q8-16 14 0t14 0 14-8" stroke="#b58a20" stroke-width="2.6" fill="none" stroke-linecap="round"/>
 
-                <path
-                  d="M100 98L200 160 300 98v82a10 10 0 0 1-10 10H110a10 10 0 0 1-10-10z"
-                  fill="#086b45"
-                />
-
-                <path
-                  d="M100 98L200 160 300 98"
-                  stroke="#0b8a58"
-                  stroke-width="3"
-                  fill="none"
-                  stroke-linejoin="round"
-                />
+                <path d="M100 98L200 160 300 98v82a10 10 0 0 1-10 10H110a10 10 0 0 1-10-10z" fill="#086b45"/>
+                <path d="M100 98L200 160 300 98" stroke="#0b8a58" stroke-width="3" fill="none" stroke-linejoin="round"/>
 
                 <circle cx="200" cy="158" r="16" fill="#c6a24a"/>
                 <circle cx="200" cy="158" r="9" fill="none" stroke="#fff" stroke-width="2.2"/>
@@ -757,10 +622,7 @@
               internships and other applications.
             </p>
 
-            <a
-              href="/career-kit.html?tool=cover-letter"
-              class="button button-primary"
-            >
+            <a href="/career-kit.html?tool=cover-letter" class="button button-primary">
               Explore service
             </a>
 
@@ -770,11 +632,7 @@
           <article class="panel career-panel">
 
             <div class="career-visual" aria-hidden="true">
-              <svg
-                viewBox="0 0 400 190"
-                preserveAspectRatio="xMidYMid slice"
-                focusable="false"
-              >
+              <svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice" focusable="false">
                 <defs>
                   <linearGradient id="apg" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0" stop-color="#eaf5ee"/>
@@ -790,27 +648,11 @@
                 <rect x="76" y="42" width="72" height="7" rx="3.5" fill="#064e3b"/>
 
                 <circle cx="88" cy="74" r="9" fill="#086b45"/>
-                <path
-                  d="M83.5 74l3.2 3.2 5.8-6.4"
-                  stroke="#fff"
-                  stroke-width="2.4"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-
+                <path d="M83.5 74l3.2 3.2 5.8-6.4" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 <rect x="106" y="70" width="112" height="6" rx="3" fill="#d4dfd7"/>
 
                 <circle cx="88" cy="102" r="9" fill="#086b45"/>
-                <path
-                  d="M83.5 102l3.2 3.2 5.8-6.4"
-                  stroke="#fff"
-                  stroke-width="2.4"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-
+                <path d="M83.5 102l3.2 3.2 5.8-6.4" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 <rect x="106" y="98" width="88" height="6" rx="3" fill="#d4dfd7"/>
 
                 <circle cx="88" cy="130" r="8" fill="none" stroke="#b58a20" stroke-width="2.4"/>
@@ -818,23 +660,12 @@
                 <rect x="76" y="148" width="150" height="5" rx="2.5" fill="#eaf5ee"/>
 
                 <rect x="244" y="56" width="104" height="112" rx="14" fill="#064e3b"/>
-                <path
-                  d="M244 70a14 14 0 0 1 14-14h76a14 14 0 0 1 14 14v18H244z"
-                  fill="#c6a24a"
-                />
+                <path d="M244 70a14 14 0 0 1 14-14h76a14 14 0 0 1 14 14v18H244z" fill="#c6a24a"/>
 
                 <rect x="268" y="46" width="8" height="20" rx="4" fill="#032f22"/>
                 <rect x="316" y="46" width="8" height="20" rx="4" fill="#032f22"/>
 
-                <text
-                  x="296"
-                  y="142"
-                  text-anchor="middle"
-                  font-family="Arial, Helvetica, sans-serif"
-                  font-size="40"
-                  font-weight="800"
-                  fill="#fff"
-                >15</text>
+                <text x="296" y="142" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" fill="#fff">15</text>
               </svg>
             </div>
 
@@ -849,10 +680,7 @@
               the information you need to apply.
             </p>
 
-            <a
-              href="/application-assistance.html"
-              class="button button-primary"
-            >
+            <a href="/application-assistance.html" class="button button-primary">
               Get Assistance
             </a>
 
@@ -898,7 +726,6 @@
       </div>
     </section>
 
-
     <!-- FINAL CALL TO ACTION -->
     <section class="cta-banner">
       <div class="wrap cta-inner">
@@ -909,10 +736,7 @@
           Take the next step. Discover opportunities that match your ambitions.
         </p>
 
-        <a
-          href="/#opportunities"
-          class="button button-gold"
-        >
+        <a href="/#opportunities" class="button button-gold">
           Start Exploring
           <span aria-hidden="true">→</span>
         </a>
@@ -931,10 +755,7 @@
         <!-- FOOTER BRAND -->
         <div class="footer-brand">
 
-          <a
-            class="brand footer-brand-link"
-            href="/#home"
-          >
+          <a class="brand footer-brand-link" href="/#home">
             <img
               src="/naija-opportunity-hub-logo.png"
               alt=""
@@ -945,9 +766,7 @@
             >
 
             <span class="brand-copy">
-              <span class="brand-name">
-                Naija Opportunity Hub
-              </span>
+              <span class="brand-name">Naija Opportunity Hub</span>
 
               <span class="brand-tagline">
                 Discover Opportunities. Build Your Future.
@@ -964,20 +783,15 @@
 
         <!-- EXPLORE -->
         <div class="footer-links">
-
           <h3>Explore</h3>
-
           <a href="/#opportunities">Opportunities</a>
           <a href="/#career-kit">Career Kit</a>
           <a href="/#tracker">Application Tracker</a>
-
         </div>
 
         <!-- CATEGORIES -->
         <div class="footer-links">
-
           <h3>Categories</h3>
-
           <a href="/#opportunities">Scholarships</a>
           <a href="/#opportunities">Jobs</a>
           <a href="/#opportunities">Internships</a>
@@ -985,17 +799,13 @@
           <a href="/#opportunities">Fellowships</a>
           <a href="/#opportunities">Training</a>
           <a href="/#opportunities">Volunteering</a>
-
         </div>
 
         <!-- INFORMATION -->
         <div class="footer-links">
-
           <h3>Information</h3>
-
           <a href="/#home">Back to Top</a>
           <a href="/auth.html?mode=login">Sign In / Create Account</a>
-
         </div>
 
       </div>
@@ -1017,8 +827,6 @@
   </footer>
 
   <!-- ACCOUNT DASHBOARD -->
-  
-  <!-- ACCOUNT DASHBOARD -->
   <div
     class="account-dashboard"
     id="accountDashboard"
@@ -1029,14 +837,12 @@
     hidden
   >
 
-    <!-- Premium backdrop: click outside to close -->
     <div
       class="account-dashboard-backdrop"
       data-close-account
       aria-hidden="true"
     ></div>
 
-    <!-- Dashboard panel -->
     <div class="account-dashboard-panel">
 
       <div class="account-dashboard-header">
@@ -1101,9 +907,7 @@
 
         <div class="account-profile-card">
 
-          <span class="account-profile-icon" aria-hidden="true">
-            👤
-          </span>
+          <span class="account-profile-icon" aria-hidden="true">👤</span>
 
           <div>
             <span class="section-kicker">ACCOUNT OVERVIEW</span>
@@ -1118,10 +922,7 @@
 
         <div class="account-dashboard-shortcuts">
 
-          <a
-            href="/#tracker"
-            class="account-shortcut"
-          >
+          <a href="/#tracker" class="account-shortcut">
             <span class="account-shortcut-icon" aria-hidden="true">⭐</span>
             <span>
               <strong>Saved Opportunities</strong>
@@ -1165,10 +966,7 @@
           </p>
         </div>
 
-        <form
-          id="accountPasswordForm"
-          class="account-password-form"
-        >
+        <form id="accountPasswordForm" class="account-password-form">
 
           <label for="accountNewPassword">
             New password
@@ -1219,84 +1017,6 @@
     </div>
   </div>
 
-
-      <!-- ACCOUNT OVERVIEW -->
-      <div id="accountOverview">
-
-        <h3>Welcome to your account</h3>
-
-        <p>
-          Manage your account and keep track of the opportunities
-          you want to pursue.
-        </p>
-
-        <a
-          href="/#tracker"
-          class="button button-outline"
-        >
-          View My Saved Opportunities
-        </a>
-
-      </div>
-
-      <!-- ACCOUNT SETTINGS -->
-      <div id="accountSettings" hidden>
-
-        <h3>Change your password</h3>
-
-        <p>
-          Choose a strong password that you do not use on other websites.
-        </p>
-
-        <form id="accountPasswordForm">
-
-          <label for="accountNewPassword">
-            New password
-          </label>
-
-          <input
-            type="password"
-            id="accountNewPassword"
-            name="newPassword"
-            minlength="8"
-            autocomplete="new-password"
-            required
-          >
-
-          <label for="accountConfirmPassword">
-            Confirm new password
-          </label>
-
-          <input
-            type="password"
-            id="accountConfirmPassword"
-            name="confirmPassword"
-            minlength="8"
-            autocomplete="new-password"
-            required
-          >
-
-          <p
-            id="accountSettingsMessage"
-            role="status"
-            aria-live="polite"
-          ></p>
-
-          <button
-            type="submit"
-            class="button button-primary"
-            id="accountPasswordButton"
-          >
-            Update Password
-          </button>
-
-        </form>
-
-      </div>
-
-    </div>
-  </div>
-
   <!-- NOTIFICATIONS -->
   <div
     class="toast"
@@ -1305,6 +1025,15 @@
     aria-live="polite"
     aria-atomic="true"
   ></div>
+
+  <!-- FOOTER YEAR -->
+  <script>
+    const yearElement = document.getElementById("year");
+
+    if (yearElement) {
+      yearElement.textContent = new Date().getFullYear();
+    }
+  </script>
 
 </body>
 </html>
