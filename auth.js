@@ -1,4 +1,4 @@
-/*
+/* 
  * Naija Opportunity Hub
  * Main account authentication and navigation
  * Version 3.0
