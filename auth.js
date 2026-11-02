@@ -1,4 +1,3 @@
-
 /*
  * Naija Opportunity Hub
  * Main account authentication and navigation
@@ -15,7 +14,6 @@
   "use strict";
 
   if (window.NOH_AUTH_INITIALISED) return;
-  window.NOH_AUTH_INITIALISED = true;
 
   const SUPABASE_URL =
     "https://djxornmwvkauhkcuhgxc.supabase.co";
@@ -26,16 +24,21 @@
   const $ = (id) => document.getElementById(id);
 
   const library = window.supabase;
+  const existingClient = window.NOH_SUPABASE_CLIENT;
 
-  if (!library?.createClient) {
+  if (!existingClient && !library?.createClient) {
     console.error("NOH Auth: Supabase library was not loaded.");
     return;
   }
 
-  const supabase = window.NOH_SUPABASE_CLIENT ||
+  const supabase = existingClient ||
     library.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
   window.NOH_SUPABASE_CLIENT = supabase;
+
+  // Set the guard only after Supabase is available and the client is ready.
+  // This allows a later retry if the Supabase library failed to load initially.
+  window.NOH_AUTH_INITIALISED = true;
 
   // Authentication page elements
   const signupForm = $("signupForm");
