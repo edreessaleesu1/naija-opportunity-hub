@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,7 +113,7 @@
             Install App
           </button>
 
-          <!-- SINGLE ACCOUNT ENTRY POINT -->
+          <!-- ACCOUNT MENU -->
           <div class="account-menu" id="accountMenu" hidden>
 
             <button
@@ -143,10 +144,14 @@
                 <span>My Account</span>
               </button>
 
-              <a href="/#tracker" class="account-dropdown-item">
+              <button
+                type="button"
+                class="account-dropdown-item"
+                data-account-view="saved"
+              >
                 <span aria-hidden="true">⭐</span>
                 <span>My Saved Opportunities</span>
-              </a>
+              </button>
 
               <button
                 type="button"
@@ -781,6 +786,18 @@
         <button
           type="button"
           class="account-tab"
+          id="accountSavedTab"
+          data-account-tab="saved"
+          role="tab"
+          aria-selected="false"
+          aria-controls="accountSavedOpportunities"
+        >
+          Saved Opportunities
+        </button>
+
+        <button
+          type="button"
+          class="account-tab"
           id="accountSettingsTab"
           data-account-tab="settings"
           role="tab"
@@ -817,16 +834,20 @@
 
         <div class="account-dashboard-shortcuts">
 
-          <a href="/#tracker" class="account-shortcut">
+          <button
+            type="button"
+            class="account-shortcut"
+            data-account-view="saved"
+          >
             <span class="account-shortcut-icon" aria-hidden="true">⭐</span>
 
             <span>
               <strong>Saved Opportunities</strong>
-              <small>View and manage your application tracker.</small>
+              <small>View and manage your bookmarked opportunities.</small>
             </span>
 
             <span aria-hidden="true">→</span>
-          </a>
+          </button>
 
           <button
             type="button"
@@ -843,6 +864,36 @@
             <span aria-hidden="true">→</span>
           </button>
 
+        </div>
+
+      </div>
+
+      <!-- SAVED OPPORTUNITIES -->
+      <div
+        class="account-view"
+        id="accountSavedOpportunities"
+        role="tabpanel"
+        aria-labelledby="accountSavedTab"
+        hidden
+      >
+
+        <div class="account-settings-intro">
+          <span class="section-kicker">YOUR PERSONAL COLLECTION</span>
+          <h3>My Saved Opportunities</h3>
+          <p>
+            Keep useful opportunities close at hand. Open an opportunity
+            to review its details or remove it from your saved list.
+          </p>
+        </div>
+
+        <div
+          id="accountSavedOpportunitiesList"
+          class="account-saved-list"
+          aria-live="polite"
+        >
+          <p class="empty">
+            Your saved opportunities will appear here.
+          </p>
         </div>
 
       </div>
