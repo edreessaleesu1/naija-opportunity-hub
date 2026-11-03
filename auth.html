@@ -60,90 +60,31 @@
     }
 
     .auth-shell {
-      width: min(100%, 980px);
-      min-height: 610px;
-      display: grid;
-      grid-template-columns: .9fr 1.1fr;
+      width: min(100%, 540px);
+      min-height: auto;
+      display: block;
       overflow: hidden;
       background: var(--white);
       border: 1px solid var(--border);
-      border-radius: 24px;
+      border-radius: 22px;
       box-shadow: var(--shadow);
     }
 
-    .auth-intro {
-      padding: 48px 38px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      color: var(--white);
-      background: linear-gradient(145deg, var(--green), var(--green-dark));
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 11px;
-      color: var(--white);
-      font-weight: 800;
-      font-size: 18px;
-      line-height: 1.3;
-    }
-
-    .brand-mark {
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
-      flex: 0 0 auto;
-      border: 1px solid rgba(255,255,255,.4);
-      border-radius: 13px;
-      color: var(--gold);
-      font-size: 22px;
-    }
-
-    .intro-copy {
-      margin: 55px 0;
-    }
-
-    .intro-copy .eyebrow {
-      color: #e8d4a8;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .intro-copy h1 {
-      margin: 16px 0;
-      font-size: clamp(32px, 4vw, 44px);
-      line-height: 1.12;
-    }
-
-    .intro-copy p {
-      max-width: 340px;
-      color: rgba(255,255,255,.82);
-      line-height: 1.8;
-      font-size: 15px;
-    }
-
-    .intro-footer {
-      color: rgba(255,255,255,.7);
-      font-size: 13px;
-    }
-
     .auth-main {
-      padding: 48px clamp(24px, 5vw, 58px);
+      width: 100%;
+      padding: 42px clamp(24px, 7vw, 58px);
       display: flex;
       flex-direction: column;
       justify-content: center;
     }
 
     .mobile-brand {
-      display: none;
-      margin-bottom: 28px;
+      display: inline-block;
+      margin-bottom: 30px;
       color: var(--green);
       font-weight: 800;
+      font-size: 18px;
+      text-align: center;
     }
 
     .auth-heading {
@@ -327,27 +268,17 @@
       text-align: center;
     }
 
-    @media (max-width: 720px) {
+    @media (max-width: 480px) {
       body {
         padding: 16px 12px;
       }
 
       .auth-shell {
-        grid-template-columns: 1fr;
-        min-height: auto;
         border-radius: 18px;
-      }
-
-      .auth-intro {
-        display: none;
       }
 
       .auth-main {
         padding: 30px 22px;
-      }
-
-      .mobile-brand {
-        display: block;
       }
 
       .auth-heading h2 {
@@ -359,28 +290,8 @@
 
 <body>
   <main class="auth-shell">
-    <aside class="auth-intro">
-      <a class="brand" href="./index.html">
-        <span class="brand-mark">N</span>
-        <span>Naija Opportunity Hub</span>
-      </a>
-
-      <div class="intro-copy">
-        <span class="eyebrow">Your next opportunity starts here</span>
-        <h1>Discover opportunities. Build your future.</h1>
-        <p>
-          Find scholarships, jobs, internships, grants, fellowships
-          and training opportunities. Keep your applications organised
-          in one place.
-        </p>
-      </div>
-
-      <div class="intro-footer">
-        Learn. Apply. Grow. Move forward.
-      </div>
-    </aside>
-
     <section class="auth-main">
+
       <a class="mobile-brand" href="./index.html">
         Naija Opportunity Hub
       </a>
@@ -401,6 +312,7 @@
         >
           Create account
         </button>
+
         <button
           type="button"
           data-auth-action="show-login"
@@ -410,7 +322,12 @@
         </button>
       </div>
 
-      <div id="authMessage" class="auth-message" role="status" aria-live="polite"></div>
+      <div
+        id="authMessage"
+        class="auth-message"
+        role="status"
+        aria-live="polite"
+      ></div>
 
       <form id="signupForm">
         <div class="form-group">
@@ -455,13 +372,21 @@
           Use a password you have not used elsewhere.
         </p>
 
-        <button id="signupButton" class="auth-button" type="submit">
+        <button
+          id="signupButton"
+          class="auth-button"
+          type="submit"
+        >
           Create account
         </button>
 
         <p class="form-switch">
           Already have an account?
-          <button class="text-button" type="button" data-auth-action="show-login">
+          <button
+            class="text-button"
+            type="button"
+            data-auth-action="show-login"
+          >
             Sign in
           </button>
         </p>
@@ -493,18 +418,30 @@
         </div>
 
         <div class="forgot-row">
-          <button id="forgotPassword" class="text-button" type="button">
+          <button
+            id="forgotPassword"
+            class="text-button"
+            type="button"
+          >
             Forgot password?
           </button>
         </div>
 
-        <button id="loginButton" class="auth-button" type="submit">
+        <button
+          id="loginButton"
+          class="auth-button"
+          type="submit"
+        >
           Sign in
         </button>
 
         <p class="form-switch">
           New to NOH?
-          <button class="text-button" type="button" data-auth-action="show-signup">
+          <button
+            class="text-button"
+            type="button"
+            data-auth-action="show-signup"
+          >
             Create an account
           </button>
         </p>
@@ -535,19 +472,40 @@
           >
         </div>
 
-        <button id="resetButton" class="auth-button" type="submit">
+        <button
+          id="resetButton"
+          class="auth-button"
+          type="submit"
+        >
           Update password
         </button>
       </form>
 
       <section id="loggedInPanel" class="logged-in-panel" hidden>
         <h3>You’re signed in</h3>
-        <p>Account: <strong id="accountEmail"></strong></p>
-        <p>You can return to the Hub and continue managing your opportunities.</p>
-        <a class="auth-button" href="./index.html" style="display:grid;place-items:center;text-decoration:none;">
+
+        <p>
+          Account:
+          <strong id="accountEmail"></strong>
+        </p>
+
+        <p>
+          You can return to the Hub and continue managing your opportunities.
+        </p>
+
+        <a
+          class="auth-button"
+          href="./index.html"
+          style="display:grid;place-items:center;text-decoration:none;"
+        >
           Continue to NOH
         </a>
-        <button id="logoutButton" class="secondary-button" type="button">
+
+        <button
+          id="logoutButton"
+          class="secondary-button"
+          type="button"
+        >
           Sign out
         </button>
       </section>
@@ -555,6 +513,7 @@
       <a class="back-home" href="./index.html">
         ← Back to Naija Opportunity Hub
       </a>
+
     </section>
   </main>
 
