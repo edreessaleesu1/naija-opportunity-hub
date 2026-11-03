@@ -44,7 +44,7 @@
     }
 
     html {
-      scroll-behavior: smooth;
+      scroll-behaviour: smooth;
     }
 
     body {
@@ -439,6 +439,31 @@
       border-color: #c5dfce;
     }
 
+    /* BOOKMARK BUTTON */
+
+    .bookmark-button {
+      color: var(--gold-dark);
+      background: var(--gold-soft);
+      border: 1px solid #eadcb9;
+    }
+
+    .bookmark-button:hover {
+      color: var(--green-dark);
+      background: #f5ecd7;
+      border-color: var(--gold);
+    }
+
+    .bookmark-button.is-saved {
+      color: var(--white);
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .bookmark-button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
     .source-link {
       display: inline-block;
       margin-top: 17px;
@@ -645,10 +670,14 @@
       *::after {
         animation-duration: .01ms !important;
         transition-duration: .01ms !important;
-        scroll-behavior: auto !important;
+        scroll-behaviour: auto !important;
       }
     }
   </style>
+
+  <!-- Shared authentication and bookmark service -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/auth.js" defer></script>
 </head>
 
 <body>
@@ -678,7 +707,6 @@
     </div>
   </header>
 
-
   <main class="wrap">
 
     <!-- BREADCRUMB -->
@@ -691,7 +719,6 @@
       <span>Details</span>
     </nav>
 
-
     <!-- LOADING STATE -->
 
     <section id="loadingState" class="status-panel">
@@ -699,7 +726,6 @@
       <h2>Loading opportunity...</h2>
       <p>Please wait while we retrieve the opportunity details.</p>
     </section>
-
 
     <!-- ERROR STATE -->
 
@@ -711,7 +737,6 @@
         Return to Opportunities
       </a>
     </section>
-
 
     <!-- OPPORTUNITY CONTENT -->
 
@@ -748,7 +773,6 @@
 
         </article>
 
-
         <!-- DESCRIPTION -->
 
         <section class="info-card">
@@ -758,14 +782,12 @@
           </p>
         </section>
 
-
         <!-- ELIGIBILITY -->
 
         <section class="info-card" id="eligibilitySection" hidden>
           <h2>Eligibility Requirements</h2>
           <p id="opportunityEligibility"></p>
         </section>
-
 
         <!-- ADDITIONAL INFORMATION -->
 
@@ -796,7 +818,6 @@
 
       </div>
 
-
       <!-- SIDEBAR -->
 
       <aside class="sidebar">
@@ -819,6 +840,16 @@
           >
             Apply Now →
           </a>
+
+          <button
+            id="bookmarkButton"
+            class="secondary-button bookmark-button"
+            type="button"
+            aria-pressed="false"
+            disabled
+          >
+            ♡ Save Opportunity
+          </button>
 
           <button
             id="shareButton"
@@ -847,7 +878,6 @@
           </a>
 
         </section>
-
 
         <section class="quick-info">
 
@@ -881,7 +911,6 @@
 
   </main>
 
-
   <!-- FOOTER -->
 
   <footer class="details-footer">
@@ -894,7 +923,6 @@
     </div>
   </footer>
 
-
   <!-- SUPABASE AND PAGE LOGIC -->
 
   <script>
@@ -906,11 +934,10 @@
       "https://djxornmwvkauhkcuhgxc.supabase.co";
 
     const SUPABASE_PUBLISHABLE_KEY =
-         "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
-
+      "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
 
     const TABLE_NAME = "opportunities";
-
+    const BOOKMARKS_KEY = "noh_bookmarks_v1";
 
     /* ELEMENT HELPERS */
 
@@ -919,29 +946,45 @@
     const loadingState = $("loadingState");
     const errorState = $("errorState");
     const detailsContent = $("detailsContent");
+    const bookmarkButton = $("bookmarkButton");
+
+    let currentOpportunityId = null;
 
     const setText = (id, value) => {
       const element = $(id);
       if (element) element.textContent = value || "";
     };
 
-
     /* DATE FORMATTING */
 
-    const formatDate = (value) => {
-      if (!value) return "";
+    function parseDate(value) {
+      if (!value) return null;
 
-      const date = new Date(value);
+      const raw = String(value);
+      const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
 
-      if (Number.isNaN(date.getTime())) return "";
+      const date = match
+        ? new Date(
+            Number(match[1]),
+            Number(match[2]) - 1,
+            Number(match[3])
+          )
+        : new Date(raw);
+
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function formatDate(value) {
+      const date = parseDate(value);
+
+      if (!date) return "";
 
       return new Intl.DateTimeFormat("en-GB", {
         day: "numeric",
         month: "long",
         year: "numeric"
       }).format(date);
-    };
-
+    }
 
     /* SAFE URL VALIDATION */
 
@@ -949,7 +992,7 @@
       if (!value) return "";
 
       try {
-        const url = new URL(value);
+        const url = new URL(String(value).trim());
 
         if (
           url.protocol !== "https:" &&
@@ -965,7 +1008,6 @@
       }
     }
 
-
     /* ERROR HANDLING */
 
     function showError(message, title = "Opportunity unavailable") {
@@ -977,6 +1019,102 @@
       setText("errorMessage", message);
     }
 
+    /* =====================================================
+       SAVED OPPORTUNITIES — BOOKMARK INTEGRATION
+    ===================================================== */
+
+    function readBookmarks() {
+      try {
+        const stored = JSON.parse(
+          localStorage.getItem(BOOKMARKS_KEY)
+        );
+
+        return Array.isArray(stored)
+          ? stored.map(String).filter(Boolean)
+          : [];
+
+      } catch (error) {
+        console.warn("Unable to read saved opportunities:", error);
+        return [];
+      }
+    }
+
+    function updateBookmarkButton() {
+      if (!bookmarkButton || !currentOpportunityId) return;
+
+      const bookmarkAPI = window.NOH_BOOKMARKS;
+
+      if (
+        !bookmarkAPI ||
+        typeof bookmarkAPI.isSaved !== "function" ||
+        typeof bookmarkAPI.add !== "function" ||
+        typeof bookmarkAPI.remove !== "function"
+      ) {
+        bookmarkButton.disabled = true;
+        bookmarkButton.textContent = "Bookmark service unavailable";
+        return;
+      }
+
+      const saved = bookmarkAPI.isSaved(currentOpportunityId);
+
+      bookmarkButton.disabled = false;
+      bookmarkButton.classList.toggle("is-saved", saved);
+
+      bookmarkButton.setAttribute(
+        "aria-pressed",
+        String(saved)
+      );
+
+      bookmarkButton.textContent = saved
+        ? "✓ Saved Opportunity"
+        : "♡ Save Opportunity";
+    }
+
+    function initialiseBookmarkButton(opportunityId) {
+      currentOpportunityId = String(opportunityId || "");
+
+      if (!currentOpportunityId) {
+        bookmarkButton.disabled = true;
+        bookmarkButton.textContent = "Bookmark unavailable";
+        return;
+      }
+
+      updateBookmarkButton();
+    }
+
+    bookmarkButton.addEventListener("click", () => {
+      if (!currentOpportunityId) return;
+
+      const bookmarkAPI = window.NOH_BOOKMARKS;
+
+      if (!bookmarkAPI) {
+        bookmarkButton.textContent = "Please try again";
+        return;
+      }
+
+      const saved = bookmarkAPI.isSaved(currentOpportunityId);
+
+      const success = saved
+        ? bookmarkAPI.remove(currentOpportunityId)
+        : bookmarkAPI.add(currentOpportunityId);
+
+      if (success === false) {
+        updateBookmarkButton();
+        return;
+      }
+
+      updateBookmarkButton();
+    });
+
+    window.addEventListener("noh:bookmarks-updated", () => {
+      updateBookmarkButton();
+    });
+
+    window.addEventListener("storage", event => {
+      if (event.key === BOOKMARKS_KEY) {
+        updateBookmarkButton();
+      }
+    });
 
     /* LOAD OPPORTUNITY FROM SUPABASE */
 
@@ -1018,8 +1156,8 @@
           {
             method: "GET",
             headers: {
-              "apikey": SUPABASE_PUBLISHABLE_KEY,
-              "Accept": "application/json"
+              apikey: SUPABASE_PUBLISHABLE_KEY,
+              Accept: "application/json"
             }
           }
         );
@@ -1068,10 +1206,11 @@
       }
     }
 
-
     /* DISPLAY OPPORTUNITY */
 
     function displayOpportunity(data) {
+
+      initialiseBookmarkButton(data.id);
 
       setText("opportunityTitle", data.title || "Untitled opportunity");
 
@@ -1105,42 +1244,46 @@
         data.location || "Not specified"
       );
 
-
       /* IMAGE */
 
       const imageURL = safeURL(data.image_url);
       const image = $("opportunityImage");
 
+      image.classList.remove("loaded");
+      image.removeAttribute("src");
+
       if (imageURL) {
         image.alt = data.title || "Opportunity image";
 
         image.onload = () => image.classList.add("loaded");
-
         image.onerror = () => image.classList.remove("loaded");
 
         image.src = imageURL;
       }
-
 
       /* ELIGIBILITY */
 
       if (data.eligibility) {
         setText("opportunityEligibility", data.eligibility);
         $("eligibilitySection").hidden = false;
+      } else {
+        $("eligibilitySection").hidden = true;
       }
-
 
       /* LOCATION */
 
       if (data.location) {
         setText("opportunityLocation", data.location);
         $("locationRow").hidden = false;
+      } else {
+        $("locationRow").hidden = true;
       }
-
 
       /* DEADLINE */
 
       const deadline = formatDate(data.deadline);
+
+      $("deadlineBox").classList.remove("expired");
 
       if (deadline) {
         setText("opportunityDeadline", deadline);
@@ -1148,25 +1291,28 @@
 
         $("deadlineRow").hidden = false;
 
-        const deadlineDate = new Date(data.deadline);
+        const deadlineDate = parseDate(data.deadline);
         const today = new Date();
 
         today.setHours(0, 0, 0, 0);
-        deadlineDate.setHours(0, 0, 0, 0);
 
-        if (deadlineDate < today) {
-          $("deadlineBox").classList.add("expired");
+        if (deadlineDate) {
+          deadlineDate.setHours(0, 0, 0, 0);
 
-          setText(
-            "sidebarDeadline",
-            `${deadline} — Deadline passed`
-          );
+          if (deadlineDate < today) {
+            $("deadlineBox").classList.add("expired");
+
+            setText(
+              "sidebarDeadline",
+              `${deadline} — Deadline passed`
+            );
+          }
         }
 
       } else {
+        $("deadlineRow").hidden = true;
         setText("sidebarDeadline", "Not specified");
       }
-
 
       /* PUBLISHED DATE */
 
@@ -1175,8 +1321,9 @@
       if (publishedDate) {
         setText("opportunityCreated", publishedDate);
         $("createdRow").hidden = false;
+      } else {
+        $("createdRow").hidden = true;
       }
-
 
       /* VERIFICATION DATE */
 
@@ -1186,8 +1333,10 @@
         setText("opportunityVerified", verifiedDate);
         $("verifiedRow").hidden = false;
         $("verifiedLabel").classList.add("visible");
+      } else {
+        $("verifiedRow").hidden = true;
+        $("verifiedLabel").classList.remove("visible");
       }
-
 
       /* APPLICATION URL */
 
@@ -1199,13 +1348,14 @@
 
       if (applicationURL) {
         applyButton.href = applicationURL;
+        applyButton.classList.remove("disabled");
+        applyButton.removeAttribute("aria-disabled");
       } else {
         applyButton.removeAttribute("href");
         applyButton.classList.add("disabled");
         applyButton.textContent = "Application Link Unavailable";
         applyButton.setAttribute("aria-disabled", "true");
       }
-
 
       /* ORIGINAL SOURCE URL */
 
@@ -1214,14 +1364,15 @@
       if (sourceURL && sourceURL !== applicationURL) {
         $("sourceLink").href = sourceURL;
         $("sourceLink").hidden = false;
+      } else {
+        $("sourceLink").hidden = true;
+        $("sourceLink").removeAttribute("href");
       }
-
 
       /* BROWSER TITLE */
 
       document.title =
         `${data.title || "Opportunity Details"} | Naija Opportunity Hub`;
-
 
       /* SHOW PAGE */
 
@@ -1229,7 +1380,6 @@
       errorState.hidden = true;
       detailsContent.hidden = false;
     }
-
 
     /* SHARE OPPORTUNITY */
 
@@ -1272,7 +1422,6 @@
       }
 
     });
-
 
     /* INITIALISE */
 
