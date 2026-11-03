@@ -1,7 +1,8 @@
+
 /*
  * Naija Opportunity Hub
  * Main account authentication and navigation
- * Version 3.1
+ * Version 3.2
  *
  * Used by:
  * - Homepage
@@ -31,11 +32,14 @@
     return;
   }
 
-  const supabase = existingClient ||
-    library.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  const supabase =
+    existingClient ||
+    library.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
 
   window.NOH_SUPABASE_CLIENT = supabase;
-  window.NOH_AUTH_INITIALISED = true;
 
   // Authentication page elements
   const signupForm = $("signupForm");
@@ -54,9 +58,13 @@
   const accountEmail = $("accountEmail");
 
   const authPageExists = Boolean(
-    signupForm && loginForm && resetForm && loggedInPanel
+    signupForm &&
+    loginForm &&
+    resetForm &&
+    loggedInPanel
   );
 
+  // Authentication state
   let recoveryMode = false;
   let currentUser = null;
 
@@ -84,7 +92,9 @@
   --------------------------------------------------------- */
 
   function setVisible(element, visible) {
-    if (element) element.hidden = !visible;
+    if (!element) return;
+
+    element.hidden = !visible;
   }
 
   function showMessage(message, type = "error") {
@@ -92,6 +102,8 @@
 
     authMessage.textContent = message;
     authMessage.className = `auth-message show ${type}`;
+    authMessage.setAttribute("role", "status");
+    authMessage.setAttribute("aria-live", "polite");
   }
 
   function clearMessage() {
@@ -112,15 +124,93 @@
     return `${window.location.origin}/auth.html`;
   }
 
+  /*
+   * Only allow same-origin absolute paths.
+   * Reject protocol-relative URLs and backslash tricks.
+   */
   function safeRedirect(path) {
     if (
-      typeof path === "string" &&
-      path.startsWith("/") &&
-      !path.startsWith("//") &&
-      !path.includes("\\")
+      typeof path !== "string" ||
+      !path.startsWith("/") ||
+      path.startsWith("//") ||
+      path.includes("\\")
     ) {
-      window.location.assign(path);
+      return false;
     }
+
+    try {
+      const destination = new URL(path, window.location.origin);
+
+      if (destination.origin !== window.location.origin) {
+        return false;
+      }
+
+      window.location.assign(destination.href);
+      return true;
+
+    } catch (error) {
+      console.warn("NOH Auth: Invalid redirect rejected.");
+      return false;
+    }
+  }
+
+  /*
+   * Present understandable messages instead of exposing
+   * raw Supabase error details to website visitors.
+   */
+  function friendlyAuthError(error, fallback) {
+    const message = String(error?.message || "").toLowerCase();
+
+    if (
+      message.includes("invalid login credentials") ||
+      message.includes("invalid credentials")
+    ) {
+      return "Your email address or password is incorrect. Please check and try again.";
+    }
+
+    if (message.includes("email not confirmed")) {
+      return "Please confirm your email address before signing in.";
+    }
+
+    if (
+      message.includes("already registered") ||
+      message.includes("already exists")
+    ) {
+      return "An account with this email may already exist. Please sign in instead.";
+    }
+
+    if (
+      message.includes("password should be at least") ||
+      message.includes("password is too short")
+    ) {
+      return "Your password must contain at least 8 characters.";
+    }
+
+    if (
+      message.includes("rate limit") ||
+      message.includes("too many requests")
+    ) {
+      return "Too many attempts. Please wait a little and try again.";
+    }
+
+    return fallback;
+  }
+
+  function getURLParameters() {
+    return new URLSearchParams(window.location.search);
+  }
+
+  function isRecoveryURL() {
+    const query = getURLParameters();
+
+    const hash = new URLSearchParams(
+      window.location.hash.replace(/^#/, "")
+    );
+
+    return (
+      query.get("type") === "recovery" ||
+      hash.get("type") === "recovery"
+    );
   }
 
   /* ---------------------------------------------------------
@@ -131,17 +221,19 @@
     setVisible(accountDropdown, false);
 
     if (accountMenuButton) {
-      accountMenuButton.setAttribute("aria-expanded", "false");
+      accountMenuButton.setAttribute(
+        "aria-expanded",
+        "false"
+      );
     }
   }
 
   function updateHomepageNavigation(user) {
     const signedIn = Boolean(user);
 
-    // Keep the Me account control visible for everyone.
+    // Keep the account control available to all visitors.
     setVisible(accountMenu, true);
 
-    // Preserve the avatar, Me label and dropdown arrow.
     if (accountMenuButton) {
       accountMenuButton.setAttribute(
         "aria-label",
@@ -149,9 +241,13 @@
           ? "Open your account menu"
           : "Sign in or create an account"
       );
+
+      accountMenuButton.setAttribute(
+        "aria-expanded",
+        "false"
+      );
     }
 
-    // Signed-out visitors cannot access the account dropdown.
     if (!signedIn) {
       closeAccountDropdown();
       closeAccountDashboard();
@@ -168,8 +264,6 @@
 
   if (accountMenuButton) {
     accountMenuButton.addEventListener("click", () => {
-
-      // Send signed-out visitors to the login page.
       if (!currentUser) {
         window.location.assign("/auth.html?mode=login");
         return;
@@ -188,7 +282,13 @@
   }
 
   document.addEventListener("click", (event) => {
-    if (!accountMenu || accountMenu.hidden) return;
+    if (
+      !accountMenu ||
+      !accountDropdown ||
+      accountDropdown.hidden
+    ) {
+      return;
+    }
 
     if (!accountMenu.contains(event.target)) {
       closeAccountDropdown();
@@ -229,7 +329,9 @@
     previousFocus = document.activeElement;
 
     closeAccountDropdown();
+
     setVisible(accountDashboard, true);
+    accountDashboard.setAttribute("aria-hidden", "false");
 
     document.body.classList.add("account-dashboard-open");
 
@@ -249,16 +351,27 @@
     if (!accountDashboard || accountDashboard.hidden) return;
 
     setVisible(accountDashboard, false);
+    accountDashboard.setAttribute("aria-hidden", "true");
 
     document.body.classList.remove("account-dashboard-open");
 
-    if (previousFocus && typeof previousFocus.focus === "function") {
+    if (
+      previousFocus &&
+      typeof previousFocus.focus === "function" &&
+      document.contains(previousFocus)
+    ) {
       previousFocus.focus();
     }
+
+    previousFocus = null;
   }
 
   document.addEventListener("click", (event) => {
-    const viewButton = event.target.closest("[data-account-view]");
+    const target = event.target;
+
+    if (!(target instanceof Element)) return;
+
+    const viewButton = target.closest("[data-account-view]");
 
     if (viewButton) {
       event.preventDefault();
@@ -270,22 +383,64 @@
       return;
     }
 
-    const tabButton = event.target.closest("[data-account-tab]");
+    const tabButton = target.closest("[data-account-tab]");
 
     if (tabButton) {
       showAccountView(tabButton.dataset.accountTab);
       return;
     }
 
-    if (event.target.closest("[data-close-account]")) {
+    if (target.closest("[data-close-account]")) {
       closeAccountDashboard();
     }
   });
 
+  /*
+   * Keyboard accessibility:
+   * - Escape closes the dashboard.
+   * - Tab focus stays inside the open dashboard.
+   */
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeAccountDropdown();
       closeAccountDashboard();
+      return;
+    }
+
+    if (
+      event.key !== "Tab" ||
+      !accountDashboard ||
+      accountDashboard.hidden
+    ) {
+      return;
+    }
+
+    const focusable = accountDashboard.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+
+    const items = Array.from(focusable).filter(
+      (element) => element.offsetParent !== null
+    );
+
+    if (!items.length) return;
+
+    const first = items[0];
+    const last = items[items.length - 1];
+
+    if (
+      event.shiftKey &&
+      document.activeElement === first
+    ) {
+      event.preventDefault();
+      last.focus();
+
+    } else if (
+      !event.shiftKey &&
+      document.activeElement === last
+    ) {
+      event.preventDefault();
+      first.focus();
     }
   });
 
@@ -344,6 +499,7 @@
           accountSettingsMessage.textContent =
             "Please sign in again to update your password.";
         }
+
         return;
       }
 
@@ -355,6 +511,7 @@
           accountSettingsMessage.textContent =
             "Your password must contain at least 8 characters.";
         }
+
         return;
       }
 
@@ -363,6 +520,7 @@
           accountSettingsMessage.textContent =
             "Your passwords do not match.";
         }
+
         return;
       }
 
@@ -379,7 +537,9 @@
       }
 
       try {
-        const { error } = await supabase.auth.updateUser({ password });
+        const { error } = await supabase.auth.updateUser({
+          password
+        });
 
         if (error) throw error;
 
@@ -388,16 +548,22 @@
         if (accountSettingsMessage) {
           accountSettingsMessage.textContent =
             "Your password has been updated successfully.";
+
           accountSettingsMessage.classList.add("success");
         }
 
       } catch (error) {
-        console.error("NOH account password update error:", error);
+        console.error(
+          "NOH account password update error:",
+          error
+        );
 
         if (accountSettingsMessage) {
           accountSettingsMessage.textContent =
-            error.message ||
-            "We could not update your password. Please try again.";
+            friendlyAuthError(
+              error,
+              "We could not update your password. Please try again."
+            );
 
           accountSettingsMessage.classList.remove("success");
         }
@@ -421,30 +587,34 @@
     if (!authPageExists) return;
 
     recoveryMode = false;
+
     clearMessage();
 
-    setVisible(signupForm, mode === "signup");
-    setVisible(loginForm, mode === "login");
+    const loginMode = mode === "login";
+
+    setVisible(signupForm, !loginMode);
+    setVisible(loginForm, loginMode);
     setVisible(resetForm, false);
     setVisible(loggedInPanel, false);
 
     if (authHeading) {
-      authHeading.textContent =
-        mode === "login" ? "Welcome back" : "Create your account";
+      authHeading.textContent = loginMode
+        ? "Welcome back"
+        : "Create your account";
     }
 
     if (authSubheading) {
-      authSubheading.textContent =
-        mode === "login"
-          ? "Sign in to continue managing your opportunities."
-          : "Join NOH and keep track of opportunities that matter to you.";
+      authSubheading.textContent = loginMode
+        ? "Sign in to continue managing your opportunities."
+        : "Join NOH and keep track of opportunities that matter to you.";
     }
 
     document.querySelectorAll("[data-auth-action]").forEach((button) => {
       if (!button.closest(".auth-tabs")) return;
 
-      const active = button.dataset.authAction ===
-        (mode === "login" ? "show-login" : "show-signup");
+      const active =
+        button.dataset.authAction ===
+        (loginMode ? "show-login" : "show-signup");
 
       button.classList.toggle("active", active);
       button.setAttribute("aria-selected", String(active));
@@ -455,6 +625,7 @@
     if (!authPageExists) return;
 
     recoveryMode = true;
+
     clearMessage();
 
     setVisible(signupForm, false);
@@ -470,6 +641,8 @@
       authSubheading.textContent =
         "Choose a new password for your NOH account.";
     }
+
+    $("newPassword")?.focus();
   }
 
   function showLoggedInUser(user) {
@@ -480,8 +653,6 @@
     }
 
     if (!authPageExists) return;
-
-    clearMessage();
 
     setVisible(signupForm, false);
     setVisible(loginForm, false);
@@ -501,10 +672,11 @@
   function showSignedOutState() {
     if (!authPageExists) return;
 
-    const requestedMode =
-      new URLSearchParams(window.location.search).get("mode");
+    const requestedMode = getURLParameters().get("mode");
 
-    setAuthMode(requestedMode === "login" ? "login" : "signup");
+    setAuthMode(
+      requestedMode === "login" ? "login" : "signup"
+    );
   }
 
   /* ---------------------------------------------------------
@@ -514,6 +686,7 @@
   if (signupForm) {
     signupForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+
       clearMessage();
 
       const email = $("signupEmail")?.value.trim();
@@ -526,7 +699,10 @@
       }
 
       if (password.length < 8) {
-        showMessage("Your password must contain at least 8 characters.");
+        showMessage(
+          "Your password must contain at least 8 characters."
+        );
+
         return;
       }
 
@@ -576,13 +752,12 @@
       } catch (error) {
         console.error("NOH signup error:", error);
 
-        const message =
-          /already registered|already exists/i.test(error.message || "")
-            ? "An account with this email may already exist. Please sign in instead."
-            : error.message ||
-              "We could not create your account. Please try again.";
-
-        showMessage(message);
+        showMessage(
+          friendlyAuthError(
+            error,
+            "We could not create your account. Please try again."
+          )
+        );
 
       } finally {
         setLoading(
@@ -602,6 +777,7 @@
   if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+
       clearMessage();
 
       const email = $("loginEmail")?.value.trim();
@@ -621,7 +797,10 @@
 
       try {
         const { data, error } =
-          await supabase.auth.signInWithPassword({ email, password });
+          await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
 
         if (error) throw error;
 
@@ -631,25 +810,26 @@
           showLoggedInUser(currentUser);
           updateHomepageNavigation(currentUser);
 
+          const redirect = getURLParameters().get("redirect");
+
+          if (redirect && safeRedirect(redirect)) {
+            return;
+          }
+
           showMessage(
             "You have signed in successfully.",
             "success"
           );
-
-          const redirect =
-            new URLSearchParams(window.location.search).get("redirect");
-
-          if (redirect) {
-            safeRedirect(redirect);
-          }
         }
 
       } catch (error) {
         console.error("NOH login error:", error);
 
         showMessage(
-          error.message ||
-          "Sign-in failed. Check your details and try again."
+          friendlyAuthError(
+            error,
+            "Sign-in failed. Check your details and try again."
+          )
         );
 
       } finally {
@@ -684,10 +864,13 @@
       forgotPasswordButton.disabled = true;
 
       try {
-        const { error } = await supabase.auth.resetPasswordForEmail(
-          email,
-          { redirectTo: getAuthPageURL() }
-        );
+        const { error } =
+          await supabase.auth.resetPasswordForEmail(
+            email,
+            {
+              redirectTo: getAuthPageURL()
+            }
+          );
 
         if (error) throw error;
 
@@ -697,11 +880,16 @@
         );
 
       } catch (error) {
-        console.error("NOH password reset request error:", error);
+        console.error(
+          "NOH password reset request error:",
+          error
+        );
 
         showMessage(
-          error.message ||
-          "We could not send the reset email. Please try again."
+          friendlyAuthError(
+            error,
+            "We could not send the reset email. Please try again."
+          )
         );
 
       } finally {
@@ -717,10 +905,12 @@
   if (resetForm) {
     resetForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+
       clearMessage();
 
       const password = $("newPassword")?.value || "";
-      const confirmation = $("confirmNewPassword")?.value || "";
+      const confirmation =
+        $("confirmNewPassword")?.value || "";
 
       if (!password || !confirmation) {
         showMessage("Please complete both password fields.");
@@ -731,6 +921,7 @@
         showMessage(
           "Your new password must contain at least 8 characters."
         );
+
         return;
       }
 
@@ -747,32 +938,40 @@
       );
 
       try {
-        const { error } = await supabase.auth.updateUser({ password });
+        const { error } = await supabase.auth.updateUser({
+          password
+        });
 
         if (error) throw error;
 
         resetForm.reset();
         recoveryMode = false;
 
+        const { data } = await supabase.auth.getUser();
+
+        if (data.user) {
+          currentUser = data.user;
+
+          showLoggedInUser(data.user);
+          updateHomepageNavigation(data.user);
+        }
+
         showMessage(
           "Your password has been updated successfully.",
           "success"
         );
 
-        const { data } = await supabase.auth.getUser();
-
-        if (data.user) {
-          currentUser = data.user;
-          showLoggedInUser(data.user);
-          updateHomepageNavigation(data.user);
-        }
-
       } catch (error) {
-        console.error("NOH password update error:", error);
+        console.error(
+          "NOH password update error:",
+          error
+        );
 
         showMessage(
-          error.message ||
-          "We could not update your password. Please try again."
+          friendlyAuthError(
+            error,
+            "We could not update your password. Please try again."
+          )
         );
 
       } finally {
@@ -791,7 +990,11 @@
   --------------------------------------------------------- */
 
   document.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-auth-action]");
+    const target = event.target;
+
+    if (!(target instanceof Element)) return;
+
+    const button = target.closest("[data-auth-action]");
 
     if (!button) return;
 
@@ -820,18 +1023,31 @@
       return;
     }
 
+    /*
+     * Do not let ordinary session events replace the
+     * password recovery screen while recovery is active.
+     */
+    if (recoveryMode) return;
+
     if (currentUser) {
-      if (!recoveryMode) {
-        showLoggedInUser(currentUser);
-      }
+      showLoggedInUser(currentUser);
+
     } else if (event === "SIGNED_OUT") {
       showSignedOutState();
     }
   });
 
+  /* ---------------------------------------------------------
+     Initial session restoration
+  --------------------------------------------------------- */
+
   async function initialiseAuth() {
     // Hide the account control briefly while restoring the session.
     setVisible(accountMenu, false);
+
+    if (accountDashboard) {
+      accountDashboard.setAttribute("aria-hidden", "true");
+    }
 
     try {
       const { data, error } = await supabase.auth.getSession();
@@ -844,11 +1060,11 @@
 
       if (!authPageExists) return;
 
-      const hashParams = new URLSearchParams(
-        window.location.hash.replace(/^#/, "")
-      );
-
-      if (hashParams.get("type") === "recovery") {
+      /*
+       * A recovery event may have arrived while getSession()
+       * was running. Never overwrite its screen.
+       */
+      if (recoveryMode || isRecoveryURL()) {
         showPasswordReset();
         return;
       }
@@ -861,13 +1077,21 @@
       showSignedOutState();
 
     } catch (error) {
-      console.error("NOH session initialisation error:", error);
+      console.error(
+        "NOH session initialisation error:",
+        error
+      );
 
       currentUser = null;
 
       updateHomepageNavigation(null);
 
       if (authPageExists) {
+        if (recoveryMode || isRecoveryURL()) {
+          showPasswordReset();
+          return;
+        }
+
         setAuthMode("signup");
 
         showMessage(
@@ -877,6 +1101,12 @@
     }
   }
 
-  initialiseAuth();
+  /*
+   * Set the guard after event handlers and the auth listener
+   * have been registered, preventing duplicate initialisation.
+   */
+  window.NOH_AUTH_INITIALISED = true;
+
+  window.NOH_AUTH_READY = initialiseAuth();
 
 })();
