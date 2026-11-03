@@ -1107,3 +1107,376 @@
   window.NOH_AUTH_READY = initialiseAuth();
 
 })();
+
+  /* ---------------------------------------------------------
+     ACCOUNT DASHBOARD
+  --------------------------------------------------------- */
+  /* ---------------------------------------------------------
+     SAVED OPPORTUNITIES
+  --------------------------------------------------------- */
+
+  const BOOKMARKS_KEY = "noh_bookmarks_v1";
+
+  let savedOpportunitiesPanel = null;
+  let savedOpportunitiesTab = null;
+  let savedOpportunitiesRequest = 0;
+
+  function getSavedOpportunityIds() {
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(BOOKMARKS_KEY) || "[]"
+      );
+
+      return Array.isArray(saved)
+        ? [...new Set(saved.map(String).filter(Boolean))]
+        : [];
+
+    } catch (error) {
+      console.warn("NOH: Could not read saved opportunities.");
+      return [];
+    }
+  }
+
+  function storeSavedOpportunityIds(ids) {
+    const uniqueIds = [...new Set(ids.map(String))];
+
+    localStorage.setItem(
+      BOOKMARKS_KEY,
+      JSON.stringify(uniqueIds)
+    );
+
+    window.dispatchEvent(
+      new CustomEvent("noh:bookmarks-updated", {
+        detail: { ids: uniqueIds }
+      })
+    );
+  }
+
+  function addSavedOpportunity(id) {
+    if (!id) return;
+
+    const ids = getSavedOpportunityIds();
+
+    if (!ids.includes(String(id))) {
+      ids.push(String(id));
+      storeSavedOpportunityIds(ids);
+    }
+  }
+
+  function removeSavedOpportunity(id) {
+    if (!id) return;
+
+    const ids = getSavedOpportunityIds().filter(
+      savedId => savedId !== String(id)
+    );
+
+    storeSavedOpportunityIds(ids);
+
+    renderSavedOpportunities();
+  }
+
+  function toggleSavedOpportunity(id) {
+    if (!id) return false;
+
+    const ids = getSavedOpportunityIds();
+    const exists = ids.includes(String(id));
+
+    if (exists) {
+      removeSavedOpportunity(id);
+      return false;
+    }
+
+    addSavedOpportunity(id);
+    return true;
+  }
+
+  // Public interface for the opportunity details page.
+  window.NOH_BOOKMARKS = {
+    getAll: getSavedOpportunityIds,
+    add: addSavedOpportunity,
+    remove: removeSavedOpportunity,
+    toggle: toggleSavedOpportunity,
+    isSaved: id => getSavedOpportunityIds().includes(String(id))
+  };
+
+  function createSavedDashboardUI() {
+    if (
+      !accountDashboard ||
+      !accountOverview ||
+      savedOpportunitiesPanel
+    ) {
+      return;
+    }
+
+    const tabs = accountDashboard.querySelector(
+      ".account-dashboard-tabs"
+    );
+
+    if (!tabs) {
+      console.warn("NOH: Dashboard tab container not found.");
+      return;
+    }
+
+    // Reuse the existing dashboard tab styling.
+    const existingTab = tabs.querySelector(
+      '[data-account-tab="overview"]'
+    );
+
+    savedOpportunitiesTab = existingTab
+      ? existingTab.cloneNode(true)
+      : document.createElement("button");
+
+    savedOpportunitiesTab.id = "accountSavedTab";
+    savedOpportunitiesTab.type = "button";
+    savedOpportunitiesTab.dataset.accountTab = "saved";
+    savedOpportunitiesTab.textContent = "Saved Opportunities";
+    savedOpportunitiesTab.classList.remove("active");
+    savedOpportunitiesTab.setAttribute("aria-selected", "false");
+
+    tabs.appendChild(savedOpportunitiesTab);
+
+    // Create a separate panel for saved opportunities.
+    savedOpportunitiesPanel = document.createElement("section");
+    savedOpportunitiesPanel.id = "accountSavedOpportunities";
+    savedOpportunitiesPanel.className = accountOverview.className;
+    savedOpportunitiesPanel.hidden = true;
+    savedOpportunitiesPanel.setAttribute(
+      "aria-labelledby",
+      "accountSavedTab"
+    );
+
+    const heading = document.createElement("h3");
+    heading.textContent = "My Saved Opportunities";
+
+    const description = document.createElement("p");
+    description.textContent =
+      "Opportunities you have bookmarked for later.";
+
+    const list = document.createElement("div");
+    list.id = "accountSavedOpportunitiesList";
+
+    savedOpportunitiesPanel.append(
+      heading,
+      description,
+      list
+    );
+
+    accountOverview.insertAdjacentElement(
+      "afterend",
+      savedOpportunitiesPanel
+    );
+  }
+
+  function safeOpportunityURL(value) {
+    if (!value) return "";
+
+    try {
+      const url = new URL(value, window.location.origin);
+
+      if (
+        url.protocol !== "https:" &&
+        url.protocol !== "http:"
+      ) {
+        return "";
+      }
+
+      return url.href;
+
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function renderSavedMessage(container, message) {
+    container.replaceChildren();
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent = message;
+
+    container.appendChild(paragraph);
+  }
+
+  async function renderSavedOpportunities() {
+    createSavedDashboardUI();
+
+    const list = $("accountSavedOpportunitiesList");
+
+    if (!list) return;
+
+    const requestNumber = ++savedOpportunitiesRequest;
+    const ids = getSavedOpportunityIds();
+
+    if (!ids.length) {
+      renderSavedMessage(
+        list,
+        "You have not saved any opportunities yet. Browse opportunities and bookmark the ones you want to revisit."
+      );
+      return;
+    }
+
+    renderSavedMessage(list, "Loading your saved opportunities...");
+
+    try {
+      const { data, error } = await supabase
+        .from("opportunities")
+        .select(
+          "id, title, organization, category, deadline, location, application_url, source_url, status"
+        )
+        .in("id", ids)
+        .eq("status", "published");
+
+      if (error) throw error;
+
+      if (requestNumber !== savedOpportunitiesRequest) return;
+
+      const opportunities = data || [];
+
+      list.replaceChildren();
+
+      if (!opportunities.length) {
+        renderSavedMessage(
+          list,
+          "Your saved opportunities are no longer available. You can browse the latest opportunities and save new ones."
+        );
+        return;
+      }
+
+      // Preserve the user's saved order.
+      opportunities.sort(
+        (a, b) => ids.indexOf(String(a.id)) - ids.indexOf(String(b.id))
+      );
+
+      opportunities.forEach(opportunity => {
+        const card = document.createElement("article");
+
+        card.style.cssText = [
+          "padding:16px",
+          "margin:12px 0",
+          "border:1px solid rgba(196,154,67,.35)",
+          "border-radius:12px",
+          "background:var(--warm-ivory,#fffdf7)"
+        ].join(";");
+
+        const title = document.createElement("h4");
+        title.textContent = opportunity.title || "Untitled opportunity";
+
+        const organisation = document.createElement("p");
+        organisation.textContent =
+          opportunity.organization || "Organisation not specified";
+
+        const category = document.createElement("p");
+        category.textContent =
+          opportunity.category || "Opportunity";
+
+        card.append(title, organisation, category);
+
+        if (opportunity.deadline) {
+          const deadline = document.createElement("p");
+          deadline.textContent = `Deadline: ${opportunity.deadline}`;
+          card.appendChild(deadline);
+        }
+
+        const actions = document.createElement("div");
+        actions.style.cssText =
+          "display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;";
+
+        const openLink = document.createElement("a");
+        openLink.href =
+          `${window.location.origin}/opportunity-details.html?id=` +
+          encodeURIComponent(String(opportunity.id));
+
+        openLink.textContent = "View opportunity";
+        openLink.style.cssText =
+          "font-weight:600;color:var(--gold,#c49a43);";
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.textContent = "Remove saved item";
+        removeButton.dataset.removeSavedOpportunity =
+          String(opportunity.id);
+
+        actions.append(openLink, removeButton);
+        card.appendChild(actions);
+        list.appendChild(card);
+      });
+
+    } catch (error) {
+      console.error(
+        "NOH saved opportunities error:",
+        error
+      );
+
+      if (requestNumber === savedOpportunitiesRequest) {
+        renderSavedMessage(
+          list,
+          "We could not load your saved opportunities. Please try again."
+        );
+      }
+    }
+  }
+
+  // Remove a saved opportunity from the dashboard.
+  document.addEventListener("click", event => {
+    const target = event.target;
+
+    if (!(target instanceof Element)) return;
+
+    const removeButton = target.closest(
+      "[data-remove-saved-opportunity]"
+    );
+
+    if (!removeButton) return;
+
+    removeSavedOpportunity(
+      removeButton.dataset.removeSavedOpportunity
+    );
+  });
+
+  // Allow bookmark controls on opportunity detail pages
+  // to use data-noh-bookmark="<opportunity-id>".
+  document.addEventListener("click", event => {
+    const target = event.target;
+
+    if (!(target instanceof Element)) return;
+
+    const bookmarkButton = target.closest("[data-noh-bookmark]");
+
+    if (!bookmarkButton) return;
+
+    const id = bookmarkButton.dataset.nohBookmark;
+    const saved = toggleSavedOpportunity(id);
+
+    bookmarkButton.textContent = saved
+      ? "Saved"
+      : "Save opportunity";
+
+    bookmarkButton.setAttribute(
+      "aria-pressed",
+      String(saved)
+    );
+  });
+
+  // Keep bookmark controls up to date.
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("[data-noh-bookmark]").forEach(button => {
+      const saved = window.NOH_BOOKMARKS.isSaved(
+        button.dataset.nohBookmark
+      );
+
+      button.textContent = saved
+        ? "Saved"
+        : "Save opportunity";
+
+      button.setAttribute("aria-pressed", String(saved));
+    });
+  });
+
+  window.addEventListener("storage", event => {
+    if (event.key === BOOKMARKS_KEY) {
+      renderSavedOpportunities();
+    }
+  });
+
+  window.addEventListener("noh:bookmarks-updated", () => {
+    renderSavedOpportunities();
+  });
