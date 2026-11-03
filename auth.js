@@ -2,7 +2,7 @@
 /*
  * Naija Opportunity Hub
  * Main account authentication and navigation
- * Version 3.2
+ * Version 3.3
  *
  * Used by:
  * - Homepage
@@ -88,13 +88,13 @@
   let previousFocus = null;
 
   /* ---------------------------------------------------------
-     General helpers
+     GENERAL HELPERS
   --------------------------------------------------------- */
 
   function setVisible(element, visible) {
-    if (!element) return;
-
-    element.hidden = !visible;
+    if (element) {
+      element.hidden = !visible;
+    }
   }
 
   function showMessage(message, type = "error") {
@@ -124,10 +124,6 @@
     return `${window.location.origin}/auth.html`;
   }
 
-  /*
-   * Only allow same-origin absolute paths.
-   * Reject protocol-relative URLs and backslash tricks.
-   */
   function safeRedirect(path) {
     if (
       typeof path !== "string" ||
@@ -139,7 +135,10 @@
     }
 
     try {
-      const destination = new URL(path, window.location.origin);
+      const destination = new URL(
+        path,
+        window.location.origin
+      );
 
       if (destination.origin !== window.location.origin) {
         return false;
@@ -154,12 +153,10 @@
     }
   }
 
-  /*
-   * Present understandable messages instead of exposing
-   * raw Supabase error details to website visitors.
-   */
   function friendlyAuthError(error, fallback) {
-    const message = String(error?.message || "").toLowerCase();
+    const message = String(
+      error?.message || ""
+    ).toLowerCase();
 
     if (
       message.includes("invalid login credentials") ||
@@ -214,7 +211,7 @@
   }
 
   /* ---------------------------------------------------------
-     Homepage navigation
+     HOMEPAGE NAVIGATION
   --------------------------------------------------------- */
 
   function closeAccountDropdown() {
@@ -231,7 +228,7 @@
   function updateHomepageNavigation(user) {
     const signedIn = Boolean(user);
 
-    // Keep the account control available to all visitors.
+    // Keep the account control visible for everyone.
     setVisible(accountMenu, true);
 
     if (accountMenuButton) {
@@ -296,7 +293,7 @@
   });
 
   /* ---------------------------------------------------------
-     Account dashboard
+     ACCOUNT DASHBOARD
   --------------------------------------------------------- */
 
   function showAccountView(view) {
@@ -395,11 +392,6 @@
     }
   });
 
-  /*
-   * Keyboard accessibility:
-   * - Escape closes the dashboard.
-   * - Tab focus stays inside the open dashboard.
-   */
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeAccountDropdown();
@@ -445,7 +437,7 @@
   });
 
   /* ---------------------------------------------------------
-     Sign out
+     SIGN OUT
   --------------------------------------------------------- */
 
   async function signOut(button) {
@@ -468,7 +460,9 @@
 
       alert("We could not sign you out. Please try again.");
 
-      if (button) button.disabled = false;
+      if (button) {
+        button.disabled = false;
+      }
     }
   }
 
@@ -487,7 +481,7 @@
   }
 
   /* ---------------------------------------------------------
-     Account password settings
+     ACCOUNT PASSWORD SETTINGS
   --------------------------------------------------------- */
 
   if (accountPasswordForm) {
@@ -503,8 +497,11 @@
         return;
       }
 
-      const password = $("accountNewPassword")?.value || "";
-      const confirmation = $("accountConfirmPassword")?.value || "";
+      const password =
+        $("accountNewPassword")?.value || "";
+
+      const confirmation =
+        $("accountConfirmPassword")?.value || "";
 
       if (password.length < 8) {
         if (accountSettingsMessage) {
@@ -580,7 +577,7 @@
   }
 
   /* ---------------------------------------------------------
-     Authentication page view controls
+     AUTHENTICATION PAGE VIEW CONTROLS
   --------------------------------------------------------- */
 
   function setAuthMode(mode) {
@@ -680,7 +677,7 @@
   }
 
   /* ---------------------------------------------------------
-     Signup
+     SIGNUP
   --------------------------------------------------------- */
 
   if (signupForm) {
@@ -740,6 +737,9 @@
             "success"
           );
 
+          // A new authenticated account goes to NOH home.
+          safeRedirect("/");
+
         } else {
           showMessage(
             "Your account has been created. Please check your email and follow the confirmation link before signing in.",
@@ -771,7 +771,7 @@
   }
 
   /* ---------------------------------------------------------
-     Login
+     LOGIN
   --------------------------------------------------------- */
 
   if (loginForm) {
@@ -810,16 +810,18 @@
           showLoggedInUser(currentUser);
           updateHomepageNavigation(currentUser);
 
-          const redirect = getURLParameters().get("redirect");
+          const redirect =
+            getURLParameters().get("redirect");
 
+          // Return to the original page when a valid
+          // protected-page destination was supplied.
+          // Otherwise, go to the NOH homepage.
           if (redirect && safeRedirect(redirect)) {
             return;
           }
 
-          showMessage(
-            "You have signed in successfully.",
-            "success"
-          );
+          safeRedirect("/");
+          return;
         }
 
       } catch (error) {
@@ -844,7 +846,7 @@
   }
 
   /* ---------------------------------------------------------
-     Forgot password
+     FORGOT PASSWORD
   --------------------------------------------------------- */
 
   const forgotPasswordButton = $("forgotPassword");
@@ -899,7 +901,7 @@
   }
 
   /* ---------------------------------------------------------
-     Set a new password from recovery email
+     SET A NEW PASSWORD FROM RECOVERY EMAIL
   --------------------------------------------------------- */
 
   if (resetForm) {
@@ -908,7 +910,9 @@
 
       clearMessage();
 
-      const password = $("newPassword")?.value || "";
+      const password =
+        $("newPassword")?.value || "";
+
       const confirmation =
         $("confirmNewPassword")?.value || "";
 
@@ -986,7 +990,7 @@
   }
 
   /* ---------------------------------------------------------
-     Switch login/signup tabs
+     SWITCH LOGIN/SIGNUP TABS
   --------------------------------------------------------- */
 
   document.addEventListener("click", (event) => {
@@ -1008,7 +1012,7 @@
   });
 
   /* ---------------------------------------------------------
-     Restore and monitor the main NOH session
+     RESTORE AND MONITOR THE MAIN NOH SESSION
   --------------------------------------------------------- */
 
   supabase.auth.onAuthStateChange((event, session) => {
@@ -1023,10 +1027,7 @@
       return;
     }
 
-    /*
-     * Do not let ordinary session events replace the
-     * password recovery screen while recovery is active.
-     */
+    // Preserve the password recovery screen.
     if (recoveryMode) return;
 
     if (currentUser) {
@@ -1038,11 +1039,10 @@
   });
 
   /* ---------------------------------------------------------
-     Initial session restoration
+     INITIALISE AUTHENTICATION
   --------------------------------------------------------- */
 
   async function initialiseAuth() {
-    // Hide the account control briefly while restoring the session.
     setVisible(accountMenu, false);
 
     if (accountDashboard) {
@@ -1050,7 +1050,8 @@
     }
 
     try {
-      const { data, error } = await supabase.auth.getSession();
+      const { data, error } =
+        await supabase.auth.getSession();
 
       if (error) throw error;
 
@@ -1060,17 +1061,16 @@
 
       if (!authPageExists) return;
 
-      /*
-       * A recovery event may have arrived while getSession()
-       * was running. Never overwrite its screen.
-       */
+      // Password recovery must take priority over login redirect.
       if (recoveryMode || isRecoveryURL()) {
         showPasswordReset();
         return;
       }
 
       if (currentUser) {
-        showLoggedInUser(currentUser);
+        // Already signed-in visitors should not remain
+        // on the login or signup page.
+        safeRedirect("/");
         return;
       }
 
@@ -1101,10 +1101,7 @@
     }
   }
 
-  /*
-   * Set the guard after event handlers and the auth listener
-   * have been registered, preventing duplicate initialisation.
-   */
+  // Prevent duplicate authentication initialisation.
   window.NOH_AUTH_INITIALISED = true;
 
   window.NOH_AUTH_READY = initialiseAuth();
