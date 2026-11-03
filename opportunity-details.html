@@ -44,7 +44,7 @@
     }
 
     html {
-      scroll-behaviour: smooth;
+      scroll-behavior: smooth;
     }
 
     body {
@@ -670,14 +670,13 @@
       *::after {
         animation-duration: .01ms !important;
         transition-duration: .01ms !important;
-        scroll-behaviour: auto !important;
+        scroll-behavior: auto !important;
       }
     }
   </style>
 
-  <!-- Shared authentication and bookmark service -->
+  <!-- Supabase library must load before auth.js -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/auth.js" defer></script>
 </head>
 
 <body>
@@ -846,9 +845,10 @@
             class="secondary-button bookmark-button"
             type="button"
             aria-pressed="false"
+            aria-live="polite"
             disabled
           >
-            ♡ Save Opportunity
+            Preparing saved opportunities...
           </button>
 
           <button
@@ -923,7 +923,17 @@
     </div>
   </footer>
 
-  <!-- SUPABASE AND PAGE LOGIC -->
+  <!--
+    IMPORTANT SCRIPT ORDER:
+    1. Supabase library is loaded in the head.
+    2. Page markup is now fully available.
+    3. auth.js initialises the shared bookmark API.
+    4. The page script below uses that API.
+  -->
+
+  <script src="/auth.js"></script>
+
+  <!-- OPPORTUNITY DETAILS AND BOOKMARK LOGIC -->
 
   <script>
     "use strict";
@@ -1020,24 +1030,8 @@
     }
 
     /* =====================================================
-       SAVED OPPORTUNITIES — BOOKMARK INTEGRATION
+       SAVED OPPORTUNITIES — SHARED AUTH.JS INTEGRATION
     ===================================================== */
-
-    function readBookmarks() {
-      try {
-        const stored = JSON.parse(
-          localStorage.getItem(BOOKMARKS_KEY)
-        );
-
-        return Array.isArray(stored)
-          ? stored.map(String).filter(Boolean)
-          : [];
-
-      } catch (error) {
-        console.warn("Unable to read saved opportunities:", error);
-        return [];
-      }
-    }
 
     function updateBookmarkButton() {
       if (!bookmarkButton || !currentOpportunityId) return;
@@ -1051,23 +1045,33 @@
         typeof bookmarkAPI.remove !== "function"
       ) {
         bookmarkButton.disabled = true;
-        bookmarkButton.textContent = "Bookmark service unavailable";
+        bookmarkButton.textContent =
+          "Bookmark service unavailable";
         return;
       }
 
-      const saved = bookmarkAPI.isSaved(currentOpportunityId);
+      try {
+        const saved = bookmarkAPI.isSaved(currentOpportunityId);
 
-      bookmarkButton.disabled = false;
-      bookmarkButton.classList.toggle("is-saved", saved);
+        bookmarkButton.disabled = false;
+        bookmarkButton.classList.toggle("is-saved", saved);
 
-      bookmarkButton.setAttribute(
-        "aria-pressed",
-        String(saved)
-      );
+        bookmarkButton.setAttribute(
+          "aria-pressed",
+          String(saved)
+        );
 
-      bookmarkButton.textContent = saved
-        ? "✓ Saved Opportunity"
-        : "♡ Save Opportunity";
+        bookmarkButton.textContent = saved
+          ? "✓ Saved Opportunity"
+          : "♡ Save Opportunity";
+
+      } catch (error) {
+        console.error("NOH bookmark status error:", error);
+
+        bookmarkButton.disabled = true;
+        bookmarkButton.textContent =
+          "Unable to check saved status";
+      }
     }
 
     function initialiseBookmarkButton(opportunityId) {
@@ -1087,29 +1091,48 @@
 
       const bookmarkAPI = window.NOH_BOOKMARKS;
 
-      if (!bookmarkAPI) {
-        bookmarkButton.textContent = "Please try again";
+      if (
+        !bookmarkAPI ||
+        typeof bookmarkAPI.isSaved !== "function" ||
+        typeof bookmarkAPI.add !== "function" ||
+        typeof bookmarkAPI.remove !== "function"
+      ) {
+        bookmarkButton.disabled = true;
+        bookmarkButton.textContent =
+          "Bookmark service unavailable";
         return;
       }
 
-      const saved = bookmarkAPI.isSaved(currentOpportunityId);
+      try {
+        const saved = bookmarkAPI.isSaved(currentOpportunityId);
 
-      const success = saved
-        ? bookmarkAPI.remove(currentOpportunityId)
-        : bookmarkAPI.add(currentOpportunityId);
+        if (saved) {
+          bookmarkAPI.remove(currentOpportunityId);
+        } else {
+          bookmarkAPI.add(currentOpportunityId);
+        }
 
-      if (success === false) {
+        // Refresh the button using the actual stored state.
         updateBookmarkButton();
-        return;
-      }
 
-      updateBookmarkButton();
+      } catch (error) {
+        console.error("NOH bookmark update error:", error);
+
+        bookmarkButton.textContent =
+          "Unable to update saved status";
+
+        alert(
+          "We could not update your saved opportunities. Please check your browser storage and try again."
+        );
+      }
     });
 
+    // Refresh after changes made by another NOH script.
     window.addEventListener("noh:bookmarks-updated", () => {
       updateBookmarkButton();
     });
 
+    // Refresh when bookmarks change in another browser tab.
     window.addEventListener("storage", event => {
       if (event.key === BOOKMARKS_KEY) {
         updateBookmarkButton();
@@ -1119,7 +1142,6 @@
     /* LOAD OPPORTUNITY FROM SUPABASE */
 
     async function loadOpportunity() {
-
       const params = new URLSearchParams(window.location.search);
       const opportunityId = params.get("id");
 
@@ -1127,6 +1149,18 @@
         showError(
           "No opportunity ID was provided. Return to the homepage and select an opportunity.",
           "Missing opportunity"
+        );
+        return;
+      }
+
+      // The opportunities table uses UUID identifiers.
+      const uuidPattern =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+      if (!uuidPattern.test(opportunityId)) {
+        showError(
+          "The opportunity link contains an invalid ID. Return to the homepage and select an opportunity.",
+          "Invalid opportunity link"
         );
         return;
       }
@@ -1143,7 +1177,6 @@
       }
 
       try {
-
         const query = new URLSearchParams({
           select: "*",
           id: `eq.${opportunityId}`,
@@ -1184,7 +1217,10 @@
           );
         }
 
-        if (!Array.isArray(opportunities) || opportunities.length === 0) {
+        if (
+          !Array.isArray(opportunities) ||
+          opportunities.length === 0
+        ) {
           showError(
             "This opportunity may have expired, been unpublished or no longer be available.",
             "Opportunity not found"
@@ -1195,24 +1231,24 @@
         displayOpportunity(opportunities[0]);
 
       } catch (error) {
-
         console.error("Opportunity loading error:", error);
 
         showError(
           error.message || "Unknown error. Check the browser console.",
           "Unable to load opportunity"
         );
-
       }
     }
 
     /* DISPLAY OPPORTUNITY */
 
     function displayOpportunity(data) {
-
       initialiseBookmarkButton(data.id);
 
-      setText("opportunityTitle", data.title || "Untitled opportunity");
+      setText(
+        "opportunityTitle",
+        data.title || "Untitled opportunity"
+      );
 
       setText(
         "opportunityCategory",
@@ -1350,6 +1386,7 @@
         applyButton.href = applicationURL;
         applyButton.classList.remove("disabled");
         applyButton.removeAttribute("aria-disabled");
+        applyButton.textContent = "Apply Now →";
       } else {
         applyButton.removeAttribute("href");
         applyButton.classList.add("disabled");
@@ -1379,12 +1416,14 @@
       loadingState.hidden = true;
       errorState.hidden = true;
       detailsContent.hidden = false;
+
+      // Confirm the correct saved state once the opportunity is displayed.
+      updateBookmarkButton();
     }
 
     /* SHARE OPPORTUNITY */
 
     $("shareButton").addEventListener("click", async () => {
-
       const shareData = {
         title: document.title,
         text: "Explore this opportunity on Naija Opportunity Hub.",
@@ -1392,12 +1431,10 @@
       };
 
       try {
-
         if (navigator.share) {
           await navigator.share(shareData);
 
         } else if (navigator.clipboard) {
-
           await navigator.clipboard.writeText(window.location.href);
 
           $("shareButton").textContent = "Link Copied ✓";
@@ -1407,7 +1444,6 @@
           }, 2200);
 
         } else {
-
           window.prompt(
             "Copy this opportunity link:",
             window.location.href
@@ -1415,12 +1451,10 @@
         }
 
       } catch (error) {
-
         if (error.name !== "AbortError") {
           console.error("Share error:", error);
         }
       }
-
     });
 
     /* INITIALISE */
