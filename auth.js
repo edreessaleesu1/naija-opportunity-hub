@@ -2,11 +2,20 @@
 /*
  * Naija Opportunity Hub
  * Main account authentication and navigation
- * Version 3.3
+ * Version 3.4
  *
  * Used by:
  * - Homepage
  * - auth.html
+ * - Opportunity details page
+ *
+ * Includes:
+ * - Sign up and sign in
+ * - Password recovery and reset
+ * - Account dashboard
+ * - Account settings
+ * - Saved Opportunities
+ * - Bookmark management
  *
  * Career Kit authentication remains separate.
  */
@@ -21,6 +30,8 @@
 
   const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
+
+  const BOOKMARKS_KEY = "noh_bookmarks_v1";
 
   const $ = (id) => document.getElementById(id);
 
@@ -78,14 +89,26 @@
   const accountDashboard = $("accountDashboard");
   const accountDashboardEmail = $("accountDashboardEmail");
   const accountDashboardTitle = $("accountDashboardTitle");
+
   const accountOverview = $("accountOverview");
   const accountSettings = $("accountSettings");
+
+  // Saved Opportunities dashboard elements
+  const savedOpportunitiesPanel =
+    $("accountSavedOpportunities");
+
+  const savedOpportunitiesTab =
+    $("accountSavedTab");
+
+  const savedOpportunitiesList =
+    $("accountSavedOpportunitiesList");
 
   const accountPasswordForm = $("accountPasswordForm");
   const accountPasswordButton = $("accountPasswordButton");
   const accountSettingsMessage = $("accountSettingsMessage");
 
   let previousFocus = null;
+  let savedOpportunitiesRequest = 0;
 
   /* ---------------------------------------------------------
      GENERAL HELPERS
@@ -211,6 +234,383 @@
   }
 
   /* ---------------------------------------------------------
+     SAVED OPPORTUNITIES - STORAGE
+  --------------------------------------------------------- */
+
+  function getSavedOpportunityIds() {
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(BOOKMARKS_KEY) || "[]"
+      );
+
+      if (!Array.isArray(saved)) return [];
+
+      return [
+        ...new Set(
+          saved
+            .filter(id =>
+              typeof id === "string" ||
+              typeof id === "number"
+            )
+            .map(String)
+            .filter(Boolean)
+        )
+      ];
+
+    } catch (error) {
+      console.warn(
+        "NOH: Could not read saved opportunities.",
+        error
+      );
+
+      return [];
+    }
+  }
+
+  function storeSavedOpportunityIds(ids) {
+    const uniqueIds = [
+      ...new Set(
+        ids
+          .filter(Boolean)
+          .map(String)
+      )
+    ];
+
+    try {
+      localStorage.setItem(
+        BOOKMARKS_KEY,
+        JSON.stringify(uniqueIds)
+      );
+
+      window.dispatchEvent(
+        new CustomEvent("noh:bookmarks-updated", {
+          detail: { ids: uniqueIds }
+        })
+      );
+
+    } catch (error) {
+      console.error(
+        "NOH: Could not save bookmarks.",
+        error
+      );
+
+      throw error;
+    }
+  }
+
+  function addSavedOpportunity(id) {
+    if (id === undefined || id === null || id === "") {
+      return false;
+    }
+
+    const opportunityId = String(id);
+    const ids = getSavedOpportunityIds();
+
+    if (ids.includes(opportunityId)) {
+      return true;
+    }
+
+    ids.push(opportunityId);
+    storeSavedOpportunityIds(ids);
+
+    return true;
+  }
+
+  function removeSavedOpportunity(id) {
+    if (id === undefined || id === null || id === "") {
+      return;
+    }
+
+    const opportunityId = String(id);
+
+    const ids = getSavedOpportunityIds().filter(
+      savedId => savedId !== opportunityId
+    );
+
+    storeSavedOpportunityIds(ids);
+  }
+
+  function toggleSavedOpportunity(id) {
+    if (id === undefined || id === null || id === "") {
+      return false;
+    }
+
+    const opportunityId = String(id);
+    const ids = getSavedOpportunityIds();
+
+    if (ids.includes(opportunityId)) {
+      removeSavedOpportunity(opportunityId);
+      return false;
+    }
+
+    addSavedOpportunity(opportunityId);
+    return true;
+  }
+
+  function isOpportunitySaved(id) {
+    return getSavedOpportunityIds().includes(String(id));
+  }
+
+  // Public bookmark interface for other NOH scripts.
+  window.NOH_BOOKMARKS = {
+    getAll: getSavedOpportunityIds,
+    add: addSavedOpportunity,
+    remove: removeSavedOpportunity,
+    toggle: toggleSavedOpportunity,
+    isSaved: isOpportunitySaved
+  };
+
+  /* ---------------------------------------------------------
+     SAVED OPPORTUNITIES - DASHBOARD
+  --------------------------------------------------------- */
+
+  function renderSavedMessage(container, message) {
+    if (!container) return;
+
+    container.replaceChildren();
+
+    const paragraph = document.createElement("p");
+    paragraph.className = "empty";
+    paragraph.textContent = message;
+
+    container.appendChild(paragraph);
+  }
+
+  function createSavedOpportunityCard(opportunity) {
+    const card = document.createElement("article");
+
+    card.className = "account-saved-card";
+
+    const title = document.createElement("h4");
+    title.textContent =
+      opportunity.title || "Untitled opportunity";
+
+    const organisation = document.createElement("p");
+    organisation.textContent =
+      opportunity.organization || "Organisation not specified";
+
+    const category = document.createElement("p");
+    category.textContent =
+      opportunity.category || "Opportunity";
+
+    card.append(title, organisation, category);
+
+    if (opportunity.location) {
+      const location = document.createElement("p");
+      location.textContent = `Location: ${opportunity.location}`;
+      card.appendChild(location);
+    }
+
+    if (opportunity.deadline) {
+      const deadline = document.createElement("p");
+      deadline.textContent = `Deadline: ${opportunity.deadline}`;
+      card.appendChild(deadline);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "account-saved-actions";
+
+    const openLink = document.createElement("a");
+
+    openLink.href =
+      `/opportunity-details.html?id=` +
+      encodeURIComponent(String(opportunity.id));
+
+    openLink.className = "button button-primary";
+    openLink.textContent = "View opportunity";
+
+    const removeButton = document.createElement("button");
+
+    removeButton.type = "button";
+    removeButton.className = "button button-outline";
+    removeButton.textContent = "Remove";
+    removeButton.dataset.removeSavedOpportunity =
+      String(opportunity.id);
+
+    actions.append(openLink, removeButton);
+    card.appendChild(actions);
+
+    return card;
+  }
+
+  async function renderSavedOpportunities() {
+    if (!savedOpportunitiesList) return;
+
+    const requestNumber = ++savedOpportunitiesRequest;
+    const ids = getSavedOpportunityIds();
+
+    if (!ids.length) {
+      renderSavedMessage(
+        savedOpportunitiesList,
+        "You have not saved any opportunities yet. Browse opportunities and bookmark the ones you want to revisit."
+      );
+
+      return;
+    }
+
+    renderSavedMessage(
+      savedOpportunitiesList,
+      "Loading your saved opportunities..."
+    );
+
+    try {
+      const { data, error } = await supabase
+        .from("opportunities")
+        .select(
+          "id, title, organization, category, deadline, location, status"
+        )
+        .in("id", ids)
+        .eq("status", "published");
+
+      if (error) throw error;
+
+      // Ignore an older request if a newer one has started.
+      if (requestNumber !== savedOpportunitiesRequest) {
+        return;
+      }
+
+      const opportunities = data || [];
+
+      // Preserve the order in which the user saved items.
+      opportunities.sort(
+        (a, b) =>
+          ids.indexOf(String(a.id)) -
+          ids.indexOf(String(b.id))
+      );
+
+      savedOpportunitiesList.replaceChildren();
+
+      if (!opportunities.length) {
+        renderSavedMessage(
+          savedOpportunitiesList,
+          "Your saved opportunities are no longer available. Browse the latest opportunities and save new ones."
+        );
+
+        return;
+      }
+
+      opportunities.forEach(opportunity => {
+        savedOpportunitiesList.appendChild(
+          createSavedOpportunityCard(opportunity)
+        );
+      });
+
+    } catch (error) {
+      console.error(
+        "NOH saved opportunities error:",
+        error
+      );
+
+      if (requestNumber === savedOpportunitiesRequest) {
+        renderSavedMessage(
+          savedOpportunitiesList,
+          "We could not load your saved opportunities. Please try again."
+        );
+      }
+    }
+  }
+
+  /* ---------------------------------------------------------
+     BOOKMARK BUTTONS - OPPORTUNITY DETAILS
+  --------------------------------------------------------- */
+
+  function updateBookmarkButton(button) {
+    if (!button) return;
+
+    const id = button.dataset.nohBookmark;
+
+    if (!id) return;
+
+    const saved = isOpportunitySaved(id);
+
+    button.textContent = saved
+      ? "Saved"
+      : "Save opportunity";
+
+    button.setAttribute(
+      "aria-pressed",
+      String(saved)
+    );
+  }
+
+  function updateAllBookmarkButtons() {
+    document.querySelectorAll("[data-noh-bookmark]")
+      .forEach(updateBookmarkButton);
+  }
+
+  document.addEventListener("click", event => {
+    const target = event.target;
+
+    if (!(target instanceof Element)) return;
+
+    const removeButton = target.closest(
+      "[data-remove-saved-opportunity]"
+    );
+
+    if (removeButton) {
+      removeSavedOpportunity(
+        removeButton.dataset.removeSavedOpportunity
+      );
+
+      return;
+    }
+
+    const bookmarkButton = target.closest(
+      "[data-noh-bookmark]"
+    );
+
+    if (!bookmarkButton) return;
+
+    const id = bookmarkButton.dataset.nohBookmark;
+
+    if (!id) return;
+
+    try {
+      toggleSavedOpportunity(id);
+      updateBookmarkButton(bookmarkButton);
+
+    } catch (error) {
+      console.error("NOH bookmark update error:", error);
+
+      alert(
+        "We could not update your saved opportunities. Please check your browser storage and try again."
+      );
+    }
+  });
+
+  /* ---------------------------------------------------------
+     BOOKMARK CHANGE EVENTS
+  --------------------------------------------------------- */
+
+  window.addEventListener("storage", event => {
+    if (event.key === BOOKMARKS_KEY) {
+      updateAllBookmarkButtons();
+
+      if (
+        accountDashboard &&
+        !accountDashboard.hidden &&
+        savedOpportunitiesPanel &&
+        !savedOpportunitiesPanel.hidden
+      ) {
+        renderSavedOpportunities();
+      }
+    }
+  });
+
+  window.addEventListener("noh:bookmarks-updated", () => {
+    updateAllBookmarkButtons();
+
+    if (
+      accountDashboard &&
+      !accountDashboard.hidden &&
+      savedOpportunitiesPanel &&
+      !savedOpportunitiesPanel.hidden
+    ) {
+      renderSavedOpportunities();
+    }
+  });
+
+  /* ---------------------------------------------------------
      HOMEPAGE NAVIGATION
   --------------------------------------------------------- */
 
@@ -278,7 +678,7 @@
     });
   }
 
-  document.addEventListener("click", (event) => {
+  document.addEventListener("click", event => {
     if (
       !accountMenu ||
       !accountDropdown ||
@@ -296,8 +696,16 @@
      ACCOUNT DASHBOARD
   --------------------------------------------------------- */
 
-    function showAccountView(view) {
-    createSavedDashboardUI();
+  function showAccountView(view) {
+    const validViews = [
+      "overview",
+      "saved",
+      "settings"
+    ];
+
+    if (!validViews.includes(view)) {
+      view = "overview";
+    }
 
     const settings = view === "settings";
     const saved = view === "saved";
@@ -314,12 +722,17 @@
           : "My Account";
     }
 
-    document.querySelectorAll("[data-account-tab]").forEach(tab => {
-      const active = tab.dataset.accountTab === view;
+    document.querySelectorAll("[data-account-tab]")
+      .forEach(tab => {
+        const active = tab.dataset.accountTab === view;
 
-      tab.classList.toggle("active", active);
-      tab.setAttribute("aria-selected", String(active));
-    });
+        tab.classList.toggle("active", active);
+
+        tab.setAttribute(
+          "aria-selected",
+          String(active)
+        );
+      });
 
     if (settings) {
       $("accountNewPassword")?.focus();
@@ -327,18 +740,6 @@
 
     if (saved) {
       renderSavedOpportunities();
-    }
-  }
-
-    document.querySelectorAll("[data-account-tab]").forEach((tab) => {
-      const active = tab.dataset.accountTab === view;
-
-      tab.classList.toggle("active", active);
-      tab.setAttribute("aria-selected", String(active));
-    });
-
-    if (settings) {
-      $("accountNewPassword")?.focus();
     }
   }
 
@@ -350,7 +751,11 @@
     closeAccountDropdown();
 
     setVisible(accountDashboard, true);
-    accountDashboard.setAttribute("aria-hidden", "false");
+
+    accountDashboard.setAttribute(
+      "aria-hidden",
+      "false"
+    );
 
     document.body.classList.add("account-dashboard-open");
 
@@ -370,7 +775,11 @@
     if (!accountDashboard || accountDashboard.hidden) return;
 
     setVisible(accountDashboard, false);
-    accountDashboard.setAttribute("aria-hidden", "true");
+
+    accountDashboard.setAttribute(
+      "aria-hidden",
+      "true"
+    );
 
     document.body.classList.remove("account-dashboard-open");
 
@@ -385,7 +794,7 @@
     previousFocus = null;
   }
 
-  document.addEventListener("click", (event) => {
+  document.addEventListener("click", event => {
     const target = event.target;
 
     if (!(target instanceof Element)) return;
@@ -414,7 +823,7 @@
     }
   });
 
-  document.addEventListener("keydown", (event) => {
+  document.addEventListener("keydown", event => {
     if (event.key === "Escape") {
       closeAccountDropdown();
       closeAccountDashboard();
@@ -434,7 +843,7 @@
     );
 
     const items = Array.from(focusable).filter(
-      (element) => element.offsetParent !== null
+      element => element.offsetParent !== null
     );
 
     if (!items.length) return;
@@ -507,7 +916,7 @@
   --------------------------------------------------------- */
 
   if (accountPasswordForm) {
-    accountPasswordForm.addEventListener("submit", async (event) => {
+    accountPasswordForm.addEventListener("submit", async event => {
       event.preventDefault();
 
       if (!currentUser) {
@@ -628,16 +1037,21 @@
         : "Join NOH and keep track of opportunities that matter to you.";
     }
 
-    document.querySelectorAll("[data-auth-action]").forEach((button) => {
-      if (!button.closest(".auth-tabs")) return;
+    document.querySelectorAll("[data-auth-action]")
+      .forEach(button => {
+        if (!button.closest(".auth-tabs")) return;
 
-      const active =
-        button.dataset.authAction ===
-        (loginMode ? "show-login" : "show-signup");
+        const active =
+          button.dataset.authAction ===
+          (loginMode ? "show-login" : "show-signup");
 
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-selected", String(active));
-    });
+        button.classList.toggle("active", active);
+
+        button.setAttribute(
+          "aria-selected",
+          String(active)
+        );
+      });
   }
 
   function showPasswordReset() {
@@ -703,7 +1117,7 @@
   --------------------------------------------------------- */
 
   if (signupForm) {
-    signupForm.addEventListener("submit", async (event) => {
+    signupForm.addEventListener("submit", async event => {
       event.preventDefault();
 
       clearMessage();
@@ -759,7 +1173,6 @@
             "success"
           );
 
-          // A new authenticated account goes to NOH home.
           safeRedirect("/");
 
         } else {
@@ -797,7 +1210,7 @@
   --------------------------------------------------------- */
 
   if (loginForm) {
-    loginForm.addEventListener("submit", async (event) => {
+    loginForm.addEventListener("submit", async event => {
       event.preventDefault();
 
       clearMessage();
@@ -835,9 +1248,6 @@
           const redirect =
             getURLParameters().get("redirect");
 
-          // Return to the original page when a valid
-          // protected-page destination was supplied.
-          // Otherwise, go to the NOH homepage.
           if (redirect && safeRedirect(redirect)) {
             return;
           }
@@ -927,7 +1337,7 @@
   --------------------------------------------------------- */
 
   if (resetForm) {
-    resetForm.addEventListener("submit", async (event) => {
+    resetForm.addEventListener("submit", async event => {
       event.preventDefault();
 
       clearMessage();
@@ -1015,7 +1425,7 @@
      SWITCH LOGIN/SIGNUP TABS
   --------------------------------------------------------- */
 
-  document.addEventListener("click", (event) => {
+  document.addEventListener("click", event => {
     const target = event.target;
 
     if (!(target instanceof Element)) return;
@@ -1049,7 +1459,6 @@
       return;
     }
 
-    // Preserve the password recovery screen.
     if (recoveryMode) return;
 
     if (currentUser) {
@@ -1071,6 +1480,9 @@
       accountDashboard.setAttribute("aria-hidden", "true");
     }
 
+    // Sync bookmark buttons on pages that contain them.
+    updateAllBookmarkButtons();
+
     try {
       const { data, error } =
         await supabase.auth.getSession();
@@ -1083,15 +1495,12 @@
 
       if (!authPageExists) return;
 
-      // Password recovery must take priority over login redirect.
       if (recoveryMode || isRecoveryURL()) {
         showPasswordReset();
         return;
       }
 
       if (currentUser) {
-        // Already signed-in visitors should not remain
-        // on the login or signup page.
         safeRedirect("/");
         return;
       }
@@ -1129,376 +1538,3 @@
   window.NOH_AUTH_READY = initialiseAuth();
 
 })();
-
-  /* ---------------------------------------------------------
-     ACCOUNT DASHBOARD
-  --------------------------------------------------------- */
-  /* ---------------------------------------------------------
-     SAVED OPPORTUNITIES
-  --------------------------------------------------------- */
-
-  const BOOKMARKS_KEY = "noh_bookmarks_v1";
-
-  let savedOpportunitiesPanel = null;
-  let savedOpportunitiesTab = null;
-  let savedOpportunitiesRequest = 0;
-
-  function getSavedOpportunityIds() {
-    try {
-      const saved = JSON.parse(
-        localStorage.getItem(BOOKMARKS_KEY) || "[]"
-      );
-
-      return Array.isArray(saved)
-        ? [...new Set(saved.map(String).filter(Boolean))]
-        : [];
-
-    } catch (error) {
-      console.warn("NOH: Could not read saved opportunities.");
-      return [];
-    }
-  }
-
-  function storeSavedOpportunityIds(ids) {
-    const uniqueIds = [...new Set(ids.map(String))];
-
-    localStorage.setItem(
-      BOOKMARKS_KEY,
-      JSON.stringify(uniqueIds)
-    );
-
-    window.dispatchEvent(
-      new CustomEvent("noh:bookmarks-updated", {
-        detail: { ids: uniqueIds }
-      })
-    );
-  }
-
-  function addSavedOpportunity(id) {
-    if (!id) return;
-
-    const ids = getSavedOpportunityIds();
-
-    if (!ids.includes(String(id))) {
-      ids.push(String(id));
-      storeSavedOpportunityIds(ids);
-    }
-  }
-
-  function removeSavedOpportunity(id) {
-    if (!id) return;
-
-    const ids = getSavedOpportunityIds().filter(
-      savedId => savedId !== String(id)
-    );
-
-    storeSavedOpportunityIds(ids);
-
-    renderSavedOpportunities();
-  }
-
-  function toggleSavedOpportunity(id) {
-    if (!id) return false;
-
-    const ids = getSavedOpportunityIds();
-    const exists = ids.includes(String(id));
-
-    if (exists) {
-      removeSavedOpportunity(id);
-      return false;
-    }
-
-    addSavedOpportunity(id);
-    return true;
-  }
-
-  // Public interface for the opportunity details page.
-  window.NOH_BOOKMARKS = {
-    getAll: getSavedOpportunityIds,
-    add: addSavedOpportunity,
-    remove: removeSavedOpportunity,
-    toggle: toggleSavedOpportunity,
-    isSaved: id => getSavedOpportunityIds().includes(String(id))
-  };
-
-  function createSavedDashboardUI() {
-    if (
-      !accountDashboard ||
-      !accountOverview ||
-      savedOpportunitiesPanel
-    ) {
-      return;
-    }
-
-    const tabs = accountDashboard.querySelector(
-      ".account-dashboard-tabs"
-    );
-
-    if (!tabs) {
-      console.warn("NOH: Dashboard tab container not found.");
-      return;
-    }
-
-    // Reuse the existing dashboard tab styling.
-    const existingTab = tabs.querySelector(
-      '[data-account-tab="overview"]'
-    );
-
-    savedOpportunitiesTab = existingTab
-      ? existingTab.cloneNode(true)
-      : document.createElement("button");
-
-    savedOpportunitiesTab.id = "accountSavedTab";
-    savedOpportunitiesTab.type = "button";
-    savedOpportunitiesTab.dataset.accountTab = "saved";
-    savedOpportunitiesTab.textContent = "Saved Opportunities";
-    savedOpportunitiesTab.classList.remove("active");
-    savedOpportunitiesTab.setAttribute("aria-selected", "false");
-
-    tabs.appendChild(savedOpportunitiesTab);
-
-    // Create a separate panel for saved opportunities.
-    savedOpportunitiesPanel = document.createElement("section");
-    savedOpportunitiesPanel.id = "accountSavedOpportunities";
-    savedOpportunitiesPanel.className = accountOverview.className;
-    savedOpportunitiesPanel.hidden = true;
-    savedOpportunitiesPanel.setAttribute(
-      "aria-labelledby",
-      "accountSavedTab"
-    );
-
-    const heading = document.createElement("h3");
-    heading.textContent = "My Saved Opportunities";
-
-    const description = document.createElement("p");
-    description.textContent =
-      "Opportunities you have bookmarked for later.";
-
-    const list = document.createElement("div");
-    list.id = "accountSavedOpportunitiesList";
-
-    savedOpportunitiesPanel.append(
-      heading,
-      description,
-      list
-    );
-
-    accountOverview.insertAdjacentElement(
-      "afterend",
-      savedOpportunitiesPanel
-    );
-  }
-
-  function safeOpportunityURL(value) {
-    if (!value) return "";
-
-    try {
-      const url = new URL(value, window.location.origin);
-
-      if (
-        url.protocol !== "https:" &&
-        url.protocol !== "http:"
-      ) {
-        return "";
-      }
-
-      return url.href;
-
-    } catch (error) {
-      return "";
-    }
-  }
-
-  function renderSavedMessage(container, message) {
-    container.replaceChildren();
-
-    const paragraph = document.createElement("p");
-    paragraph.textContent = message;
-
-    container.appendChild(paragraph);
-  }
-
-  async function renderSavedOpportunities() {
-    createSavedDashboardUI();
-
-    const list = $("accountSavedOpportunitiesList");
-
-    if (!list) return;
-
-    const requestNumber = ++savedOpportunitiesRequest;
-    const ids = getSavedOpportunityIds();
-
-    if (!ids.length) {
-      renderSavedMessage(
-        list,
-        "You have not saved any opportunities yet. Browse opportunities and bookmark the ones you want to revisit."
-      );
-      return;
-    }
-
-    renderSavedMessage(list, "Loading your saved opportunities...");
-
-    try {
-      const { data, error } = await supabase
-        .from("opportunities")
-        .select(
-          "id, title, organization, category, deadline, location, application_url, source_url, status"
-        )
-        .in("id", ids)
-        .eq("status", "published");
-
-      if (error) throw error;
-
-      if (requestNumber !== savedOpportunitiesRequest) return;
-
-      const opportunities = data || [];
-
-      list.replaceChildren();
-
-      if (!opportunities.length) {
-        renderSavedMessage(
-          list,
-          "Your saved opportunities are no longer available. You can browse the latest opportunities and save new ones."
-        );
-        return;
-      }
-
-      // Preserve the user's saved order.
-      opportunities.sort(
-        (a, b) => ids.indexOf(String(a.id)) - ids.indexOf(String(b.id))
-      );
-
-      opportunities.forEach(opportunity => {
-        const card = document.createElement("article");
-
-        card.style.cssText = [
-          "padding:16px",
-          "margin:12px 0",
-          "border:1px solid rgba(196,154,67,.35)",
-          "border-radius:12px",
-          "background:var(--warm-ivory,#fffdf7)"
-        ].join(";");
-
-        const title = document.createElement("h4");
-        title.textContent = opportunity.title || "Untitled opportunity";
-
-        const organisation = document.createElement("p");
-        organisation.textContent =
-          opportunity.organization || "Organisation not specified";
-
-        const category = document.createElement("p");
-        category.textContent =
-          opportunity.category || "Opportunity";
-
-        card.append(title, organisation, category);
-
-        if (opportunity.deadline) {
-          const deadline = document.createElement("p");
-          deadline.textContent = `Deadline: ${opportunity.deadline}`;
-          card.appendChild(deadline);
-        }
-
-        const actions = document.createElement("div");
-        actions.style.cssText =
-          "display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;";
-
-        const openLink = document.createElement("a");
-        openLink.href =
-          `${window.location.origin}/opportunity-details.html?id=` +
-          encodeURIComponent(String(opportunity.id));
-
-        openLink.textContent = "View opportunity";
-        openLink.style.cssText =
-          "font-weight:600;color:var(--gold,#c49a43);";
-
-        const removeButton = document.createElement("button");
-        removeButton.type = "button";
-        removeButton.textContent = "Remove saved item";
-        removeButton.dataset.removeSavedOpportunity =
-          String(opportunity.id);
-
-        actions.append(openLink, removeButton);
-        card.appendChild(actions);
-        list.appendChild(card);
-      });
-
-    } catch (error) {
-      console.error(
-        "NOH saved opportunities error:",
-        error
-      );
-
-      if (requestNumber === savedOpportunitiesRequest) {
-        renderSavedMessage(
-          list,
-          "We could not load your saved opportunities. Please try again."
-        );
-      }
-    }
-  }
-
-  // Remove a saved opportunity from the dashboard.
-  document.addEventListener("click", event => {
-    const target = event.target;
-
-    if (!(target instanceof Element)) return;
-
-    const removeButton = target.closest(
-      "[data-remove-saved-opportunity]"
-    );
-
-    if (!removeButton) return;
-
-    removeSavedOpportunity(
-      removeButton.dataset.removeSavedOpportunity
-    );
-  });
-
-  // Allow bookmark controls on opportunity detail pages
-  // to use data-noh-bookmark="<opportunity-id>".
-  document.addEventListener("click", event => {
-    const target = event.target;
-
-    if (!(target instanceof Element)) return;
-
-    const bookmarkButton = target.closest("[data-noh-bookmark]");
-
-    if (!bookmarkButton) return;
-
-    const id = bookmarkButton.dataset.nohBookmark;
-    const saved = toggleSavedOpportunity(id);
-
-    bookmarkButton.textContent = saved
-      ? "Saved"
-      : "Save opportunity";
-
-    bookmarkButton.setAttribute(
-      "aria-pressed",
-      String(saved)
-    );
-  });
-
-  // Keep bookmark controls up to date.
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll("[data-noh-bookmark]").forEach(button => {
-      const saved = window.NOH_BOOKMARKS.isSaved(
-        button.dataset.nohBookmark
-      );
-
-      button.textContent = saved
-        ? "Saved"
-        : "Save opportunity";
-
-      button.setAttribute("aria-pressed", String(saved));
-    });
-  });
-
-  window.addEventListener("storage", event => {
-    if (event.key === BOOKMARKS_KEY) {
-      renderSavedOpportunities();
-    }
-  });
-
-  window.addEventListener("noh:bookmarks-updated", () => {
-    renderSavedOpportunities();
-  });
