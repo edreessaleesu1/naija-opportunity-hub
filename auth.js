@@ -296,17 +296,39 @@
      ACCOUNT DASHBOARD
   --------------------------------------------------------- */
 
-  function showAccountView(view) {
-    const settings = view === "settings";
+    function showAccountView(view) {
+    createSavedDashboardUI();
 
-    setVisible(accountOverview, !settings);
+    const settings = view === "settings";
+    const saved = view === "saved";
+
+    setVisible(accountOverview, !settings && !saved);
     setVisible(accountSettings, settings);
+    setVisible(savedOpportunitiesPanel, saved);
 
     if (accountDashboardTitle) {
       accountDashboardTitle.textContent = settings
         ? "Account Settings"
-        : "My Account";
+        : saved
+          ? "My Saved Opportunities"
+          : "My Account";
     }
+
+    document.querySelectorAll("[data-account-tab]").forEach(tab => {
+      const active = tab.dataset.accountTab === view;
+
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", String(active));
+    });
+
+    if (settings) {
+      $("accountNewPassword")?.focus();
+    }
+
+    if (saved) {
+      renderSavedOpportunities();
+    }
+  }
 
     document.querySelectorAll("[data-account-tab]").forEach((tab) => {
       const active = tab.dataset.accountTab === view;
