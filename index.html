@@ -1,1108 +1,1032 @@
-<!DOCTYPE html>  <html lang="en">  
-<head>  
-  <meta charset="UTF-8">  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-  <meta name="theme-color" content="#086b45">    <title>Naija Opportunity Hub | Discover Opportunities. Build Your Future.</title>  <meta
-name="description"
-content="Discover scholarships, jobs, internships, grants, fellowships, training and government recruitment opportunities for Nigerian students, graduates and young professionals."
-
-> 
-
-<meta
-name="keywords"
-content="Nigeria scholarships, jobs in Nigeria, internships, grants, fellowships, graduate opportunities, government recruitment, career development"
-
-> 
-
-  <meta name="author" content="Naija Opportunity Hub">    <link  
-    rel="canonical"  
-    href="https://naijaopportunityhub.com.ng/"  
-  >    <!-- Progressive Web App -->    <link rel="manifest" href="/manifest.webmanifest">    <meta name="mobile-web-app-capable" content="yes">  
-  <meta name="apple-mobile-web-app-capable" content="yes">  
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">  
-  <meta name="apple-mobile-web-app-title" content="Naija Hub">    <link  
-    rel="apple-touch-icon"  
-    href="/naija-opportunity-hub-logo.png"  
-  >    <!-- Social sharing metadata -->    <meta property="og:type" content="website">  <meta
-property="og:title"
-content="Naija Opportunity Hub | Discover Opportunities. Build Your Future."
-
-> 
-
-<meta
-property="og:description"
-content="Discover scholarships, jobs, internships, grants, fellowships and training opportunities for Nigerians."
-
-> 
-
-<meta
-property="og:url"
-content="https://naijaopportunityhub.com.ng/"
-
-> 
-
-<meta
-property="og:image"
-content="https://naijaopportunityhub.com.ng/naija-opportunity-hub-logo.png"
-
-> 
-
-  <meta name="twitter:card" content="summary_large_image">  <meta
-name="twitter:title"
-content="Naija Opportunity Hub"
-
-> 
-
-<meta
-name="twitter:description"
-content="Discover Opportunities. Build Your Future."
-
-> 
-
-<meta
-name="twitter:image"
-content="https://naijaopportunityhub.com.ng/naija-opportunity-hub-logo.png"
-
-> 
-
-  <!-- Favicon -->    <link  
-    rel="icon"  
-    type="image/png"  
-    href="/naija-opportunity-hub-logo.png"  
-  >    <!-- Stylesheets -->    <link rel="stylesheet" href="/hero-image.css">  
-  <link rel="stylesheet" href="/style.css">    <!-- Supabase -->    <script  
-    defer  
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"  
-  ></script>    <!-- Application scripts -->    <script defer src="/auth.js"></script>    <script defer src="/app.js"></script>    <script defer src="/pwa.js"></script>  </head>  <body>    <a class="skip-link" href="#opportunities">  
-    Skip to opportunities  
-  </a>    <!-- HEADER -->    <header class="site-header">  
-    <div class="wrap nav">  <a  
-    class="brand"  
-    href="/#home"  
-    aria-label="Naija Opportunity Hub homepage"  
-  >  
-    <img  
-      src="/naija-opportunity-hub-logo.png"  
-      alt="Naija Opportunity Hub logo"  
-      class="brand-logo"  
-      width="48"  
-      height="48"  
-    >  
-
-    <span class="brand-copy">  
-      <span class="brand-name">Naija Opportunity Hub</span>  
-      <span class="brand-tagline">  
-        Discover Opportunities. Build Your Future.  
-      </span>  
-    </span>  
-  </a>  
-
-  <button  
-    class="menu-toggle"  
-    id="menuBtn"  
-    type="button"  
-    aria-label="Open navigation menu"  
-    aria-expanded="false"  
-    aria-controls="navLinks"  
-  >  
-    <span class="menu-icon" aria-hidden="true">  
-      <span></span>  
-      <span></span>  
-      <span></span>  
-    </span>  
-
-    <span class="menu-label">Menu</span>  
-  </button>  
-
-  <nav  
-    class="navlinks"  
-    id="navLinks"  
-    aria-label="Main navigation"  
-  >  
-    <a href="/#home">Home</a>  
-    <a href="/#opportunities">Opportunities</a>  
-    <a href="/#career-kit">Career Kit</a>  
-    <a href="/#tracker">Application Tracker</a>  
-    <a href="/#about">About</a>  
-
-    <!-- AUTHENTICATION AND INSTALLATION -->  
-    <div class="nav-auth" id="navAuth">  
-
-      <button  
-        type="button"  
-        class="nav-install-button"  
-        id="installAppButton"  
-        hidden  
-      >  
-        <span aria-hidden="true">📲</span>  
-        Install App  
-      </button>  
-
-      <!-- Shown to visitors -->  
-      <a  
-        href="/auth.html?mode=login"  
-        class="nav-signin"  
-        id="signInLink"  
-      >  
-        Sign In  
-      </a>  
-
-      <a  
-        href="/auth.html?mode=signup"  
-        class="nav-register"  
-        id="createAccountLink"  
-      >  
-        Create Account  
-      </a>  
-
-      <!-- Shown to signed-in users -->  
-      <div class="account-menu" id="accountMenu" hidden>  
-
-        <button  
-          type="button"  
-          class="account-menu-trigger"  
-          id="accountMenuButton"  
-          aria-expanded="false"  
-          aria-controls="accountDropdown"  
-        >  
-          <span class="account-avatar" aria-hidden="true">👤</span>  
-          <span>My Account</span>  
-          <span class="account-chevron" aria-hidden="true">⌄</span>  
-        </button>  
-
-        <div  
-          class="account-dropdown"  
-          id="accountDropdown"  
-          hidden  
-        >  
-
-          <button  
-            type="button"  
-            class="account-dropdown-item"  
-            data-account-view="overview"  
-          >  
-            <span aria-hidden="true">👤</span>  
-            <span>My Account</span>  
-          </button>  
-
-          <a  
-            href="/#tracker"  
-            class="account-dropdown-item"  
-          >  
-            <span aria-hidden="true">⭐</span>  
-            <span>My Saved Opportunities</span>  
-          </a>  
-
-          <button  
-            type="button"  
-            class="account-dropdown-item"  
-            data-account-view="settings"  
-          >  
-            <span aria-hidden="true">⚙️</span>  
-            <span>Account Settings</span>  
-          </button>  
-
-          <div class="account-dropdown-divider"></div>  
-
-          <button  
-            type="button"  
-            class="account-dropdown-item account-signout"  
-            id="navLogoutButton"  
-          >  
-            <span aria-hidden="true">↪</span>  
-            <span>Sign Out</span>  
-          </button>  
-
-        </div>  
-      </div>  
-
-    </div><!-- End nav-auth -->  
-
-  </nav>  
-</div><!-- End wrap nav -->
-
-  </header>    <main>  <!-- HERO -->  
-<section class="hero hero-banner" id="home">  
-
-  <div class="hero-bg" aria-hidden="true"></div>  
-
-  <div  
-    class="hero-photo"  
-    role="img"  
-    aria-label="Students studying together at a laptop in a library"  
-  ></div>  
-
-  <div class="wrap hero-banner-inner">  
-    <div class="hero-banner-copy">  
-
-      <div class="eyebrow">  
-        <span class="eyebrow-dot" aria-hidden="true"></span>  
-        OPPORTUNITIES FOR THE NEXT GENERATION  
-      </div>  
-
-      <h1>  
-        Your Next Big<br>  
-        <span>Opportunity</span><br>  
-        Starts Here.  
-      </h1>  
-
-      <p class="hero-description">  
-        Discover scholarships, jobs, grants, internships and career  
-        opportunities that move your future forward.  
-      </p>  
-
-      <div class="hero-actions">  
-
-        <a  
-          href="/#opportunities"  
-          class="button button-hero"  
-        >  
-          Explore Opportunities  
-          <span aria-hidden="true">→</span>  
-        </a>  
-
-        <a  
-          href="/#career-kit"  
-          class="button button-hero-ghost"  
-        >  
-          Build Your Career  
-        </a>  
-
-      </div>  
-    </div>  
-  </div>  
-</section>  
-
-<!-- OPPORTUNITY CATEGORIES -->  
-<section  
-  class="category-strip"  
-  aria-label="Browse by category"  
->  
-  <div class="wrap">  
-
-    <div class="category-row" id="categoryButtons">  
-
-      <button  
-        class="category"  
-        type="button"  
-        data-category="Scholarship"  
-      >  
-        <span class="category-icon tint-green" aria-hidden="true">🎓</span>  
-        <span>Scholarships</span>  
-      </button>  
-
-      <button  
-        class="category"  
-        type="button"  
-        data-category="Job"  
-      >  
-        <span class="category-icon tint-blue" aria-hidden="true">💼</span>  
-        <span>Jobs</span>  
-      </button>  
-
-      <button  
-        class="category"  
-        type="button"  
-        data-category="Internship"  
-      >  
-        <span class="category-icon tint-purple" aria-hidden="true">💻</span>  
-        <span>Internships</span>  
-      </button>  
-
-      <button  
-        class="category"  
-        type="button"  
-        data-category="Fellowship"  
-      >  
-        <span class="category-icon tint-yellow" aria-hidden="true">👥</span>  
-        <span>Fellowships</span>  
-      </button>  
-
-      <button  
-        class="category"  
-        type="button"  
-        data-category="Grant"  
-      >  
-        <span class="category-icon tint-green" aria-hidden="true">💰</span>  
-        <span>Grants</span>  
-      </button>  
-
-      <button  
-        class="category"  
-        type="button"  
-        data-category="Training"  
-      >  
-        <span class="category-icon tint-orange" aria-hidden="true">🧑‍🏫</span>  
-        <span>Training</span>  
-      </button>  
-
-      <button  
-        class="category"  
-        type="button"  
-        data-category="Volunteering"  
-      >  
-        <span class="category-icon tint-pink" aria-hidden="true">💖</span>  
-        <span>Volunteering</span>  
-      </button>  
-
-      <a  
-        class="category category-link"  
-        href="/#career-kit"  
-      >  
-        <span class="category-icon tint-blue" aria-hidden="true">📋</span>  
-        <span>Career Kit</span>  
-      </a>  
-
-    </div>  
-  </div>  
-
-  <!-- TRUST BAR -->  
-  <div class="trust-bar">  
-    <div class="wrap trust-bar-grid">  
-      <span><b aria-hidden="true">🛡️</b> Links to Official Sources</span>  
-      <span><b aria-hidden="true">👥</b> For Nigerian Students &amp; Graduates</span>  
-      <span><b aria-hidden="true">🌱</b> A Brighter Future Together</span>  
-    </div>  
-  </div>  
-</section>  
-
-<!-- OPPORTUNITIES -->  
-<section  
-  class="opportunities-section"  
-  id="opportunities"  
->  
-  <div class="wrap main-content">  
-
-    <div class="section-head">  
-
-      <div>  
-        <span class="section-kicker">YOUR NEXT OPPORTUNITY</span>  
-        <h2>Find Your Next Opportunity</h2>  
-        <p>  
-          Explore carefully organised opportunities to learn, grow  
-          and advance your career.  
-        </p>  
-      </div>  
-
-      <div  
-        class="results-badge"  
-        id="resultsCount"  
-        aria-live="polite"  
-      >  
-        Loading opportunities...  
-      </div>  
-
-    </div>  
-
-    <!-- FILTERS -->  
-    <div class="filters">  
-
-      <div class="search-box">  
-        <span aria-hidden="true">⌕</span>  
-
-        <input  
-          type="search"  
-          id="searchInput"  
-          placeholder="Search scholarships, jobs, grants..."  
-          aria-label="Search opportunities"  
-        >  
-      </div>  
-
-      <label class="filter-control">  
-        <span class="sr-only">Filter by category</span>  
-
-        <select id="categoryFilter">  
-          <option value="All">All categories</option>  
-          <option value="Scholarship">Scholarships</option>  
-          <option value="Job">Jobs</option>  
-          <option value="Internship">Internships</option>  
-          <option value="Grant">Grants</option>  
-          <option value="Fellowship">Fellowships</option>  
-          <option value="Training">Training</option>  
-          <option value="Volunteering">Volunteering</option>  
-          <option value="Other">Other</option>  
-        </select>  
-      </label>  
-
-      <label class="filter-control">  
-        <span class="sr-only">Sort opportunities</span>  
-
-        <select id="sortFilter">  
-          <option value="newest">Newest first</option>  
-          <option value="deadline">Closing date</option>  
-          <option value="title">Title A–Z</option>  
-        </select>  
-      </label>  
-
-      <button  
-        class="button button-outline"  
-        id="clearFilters"  
-        type="button"  
-      >  
-        Clear filters  
-      </button>  
-
-    </div>  
-
-    <div  
-      class="data-notice"  
-      id="dataNotice"  
-      hidden  
-    ></div>  
-
-    <div  
-      class="data-status"  
-      id="dataStatus"  
-      aria-live="polite"  
-    ></div>  
-
-    <div  
-      class="opportunity-grid"  
-      id="opportunityGrid"  
-    >  
-      <div class="loading-card">  
-        Loading opportunities...  
-      </div>  
-    </div>  
-
-    <p class="disclaimer">  
-      Always confirm eligibility, deadlines and application requirements  
-      on the official source before applying.  
-    </p>  
-
-  </div>  
-</section>  
-
-<!-- APPLICATION TRACKER -->  
-<section  
-  class="tracker-section"  
-  id="tracker"  
->  
-  <div class="wrap">  
-
-    <div class="section-head">  
-
-      <div>  
-        <span class="section-kicker">STAY ORGANISED</span>  
-        <h2>Your application tracker</h2>  
-        <p>  
-          Keep track of opportunities you want to pursue.  
-        </p>  
-      </div>  
-
-      <div class="tracker-actions">  
-
-        <button  
-          class="button button-outline"  
-          id="exportTracker"  
-          type="button"  
-        >  
-          Export CSV  
-        </button>  
-
-        <button  
-          class="button button-danger"  
-          id="clearTracker"  
-          type="button"  
-        >  
-          Clear tracker  
-        </button>  
-
-      </div>  
-    </div>  
-
-    <div class="tracker-container panel">  
-
-      <div class="tracker-heading">  
-        <span class="tracker-heading-icon" aria-hidden="true">✓</span>  
-
-        <div>  
-          <h3>Saved opportunities</h3>  
-          <p>  
-            Your personal list of opportunities to follow up on.  
-          </p>  
-        </div>  
-      </div>  
-
-      <div  
-        id="trackerList"  
-        class="tracker-list"  
-      >  
-        <p class="empty">  
-          Your tracker is ready for your saved opportunities.  
-        </p>  
-      </div>  
-
-      <div class="privacy-note">  
-        Your saved tracker information may be stored in your browser.  
-        Avoid saving sensitive personal information.  
-      </div>  
-
-    </div>  
-  </div>  
-</section>  
-
-<!-- CAREER KIT -->  
-<section  
-  class="career-section"  
-  id="career-kit"  
->  
-  <div class="wrap">  
-
-    <div class="section-intro">  
-      <span class="section-kicker">YOUR CAREER TOOLBOX</span>  
-
-      <h2>Make Your Next Application Your Best One.</h2>  
-
-      <p>  
-        Practical support for your CV, cover letters, scholarship and job  
-        applications, and how you present yourself.  
-      </p>  
-    </div>  
-
-    <div class="career-grid">  
-
-      <!-- CV BUILDER -->  
-      <article class="panel career-panel">  
-
-        <div class="career-visual" aria-hidden="true">  
-          <svg  
-            viewBox="0 0 400 190"  
-            preserveAspectRatio="xMidYMid slice"  
-            focusable="false"  
-          >  
-            <defs>  
-              <linearGradient id="cvg" x1="0" y1="0" x2="1" y2="1">  
-                <stop offset="0" stop-color="#0a6b47"/>  
-                <stop offset="1" stop-color="#032f22"/>  
-              </linearGradient>  
-            </defs>  
-
-            <rect width="400" height="190" fill="url(#cvg)"/>  
-            <circle cx="350" cy="28" r="72" fill="#c6a24a" opacity=".16"/>  
-            <circle cx="36" cy="172" r="62" fill="#fff" opacity=".06"/>  
-
-            <rect  
-              x="150"  
-              y="30"  
-              width="130"  
-              height="160"  
-              rx="10"  
-              fill="#fff"  
-              opacity=".35"  
-              transform="rotate(7 215 110)"  
-            />  
-
-            <rect x="118" y="22" width="140" height="176" rx="10" fill="#fff"/>  
-
-            <path  
-              d="M118 66V32a10 10 0 0 1 10-10h120a10 10 0 0 1 10 10v34z"  
-              fill="#e8f2ee"  
-            />  
-
-            <circle cx="146" cy="44" r="14" fill="#086b45"/>  
-            <circle cx="146" cy="40" r="5" fill="#fff"/>  
-            <path d="M136 53c2-8 18-8 20 0z" fill="#fff"/>  
-
-            <rect x="168" y="35" width="70" height="7" rx="3.5" fill="#064e3b"/>  
-            <rect x="168" y="48" width="46" height="5" rx="2.5" fill="#9bb5a8"/>  
-
-            <rect x="132" y="80" width="40" height="5" rx="2.5" fill="#b58a20"/>  
-            <rect x="132" y="92" width="112" height="4" rx="2" fill="#d4dfd7"/>  
-            <rect x="132" y="102" width="100" height="4" rx="2" fill="#d4dfd7"/>  
-            <rect x="132" y="112" width="108" height="4" rx="2" fill="#d4dfd7"/>  
-
-            <rect x="132" y="128" width="40" height="5" rx="2.5" fill="#b58a20"/>  
-            <rect x="132" y="140" width="34" height="12" rx="6" fill="#dcefe2"/>  
-            <rect x="170" y="140" width="40" height="12" rx="6" fill="#f6edcf"/>  
-            <rect x="214" y="140" width="28" height="12" rx="6" fill="#dcefe2"/>  
-
-            <rect x="132" y="162" width="100" height="4" rx="2" fill="#d4dfd7"/>  
-            <rect x="132" y="172" width="76" height="4" rx="2" fill="#d4dfd7"/>  
-
-            <circle cx="270" cy="150" r="21" fill="#c6a24a"/>  
-            <path  
-              d="M261 150l7 7 13-14"  
-              stroke="#fff"  
-              stroke-width="4"  
-              fill="none"  
-              stroke-linecap="round"  
-              stroke-linejoin="round"  
-            />  
-          </svg>  
-        </div>  
-
-        <div class="service-icon" aria-hidden="true">📄</div>  
-
-        <span class="service-label">CAREER ESSENTIAL</span>  
-
-        <h3>Professional CV</h3>  
-
-        <p>  
-          Create a clear, professional CV that highlights your education,  
-          skills, experience and achievements.  
-        </p>  
-
-        <a  
-          href="/career-kit.html?tool=cv"  
-          class="button button-outline"  
-        >  
-          Open CV Builder  
-        </a>  
-
-      </article>  
-
-      <!-- COVER LETTER -->  
-      <article class="panel career-panel featured-panel">  
-
-        <div class="featured-label">POPULAR SERVICE</div>  
-
-        <div class="career-visual" aria-hidden="true">  
-          <svg  
-            viewBox="0 0 400 190"  
-            preserveAspectRatio="xMidYMid slice"  
-            focusable="false"  
-          >  
-            <defs>  
-              <linearGradient id="clg" x1="0" y1="0" x2="1" y2="1">  
-                <stop offset="0" stop-color="#fff8e5"/>  
-                <stop offset="1" stop-color="#efdfae"/>  
-              </linearGradient>  
-            </defs>  
-
-            <rect width="400" height="190" fill="url(#clg)"/>  
-            <circle cx="356" cy="30" r="70" fill="#086b45" opacity=".08"/>  
-            <circle cx="40" cy="170" r="60" fill="#c6a24a" opacity=".18"/>  
-
-            <rect x="100" y="70" width="200" height="130" rx="10" fill="#064e3b"/>  
-            <rect x="122" y="26" width="156" height="120" rx="8" fill="#fff"/>  
-
-            <rect x="138" y="42" width="52" height="6" rx="3" fill="#064e3b"/>  
-            <rect x="138" y="58" width="120" height="4" rx="2" fill="#d4dfd7"/>  
-            <rect x="138" y="68" width="108" height="4" rx="2" fill="#d4dfd7"/>  
-            <rect x="138" y="78" width="118" height="4" rx="2" fill="#d4dfd7"/>  
-            <rect x="138" y="88" width="84" height="4" rx="2" fill="#d4dfd7"/>  
-
-            <path  
-              d="M138 118q8-16 14 0t14 0 14-8"  
-              stroke="#b58a20"  
-              stroke-width="2.6"  
-              fill="none"  
-              stroke-linecap="round"  
-            />  
-
-            <path  
-              d="M100 98L200 160 300 98v82a10 10 0 0 1-10 10H110a10 10 0 0 1-10-10z"  
-              fill="#086b45"  
-            />  
-
-            <path  
-              d="M100 98L200 160 300 98"  
-              stroke="#0b8a58"  
-              stroke-width="3"  
-              fill="none"  
-              stroke-linejoin="round"  
-            />  
-
-            <circle cx="200" cy="158" r="16" fill="#c6a24a"/>  
-            <circle cx="200" cy="158" r="9" fill="none" stroke="#fff" stroke-width="2.2"/>  
-          </svg>  
-        </div>  
-
-        <div class="service-icon" aria-hidden="true">✍️</div>  
-
-        <span class="service-label">MAKE A STRONG IMPRESSION</span>  
-
-        <h3>Cover Letters</h3>  
-
-        <p>  
-          Prepare tailored cover letters for jobs, scholarships,  
-          internships and other applications.  
-        </p>  
-
-        <a  
-          href="/career-kit.html?tool=cover-letter"  
-          class="button button-primary"  
-        >  
-          Explore service  
-        </a>  
-
-      </article>  
-
-      <!-- APPLICATION ASSISTANCE -->  
-      <article class="panel career-panel">  
-
-        <div class="career-visual" aria-hidden="true">  
-          <svg  
-            viewBox="0 0 400 190"  
-            preserveAspectRatio="xMidYMid slice"  
-            focusable="false"  
-          >  
-            <defs>  
-              <linearGradient id="apg" x1="0" y1="0" x2="1" y2="1">  
-                <stop offset="0" stop-color="#eaf5ee"/>  
-                <stop offset="1" stop-color="#c9e6d4"/>  
-              </linearGradient>  
-            </defs>  
-
-            <rect width="400" height="190" fill="url(#apg)"/>  
-            <circle cx="360" cy="165" r="64" fill="#c6a24a" opacity=".16"/>  
-            <circle cx="30" cy="24" r="56" fill="#086b45" opacity=".08"/>  
-
-            <rect x="58" y="26" width="206" height="142" rx="12" fill="#fff"/>  
-            <rect x="76" y="42" width="72" height="7" rx="3.5" fill="#064e3b"/>  
-
-            <circle cx="88" cy="74" r="9" fill="#086b45"/>  
-            <path  
-              d="M83.5 74l3.2 3.2 5.8-6.4"  
-              stroke="#fff"  
-              stroke-width="2.4"  
-              fill="none"  
-              stroke-linecap="round"  
-              stroke-linejoin="round"  
-            />  
-
-            <rect x="106" y="70" width="112" height="6" rx="3" fill="#d4dfd7"/>  
-
-            <circle cx="88" cy="102" r="9" fill="#086b45"/>  
-            <path  
-              d="M83.5 102l3.2 3.2 5.8-6.4"  
-              stroke="#fff"  
-              stroke-width="2.4"  
-              fill="none"  
-              stroke-linecap="round"  
-              stroke-linejoin="round"  
-            />  
-
-            <rect x="106" y="98" width="88" height="6" rx="3" fill="#d4dfd7"/>  
-
-            <circle cx="88" cy="130" r="8" fill="none" stroke="#b58a20" stroke-width="2.4"/>  
-            <rect x="106" y="126" width="100" height="6" rx="3" fill="#d4dfd7"/>  
-            <rect x="76" y="148" width="150" height="5" rx="2.5" fill="#eaf5ee"/>  
-
-            <rect x="244" y="56" width="104" height="112" rx="14" fill="#064e3b"/>  
-            <path  
-              d="M244 70a14 14 0 0 1 14-14h76a14 14 0 0 1 14 14v18H244z"  
-              fill="#c6a24a"  
-            />  
-
-            <rect x="268" y="46" width="8" height="20" rx="4" fill="#032f22"/>  
-            <rect x="316" y="46" width="8" height="20" rx="4" fill="#032f22"/>  
-
-            <text  
-              x="296"  
-              y="142"  
-              text-anchor="middle"  
-              font-family="Arial, Helvetica, sans-serif"  
-              font-size="40"  
-              font-weight="800"  
-              fill="#fff"  
-            >15</text>  
-          </svg>  
-        </div>  
-
-        <div class="service-icon" aria-hidden="true">🧭</div>  
-
-        <span class="service-label">APPLICATION SUPPORT</span>  
-
-        <h3>Application Assistance</h3>  
-
-        <p>  
-          Get help understanding application requirements and organising  
-          the information you need to apply.  
-        </p>  
-
-        <a  
-          href="/application-assistance.html"  
-          class="button button-primary"  
-        >  
-          Get Assistance  
-        </a>  
-
-      </article>  
-
-    </div>  
-
-    <!-- SERVICE PRICING -->  
-    <div class="pricing-card">  
-
-      <div>  
-        <span class="section-kicker">SIMPLE AND TRANSPARENT</span>  
-        <h3>Career Kit services</h3>  
-        <p>Choose support that fits your needs.</p>  
-      </div>  
-
-      <div class="price-list">  
-
-        <div class="price-row">  
-          <span>CV writing and improvement</span>  
-          <strong>Request a quote</strong>  
-        </div>  
-
-        <div class="price-row">  
-          <span>Cover letter preparation</span>  
-          <strong>Request a quote</strong>  
-        </div>  
-
-        <div class="price-row">  
-          <span>Application guidance</span>  
-          <strong>Request a quote</strong>  
-        </div>  
-
-      </div>  
-
-      <p class="pricing-note">  
-        Contact us for service details and pricing. Review all terms  
-        before making a payment.  
-      </p>  
-
-    </div>  
-
-  </div>  
-</section>  
-
-
-<!-- FINAL CALL TO ACTION -->  
-<section class="cta-banner">  
-  <div class="wrap cta-inner">  
-
-    <h2>Your Future Is Full of Possibilities.</h2>  
-
-    <p>  
-      Take the next step. Discover opportunities that match your ambitions.  
-    </p>  
-
-    <a  
-      href="/#opportunities"  
-      class="button button-gold"  
-    >  
-      Start Exploring  
-      <span aria-hidden="true">→</span>  
-    </a>  
-
-  </div>  
-</section>
-
-  </main>    <!-- FOOTER -->    <footer class="footer">  
-    <div class="wrap">  <div class="footer-grid">  
-
-    <!-- FOOTER BRAND -->  
-    <div class="footer-brand">  
-
-      <a  
-        class="brand footer-brand-link"  
-        href="/#home"  
-      >  
-        <img  
-          src="/naija-opportunity-hub-logo.png"  
-          alt=""  
-          class="brand-logo"  
-          width="48"  
-          height="48"  
-          loading="lazy"  
-        >  
-
-        <span class="brand-copy">  
-          <span class="brand-name">  
-            Naija Opportunity Hub  
-          </span>  
-
-          <span class="brand-tagline">  
-            Discover Opportunities. Build Your Future.  
-          </span>  
-        </span>  
-      </a>  
-
-      <p>  
-        Connecting Nigerian students and graduates with opportunities  
-        for learning, career development and growth.  
-      </p>  
-
-    </div>  
-
-    <!-- EXPLORE -->  
-    <div class="footer-links">  
-
-      <h3>Explore</h3>  
-
-      <a href="/#opportunities">Opportunities</a>  
-      <a href="/#career-kit">Career Kit</a>  
-      <a href="/#tracker">Application Tracker</a>  
-
-    </div>  
-
-    <!-- CATEGORIES -->  
-    <div class="footer-links">  
-
-      <h3>Categories</h3>  
-
-      <a href="/#opportunities">Scholarships</a>  
-      <a href="/#opportunities">Jobs</a>  
-      <a href="/#opportunities">Internships</a>  
-      <a href="/#opportunities">Grants</a>  
-      <a href="/#opportunities">Fellowships</a>  
-      <a href="/#opportunities">Training</a>  
-      <a href="/#opportunities">Volunteering</a>  
-
-    </div>  
-
-    <!-- INFORMATION -->  
-    <div class="footer-links">  
-
-      <h3>Information</h3>  
-
-      <a href="/#about">About Us</a>  
-      <a href="/#home">Back to Top</a>  
-      <a href="/auth.html?mode=login">Sign In / Create Account</a>  
-
-    </div>  
-
-  </div>  
-
-  <!-- FOOTER BOTTOM -->  
-  <div class="footer-bottom">  
-
-    <p>  
-      © <span id="year"></span> Naija Opportunity Hub. All rights reserved.  
-    </p>  
-
-    <p>  
-      Built to help you discover your next opportunity.  
-    </p>  
-
-  </div>  
-
-</div>
-
-  </footer>    <!-- ACCOUNT DASHBOARD -->    <div  
-    class="account-dashboard"  
-    id="accountDashboard"  
-    role="dialog"  
-    aria-modal="true"  
-    aria-labelledby="accountDashboardTitle"  
-    hidden  
-  >  <div class="account-dashboard-panel">  
-
-  <div class="account-dashboard-header">  
-
-    <div>  
-      <span class="section-kicker">YOUR PERSONAL SPACE</span>  
-      <h2 id="accountDashboardTitle">My Account</h2>  
-      <p id="accountDashboardEmail"></p>  
-    </div>  
-
-    <button  
-      type="button"  
-      class="account-dashboard-close"  
-      data-close-account  
-      aria-label="Close account dashboard"  
-    >  
-      &times;  
-    </button>  
-
-  </div>  
-
-  <div class="account-dashboard-tabs">  
-
-    <button  
-      type="button"  
-      data-account-tab="overview"  
-      aria-pressed="true"  
-    >  
-      Overview  
-    </button>  
-
-    <button  
-      type="button"  
-      data-account-tab="settings"  
-      aria-pressed="false"  
-    >  
-      Settings  
-    </button>  
-
-  </div>  
-
-  <!-- ACCOUNT OVERVIEW -->  
-  <div id="accountOverview">  
-
-    <h3>Welcome to your account</h3>  
-
-    <p>  
-      Manage your account and keep track of the opportunities  
-      you want to pursue.  
-    </p>  
-
-    <a  
-      href="/#tracker"  
-      class="button button-outline"  
-    >  
-      View My Saved Opportunities  
-    </a>  
-
-  </div>  
-
-  <!-- ACCOUNT SETTINGS -->  
-  <div id="accountSettings" hidden>  
-
-    <h3>Change your password</h3>  
-
-    <p>  
-      Choose a strong password that you do not use on other websites.  
-    </p>  
-
-    <form id="accountPasswordForm">  
-
-      <label for="accountNewPassword">  
-        New password  
-      </label>  
-
-      <input  
-        type="password"  
-        id="accountNewPassword"  
-        name="newPassword"  
-        minlength="8"  
-        autocomplete="new-password"  
-        required  
-      >  
-
-      <label for="accountConfirmPassword">  
-        Confirm new password  
-      </label>  
-
-      <input  
-        type="password"  
-        id="accountConfirmPassword"  
-        name="confirmPassword"  
-        minlength="8"  
-        autocomplete="new-password"  
-        required  
-      >  
-
-      <p  
-        id="accountSettingsMessage"  
-        role="status"  
-        aria-live="polite"  
-      ></p>  
-
-      <button  
-        type="submit"  
-        class="button button-primary"  
-        id="accountPasswordButton"  
-      >  
-        Update Password  
-      </button>  
-
-    </form>  
-
-  </div>  
-
-</div>
-
-  </div>    <!-- NOTIFICATIONS -->    <div  
-    class="toast"  
-    id="toast"  
-    role="status"  
-    aria-live="polite"  
-    aria-atomic="true"  
-  ></div>  </body>  
-</html>  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#086b45">
+
+  <title>Naija Opportunity Hub | Discover Opportunities. Build Your Future.</title>
+
+  <meta
+    name="description"
+    content="Discover scholarships, jobs, internships, grants, fellowships, training and government recruitment opportunities for Nigerian students, graduates and young professionals."
+  >
+
+  <meta
+    name="keywords"
+    content="Nigeria scholarships, jobs in Nigeria, internships, grants, fellowships, graduate opportunities, government recruitment, career development"
+  >
+
+  <meta name="author" content="Naija Opportunity Hub">
+
+  <link rel="canonical" href="https://naijaopportunityhub.com.ng/">
+
+  <!-- Progressive Web App -->
+  <link rel="manifest" href="/manifest.webmanifest">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Naija Hub">
+
+  <link rel="apple-touch-icon" href="/naija-opportunity-hub-logo.png">
+
+  <!-- Social sharing metadata -->
+  <meta property="og:type" content="website">
+  <meta
+    property="og:title"
+    content="Naija Opportunity Hub | Discover Opportunities. Build Your Future."
+  >
+  <meta
+    property="og:description"
+    content="Discover scholarships, jobs, internships, grants, fellowships and training opportunities for Nigerians."
+  >
+  <meta
+    property="og:url"
+    content="https://naijaopportunityhub.com.ng/"
+  >
+  <meta
+    property="og:image"
+    content="https://naijaopportunityhub.com.ng/naija-opportunity-hub-logo.png"
+  >
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Naija Opportunity Hub">
+  <meta
+    name="twitter:description"
+    content="Discover Opportunities. Build Your Future."
+  >
+  <meta
+    name="twitter:image"
+    content="https://naijaopportunityhub.com.ng/naija-opportunity-hub-logo.png"
+  >
+
+  <!-- Favicon -->
+  <link
+    rel="icon"
+    type="image/png"
+    href="/naija-opportunity-hub-logo.png"
+  >
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/hero-image.css">
+  <link rel="stylesheet" href="/style.css">
+
+  <!-- Supabase -->
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+  <!-- Application scripts -->
+  <script defer src="/auth.js"></script>
+  <script defer src="/app.js"></script>
+  <script defer src="/pwa.js"></script>
+</head>
+
+<body>
+
+  <a class="skip-link" href="#opportunities">
+    Skip to opportunities
+  </a>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="wrap nav">
+
+      <a
+        class="brand"
+        href="/#home"
+        aria-label="Naija Opportunity Hub homepage"
+      >
+        <img
+          src="/naija-opportunity-hub-logo.png"
+          alt="Naija Opportunity Hub logo"
+          class="brand-logo"
+          width="48"
+          height="48"
+        >
+
+        <span class="brand-copy">
+          <span class="brand-name">Naija Opportunity Hub</span>
+          <span class="brand-tagline">
+            Discover Opportunities. Build Your Future.
+          </span>
+        </span>
+      </a>
+
+      <button
+        class="menu-toggle"
+        id="menuBtn"
+        type="button"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="navLinks"
+      >
+        <span class="menu-icon" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+        <span class="menu-label">Menu</span>
+      </button>
+
+      <nav
+        class="navlinks"
+        id="navLinks"
+        aria-label="Main navigation"
+      >
+        <a href="/#home">Home</a>
+        <a href="/#opportunities">Opportunities</a>
+        <a href="/#career-kit">Career Kit</a>
+        <a href="/#tracker">Application Tracker</a>
+
+        <!-- AUTHENTICATION AND INSTALLATION -->
+        <div class="nav-auth" id="navAuth">
+
+          <button
+            type="button"
+            class="nav-install-button"
+            id="installAppButton"
+            hidden
+          >
+            <span aria-hidden="true">📲</span>
+            Install App
+          </button>
+
+          <!-- SIGNED-OUT LINKS -->
+          <a
+            href="/auth.html?mode=login"
+            class="nav-auth-link"
+            id="signInLink"
+          >
+            Sign In
+          </a>
+
+          <a
+            href="/auth.html?mode=signup"
+            class="nav-auth-button"
+            id="createAccountLink"
+          >
+            Create Account
+          </a>
+
+          <!-- SIGNED-IN ACCOUNT MENU -->
+          <div class="account-menu" id="accountMenu" hidden>
+
+            <button
+              type="button"
+              class="account-menu-trigger"
+              id="accountMenuButton"
+              aria-expanded="false"
+              aria-controls="accountDropdown"
+              aria-label="Open your account menu"
+            >
+              <span class="account-avatar" aria-hidden="true">👤</span>
+              <span>Me</span>
+              <span class="account-chevron" aria-hidden="true">⌄</span>
+            </button>
+
+            <div
+              class="account-dropdown"
+              id="accountDropdown"
+              hidden
+            >
+
+              <button
+                type="button"
+                class="account-dropdown-item"
+                data-account-view="overview"
+              >
+                <span aria-hidden="true">👤</span>
+                <span>My Account</span>
+              </button>
+
+              <a
+                href="/#tracker"
+                class="account-dropdown-item"
+              >
+                <span aria-hidden="true">⭐</span>
+                <span>My Saved Opportunities</span>
+              </a>
+
+              <button
+                type="button"
+                class="account-dropdown-item"
+                data-account-view="settings"
+              >
+                <span aria-hidden="true">⚙️</span>
+                <span>Account Settings</span>
+              </button>
+
+              <div class="account-dropdown-divider"></div>
+
+              <button
+                type="button"
+                class="account-dropdown-item account-signout"
+                id="navLogoutButton"
+              >
+                <span aria-hidden="true">↪</span>
+                <span>Sign Out</span>
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero hero-banner" id="home">
+
+      <div class="hero-bg" aria-hidden="true"></div>
+
+      <div
+        class="hero-photo"
+        role="img"
+        aria-label="Students studying together at a laptop in a library"
+      ></div>
+
+      <div class="wrap hero-banner-inner">
+        <div class="hero-banner-copy">
+
+          <div class="eyebrow">
+            <span class="eyebrow-dot" aria-hidden="true"></span>
+            OPPORTUNITIES FOR THE NEXT GENERATION
+          </div>
+
+          <h1>
+            Your Next Big<br>
+            <span>Opportunity</span><br>
+            Starts Here.
+          </h1>
+
+          <p class="hero-description">
+            Discover scholarships, jobs, grants, internships and career
+            opportunities that move your future forward.
+          </p>
+
+          <div class="hero-actions">
+
+            <a href="/#opportunities" class="button button-hero">
+              Explore Opportunities
+              <span aria-hidden="true">→</span>
+            </a>
+
+            <a href="/#career-kit" class="button button-hero-ghost">
+              Build Your Career
+            </a>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OPPORTUNITY CATEGORIES -->
+    <section
+      class="category-strip"
+      aria-label="Browse by category"
+    >
+      <div class="wrap">
+
+        <div class="category-row" id="categoryButtons">
+
+          <button class="category" type="button" data-category="Scholarship">
+            <span class="category-icon tint-green" aria-hidden="true">🎓</span>
+            <span>Scholarships</span>
+          </button>
+
+          <button class="category" type="button" data-category="Job">
+            <span class="category-icon tint-blue" aria-hidden="true">💼</span>
+            <span>Jobs</span>
+          </button>
+
+          <button class="category" type="button" data-category="Internship">
+            <span class="category-icon tint-purple" aria-hidden="true">💻</span>
+            <span>Internships</span>
+          </button>
+
+          <button class="category" type="button" data-category="Fellowship">
+            <span class="category-icon tint-yellow" aria-hidden="true">👥</span>
+            <span>Fellowships</span>
+          </button>
+
+          <button class="category" type="button" data-category="Grant">
+            <span class="category-icon tint-green" aria-hidden="true">💰</span>
+            <span>Grants</span>
+          </button>
+
+          <button class="category" type="button" data-category="Training">
+            <span class="category-icon tint-orange" aria-hidden="true">🧑‍🏫</span>
+            <span>Training</span>
+          </button>
+
+          <button class="category" type="button" data-category="Volunteering">
+            <span class="category-icon tint-pink" aria-hidden="true">💖</span>
+            <span>Volunteering</span>
+          </button>
+
+          <a class="category category-link" href="/#career-kit">
+            <span class="category-icon tint-blue" aria-hidden="true">📋</span>
+            <span>Career Kit</span>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- TRUST BAR -->
+      <div class="trust-bar">
+        <div class="wrap trust-bar-grid">
+          <span><b aria-hidden="true">🛡️</b> Links to Official Sources</span>
+          <span><b aria-hidden="true">👥</b> For Nigerian Students &amp; Graduates</span>
+          <span><b aria-hidden="true">🌱</b> A Brighter Future Together</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- OPPORTUNITIES -->
+    <section class="opportunities-section" id="opportunities">
+      <div class="wrap main-content">
+
+        <div class="section-head">
+
+          <div>
+            <span class="section-kicker">YOUR NEXT OPPORTUNITY</span>
+            <h2>Find Your Next Opportunity</h2>
+            <p>
+              Explore carefully organised opportunities to learn, grow
+              and advance your career.
+            </p>
+          </div>
+
+          <div class="results-badge" id="resultsCount" aria-live="polite">
+            Loading opportunities...
+          </div>
+
+        </div>
+
+        <!-- FILTERS -->
+        <div class="filters">
+
+          <div class="search-box">
+            <span aria-hidden="true">⌕</span>
+
+            <input
+              type="search"
+              id="searchInput"
+              placeholder="Search scholarships, jobs, grants..."
+              aria-label="Search opportunities"
+            >
+          </div>
+
+          <label class="filter-control">
+            <span class="sr-only">Filter by category</span>
+
+            <select id="categoryFilter">
+              <option value="All">All categories</option>
+              <option value="Scholarship">Scholarships</option>
+              <option value="Job">Jobs</option>
+              <option value="Internship">Internships</option>
+              <option value="Grant">Grants</option>
+              <option value="Fellowship">Fellowships</option>
+              <option value="Training">Training</option>
+              <option value="Volunteering">Volunteering</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+
+          <label class="filter-control">
+            <span class="sr-only">Sort opportunities</span>
+
+            <select id="sortFilter">
+              <option value="newest">Newest first</option>
+              <option value="deadline">Closing date</option>
+              <option value="title">Title A–Z</option>
+            </select>
+          </label>
+
+          <button class="button button-outline" id="clearFilters" type="button">
+            Clear filters
+          </button>
+
+        </div>
+
+        <div class="data-notice" id="dataNotice" hidden></div>
+
+        <div class="data-status" id="dataStatus" aria-live="polite"></div>
+
+        <div class="opportunity-grid" id="opportunityGrid">
+          <div class="loading-card">
+            Loading opportunities...
+          </div>
+        </div>
+
+        <p class="disclaimer">
+          Always confirm eligibility, deadlines and application requirements
+          on the official source before applying.
+        </p>
+
+      </div>
+    </section>
+
+    <!-- APPLICATION TRACKER -->
+    <section class="tracker-section" id="tracker">
+      <div class="wrap">
+
+        <div class="section-head">
+
+          <div>
+            <span class="section-kicker">STAY ORGANISED</span>
+            <h2>Your application tracker</h2>
+            <p>
+              Keep track of opportunities you want to pursue.
+            </p>
+          </div>
+
+          <div class="tracker-actions">
+
+            <button class="button button-outline" id="exportTracker" type="button">
+              Export CSV
+            </button>
+
+            <button class="button button-danger" id="clearTracker" type="button">
+              Clear tracker
+            </button>
+
+          </div>
+        </div>
+
+        <div class="tracker-container panel">
+
+          <div class="tracker-heading">
+            <span class="tracker-heading-icon" aria-hidden="true">✓</span>
+
+            <div>
+              <h3>Saved opportunities</h3>
+              <p>
+                Your personal list of opportunities to follow up on.
+              </p>
+            </div>
+          </div>
+
+          <div id="trackerList" class="tracker-list">
+            <p class="empty">
+              Your tracker is ready for your saved opportunities.
+            </p>
+          </div>
+
+          <div class="privacy-note">
+            Your saved tracker information may be stored in your browser.
+            Avoid saving sensitive personal information.
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CAREER KIT -->
+    <section class="career-section" id="career-kit">
+      <div class="wrap">
+
+        <div class="section-intro">
+          <span class="section-kicker">YOUR CAREER TOOLBOX</span>
+
+          <h2>Make Your Next Application Your Best One.</h2>
+
+          <p>
+            Practical support for your CV, cover letters, scholarship and job
+            applications, and how you present yourself.
+          </p>
+        </div>
+
+        <div class="career-grid">
+
+          <!-- CV BUILDER -->
+          <article class="panel career-panel">
+
+            <div class="career-visual" aria-hidden="true">
+              <svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice" focusable="false">
+                <defs>
+                  <linearGradient id="cvg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#0a6b47"/>
+                    <stop offset="1" stop-color="#032f22"/>
+                  </linearGradient>
+                </defs>
+
+                <rect width="400" height="190" fill="url(#cvg)"/>
+                <circle cx="350" cy="28" r="72" fill="#c6a24a" opacity=".16"/>
+                <circle cx="36" cy="172" r="62" fill="#fff" opacity=".06"/>
+
+                <rect x="150" y="30" width="130" height="160" rx="10" fill="#fff" opacity=".35" transform="rotate(7 215 110)"/>
+                <rect x="118" y="22" width="140" height="176" rx="10" fill="#fff"/>
+
+                <path d="M118 66V32a10 10 0 0 1 10-10h120a10 10 0 0 1 10 10v34z" fill="#e8f2ee"/>
+
+                <circle cx="146" cy="44" r="14" fill="#086b45"/>
+                <circle cx="146" cy="40" r="5" fill="#fff"/>
+                <path d="M136 53c2-8 18-8 20 0z" fill="#fff"/>
+
+                <rect x="168" y="35" width="70" height="7" rx="3.5" fill="#064e3b"/>
+                <rect x="168" y="48" width="46" height="5" rx="2.5" fill="#9bb5a8"/>
+
+                <rect x="132" y="80" width="40" height="5" rx="2.5" fill="#b58a20"/>
+                <rect x="132" y="92" width="112" height="4" rx="2" fill="#d4dfd7"/>
+                <rect x="132" y="102" width="100" height="4" rx="2" fill="#d4dfd7"/>
+                <rect x="132" y="112" width="108" height="4" rx="2" fill="#d4dfd7"/>
+
+                <rect x="132" y="128" width="40" height="5" rx="2.5" fill="#b58a20"/>
+                <rect x="132" y="140" width="34" height="12" rx="6" fill="#dcefe2"/>
+                <rect x="170" y="140" width="40" height="12" rx="6" fill="#f6edcf"/>
+                <rect x="214" y="140" width="28" height="12" rx="6" fill="#dcefe2"/>
+
+                <rect x="132" y="162" width="100" height="4" rx="2" fill="#d4dfd7"/>
+                <rect x="132" y="172" width="76" height="4" rx="2" fill="#d4dfd7"/>
+
+                <circle cx="270" cy="150" r="21" fill="#c6a24a"/>
+                <path d="M261 150l7 7 13-14" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+
+            <div class="service-icon" aria-hidden="true">📄</div>
+
+            <span class="service-label">CAREER ESSENTIAL</span>
+
+            <h3>Professional CV</h3>
+
+            <p>
+              Create a clear, professional CV that highlights your education,
+              skills, experience and achievements.
+            </p>
+
+            <a href="/career-kit.html?tool=cv" class="button button-outline">
+              Open CV Builder
+            </a>
+
+          </article>
+
+          <!-- COVER LETTER -->
+          <article class="panel career-panel featured-panel">
+
+            <div class="featured-label">POPULAR SERVICE</div>
+
+            <div class="career-visual" aria-hidden="true">
+              <svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice" focusable="false">
+                <defs>
+                  <linearGradient id="clg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#fff8e5"/>
+                    <stop offset="1" stop-color="#efdfae"/>
+                  </linearGradient>
+                </defs>
+
+                <rect width="400" height="190" fill="url(#clg)"/>
+                <circle cx="356" cy="30" r="70" fill="#086b45" opacity=".08"/>
+                <circle cx="40" cy="170" r="60" fill="#c6a24a" opacity=".18"/>
+
+                <rect x="100" y="70" width="200" height="130" rx="10" fill="#064e3b"/>
+                <rect x="122" y="26" width="156" height="120" rx="8" fill="#fff"/>
+
+                <rect x="138" y="42" width="52" height="6" rx="3" fill="#064e3b"/>
+                <rect x="138" y="58" width="120" height="4" rx="2" fill="#d4dfd7"/>
+                <rect x="138" y="68" width="108" height="4" rx="2" fill="#d4dfd7"/>
+                <rect x="138" y="78" width="118" height="4" rx="2" fill="#d4dfd7"/>
+                <rect x="138" y="88" width="84" height="4" rx="2" fill="#d4dfd7"/>
+
+                <path d="M138 118q8-16 14 0t14 0 14-8" stroke="#b58a20" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+
+                <path d="M100 98L200 160 300 98v82a10 10 0 0 1-10 10H110a10 10 0 0 1-10-10z" fill="#086b45"/>
+                <path d="M100 98L200 160 300 98" stroke="#0b8a58" stroke-width="3" fill="none" stroke-linejoin="round"/>
+
+                <circle cx="200" cy="158" r="16" fill="#c6a24a"/>
+                <circle cx="200" cy="158" r="9" fill="none" stroke="#fff" stroke-width="2.2"/>
+              </svg>
+            </div>
+
+            <div class="service-icon" aria-hidden="true">✍️</div>
+
+            <span class="service-label">MAKE A STRONG IMPRESSION</span>
+
+            <h3>Cover Letters</h3>
+
+            <p>
+              Prepare tailored cover letters for jobs, scholarships,
+              internships and other applications.
+            </p>
+
+            <a href="/career-kit.html?tool=cover-letter" class="button button-primary">
+              Explore service
+            </a>
+
+          </article>
+
+          <!-- APPLICATION ASSISTANCE -->
+          <article class="panel career-panel">
+
+            <div class="career-visual" aria-hidden="true">
+              <svg viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice" focusable="false">
+                <defs>
+                  <linearGradient id="apg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#eaf5ee"/>
+                    <stop offset="1" stop-color="#c9e6d4"/>
+                  </linearGradient>
+                </defs>
+
+                <rect width="400" height="190" fill="url(#apg)"/>
+                <circle cx="360" cy="165" r="64" fill="#c6a24a" opacity=".16"/>
+                <circle cx="30" cy="24" r="56" fill="#086b45" opacity=".08"/>
+
+                <rect x="58" y="26" width="206" height="142" rx="12" fill="#fff"/>
+                <rect x="76" y="42" width="72" height="7" rx="3.5" fill="#064e3b"/>
+
+                <circle cx="88" cy="74" r="9" fill="#086b45"/>
+                <path d="M83.5 74l3.2 3.2 5.8-6.4" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="106" y="70" width="112" height="6" rx="3" fill="#d4dfd7"/>
+
+                <circle cx="88" cy="102" r="9" fill="#086b45"/>
+                <path d="M83.5 102l3.2 3.2 5.8-6.4" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="106" y="98" width="88" height="6" rx="3" fill="#d4dfd7"/>
+
+                <circle cx="88" cy="130" r="8" fill="none" stroke="#b58a20" stroke-width="2.4"/>
+                <rect x="106" y="126" width="100" height="6" rx="3" fill="#d4dfd7"/>
+                <rect x="76" y="148" width="150" height="5" rx="2.5" fill="#eaf5ee"/>
+
+                <rect x="244" y="56" width="104" height="112" rx="14" fill="#064e3b"/>
+                <path d="M244 70a14 14 0 0 1 14-14h76a14 14 0 0 1 14 14v18H244z" fill="#c6a24a"/>
+
+                <rect x="268" y="46" width="8" height="20" rx="4" fill="#032f22"/>
+                <rect x="316" y="46" width="8" height="20" rx="4" fill="#032f22"/>
+
+                <text x="296" y="142" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" fill="#fff">15</text>
+              </svg>
+            </div>
+
+            <div class="service-icon" aria-hidden="true">🧭</div>
+
+            <span class="service-label">APPLICATION SUPPORT</span>
+
+            <h3>Application Assistance</h3>
+
+            <p>
+              Get help understanding application requirements and organising
+              the information you need to apply.
+            </p>
+
+            <a href="/application-assistance.html" class="button button-primary">
+              Get Assistance
+            </a>
+
+          </article>
+
+        </div>
+
+        <!-- SERVICE PRICING -->
+        <div class="pricing-card">
+
+          <div>
+            <span class="section-kicker">SIMPLE AND TRANSPARENT</span>
+            <h3>Career Kit services</h3>
+            <p>Choose support that fits your needs.</p>
+          </div>
+
+          <div class="price-list">
+
+            <div class="price-row">
+              <span>CV writing and improvement</span>
+              <strong>Request a quote</strong>
+            </div>
+
+            <div class="price-row">
+              <span>Cover letter preparation</span>
+              <strong>Request a quote</strong>
+            </div>
+
+            <div class="price-row">
+              <span>Application guidance</span>
+              <strong>Request a quote</strong>
+            </div>
+
+          </div>
+
+          <p class="pricing-note">
+            Contact us for service details and pricing. Review all terms
+            before making a payment.
+          </p>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FINAL CALL TO ACTION -->
+    <section class="cta-banner">
+      <div class="wrap cta-inner">
+
+        <h2>Your Future Is Full of Possibilities.</h2>
+
+        <p>
+          Take the next step. Discover opportunities that match your ambitions.
+        </p>
+
+        <a href="/#opportunities" class="button button-gold">
+          Start Exploring
+          <span aria-hidden="true">→</span>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="wrap">
+
+      <div class="footer-grid">
+
+        <!-- FOOTER BRAND -->
+        <div class="footer-brand">
+
+          <a class="brand footer-brand-link" href="/#home">
+            <img
+              src="/naija-opportunity-hub-logo.png"
+              alt=""
+              class="brand-logo"
+              width="48"
+              height="48"
+              loading="lazy"
+            >
+
+            <span class="brand-copy">
+              <span class="brand-name">Naija Opportunity Hub</span>
+              <span class="brand-tagline">
+                Discover Opportunities. Build Your Future.
+              </span>
+            </span>
+          </a>
+
+          <p>
+            Connecting Nigerian students and graduates with opportunities
+            for learning, career development and growth.
+          </p>
+
+        </div>
+
+        <!-- EXPLORE -->
+        <div class="footer-links">
+          <h3>Explore</h3>
+          <a href="/#opportunities">Opportunities</a>
+          <a href="/#career-kit">Career Kit</a>
+          <a href="/#tracker">Application Tracker</a>
+        </div>
+
+        <!-- CATEGORIES -->
+        <div class="footer-links">
+          <h3>Categories</h3>
+          <a href="/#opportunities">Scholarships</a>
+          <a href="/#opportunities">Jobs</a>
+          <a href="/#opportunities">Internships</a>
+          <a href="/#opportunities">Grants</a>
+          <a href="/#opportunities">Fellowships</a>
+          <a href="/#opportunities">Training</a>
+          <a href="/#opportunities">Volunteering</a>
+        </div>
+
+        <!-- INFORMATION -->
+        <div class="footer-links">
+          <h3>Information</h3>
+          <a href="/#home">Back to Top</a>
+          <a href="/auth.html?mode=login">Sign In / Create Account</a>
+        </div>
+
+      </div>
+
+      <!-- FOOTER BOTTOM -->
+      <div class="footer-bottom">
+
+        <p>
+          © <span id="year"></span> Naija Opportunity Hub. All rights reserved.
+        </p>
+
+        <p>
+          Built to help you discover your next opportunity.
+        </p>
+
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ACCOUNT DASHBOARD -->
+  <div
+    class="account-dashboard"
+    id="accountDashboard"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="accountDashboardTitle"
+    aria-hidden="true"
+    hidden
+  >
+
+    <div
+      class="account-dashboard-backdrop"
+      data-close-account
+      aria-hidden="true"
+    ></div>
+
+    <div class="account-dashboard-panel">
+
+      <div class="account-dashboard-header">
+
+        <div>
+          <span class="section-kicker">YOUR PERSONAL SPACE</span>
+          <h2 id="accountDashboardTitle">My Account</h2>
+          <p id="accountDashboardEmail"></p>
+        </div>
+
+        <button
+          type="button"
+          class="account-dashboard-close"
+          data-close-account
+          aria-label="Close account dashboard"
+        >
+          &times;
+        </button>
+
+      </div>
+
+      <!-- Dashboard navigation -->
+      <div
+        class="account-dashboard-tabs"
+        role="tablist"
+        aria-label="Account sections"
+      >
+
+        <button
+          type="button"
+          class="account-tab active"
+          id="accountOverviewTab"
+          data-account-tab="overview"
+          role="tab"
+          aria-selected="true"
+          aria-controls="accountOverview"
+        >
+          Overview
+        </button>
+
+        <button
+          type="button"
+          class="account-tab"
+          id="accountSettingsTab"
+          data-account-tab="settings"
+          role="tab"
+          aria-selected="false"
+          aria-controls="accountSettings"
+        >
+          Settings
+        </button>
+
+      </div>
+
+      <!-- ACCOUNT OVERVIEW -->
+      <div
+        class="account-view"
+        id="accountOverview"
+        role="tabpanel"
+        aria-labelledby="accountOverviewTab"
+      >
+
+        <div class="account-profile-card">
+
+          <span class="account-profile-icon" aria-hidden="true">👤</span>
+
+          <div>
+            <span class="section-kicker">ACCOUNT OVERVIEW</span>
+            <h3>Welcome to your account</h3>
+            <p>
+              Your personal space to manage your account
+              and follow your career opportunities.
+            </p>
+          </div>
+
+        </div>
+
+        <div class="account-dashboard-shortcuts">
+
+          <a href="/#tracker" class="account-shortcut">
+            <span class="account-shortcut-icon" aria-hidden="true">⭐</span>
+            <span>
+              <strong>Saved Opportunities</strong>
+              <small>View and manage your application tracker.</small>
+            </span>
+            <span aria-hidden="true">→</span>
+          </a>
+
+          <button
+            type="button"
+            class="account-shortcut"
+            data-account-view="settings"
+          >
+            <span class="account-shortcut-icon" aria-hidden="true">⚙️</span>
+            <span>
+              <strong>Account Settings</strong>
+              <small>Update your account password.</small>
+            </span>
+            <span aria-hidden="true">→</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- ACCOUNT SETTINGS -->
+      <div
+        class="account-view"
+        id="accountSettings"
+        role="tabpanel"
+        aria-labelledby="accountSettingsTab"
+        hidden
+      >
+
+        <div class="account-settings-intro">
+          <span class="section-kicker">SECURITY &amp; PRIVACY</span>
+          <h3>Change your password</h3>
+          <p>
+            Choose a strong password that you do not use
+            on other websites.
+          </p>
+        </div>
+
+        <form id="accountPasswordForm" class="account-password-form">
+
+          <label for="accountNewPassword">
+            New password
+          </label>
+
+          <input
+            type="password"
+            id="accountNewPassword"
+            name="newPassword"
+            minlength="8"
+            autocomplete="new-password"
+            placeholder="Enter your new password"
+            required
+          >
+
+          <label for="accountConfirmPassword">
+            Confirm new password
+          </label>
+
+          <input
+            type="password"
+            id="accountConfirmPassword"
+            name="confirmPassword"
+            minlength="8"
+            autocomplete="new-password"
+            placeholder="Confirm your new password"
+            required
+          >
+
+          <p
+            id="accountSettingsMessage"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+          <button
+            type="submit"
+            class="button button-primary"
+            id="accountPasswordButton"
+          >
+            Update Password
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div
+    class="toast"
+    id="toast"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  ></div>
+
+  <!-- FOOTER YEAR -->
+  <script>
+    const yearElement = document.getElementById("year");
+
+    if (yearElement) {
+      yearElement.textContent = new Date().getFullYear();
+    }
+  </script>
+
+</body>
+</html>
