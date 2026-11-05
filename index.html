@@ -71,7 +71,7 @@
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/hero-image.css">
   <link rel="stylesheet" href="/style.css">
-  <link rel="stylesheet" href="/cards-and-auth.css?v=1">
+  <link rel="stylesheet" href="/cards-and-auth.css?v=2">
 
   <!-- Supabase -->
   <script
@@ -80,8 +80,8 @@
   ></script>
 
   <!-- Application scripts -->
-  <script defer src="/auth.js"></script>
-  <script defer src="/app.js?v=36"></script>
+  <script defer src="/auth.js?v=36"></script>
+  <script defer src="/app.js?v=38"></script>
   <script defer src="/pwa.js"></script>
 </head>
 
@@ -140,7 +140,6 @@
         <a href="/#home">Home</a>
         <a href="/#opportunities">Opportunities</a>
         <a href="/#career-kit">Career Kit</a>
-        <a href="/#tracker">Application Tracker</a>
 
         <!-- AUTHENTICATION AND INSTALLATION -->
         <div class="nav-auth" id="navAuth">
@@ -190,13 +189,14 @@
                 <span>My Account</span>
               </button>
 
-              <a
-                href="/#tracker"
+              <button
+                type="button"
                 class="account-dropdown-item"
+                data-account-view="saved"
               >
                 <span aria-hidden="true">⭐</span>
                 <span>My Saved Opportunities</span>
-              </a>
+              </button>
 
               <button
                 type="button"
@@ -429,61 +429,6 @@
           on the official source before applying.
         </p>
 
-      </div>
-    </section>
-
-    <!-- APPLICATION TRACKER -->
-    <section class="tracker-section" id="tracker">
-      <div class="wrap">
-
-        <div class="section-head">
-
-          <div>
-            <span class="section-kicker">STAY ORGANISED</span>
-            <h2>Your application tracker</h2>
-            <p>
-              Keep track of opportunities you want to pursue.
-            </p>
-          </div>
-
-          <div class="tracker-actions">
-
-            <button class="button button-outline" id="exportTracker" type="button">
-              Export CSV
-            </button>
-
-            <button class="button button-danger" id="clearTracker" type="button">
-              Clear tracker
-            </button>
-
-          </div>
-        </div>
-
-        <div class="tracker-container panel">
-
-          <div class="tracker-heading">
-            <span class="tracker-heading-icon" aria-hidden="true">✓</span>
-
-            <div>
-              <h3>Saved opportunities</h3>
-              <p>
-                Your personal list of opportunities to follow up on.
-              </p>
-            </div>
-          </div>
-
-          <div id="trackerList" class="tracker-list">
-            <p class="empty">
-              Your tracker is ready for your saved opportunities.
-            </p>
-          </div>
-
-          <div class="privacy-note">
-            Your saved tracker information may be stored in your browser.
-            Avoid saving sensitive personal information.
-          </div>
-
-        </div>
       </div>
     </section>
 
@@ -778,7 +723,6 @@
           <h3>Explore</h3>
           <a href="/#opportunities">Opportunities</a>
           <a href="/#career-kit">Career Kit</a>
-          <a href="/#tracker">Application Tracker</a>
         </div>
 
         <!-- CATEGORIES -->
@@ -878,6 +822,18 @@
         <button
           type="button"
           class="account-tab"
+          id="accountSavedTab"
+          data-account-tab="saved"
+          role="tab"
+          aria-selected="false"
+          aria-controls="accountSavedOpportunities"
+        >
+          Saved Opportunities
+        </button>
+
+        <button
+          type="button"
+          class="account-tab"
           id="accountSettingsTab"
           data-account-tab="settings"
           role="tab"
@@ -914,14 +870,18 @@
 
         <div class="account-dashboard-shortcuts">
 
-          <a href="/#tracker" class="account-shortcut">
+          <button
+            type="button"
+            class="account-shortcut"
+            data-account-view="saved"
+          >
             <span class="account-shortcut-icon" aria-hidden="true">⭐</span>
             <span>
               <strong>Saved Opportunities</strong>
-              <small>View and manage your application tracker.</small>
+              <small>Track the opportunities you have saved.</small>
             </span>
             <span aria-hidden="true">→</span>
-          </a>
+          </button>
 
           <button
             type="button"
@@ -937,6 +897,49 @@
           </button>
 
         </div>
+
+      </div>
+
+      <!-- SAVED OPPORTUNITIES (replaces the old homepage tracker) -->
+      <div
+        class="account-view"
+        id="accountSavedOpportunities"
+        role="tabpanel"
+        aria-labelledby="accountSavedTab"
+        hidden
+      >
+
+        <div class="account-settings-intro">
+          <span class="section-kicker">STAY ORGANISED</span>
+          <h3>Your saved opportunities</h3>
+          <p>
+            Keep track of the opportunities you want to pursue and
+            update your progress as you apply.
+          </p>
+        </div>
+
+        <div class="account-saved-toolbar">
+          <button
+            type="button"
+            class="button button-outline"
+            data-saved-export
+          >
+            Export CSV
+          </button>
+
+          <button
+            type="button"
+            class="button button-danger"
+            data-saved-clear
+          >
+            Clear all
+          </button>
+        </div>
+
+        <div
+          id="accountSavedOpportunitiesList"
+          class="account-saved-list"
+        ></div>
 
       </div>
 
