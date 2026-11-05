@@ -1,6 +1,6 @@
 /*
  * NAIJA OPPORTUNITY HUB — Main Front-End Application
- * Version 3.8 | British English | 3-element opportunity cards
+ * Version 3.9 | British English | 3-element opportunity cards
  * (clickable image + clickable title + Save Opportunity button)
  *
  * Saved opportunities live in the visitor's account dashboard (auth.js).
@@ -19,7 +19,20 @@
   // Relative link, so it works on every domain the site is served from.
   const DETAILS_PAGE = "opportunity-details.html";
 
-  const DEFAULT_VISIBLE_COUNT = 6;
+  const DEFAULT_VISIBLE_COUNT = 6;      // flat results (search / one category)
+  const SECTION_PREVIEW_COUNT = 3;      // cards per category section (one row)
+
+  // Homepage category sections, in display order.
+  const CATEGORY_META = [
+    { key: "scholarship", label: "Scholarships", icon: "🎓", tint: "tint-green" },
+    { key: "job", label: "Jobs", icon: "💼", tint: "tint-blue" },
+    { key: "internship", label: "Internships", icon: "💻", tint: "tint-purple" },
+    { key: "fellowship", label: "Fellowships", icon: "👥", tint: "tint-yellow" },
+    { key: "grant", label: "Grants", icon: "💰", tint: "tint-green" },
+    { key: "training", label: "Training", icon: "🧑‍🏫", tint: "tint-orange" },
+    { key: "volunteering", label: "Volunteering", icon: "💖", tint: "tint-pink" },
+    { key: "other", label: "Other Opportunities", icon: "📋", tint: "tint-blue" }
+  ];
   const FALLBACK_IMAGE =
     "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80";
   const DEBUG = new URLSearchParams(location.search).get("debug") === "1";
@@ -29,6 +42,7 @@
 
   const el = {
     grid: getElement("opportunityGrid", "opportunitiesGrid", "opportunitiesContainer"),
+    sections: getElement("categorySections"),
     search: getElement("searchInput", "opportunitySearch", "search"),
     category: getElement("categoryFilter"),
     sort: getElement("sortFilter", "sortSelect", "sortOpportunities"),
@@ -52,6 +66,7 @@
   let showAll = false;
   let isLoading = false;
   let toastTimer = null;
+  const expandedSections = new Set();
 
   /* ------------------------------------------------------------------
      3. HELPERS
@@ -72,6 +87,15 @@
 
   function normalise(value) {
     return String(value ?? "").trim().toLocaleLowerCase("en-GB");
+  }
+
+  // "Scholarship" and "Scholarships" are the same category.
+  function canonicalKey(value) {
+    return normalise(value).replace(/s$/, "");
+  }
+
+  function slugify(value) {
+    return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   }
 
   function isAllCategory(value) {
@@ -252,6 +276,7 @@
     }
     if (el.status) el.status.textContent = "Loading opportunities…";
     if (el.grid) el.grid.innerHTML = "";
+    if (el.sections) el.sections.innerHTML = "";
 
     try {
       let data;
@@ -342,7 +367,7 @@
     }
 
     const match = Array.from(el.category.options).find(
-      option => normalise(option.value) === normalise(activeCategory)
+      option => canonicalKey(option.value) === canonicalKey(activeCategory)
     );
     el.category.value = match ? match.value : "all";
   }
@@ -355,7 +380,7 @@
     filteredOpportunities = allOpportunities.filter(item => {
       const categoryMatch =
         isAllCategory(activeCategory) ||
-        normalise(item.category) === normalise(activeCategory);
+        canonicalKey(item.category) === canonicalKey(activeCategory);
 
       const searchable = [
         item.title, item.organization, item.category,
@@ -449,19 +474,127 @@
       </article>`;
   }
 
+  // Sections show when nothing is searched or filtered.
+  function isBrowseMode() {
+    return Boolean(el.sections) &&
+      isAllCategory(activeCategory) &&
+      !normalise(el.search?.value || "");
+  }
+
+  function groupByCategory(items) {
+    const groups = new Map();
+
+    items.forEach(item => {
+      const key = canonicalKey(item.category) || "other";
+
+      if (!groups.has(key)) {
+        groups.set(key, { key, label: item.category || "Other", items: [] });
+      }
+      groups.get(key).items.push(item);
+    });
+
+    const order = CATEGORY_META.map(meta => meta.key);
+
+    return [...groups.values()].sort((a, b) => {
+      const ia = order.indexOf(a.key);
+      const ib = order.indexOf(b.key);
+
+      if (ia !== -1 || ib !== -1) {
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+      }
+      return a.label.localeCompare(b.label, "en-GB");
+    });
+  }
+
+  function createCategorySection(group) {
+    const meta = CATEGORY_META.find(entry => entry.key === group.key);
+    const label = meta ? meta.label : group.label;
+    const icon = meta ? meta.icon : "📋";
+    const tint = meta ? meta.tint : "tint-blue";
+
+    const total = group.items.length;
+    const expanded = expandedSections.has(group.key);
+    const visible = expanded ? group.items : group.items.slice(0, SECTION_PREVIEW_COUNT);
+    const extra = total - SECTION_PREVIEW_COUNT;
+
+    const key = escapeHTML(group.key);
+    const slug = escapeHTML(slugify(group.key));
+
+    const toggle = extra > 0 ? `
+      <div class="view-more-wrap">
+        <button
+          type="button"
+          class="button button-outline"
+          data-section-toggle="${key}"
+          aria-expanded="${expanded}"
+          aria-controls="category-${slug}"
+        >${expanded ? "View Less" : `View More (${extra} more)`}</button>
+      </div>` : "";
+
+    return `
+      <section class="category-section" id="category-${slug}" aria-labelledby="category-${slug}-title">
+        <div class="category-section-head">
+          <span class="category-section-icon ${tint}" aria-hidden="true">${icon}</span>
+          <div>
+            <h3 id="category-${slug}-title">${escapeHTML(label)}</h3>
+            <p>Latest updates · ${total} ${total === 1 ? "opportunity" : "opportunities"}</p>
+          </div>
+        </div>
+
+        <div class="opportunity-grid category-grid">
+          ${visible.map(createOpportunityCard).join("")}
+        </div>
+        ${toggle}
+      </section>`;
+  }
+
+  function toggleSection(key) {
+    if (expandedSections.has(key)) {
+      expandedSections.delete(key);
+    } else {
+      expandedSections.add(key);
+    }
+
+    renderOpportunities();
+
+    const slug = slugify(key);
+    const button = el.sections?.querySelector(`[data-section-toggle="${CSS.escape(key)}"]`);
+    button?.focus({ preventScroll: true });
+
+    // After collapsing, bring the top of that section back into view.
+    if (!expandedSections.has(key)) {
+      document.getElementById(`category-${slug}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
   function renderOpportunities() {
     if (!el.grid) {
       debugLog("Opportunity grid not found.");
       return;
     }
 
-    const visible = showAll
-      ? filteredOpportunities
-      : filteredOpportunities.slice(0, DEFAULT_VISIBLE_COUNT);
-
-    el.grid.innerHTML = visible.map(createOpportunityCard).join("");
-
     const hasResults = filteredOpportunities.length > 0;
+    const browse = hasResults && isBrowseMode();
+
+    if (el.sections) {
+      showElement(el.sections, browse);
+      if (!browse) el.sections.innerHTML = "";
+    }
+    showElement(el.grid, !browse);
+
+    if (browse) {
+      el.grid.innerHTML = "";
+      el.sections.innerHTML = groupByCategory(filteredOpportunities)
+        .map(createCategorySection)
+        .join("");
+    } else {
+      const visible = showAll
+        ? filteredOpportunities
+        : filteredOpportunities.slice(0, DEFAULT_VISIBLE_COUNT);
+
+      el.grid.innerHTML = visible.map(createOpportunityCard).join("");
+    }
 
     if (el.empty) {
       el.empty.textContent = "No opportunities found. Try another search or category.";
@@ -479,10 +612,12 @@
       el.results.textContent = `${n} ${n === 1 ? "opportunity" : "opportunities"} found`;
     }
 
+    // The page-level View More / View Less is for flat results only;
+    // each category section has its own.
     if (el.viewAll) {
       const extra = filteredOpportunities.length - DEFAULT_VISIBLE_COUNT;
 
-      showElement(el.viewAll, extra > 0);
+      showElement(el.viewAll, !browse && extra > 0);
       el.viewAll.textContent = showAll ? "View Less" : `View More (${extra} more)`;
       el.viewAll.setAttribute("aria-expanded", String(showAll));
     }
@@ -497,7 +632,7 @@
     container.querySelectorAll("[data-category]").forEach(button => {
       const active = isAllCategory(activeCategory)
         ? isAllCategory(button.dataset.category)
-        : normalise(button.dataset.category) === normalise(activeCategory);
+        : canonicalKey(button.dataset.category) === canonicalKey(activeCategory);
 
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
@@ -544,6 +679,17 @@
       if (button && el.grid.contains(button)) toggleSaved(button.dataset.id);
     });
 
+    el.sections?.addEventListener("click", event => {
+      const saveButton = event.target.closest('[data-action="save"]');
+      if (saveButton) {
+        toggleSaved(saveButton.dataset.id);
+        return;
+      }
+
+      const toggleButton = event.target.closest("[data-section-toggle]");
+      if (toggleButton) toggleSection(toggleButton.dataset.sectionToggle);
+    });
+
     // Keep the Save buttons in step when something is saved or removed
     // (from the dashboard, another tab, or after signing in).
     window.addEventListener("noh:bookmarks-updated", renderOpportunities);
@@ -560,7 +706,7 @@
      9. INIT
      ------------------------------------------------------------------ */
   function init() {
-    debugLog("Naija Opportunity Hub v3.8 initialising");
+    debugLog("Naija Opportunity Hub v3.9 initialising");
     setupEvents();
     loadOpportunities();
   }
