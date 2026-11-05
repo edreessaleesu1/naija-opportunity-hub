@@ -71,6 +71,7 @@
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/hero-image.css">
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/cards-and-auth.css?v=1">
 
   <!-- Supabase -->
   <script
@@ -80,7 +81,7 @@
 
   <!-- Application scripts -->
   <script defer src="/auth.js"></script>
-  <script defer src="/app.js"></script>
+  <script defer src="/app.js?v=36"></script>
   <script defer src="/pwa.js"></script>
 </head>
 
@@ -154,7 +155,10 @@
             Install App
           </button>
 
-          <!-- SIGNED-OUT LINKS -->
+          <!-- SIGNED-OUT LINKS
+               Hidden in cards-and-auth.css (the footer already has
+               "Sign In / Create Account"). Kept in the page so auth.js
+               can still find #signInLink and #createAccountLink. -->
           <a
             href="/auth.html?mode=login"
             class="nav-auth-link"
@@ -173,6 +177,10 @@
 
           <!-- SIGNED-IN ACCOUNT MENU -->
           <div class="account-menu" id="accountMenu" hidden>
+
+            <span class="status-active" role="status">
+              <i aria-hidden="true"></i>Active
+            </span>
 
             <button
               type="button"
