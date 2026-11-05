@@ -2,7 +2,7 @@
 /*
  * Naija Opportunity Hub
  * Main account authentication and navigation
- * Version 3.4
+ * Version 3.5
  *
  * Used by:
  * - Homepage
@@ -630,6 +630,9 @@
 
     // Keep the account control visible for everyone.
     setVisible(accountMenu, true);
+
+    // The green "Active" badge is for signed-in visitors only.
+    setVisible($("accountActiveBadge"), signedIn);
 
     if (accountMenuButton) {
       accountMenuButton.setAttribute(
