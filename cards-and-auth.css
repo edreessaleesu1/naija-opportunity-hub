@@ -1,0 +1,294 @@
+/* ==========================================================================
+   NAIJA OPPORTUNITY HUB — cards-and-auth.css
+   Load this AFTER style.css. It replaces the opportunity-card rules in
+   section 9 and adds the signed-in "Active" badge styles.
+   ========================================================================== */
+
+:root {
+  --success: #087a55; /* was used by .verified-label but never defined */
+}
+
+
+/* ==========================================================================
+   A. OPPORTUNITY GRID
+   ========================================================================== */
+
+#opportunityGrid,
+.opportunity-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+@media (max-width: 1000px) {
+  #opportunityGrid,
+  .opportunity-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+/* One card per row on phones, so image, title and button have room */
+@media (max-width: 600px) {
+  #opportunityGrid,
+  .opportunity-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+}
+
+
+/* ==========================================================================
+   B. OPPORTUNITY CARD: image + title + Track button
+   ========================================================================== */
+
+.opportunity-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.opportunity-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Image wrapper: always full width, fixed height */
+.opportunity-card .opportunity-image {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: #e9efeb;
+}
+
+.opportunity-card .opportunity-image-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.opportunity-card .opportunity-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.opportunity-card:hover .opportunity-image img {
+  transform: scale(1.05);
+}
+
+/* Title and Track button */
+.opportunity-card .opportunity-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  padding: 18px;
+}
+
+.opportunity-card .opportunity-title {
+  margin: 0;
+  color: var(--green-deep);
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.opportunity-card .opportunity-title-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.opportunity-card .opportunity-title-link:hover {
+  color: var(--green);
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 4px;
+}
+
+.track-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  margin-top: auto;
+  padding: 10px 14px;
+  border: 1px solid var(--green);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--green-dark);
+  font-size: 13px;
+  font-weight: 750;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.track-btn:hover {
+  background: var(--green-light);
+  transform: translateY(-1px);
+}
+
+.track-btn.is-tracked {
+  background: var(--green);
+  color: var(--white);
+}
+
+.track-btn.is-tracked:hover {
+  background: var(--green-dark);
+}
+
+@media (max-width: 380px) {
+  .opportunity-card .opportunity-image {
+    height: 180px;
+  }
+}
+
+
+/* ==========================================================================
+   C. FILTER BAR (search, category, sort, clear)
+   ========================================================================== */
+
+.opportunities-section select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 38px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--green-dark) 50%),
+    linear-gradient(135deg, var(--green-dark) 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) 50%,
+    calc(100% - 14px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* index.html also has a real <span>⌕</span> in the search box, which
+   floated above the input as a second icon. Hide it; the ::before icon stays. */
+.search-box > span {
+  display: none;
+}
+
+/* The select is wrapped in a bordered label, which doubled the border */
+.filter-control {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* The search icon was floating above the box on phones */
+.search-box::before {
+  top: 50%;
+  transform: translateY(-52%);
+  font-size: 1.35rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+
+/* ==========================================================================
+   D. SIGNED-IN STATE: green "Active" badge + Sign Out
+   ========================================================================== */
+
+.status-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 5px 11px;
+  border: 1px solid #cfe8d8;
+  border-radius: 999px;
+  background: #e6f4ea;
+  color: #0b6b3a;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.status-active i {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1fa65a;
+  box-shadow: 0 0 0 3px rgba(31, 166, 90, 0.18);
+}
+
+.btn-signout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  border: 1px solid #ead9d7;
+  border-radius: 8px;
+  background: #fff6f5;
+  color: #8a2c24;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-signout:hover {
+  background: #fbe9e7;
+}
+
+/* Header auth area (#navAuth in index.html) */
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Sign In / Create Account are removed from the navigation menu, because the
+   footer already has a "Sign In / Create Account" link. They are hidden
+   rather than deleted so auth.js can still find #signInLink and
+   #createAccountLink without errors. */
+#signInLink,
+#createAccountLink {
+  display: none !important;
+}
+
+/* Keeps the badge and Sign Out side by side in the header */
+.auth-status-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 720px) {
+  .navlinks .status-active,
+  .navlinks .btn-signout {
+    align-self: flex-start;
+    margin: 6px 13px;
+  }
+}
+
+
+/* Signed-in account menu: Active badge sits beside the "Me" button */
+.account-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.account-menu .status-active {
+  margin: 0;
+}
