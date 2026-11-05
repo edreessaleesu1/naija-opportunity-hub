@@ -71,7 +71,7 @@
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/hero-image.css">
   <link rel="stylesheet" href="/style.css">
-  <link rel="stylesheet" href="/cards-and-auth.css?v=2">
+  <link rel="stylesheet" href="/cards-and-auth.css?v=3">
 
   <!-- Supabase -->
   <script
@@ -81,7 +81,7 @@
 
   <!-- Application scripts -->
   <script defer src="/auth.js?v=36"></script>
-  <script defer src="/app.js?v=38"></script>
+  <script defer src="/app.js?v=39"></script>
   <script defer src="/pwa.js"></script>
 </head>
 
@@ -406,6 +406,9 @@
         <div class="data-notice" id="dataNotice" hidden></div>
 
         <div class="data-status" id="dataStatus" aria-live="polite"></div>
+
+        <!-- One section per category (shown when nothing is searched or filtered) -->
+        <div class="category-sections" id="categorySections" hidden></div>
 
         <div class="opportunity-grid" id="opportunityGrid">
           <div class="loading-card">
