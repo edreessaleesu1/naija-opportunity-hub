@@ -1,7 +1,10 @@
 /*
  * NAIJA OPPORTUNITY HUB — Main Front-End Application
- * Version 3.7 | British English | 3-element opportunity cards
- * (clickable image + clickable title + Track button)
+ * Version 3.8 | British English | 3-element opportunity cards
+ * (clickable image + clickable title + Save Opportunity button)
+ *
+ * Saved opportunities live in the visitor's account dashboard (auth.js).
+ * This file only shows the opportunities and the Save button.
  */
 (() => {
   "use strict";
@@ -16,12 +19,9 @@
   // Relative link, so it works on every domain the site is served from.
   const DETAILS_PAGE = "opportunity-details.html";
 
-  const BOOKMARKS_KEY = "noh_bookmarks_v1";
-  const TRACKER_KEY = "noh_tracker_v1";
   const DEFAULT_VISIBLE_COUNT = 6;
   const FALLBACK_IMAGE =
     "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80";
-  const TRACKER_STATUSES = ["Interested", "Applied", "Interview", "Successful", "Unsuccessful"];
   const DEBUG = new URLSearchParams(location.search).get("debug") === "1";
 
   const getElement = (...ids) =>
@@ -37,9 +37,6 @@
     notice: getElement("dataNotice"),
     status: getElement("dataStatus"),
     viewAll: getElement("viewAllBtn", "viewAll", "showAllBtn"),
-    bookmarks: getElement("bookmarksCount", "bookmarkCount"),
-    trackerCount: getElement("trackerCount", "applicationCount"),
-    trackerList: getElement("trackerList"),
     loading: getElement("loadingState", "opportunitiesLoading"),
     empty: getElement("emptyState", "noOpportunities"),
     error: getElement("errorState", "opportunitiesError"),
@@ -111,13 +108,6 @@
     return date ? date.getTime() : null;
   }
 
-  function formatDate(value) {
-    const date = parseDate(value);
-    return date
-      ? date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-      : "Not specified";
-  }
-
   function showElement(element, visible) {
     if (element) element.hidden = !visible;
   }
@@ -138,45 +128,58 @@
   }
 
   /* ------------------------------------------------------------------
-     4. LOCAL STORAGE (bookmarks and tracker)
+     4. SAVED OPPORTUNITIES (stored by auth.js as window.NOH_BOOKMARKS)
      ------------------------------------------------------------------ */
-  function readStorage(key, fallback) {
-    try {
-      const value = JSON.parse(localStorage.getItem(key));
-      return Array.isArray(value) ? value : fallback;
-    } catch (error) {
-      console.warn("Unable to read local storage:", key, error);
-      return fallback;
-    }
+  function isSaved(id) {
+    return Boolean(window.NOH_BOOKMARKS?.isSaved(id));
   }
 
-  function saveStorage(key, value) {
+  async function isSignedIn() {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
-      return true;
+      const client = window.NOH_SUPABASE_CLIENT;
+      if (!client) return false;
+
+      const { data } = await client.auth.getSession();
+      return Boolean(data?.session?.user);
     } catch (error) {
-      console.error("Unable to save local storage:", key, error);
-      showToast("Unable to save changes on this device.");
+      console.warn("NOH: Could not check the sign-in session.", error);
       return false;
     }
   }
 
-  const bookmarks = readStorage(BOOKMARKS_KEY, []).map(String).filter(Boolean);
+  async function toggleSaved(id) {
+    if (!window.NOH_BOOKMARKS) {
+      showToast("Saving is unavailable right now. Please refresh the page.");
+      return;
+    }
 
-  let tracker = readStorage(TRACKER_KEY, [])
-    .filter(item => item && item.id)
-    .map(item => ({
-      ...item,
-      id: String(item.id),
-      title: String(item.title || "Untitled Opportunity"),
-      organization: String(item.organization || item.organisation || "Organisation not specified"),
-      category: String(item.category || "Other"),
-      application_url: safeURL(item.application_url || ""),
-      date_added: item.date_added || new Date().toISOString(),
-      status: TRACKER_STATUSES.includes(item.status) ? item.status : "Interested"
-    }));
+    // Saved opportunities belong to the visitor's account.
+    if (!(await isSignedIn())) {
+      showToast("Please sign in to save opportunities.");
 
-  const isTracked = id => tracker.some(item => String(item.id) === String(id));
+      setTimeout(() => {
+        window.location.assign(
+          "/auth.html?mode=login&redirect=" + encodeURIComponent("/#opportunities")
+        );
+      }, 1400);
+
+      return;
+    }
+
+    try {
+      const nowSaved = window.NOH_BOOKMARKS.toggle(id);
+
+      showToast(
+        nowSaved
+          ? "Saved. Find it under My Saved Opportunities."
+          : "Removed from your saved opportunities."
+      );
+      // The card button refreshes through the "noh:bookmarks-updated" event.
+    } catch (error) {
+      console.error("NOH: Could not update saved opportunities.", error);
+      showToast("We could not save that. Please try again.");
+    }
+  }
 
   /* ------------------------------------------------------------------
      5. DATA (Supabase REST)
@@ -275,7 +278,6 @@
 
       populateCategorySelect();
       applyFilters();
-      renderTracker();
 
       if (el.status) {
         el.status.textContent =
@@ -334,7 +336,8 @@
     if (!el.category) return;
 
     if (isAllCategory(activeCategory)) {
-      el.category.value = "all";
+      const all = Array.from(el.category.options).find(o => isAllCategory(o.value));
+      el.category.value = all ? all.value : "all";
       return;
     }
 
@@ -408,14 +411,14 @@
 
   /* ------------------------------------------------------------------
      7. RENDERING — OPPORTUNITY CARDS
-     Card = clickable image + clickable title + Track button.
+     Card = clickable image + clickable title + Save button.
      ------------------------------------------------------------------ */
   function createOpportunityCard(item) {
     const id = escapeHTML(item.id);
     const title = escapeHTML(item.title);
     const url = escapeHTML(detailsURL(item.id));
     const image = escapeHTML(item.image_url || FALLBACK_IMAGE);
-    const tracked = isTracked(item.id);
+    const saved = isSaved(item.id);
 
     return `
       <article class="opportunity-card" data-id="${id}">
@@ -437,11 +440,11 @@
 
           <button
             type="button"
-            class="track-btn ${tracked ? "is-tracked" : ""}"
-            data-action="track"
+            class="save-btn ${saved ? "is-saved" : ""}"
+            data-action="save"
             data-id="${id}"
-            aria-pressed="${tracked}"
-          >${tracked ? "✓ Tracking" : "+ Track Opportunity"}</button>
+            aria-pressed="${saved}"
+          >${saved ? "✓ Saved" : "Save Opportunity"}</button>
         </div>
       </article>`;
   }
@@ -484,7 +487,6 @@
       el.viewAll.setAttribute("aria-expanded", String(showAll));
     }
 
-    updateCounters();
     syncCategoryButtons();
   }
 
@@ -503,163 +505,7 @@
   }
 
   /* ------------------------------------------------------------------
-     8. APPLICATION TRACKER
-     ------------------------------------------------------------------ */
-  function toggleTracker(id) {
-    id = String(id);
-
-    if (isTracked(id)) {
-      tracker = tracker.filter(item => String(item.id) !== id);
-      showToast("Removed from your application tracker.");
-    } else {
-      const item = allOpportunities.find(entry => entry.id === id);
-      if (!item) return;
-
-      tracker.push({
-        id,
-        title: item.title,
-        organization: item.organization,
-        category: item.category,
-        application_url: item.application_url,
-        date_added: new Date().toISOString(),
-        status: "Interested"
-      });
-      showToast("Added to your application tracker.");
-    }
-
-    saveStorage(TRACKER_KEY, tracker);
-    renderOpportunities();
-    renderTracker();
-  }
-
-  function updateTrackerStatus(id, status) {
-    if (!TRACKER_STATUSES.includes(status)) return;
-
-    const item = tracker.find(entry => String(entry.id) === String(id));
-    if (!item) return;
-
-    item.status = status;
-    saveStorage(TRACKER_KEY, tracker);
-    renderTracker();
-    showToast("Application status updated.");
-  }
-
-  function removeTrackerItem(id) {
-    tracker = tracker.filter(item => String(item.id) !== String(id));
-    saveStorage(TRACKER_KEY, tracker);
-    renderTracker();
-    renderOpportunities();
-    showToast("Application removed from tracker.");
-  }
-
-  function renderTracker() {
-    if (!el.trackerList) return;
-
-    if (!tracker.length) {
-      el.trackerList.innerHTML = `
-        <div class="tracker-empty">
-          <p>You haven't added any opportunities to your tracker yet.</p>
-          <p>Use the Track button on an opportunity to get started.</p>
-        </div>`;
-      updateCounters();
-      return;
-    }
-
-    el.trackerList.innerHTML = tracker.map(item => {
-      const id = escapeHTML(item.id);
-      const status = TRACKER_STATUSES.includes(item.status) ? item.status : "Interested";
-      const application = safeURL(item.application_url);
-
-      const options = TRACKER_STATUSES.map(option => `
-        <option value="${escapeHTML(option)}" ${option === status ? "selected" : ""}>${escapeHTML(option)}</option>
-      `).join("");
-
-      return `
-        <article class="tracker-item" data-id="${id}">
-          <div class="tracker-item-info">
-            <h4>${escapeHTML(item.title)}</h4>
-            <p>${escapeHTML(item.organization)}</p>
-            <span class="tracker-category">${escapeHTML(item.category)}</span>
-            <p class="tracker-date">Added: ${formatDate(item.date_added)}</p>
-          </div>
-
-          <div class="tracker-item-actions">
-            <label>
-              <span>Application status</span>
-              <select class="tracker-status" data-action="tracker-status" data-id="${id}">${options}</select>
-            </label>
-
-            ${application ? `
-              <a href="${escapeHTML(application)}" target="_blank"
-                 rel="noopener noreferrer" class="tracker-apply-link">Open Application</a>` : ""}
-
-            <button type="button" class="tracker-remove-btn"
-                    data-action="tracker-remove" data-id="${id}">Remove</button>
-          </div>
-        </article>`;
-    }).join("");
-
-    updateCounters();
-  }
-
-  function updateCounters() {
-    if (el.bookmarks) el.bookmarks.textContent = bookmarks.length;
-    if (el.trackerCount) el.trackerCount.textContent = tracker.length;
-  }
-
-  function csvCell(value) {
-    let text = String(value ?? "");
-    // Prevent spreadsheet formula injection in exported fields.
-    if (/^\s*[=+@-]/.test(text)) text = `'${text}`;
-    return `"${text.replace(/"/g, '""')}"`;
-  }
-
-  function exportTrackerCSV() {
-    if (!tracker.length) {
-      showToast("Your application tracker is empty.");
-      return;
-    }
-
-    const rows = [
-      ["Title", "Organisation", "Category", "Application URL", "Date Added", "Status"],
-      ...tracker.map(item => [
-        item.title, item.organization, item.category,
-        item.application_url, item.date_added, item.status
-      ])
-    ];
-
-    const csv = rows.map(row => row.map(csvCell).join(",")).join("\r\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = "naija-opportunity-hub-tracker.csv";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-
-    showToast("Your tracker has been exported.");
-  }
-
-  function clearTracker() {
-    if (!tracker.length) {
-      showToast("Your application tracker is already empty.");
-      return;
-    }
-
-    if (!window.confirm("Are you sure you want to clear your application tracker?")) return;
-
-    tracker = [];
-    saveStorage(TRACKER_KEY, tracker);
-    renderTracker();
-    renderOpportunities();
-    showToast("Application tracker cleared.");
-  }
-
-  /* ------------------------------------------------------------------
-     9. EVENTS
+     8. EVENTS
      ------------------------------------------------------------------ */
   function setupEvents() {
     el.search?.addEventListener("input", () => {
@@ -682,12 +528,6 @@
       }
     });
 
-    getElement("exportTracker", "exportCSV", "exportTrackerBtn")
-      ?.addEventListener("click", exportTrackerCSV);
-
-    getElement("clearTracker", "clearTrackerBtn")
-      ?.addEventListener("click", clearTracker);
-
     getElement("refreshOpportunities", "refreshBtn")
       ?.addEventListener("click", loadOpportunities);
 
@@ -700,18 +540,15 @@
     });
 
     el.grid?.addEventListener("click", event => {
-      const button = event.target.closest('[data-action="track"]');
-      if (button && el.grid.contains(button)) toggleTracker(button.dataset.id);
+      const button = event.target.closest('[data-action="save"]');
+      if (button && el.grid.contains(button)) toggleSaved(button.dataset.id);
     });
 
-    el.trackerList?.addEventListener("change", event => {
-      const select = event.target.closest('[data-action="tracker-status"]');
-      if (select) updateTrackerStatus(select.dataset.id, select.value);
-    });
-
-    el.trackerList?.addEventListener("click", event => {
-      const button = event.target.closest('[data-action="tracker-remove"]');
-      if (button) removeTrackerItem(button.dataset.id);
+    // Keep the Save buttons in step when something is saved or removed
+    // (from the dashboard, another tab, or after signing in).
+    window.addEventListener("noh:bookmarks-updated", renderOpportunities);
+    window.addEventListener("storage", event => {
+      if (event.key === "noh_bookmarks_v1") renderOpportunities();
     });
 
     document.addEventListener("click", event => {
@@ -720,13 +557,11 @@
   }
 
   /* ------------------------------------------------------------------
-     10. INIT
+     9. INIT
      ------------------------------------------------------------------ */
   function init() {
-    debugLog("Naija Opportunity Hub v3.7 initialising");
+    debugLog("Naija Opportunity Hub v3.8 initialising");
     setupEvents();
-    updateCounters();
-    renderTracker();
     loadOpportunities();
   }
 
