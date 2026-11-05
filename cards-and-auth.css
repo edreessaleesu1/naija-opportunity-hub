@@ -396,3 +396,65 @@
     flex: 1;
   }
 }
+
+
+/* ==========================================================================
+   G. CATEGORY SECTIONS (homepage: one block per category)
+   ========================================================================== */
+
+.category-sections {
+  display: grid;
+  gap: 46px;
+  margin-top: 28px;
+}
+
+.category-section-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--gold-line);
+}
+
+.category-section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 24px;
+}
+
+.category-section-head h3 {
+  color: var(--green-deep);
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.4px;
+}
+
+.category-section-head p {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.category-section .category-grid {
+  margin-top: 20px;
+}
+
+.category-section .view-more-wrap {
+  margin-top: 22px;
+}
+
+@media (max-width: 600px) {
+  .category-sections {
+    gap: 38px;
+  }
+
+  .category-section-head h3 {
+    font-size: 1.15rem;
+  }
+}
