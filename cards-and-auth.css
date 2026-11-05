@@ -292,3 +292,25 @@
 .account-menu .status-active {
   margin: 0;
 }
+
+
+/* ==========================================================================
+   E. VIEW MORE / VIEW LESS and 3 CARDS PER ROW ON DESKTOP
+   ========================================================================== */
+
+.view-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.view-more-wrap .button {
+  min-width: 190px;
+}
+
+@media (min-width: 1001px) {
+  #opportunityGrid,
+  .opportunity-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
