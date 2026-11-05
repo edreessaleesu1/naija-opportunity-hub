@@ -2,7 +2,7 @@
 /*
  * Naija Opportunity Hub
  * Main account authentication and navigation
- * Version 3.5
+ * Version 3.6
  *
  * Used by:
  * - Homepage
@@ -32,6 +32,17 @@
     "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
 
   const BOOKMARKS_KEY = "noh_bookmarks_v1";
+  const STATUS_KEY = "noh_saved_status_v1";
+  const LEGACY_TRACKER_KEY = "noh_tracker_v1";
+  const LEGACY_MIGRATED_KEY = "noh_tracker_migrated_v1";
+
+  const SAVED_STATUSES = [
+    "Interested",
+    "Applied",
+    "Interview",
+    "Successful",
+    "Unsuccessful"
+  ];
 
   const $ = (id) => document.getElementById(id);
 
@@ -109,6 +120,7 @@
 
   let previousFocus = null;
   let savedOpportunitiesRequest = 0;
+  let lastSavedOpportunities = [];
 
   /* ---------------------------------------------------------
      GENERAL HELPERS
@@ -361,6 +373,120 @@
   };
 
   /* ---------------------------------------------------------
+     SAVED OPPORTUNITIES - APPLICATION STATUS
+     (this replaces the old homepage application tracker)
+  --------------------------------------------------------- */
+
+  function getSavedStatusMap() {
+    try {
+      const value = JSON.parse(
+        localStorage.getItem(STATUS_KEY) || "{}"
+      );
+
+      return value &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+        ? value
+        : {};
+
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function storeSavedStatusMap(map) {
+    try {
+      localStorage.setItem(STATUS_KEY, JSON.stringify(map));
+    } catch (error) {
+      console.error("NOH: Could not save status.", error);
+    }
+  }
+
+  function getSavedStatus(id) {
+    const status = getSavedStatusMap()[String(id)];
+
+    return SAVED_STATUSES.includes(status)
+      ? status
+      : "Interested";
+  }
+
+  function setSavedStatus(id, status) {
+    if (!SAVED_STATUSES.includes(status)) return;
+
+    const map = getSavedStatusMap();
+    map[String(id)] = status;
+    storeSavedStatusMap(map);
+  }
+
+  // One-time move of items from the old homepage tracker into the
+  // saved opportunities list, keeping their application status.
+  function migrateLegacyTracker() {
+    try {
+      if (localStorage.getItem(LEGACY_MIGRATED_KEY)) return;
+
+      const raw = localStorage.getItem(LEGACY_TRACKER_KEY);
+
+      if (raw) {
+        const legacy = JSON.parse(raw);
+
+        if (Array.isArray(legacy) && legacy.length) {
+          const ids = getSavedOpportunityIds();
+          const statuses = getSavedStatusMap();
+
+          legacy.forEach(item => {
+            if (!item || item.id === undefined || item.id === null) {
+              return;
+            }
+
+            const id = String(item.id);
+
+            if (!ids.includes(id)) ids.push(id);
+
+            if (
+              !statuses[id] &&
+              SAVED_STATUSES.includes(item.status)
+            ) {
+              statuses[id] = item.status;
+            }
+          });
+
+          storeSavedStatusMap(statuses);
+          storeSavedOpportunityIds(ids);
+        }
+      }
+
+      localStorage.setItem(LEGACY_MIGRATED_KEY, "1");
+
+    } catch (error) {
+      console.warn("NOH: Tracker migration skipped.", error);
+    }
+  }
+
+  function safeHttpURL(value) {
+    if (!value) return "";
+
+    try {
+      const url = new URL(String(value).trim());
+
+      return ["https:", "http:"].includes(url.protocol)
+        ? url.href
+        : "";
+
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function csvCell(value) {
+    let text = String(value ?? "");
+
+    // Stop spreadsheet formulas in exported text.
+    if (/^\s*[=+@-]/.test(text)) text = `'${text}`;
+
+    return `"${text.replace(/"/g, '""')}"`;
+  }
+
+  /* ---------------------------------------------------------
      SAVED OPPORTUNITIES - DASHBOARD
   --------------------------------------------------------- */
 
@@ -407,6 +533,29 @@
       card.appendChild(deadline);
     }
 
+    // Application progress
+    const statusLabel = document.createElement("label");
+    statusLabel.className = "account-saved-status";
+
+    const statusText = document.createElement("span");
+    statusText.textContent = "Application status";
+
+    const statusSelect = document.createElement("select");
+    statusSelect.dataset.savedStatus = String(opportunity.id);
+
+    const currentStatus = getSavedStatus(opportunity.id);
+
+    SAVED_STATUSES.forEach(status => {
+      const option = document.createElement("option");
+      option.value = status;
+      option.textContent = status;
+      option.selected = status === currentStatus;
+      statusSelect.appendChild(option);
+    });
+
+    statusLabel.append(statusText, statusSelect);
+    card.appendChild(statusLabel);
+
     const actions = document.createElement("div");
     actions.className = "account-saved-actions";
 
@@ -419,15 +568,33 @@
     openLink.className = "button button-primary";
     openLink.textContent = "View opportunity";
 
+    actions.appendChild(openLink);
+
+    const applicationURL = safeHttpURL(
+      opportunity.application_url || opportunity.source_url
+    );
+
+    if (applicationURL) {
+      const applyLink = document.createElement("a");
+
+      applyLink.href = applicationURL;
+      applyLink.target = "_blank";
+      applyLink.rel = "noopener noreferrer";
+      applyLink.className = "button button-outline";
+      applyLink.textContent = "Open application";
+
+      actions.appendChild(applyLink);
+    }
+
     const removeButton = document.createElement("button");
 
     removeButton.type = "button";
-    removeButton.className = "button button-outline";
+    removeButton.className = "button button-danger";
     removeButton.textContent = "Remove";
     removeButton.dataset.removeSavedOpportunity =
       String(opportunity.id);
 
-    actions.append(openLink, removeButton);
+    actions.appendChild(removeButton);
     card.appendChild(actions);
 
     return card;
@@ -457,7 +624,7 @@
       const { data, error } = await supabase
         .from("opportunities")
         .select(
-          "id, title, organization, category, deadline, location, status"
+          "id, title, organization, category, deadline, location, status, application_url, source_url"
         )
         .in("id", ids)
         .eq("status", "published");
@@ -470,6 +637,7 @@
       }
 
       const opportunities = data || [];
+      lastSavedOpportunities = opportunities;
 
       // Preserve the order in which the user saved items.
       opportunities.sort(
@@ -868,6 +1036,100 @@
       event.preventDefault();
       first.focus();
     }
+  });
+
+  /* ---------------------------------------------------------
+     SAVED OPPORTUNITIES - STATUS, EXPORT AND CLEAR
+  --------------------------------------------------------- */
+
+  function exportSavedOpportunities() {
+    if (!lastSavedOpportunities.length) {
+      alert("You have no saved opportunities to export yet.");
+      return;
+    }
+
+    const rows = [
+      [
+        "Title",
+        "Organisation",
+        "Category",
+        "Deadline",
+        "Application URL",
+        "Status"
+      ],
+      ...lastSavedOpportunities.map(item => [
+        item.title,
+        item.organization,
+        item.category,
+        item.deadline || "",
+        safeHttpURL(item.application_url || item.source_url),
+        getSavedStatus(item.id)
+      ])
+    ];
+
+    const csv = rows
+      .map(row => row.map(csvCell).join(","))
+      .join("\r\n");
+
+    const blob = new Blob(
+      ["\uFEFF" + csv],
+      { type: "text/csv;charset=utf-8;" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "naija-opportunity-hub-saved.csv";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+  }
+
+  function clearSavedOpportunities() {
+    if (!getSavedOpportunityIds().length) {
+      alert("You have no saved opportunities to clear.");
+      return;
+    }
+
+    if (!window.confirm(
+      "Remove all your saved opportunities? This cannot be undone."
+    )) {
+      return;
+    }
+
+    storeSavedStatusMap({});
+    storeSavedOpportunityIds([]);
+  }
+
+  document.addEventListener("click", event => {
+    const target = event.target;
+
+    if (!(target instanceof Element)) return;
+
+    if (target.closest("[data-saved-export]")) {
+      exportSavedOpportunities();
+      return;
+    }
+
+    if (target.closest("[data-saved-clear]")) {
+      clearSavedOpportunities();
+    }
+  });
+
+  document.addEventListener("change", event => {
+    const target = event.target;
+
+    if (!(target instanceof Element)) return;
+
+    const select = target.closest("[data-saved-status]");
+
+    if (!select) return;
+
+    setSavedStatus(select.dataset.savedStatus, select.value);
   });
 
   /* ---------------------------------------------------------
@@ -1482,6 +1744,9 @@
     if (accountDashboard) {
       accountDashboard.setAttribute("aria-hidden", "true");
     }
+
+    // Move anything saved in the old homepage tracker into the account.
+    migrateLegacyTracker();
 
     // Sync bookmark buttons on pages that contain them.
     updateAllBookmarkButtons();
