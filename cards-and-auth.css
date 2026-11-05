@@ -257,10 +257,10 @@
   gap: 10px;
 }
 
-/* Sign In / Create Account are removed from the navigation menu, because the
-   footer already has a "Sign In / Create Account" link. They are hidden
-   rather than deleted so auth.js can still find #signInLink and
-   #createAccountLink without errors. */
+/* Sign In / Create Account are no longer in the navigation menu: the "Me"
+   button takes signed-out visitors to the sign-in page. index.html no longer
+   has these links; this rule only hides them on any other page that still
+   has an older copy of the header. */
 #signInLink,
 #createAccountLink {
   display: none !important;
