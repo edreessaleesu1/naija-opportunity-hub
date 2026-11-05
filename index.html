@@ -155,30 +155,10 @@
             Install App
           </button>
 
-          <!-- SIGNED-OUT LINKS
-               Hidden in cards-and-auth.css (the footer already has
-               "Sign In / Create Account"). Kept in the page so auth.js
-               can still find #signInLink and #createAccountLink. -->
-          <a
-            href="/auth.html?mode=login"
-            class="nav-auth-link"
-            id="signInLink"
-          >
-            Sign In
-          </a>
-
-          <a
-            href="/auth.html?mode=signup"
-            class="nav-auth-button"
-            id="createAccountLink"
-          >
-            Create Account
-          </a>
-
           <!-- SIGNED-IN ACCOUNT MENU -->
           <div class="account-menu" id="accountMenu" hidden>
 
-            <span class="status-active" role="status">
+            <span class="status-active" id="accountActiveBadge" role="status" hidden>
               <i aria-hidden="true"></i>Active
             </span>
 
@@ -431,6 +411,17 @@
           <div class="loading-card">
             Loading opportunities...
           </div>
+        </div>
+
+        <div class="view-more-wrap">
+          <button
+            type="button"
+            class="button button-outline"
+            id="viewAllBtn"
+            aria-controls="opportunityGrid"
+            aria-expanded="false"
+            hidden
+          >View More</button>
         </div>
 
         <p class="disclaimer">
