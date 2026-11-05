@@ -121,7 +121,7 @@
   text-underline-offset: 4px;
 }
 
-.track-btn {
+.save-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,17 +138,17 @@
   transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
-.track-btn:hover {
+.save-btn:hover {
   background: var(--green-light);
   transform: translateY(-1px);
 }
 
-.track-btn.is-tracked {
+.save-btn.is-saved {
   background: var(--green);
   color: var(--white);
 }
 
-.track-btn.is-tracked:hover {
+.save-btn.is-saved:hover {
   background: var(--green-dark);
 }
 
@@ -312,5 +312,87 @@
   #opportunityGrid,
   .opportunity-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+
+/* ==========================================================================
+   F. SAVED OPPORTUNITIES INSIDE THE ACCOUNT DASHBOARD
+   (this replaces the old homepage application tracker)
+   ========================================================================== */
+
+.account-saved-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.account-saved-list {
+  display: grid;
+  gap: 14px;
+}
+
+.account-saved-card {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--white);
+}
+
+.account-saved-card h4 {
+  margin-bottom: 4px;
+  color: var(--green-deep);
+  font-size: 1rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.account-saved-card p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.account-saved-status {
+  display: block;
+  margin-top: 12px;
+}
+
+.account-saved-status span {
+  display: block;
+  margin-bottom: 5px;
+  color: #35463b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.account-saved-status select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid #dce7df;
+  border-radius: 10px;
+  background: var(--white);
+  color: #43544a;
+  font-size: 13px;
+}
+
+.account-saved-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.account-saved-actions .button {
+  flex: 1 1 130px;
+  min-height: 42px;
+  padding: 9px 12px;
+}
+
+@media (max-width: 420px) {
+  .account-saved-toolbar .button {
+    flex: 1;
   }
 }
