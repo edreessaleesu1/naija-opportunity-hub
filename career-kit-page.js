@@ -1671,6 +1671,83 @@
     resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
+  // Shows the sign-in request inside the AI box as soon as the page opens,
+  // and switches the AI buttons off until the visitor is signed in.
+  const AI_BUTTON_IDS = ["ai-improve-cv", "ai-improve-summary", "ai-write-letter"];
+
+  function setAIAccess(signedIn) {
+    const section = $("ai-assistant");
+
+    if (!section) return;
+
+    let notice = $("ai-signin-notice");
+
+    AI_BUTTON_IDS.forEach((id) => {
+      const button = $(id);
+
+      if (!button) return;
+
+      button.disabled = !signedIn;
+      button.setAttribute("aria-disabled", String(!signedIn));
+    });
+
+    if (signedIn) {
+      if (notice) notice.remove();
+      return;
+    }
+
+    if (notice) return;
+
+    const returnTo = encodeURIComponent(
+      `${window.location.pathname}${window.location.search}#ai-assistant`
+    );
+
+    notice = document.createElement("div");
+    notice.id = "ai-signin-notice";
+    notice.className = "ai-signin-notice";
+
+    const text = document.createElement("p");
+    text.innerHTML =
+      "<strong>Sign in to use the AI assistant.</strong> It is free for members. " +
+      "You can still build, preview and download your CV or letter without signing in.";
+
+    const actions = document.createElement("div");
+    actions.className = "ai-signin-actions";
+
+    const signIn = document.createElement("a");
+    signIn.className = "button button-primary";
+    signIn.href = `auth.html?mode=login&redirect=${returnTo}`;
+    signIn.textContent = "Sign in";
+
+    const signUp = document.createElement("a");
+    signUp.className = "button button-secondary";
+    signUp.href = `auth.html?mode=signup&redirect=${returnTo}`;
+    signUp.textContent = "Create a free account";
+
+    actions.append(signIn, signUp);
+    notice.append(text, actions);
+
+    const buttons = section.querySelector(".ai-actions");
+
+    if (buttons) {
+      section.insertBefore(notice, buttons);
+    } else {
+      section.appendChild(notice);
+    }
+  }
+
+  async function initAIAccess() {
+    setAIAccess(Boolean(await getAccessToken()));
+
+    const client = getSupabaseClient();
+
+    if (client && client.auth && typeof client.auth.onAuthStateChange === "function") {
+      client.auth.onAuthStateChange((event, session) => {
+        setAIAccess(Boolean(session && session.access_token));
+      });
+    }
+  }
+
   // --------------------------------------------------
   // AI CAREER ASSISTANT
   // --------------------------------------------------
@@ -1995,6 +2072,7 @@
   configureTool();
   installDesignStyles();
   updatePreview();
+  initAIAccess();
 
   console.info(
     "[NOH Career Kit] Updated UK-standard version loaded."
