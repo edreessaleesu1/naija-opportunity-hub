@@ -1,0 +1,41 @@
+{
+  "id": "/",
+  "name": "Naija Opportunity Hub",
+  "short_name": "Naija Hub",
+  "description": "Scholarships, jobs, internships, grants and fellowships for Nigerians, all in one place.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#086b45",
+  "background_color": "#f6f9f7",
+  "lang": "en-GB",
+  "dir": "ltr",
+  "categories": ["education", "business", "productivity"],
+  "icons": [
+    {
+      "src": "/naija-opportunity-hub-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/naija-opportunity-hub-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse opportunities",
+      "short_name": "Opportunities",
+      "url": "/?source=shortcut#opportunities"
+    },
+    {
+      "name": "Career Kit",
+      "short_name": "Career Kit",
+      "url": "/career-kit.html?source=shortcut"
+    }
+  ]
+}
