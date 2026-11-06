@@ -87,7 +87,7 @@ body {
   width: 100%;
   height: 100%;
   max-width: none;
-  object-fit: cover;
+  object-fit: cover; /* banner-main overrides this with contain (section J) */
   transition: transform 0.4s ease;
 }
 
@@ -544,11 +544,8 @@ body {
   background: #dbe8df;
 }
 
-.opportunity-row-image img {
+.opportunity-row-image img.banner-main {
   display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .opportunity-row-body {
@@ -628,3 +625,48 @@ body {
     font-size: 1rem;
   }
 }
+
+
+/* ==========================================================================
+   J. FULL BANNERS: show the whole image, with a soft blurred fill behind it
+   so logos and flyers are never cut off.
+   ========================================================================== */
+
+.opportunity-card .opportunity-image,
+.opportunity-row-image {
+  position: relative;
+  overflow: hidden;
+  background: #e9efeb;
+}
+
+.opportunity-card .opportunity-image-link {
+  position: relative;
+}
+
+.banner-backdrop {
+  position: absolute;
+  inset: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  max-width: none;
+  object-fit: cover;
+  filter: blur(14px) saturate(1.1);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.opportunity-card .opportunity-image img.banner-main,
+.opportunity-row-image img.banner-main {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* the hover zoom would crop the banner again, so it is switched off */
+.opportunity-card:hover .opportunity-image img.banner-main {
+  transform: none;
+}
+
+/* the backdrop is the same file, so it adds no extra download */
