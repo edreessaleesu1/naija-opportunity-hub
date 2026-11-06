@@ -1251,6 +1251,42 @@ select:focus-visible {
   background: var(--gold-light);
 }
 
+.ai-signin-notice {
+  margin-top: 16px;
+  padding: 16px;
+
+  border: 1px solid var(--gold-border);
+  border-radius: 10px;
+
+  background: var(--gold-light);
+}
+
+.ai-signin-notice p {
+  margin: 0 0 12px;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.ai-signin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.ai-signin-actions .button {
+  flex: 1 1 140px;
+}
+
+.ai-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-actions button:disabled:hover {
+  transform: none;
+}
+
 #ai-result {
   margin-top: 17px;
   padding: 16px;
