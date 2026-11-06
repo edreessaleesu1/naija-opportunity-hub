@@ -1,6 +1,6 @@
 /*
  * NAIJA OPPORTUNITY HUB — Main Front-End Application
- * Version 3.9 | British English | 3-element opportunity cards
+ * Version 4.0 | British English | 3-element opportunity cards
  * (clickable image + clickable title + Save Opportunity button)
  *
  * Saved opportunities live in the visitor's account dashboard (auth.js).
@@ -20,7 +20,8 @@
   const DETAILS_PAGE = "opportunity-details.html";
 
   const DEFAULT_VISIBLE_COUNT = 6;      // flat results (search / one category)
-  const SECTION_PREVIEW_COUNT = 3;      // cards per category section (one row)
+  const SECTION_PREVIEW_COUNT = 6;      // items per category section before View More
+  const LIST_CATEGORIES = new Set(["internship"]); // sections shown as a list, not cards
 
   // Homepage category sections, in display order.
   const CATEGORY_META = [
@@ -474,6 +475,29 @@
       </article>`;
   }
 
+  // List row (used by the Internships section): small image, title, Save link.
+  function createOpportunityRow(item) {
+    const id = escapeHTML(item.id);
+    const title = escapeHTML(item.title);
+    const url = escapeHTML(detailsURL(item.id));
+    const image = escapeHTML(item.image_url || FALLBACK_IMAGE);
+    const saved = isSaved(item.id);
+
+    return `
+      <article class="opportunity-row" data-id="${id}">
+        <a class="opportunity-row-image" href="${url}" aria-label="View ${title}">
+          <img src="${image}" alt="${title}" loading="lazy"
+            onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'">
+        </a>
+        <div class="opportunity-row-body">
+          <h4 class="opportunity-row-title"><a href="${url}">${title}</a></h4>
+          <button type="button" class="save-link ${saved ? "is-saved" : ""}"
+            data-action="save" data-id="${id}" aria-pressed="${saved}"
+          >${saved ? "✓ Saved" : "+ Save"}</button>
+        </div>
+      </article>`;
+  }
+
   // Sections show when nothing is searched or filtered.
   function isBrowseMode() {
     return Boolean(el.sections) &&
@@ -530,6 +554,17 @@
           aria-controls="category-${slug}"
         >${expanded ? "View Less" : `View More (${extra} more)`}</button>
       </div>` : "";
+
+    if (LIST_CATEGORIES.has(group.key)) {
+      return `
+        <section class="category-section category-section--list" id="category-${slug}" aria-labelledby="category-${slug}-title">
+          <h3 class="list-section-title" id="category-${slug}-title">${escapeHTML(label)}</h3>
+          <div class="opportunity-list">
+            ${visible.map(createOpportunityRow).join("")}
+          </div>
+          ${toggle}
+        </section>`;
+    }
 
     return `
       <section class="category-section" id="category-${slug}" aria-labelledby="category-${slug}-title">
