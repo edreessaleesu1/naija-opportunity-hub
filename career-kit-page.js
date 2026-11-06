@@ -11,6 +11,9 @@
 
   window.NOH_CAREER_KIT_LOADED = true;
 
+  const SUPABASE_URL =
+    "https://djxornmwvkauhkcuhgxc.supabase.co";
+
   const AI_ENDPOINT =
     "https://djxornmwvkauhkcuhgxc.supabase.co/functions/v1/career-assistant";
 
@@ -1613,6 +1616,62 @@
   }
 
   // --------------------------------------------------
+  // SIGN-IN FOR THE AI ASSISTANT
+  // The AI service is only for signed-in visitors. The session is shared
+  // with the rest of the site (same Supabase project, same browser storage).
+  // --------------------------------------------------
+
+  function getSupabaseClient() {
+    if (window.NOH_SUPABASE_CLIENT) return window.NOH_SUPABASE_CLIENT;
+
+    if (window.supabase && typeof window.supabase.createClient === "function") {
+      window.NOH_SUPABASE_CLIENT = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+      return window.NOH_SUPABASE_CLIENT;
+    }
+
+    return null;
+  }
+
+  async function getAccessToken() {
+    const client = getSupabaseClient();
+
+    if (!client) return null;
+
+    try {
+      const { data } = await client.auth.getSession();
+      return data?.session?.access_token || null;
+    } catch {
+      return null;
+    }
+  }
+
+  function showSignInMessage(resultBox) {
+    const returnTo = encodeURIComponent(
+      `${window.location.pathname}${window.location.search}#ai-assistant`
+    );
+
+    resultBox.replaceChildren();
+
+    const heading = document.createElement("h4");
+    heading.textContent = "Sign in to use the AI assistant";
+
+    const message = document.createElement("p");
+    message.textContent =
+      "The AI Career Assistant is free for signed-in members. Your CV and letter details stay on this page.";
+
+    const link = document.createElement("a");
+    link.className = "button button-primary";
+    link.href = `auth.html?mode=login&redirect=${returnTo}`;
+    link.textContent = "Sign in or create a free account";
+
+    resultBox.append(heading, message, link);
+    resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  // --------------------------------------------------
   // AI CAREER ASSISTANT
   // --------------------------------------------------
 
@@ -1740,12 +1799,20 @@
     resultBox.append(heading, status);
 
     try {
+      const accessToken = await getAccessToken();
+
+      if (!accessToken) {
+        showSignInMessage(resultBox);
+        return;
+      }
+
       const response = await fetch(AI_ENDPOINT, {
         method: "POST",
 
         headers: {
           "Content-Type": "application/json",
-          "apikey": SUPABASE_PUBLISHABLE_KEY
+          "apikey": SUPABASE_PUBLISHABLE_KEY,
+          "Authorization": `Bearer ${accessToken}`
         },
 
         body: JSON.stringify({
@@ -1762,6 +1829,11 @@
         throw new Error(
           "The server returned an unexpected response."
         );
+      }
+
+      if (response.status === 401) {
+        showSignInMessage(resultBox);
+        return;
       }
 
       if (!response.ok) {
