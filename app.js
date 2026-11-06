@@ -1,6 +1,6 @@
 /*
  * NAIJA OPPORTUNITY HUB — Main Front-End Application
- * Version 4.0 | British English | 3-element opportunity cards
+ * Version 4.1 | British English | 3-element opportunity cards
  * (clickable image + clickable title + Save Opportunity button)
  *
  * Saved opportunities live in the visitor's account dashboard (auth.js).
@@ -450,7 +450,9 @@
       <article class="opportunity-card" data-id="${id}">
         <div class="opportunity-image">
           <a class="opportunity-image-link" href="${url}" aria-label="View ${title}">
+            <img class="banner-backdrop" src="${image}" alt="" aria-hidden="true" loading="lazy" onerror="this.remove()">
             <img
+              class="banner-main"
               src="${image}"
               alt="${title}"
               loading="lazy"
@@ -486,7 +488,8 @@
     return `
       <article class="opportunity-row" data-id="${id}">
         <a class="opportunity-row-image" href="${url}" aria-label="View ${title}">
-          <img src="${image}" alt="${title}" loading="lazy"
+          <img class="banner-backdrop" src="${image}" alt="" aria-hidden="true" loading="lazy" onerror="this.remove()">
+          <img class="banner-main" src="${image}" alt="${title}" loading="lazy"
             onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'">
         </a>
         <div class="opportunity-row-body">
