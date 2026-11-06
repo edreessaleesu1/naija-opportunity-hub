@@ -21,7 +21,7 @@
   margin-top: 24px;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 899px) {
   #opportunityGrid,
   .opportunity-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -29,18 +29,18 @@
   }
 }
 
-/* One card per row on phones, so image, title and button have room */
+/* Phones: 2 cards per row, with a more compact card (see section H) */
 @media (max-width: 600px) {
   #opportunityGrid,
   .opportunity-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 }
 
 
 /* ==========================================================================
-   B. OPPORTUNITY CARD: image + title + Track button
+   B. OPPORTUNITY CARD: image + title + Save button
    ========================================================================== */
 
 .opportunity-card {
@@ -308,7 +308,7 @@
   min-width: 190px;
 }
 
-@media (min-width: 1001px) {
+@media (min-width: 900px) {
   #opportunityGrid,
   .opportunity-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -456,5 +456,169 @@
 
   .category-section-head h3 {
     font-size: 1.15rem;
+  }
+}
+
+
+/* ==========================================================================
+   H. COMPACT CARDS ON PHONES (2 per row)
+   ========================================================================== */
+
+@media (max-width: 600px) {
+  .opportunity-card .opportunity-image {
+    height: 110px;
+  }
+
+  .opportunity-card .opportunity-content {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .opportunity-card .opportunity-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 0.86rem;
+    line-height: 1.35;
+  }
+
+  .save-btn {
+    min-height: 38px;
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+}
+
+
+/* ==========================================================================
+   I. INTERNSHIPS: list layout (tinted panel, small image left, title right)
+   ========================================================================== */
+
+.category-section--list {
+  padding: 28px 28px 32px;
+  border-radius: 6px;
+  background: #eaf5ee;
+}
+
+.list-section-title {
+  margin: 0 0 18px;
+  color: var(--green-deep);
+  font-size: clamp(1.7rem, 4.5vw, 2.3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+.opportunity-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 40px;
+}
+
+.opportunity-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(8, 106, 66, 0.28);
+}
+
+.opportunity-row:last-child {
+  border-bottom: 0;
+}
+
+.opportunity-row-image {
+  display: block;
+  flex: 0 0 158px;
+  width: 158px;
+  height: 90px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #dbe8df;
+}
+
+.opportunity-row-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.opportunity-row-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.opportunity-row-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.opportunity-row-title a {
+  color: #1d2b22;
+  text-decoration: none;
+}
+
+.opportunity-row-title a:hover {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.save-link {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--green-dark);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.save-link:hover {
+  text-decoration: underline;
+}
+
+.save-link.is-saved {
+  color: var(--green);
+}
+
+/* Two columns of rows on wide screens */
+@media (min-width: 900px) {
+  .opportunity-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .opportunity-row:nth-last-child(2):nth-child(odd) {
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .category-section--list {
+    padding: 22px 16px 26px;
+    margin-inline: -4px;
+  }
+
+  .opportunity-row {
+    gap: 14px;
+    padding: 16px 0;
+  }
+
+  .opportunity-row-image {
+    flex-basis: 118px;
+    width: 118px;
+    height: 76px;
+  }
+
+  .opportunity-row-title {
+    font-size: 1rem;
   }
 }
