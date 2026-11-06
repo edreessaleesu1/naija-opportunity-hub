@@ -6,6 +6,12 @@
 
 :root {
   --success: #087a55; /* was used by .verified-label but never defined */
+  --background: #f8eec9; /* site background: soft gold */
+}
+
+html,
+body {
+  background: var(--background);
 }
 
 
@@ -498,7 +504,7 @@
 .category-section--list {
   padding: 28px 28px 32px;
   border-radius: 6px;
-  background: #eaf5ee;
+  background: #f0dd9c; /* a shade deeper than the page so the panel stands out */
 }
 
 .list-section-title {
@@ -521,7 +527,7 @@
   align-items: flex-start;
   gap: 18px;
   padding: 18px 0;
-  border-bottom: 1px solid rgba(8, 106, 66, 0.28);
+  border-bottom: 1px solid rgba(120, 86, 8, 0.28);
 }
 
 .opportunity-row:last-child {
