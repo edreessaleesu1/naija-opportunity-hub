@@ -1,4 +1,3 @@
-
 (() => {
   "use strict";
 
@@ -19,6 +18,8 @@
 
   const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
+
+  const AI_REQUEST_TIMEOUT_MS = 105000;
 
   const params = new URLSearchParams(window.location.search);
 
@@ -445,7 +446,7 @@
   }
 
   // --------------------------------------------------
-  // FOUR UK CV TEMPLATES
+  // CV TEMPLATES
   // --------------------------------------------------
 
   function britishProfessional(data) {
@@ -1191,7 +1192,7 @@
       text-align: center;
     }
 
-    /* THEME COLOURS (only when a theme is chosen) */
+    /* THEME COLOURS */
 
     .cv-classic[style*="--cv-accent"] h1,
     .cv-classic[style*="--cv-accent"] h2 {
@@ -1284,7 +1285,7 @@
       color: var(--cv-accent, #075b3b);
     }
 
-    /* ATS-FRIENDLY (plain, single column, no colour) */
+    /* ATS-FRIENDLY */
 
     .cv-ats .ats-head {
       margin-bottom: 16px;
@@ -1908,18 +1909,22 @@
 
   // --------------------------------------------------
   // SIGN-IN FOR THE AI ASSISTANT
-  // The AI service is only for signed-in visitors. The session is shared
-  // with the rest of the site (same Supabase project, same browser storage).
   // --------------------------------------------------
 
   function getSupabaseClient() {
-    if (window.NOH_SUPABASE_CLIENT) return window.NOH_SUPABASE_CLIENT;
+    if (window.NOH_SUPABASE_CLIENT) {
+      return window.NOH_SUPABASE_CLIENT;
+    }
 
-    if (window.supabase && typeof window.supabase.createClient === "function") {
+    if (
+      window.supabase &&
+      typeof window.supabase.createClient === "function"
+    ) {
       window.NOH_SUPABASE_CLIENT = window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_PUBLISHABLE_KEY
       );
+
       return window.NOH_SUPABASE_CLIENT;
     }
 
@@ -1933,13 +1938,22 @@
 
     try {
       const { data } = await client.auth.getSession();
+
       return data?.session?.access_token || null;
-    } catch {
+
+    } catch (error) {
+      console.warn(
+        "[NOH Career Kit] Unable to retrieve the session.",
+        error
+      );
+
       return null;
     }
   }
 
   function showSignInMessage(resultBox) {
+    if (!resultBox) return;
+
     const returnTo = encodeURIComponent(
       `${window.location.pathname}${window.location.search}#ai-assistant`
     );
@@ -1959,30 +1973,55 @@
     link.textContent = "Sign in or create a free account";
 
     resultBox.append(heading, message, link);
-    resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    resultBox.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
   }
 
-  // Shows the sign-in request inside the AI box as soon as the page opens,
-  // and switches the AI buttons off until the visitor is signed in.
-  const AI_BUTTON_IDS = ["ai-improve-cv", "ai-improve-summary", "ai-write-letter"];
+  // --------------------------------------------------
+  // AI ACCESS AND BUTTON STATE
+  // --------------------------------------------------
+
+  const AI_BUTTON_IDS = [
+    "ai-improve-cv",
+    "ai-improve-summary",
+    "ai-write-letter"
+  ];
+
+  let aiSignedIn = false;
+  let isProcessingAI = false;
+
+  function updateAIButtonStates() {
+    AI_BUTTON_IDS.forEach((id) => {
+      const button = $(id);
+
+      if (!button) return;
+
+      const disabled = !aiSignedIn || isProcessingAI;
+
+      button.disabled = disabled;
+
+      button.setAttribute(
+        "aria-disabled",
+        String(disabled)
+      );
+    });
+  }
 
   function setAIAccess(signedIn) {
+    aiSignedIn = Boolean(signedIn);
+
+    updateAIButtonStates();
+
     const section = $("ai-assistant");
 
     if (!section) return;
 
     let notice = $("ai-signin-notice");
 
-    AI_BUTTON_IDS.forEach((id) => {
-      const button = $(id);
-
-      if (!button) return;
-
-      button.disabled = !signedIn;
-      button.setAttribute("aria-disabled", String(!signedIn));
-    });
-
-    if (signedIn) {
+    if (aiSignedIn) {
       if (notice) notice.remove();
       return;
     }
@@ -1994,28 +2033,34 @@
     );
 
     notice = document.createElement("div");
+
     notice.id = "ai-signin-notice";
     notice.className = "ai-signin-notice";
 
     const text = document.createElement("p");
+
     text.innerHTML =
       "<strong>Sign in to use the AI assistant.</strong> It is free for members. " +
       "You can still build, preview and download your CV or letter without signing in.";
 
     const actions = document.createElement("div");
+
     actions.className = "ai-signin-actions";
 
     const signIn = document.createElement("a");
+
     signIn.className = "button button-primary";
     signIn.href = `auth.html?mode=login&redirect=${returnTo}`;
     signIn.textContent = "Sign in";
 
     const signUp = document.createElement("a");
+
     signUp.className = "button button-secondary";
     signUp.href = `auth.html?mode=signup&redirect=${returnTo}`;
     signUp.textContent = "Create a free account";
 
     actions.append(signIn, signUp);
+
     notice.append(text, actions);
 
     const buttons = section.querySelector(".ai-actions");
@@ -2027,16 +2072,95 @@
     }
   }
 
-  async function initAIAccess() {
-    setAIAccess(Boolean(await getAccessToken()));
+  function setAIProcessing(processing) {
+    isProcessingAI = Boolean(processing);
 
+    updateAIButtonStates();
+  }
+
+  async function initAIAccess() {
     const client = getSupabaseClient();
 
-    if (client && client.auth && typeof client.auth.onAuthStateChange === "function") {
-      client.auth.onAuthStateChange((event, session) => {
-        setAIAccess(Boolean(session && session.access_token));
+    // Register the listener before checking the initial session.
+    if (
+      client &&
+      client.auth &&
+      typeof client.auth.onAuthStateChange === "function"
+    ) {
+      client.auth.onAuthStateChange((_event, session) => {
+        setAIAccess(Boolean(session?.access_token));
       });
     }
+
+    const accessToken = await getAccessToken();
+
+    setAIAccess(Boolean(accessToken));
+  }
+
+  // --------------------------------------------------
+  // AI ERROR MESSAGES
+  // --------------------------------------------------
+
+  function getAIErrorMessage(data, status) {
+    const rawCode =
+      data?.code ||
+      data?.error_code ||
+      data?.error ||
+      "";
+
+    const code = String(rawCode).trim().toUpperCase();
+
+    if (
+      code.includes("AI_TIMEOUT") ||
+      status === 504
+    ) {
+      return "The AI service took too long to respond. Please try again.";
+    }
+
+    if (
+      code.includes("AI_BUSY") ||
+      status === 503
+    ) {
+      return "The AI service is temporarily busy. Please wait a moment and try again.";
+    }
+
+    if (code.includes("AI_GENERATION_FAILED")) {
+      return "The AI could not generate your result this time. Please try again.";
+    }
+
+    if (
+      code.includes("AI_USAGE_LIMIT") ||
+      code.includes("USAGE_LIMIT")
+    ) {
+      return "You have reached the current AI usage limit. Please try again later.";
+    }
+
+    if (status === 401 || status === 403) {
+      return "Your sign-in session may have expired. Please sign in again to continue.";
+    }
+
+    if (status === 429) {
+      return "Too many requests have been made. Please wait a little and try again.";
+    }
+
+    if (status >= 500) {
+      return "The AI service is temporarily unavailable. Please try again shortly.";
+    }
+
+    if (status === 400) {
+      return typeof data?.error === "string" && data.error
+        ? data.error
+        : "Please check your information and try again.";
+    }
+
+    if (
+      typeof data?.error === "string" &&
+      data.error
+    ) {
+      return data.error;
+    }
+
+    return `The AI request could not be completed (${status}). Please try again.`;
   }
 
   // --------------------------------------------------
@@ -2050,6 +2174,9 @@
       window.alert("The AI result area could not be found.");
       return;
     }
+
+    // Prevent duplicate requests.
+    if (isProcessingAI) return;
 
     const actions = {
       cv: {
@@ -2073,7 +2200,12 @@
 
     const selected = actions[action];
 
-    if (!selected) return;
+    if (!selected || !selected.button) return;
+
+    if (!aiSignedIn) {
+      showSignInMessage(resultBox);
+      return;
+    }
 
     if (
       action === "cv" &&
@@ -2137,32 +2269,26 @@
       letterBody: value("letter-body")
     };
 
-    const buttons = [
-      $("ai-improve-cv"),
-      $("ai-improve-summary"),
-      $("ai-write-letter")
-    ].filter(Boolean);
+    const originalText = selected.button.textContent;
 
-    const originalText = selected.button
-      ? selected.button.textContent
-      : "";
+    let timeoutId = null;
+    let controller = null;
 
-    buttons.forEach((button) => {
-      button.disabled = true;
-    });
+    setAIProcessing(true);
 
-    if (selected.button) {
-      selected.button.textContent = "Working...";
-    }
+    selected.button.textContent = "Working...";
 
     resultBox.hidden = false;
     resultBox.replaceChildren();
 
     const heading = document.createElement("h4");
+
     heading.textContent = selected.title;
 
     const status = document.createElement("p");
-    status.textContent = "Preparing your result. Please wait...";
+
+    status.textContent =
+      "Preparing your result. Please wait...";
 
     resultBox.append(heading, status);
 
@@ -2170,9 +2296,18 @@
       const accessToken = await getAccessToken();
 
       if (!accessToken) {
+        setAIAccess(false);
         showSignInMessage(resultBox);
         return;
       }
+
+      // Set a frontend timeout slightly longer than the backend's
+      // two-attempt generation window.
+      controller = new AbortController();
+
+      timeoutId = window.setTimeout(() => {
+        controller.abort();
+      }, AI_REQUEST_TIMEOUT_MS);
 
       const response = await fetch(AI_ENDPOINT, {
         method: "POST",
@@ -2186,7 +2321,9 @@
         body: JSON.stringify({
           action: selected.apiAction,
           ...candidateData
-        })
+        }),
+
+        signal: controller.signal
       });
 
       let data;
@@ -2195,23 +2332,29 @@
         data = await response.json();
       } catch {
         throw new Error(
-          "The server returned an unexpected response."
+          "The server returned an unexpected response. Please try again."
         );
       }
 
-      if (response.status === 401) {
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        setAIAccess(false);
         showSignInMessage(resultBox);
         return;
       }
 
       if (!response.ok) {
         throw new Error(
-          data.error ||
-          `The AI request failed (${response.status}).`
+          getAIErrorMessage(data, response.status)
         );
       }
 
-      if (!data.result || typeof data.result !== "string") {
+      if (
+        !data.result ||
+        typeof data.result !== "string"
+      ) {
         throw new Error(
           "The AI returned no usable text. Please try again."
         );
@@ -2220,15 +2363,18 @@
       resultBox.replaceChildren();
 
       const resultHeading = document.createElement("h4");
+
       resultHeading.textContent = selected.title;
 
       const resultText = document.createElement("div");
+
       resultText.textContent = data.result;
       resultText.style.whiteSpace = "pre-wrap";
       resultText.style.overflowWrap = "anywhere";
       resultText.style.lineHeight = "1.7";
 
       const copyButton = document.createElement("button");
+
       copyButton.type = "button";
       copyButton.className = "button button-secondary";
       copyButton.textContent = "Copy Result";
@@ -2258,27 +2404,64 @@
       });
 
     } catch (error) {
-      console.error("AI Career Assistant error:", error);
+      console.error(
+        "AI Career Assistant error:",
+        error
+      );
 
       resultBox.replaceChildren();
 
       const errorHeading = document.createElement("h4");
+
       errorHeading.textContent = "AI Assistant";
 
       const errorMessage = document.createElement("p");
-      errorMessage.textContent =
-        error.message || "Something went wrong.";
 
-      resultBox.append(errorHeading, errorMessage);
+      if (error.name === "AbortError") {
+        errorMessage.textContent =
+          "The AI request took too long. Please try again.";
 
-    } finally {
-      buttons.forEach((button) => {
-        button.disabled = false;
+      } else if (
+        error instanceof TypeError ||
+        /failed to fetch|networkerror|network request failed/i.test(
+          error.message || ""
+        )
+      ) {
+        errorMessage.textContent =
+          "We couldn't connect to the AI service. Check your internet connection and try again.";
+
+      } else {
+        errorMessage.textContent =
+          error.message || "Something went wrong. Please try again.";
+      }
+
+      resultBox.append(
+        errorHeading,
+        errorMessage
+      );
+
+      resultBox.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
       });
 
-      if (selected.button) {
-        selected.button.textContent = originalText;
+    } finally {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
       }
+
+      if (controller) {
+        controller.abort();
+      }
+
+      selected.button.textContent = originalText;
+
+      setAIProcessing(false);
+
+      // Refresh the session state before enabling the AI buttons.
+      const currentToken = await getAccessToken();
+
+      setAIAccess(Boolean(currentToken));
     }
   }
 
