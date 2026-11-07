@@ -1985,6 +1985,8 @@
   // --------------------------------------------------
 
   const AI_BUTTON_IDS = [
+    "ai-review-cv",
+    "ai-extract-cv",
     "ai-improve-cv",
     "ai-improve-summary",
     "ai-write-letter"
@@ -2098,6 +2100,193 @@
   }
 
   // --------------------------------------------------
+  // CV UPLOAD (read on the device; only text is sent to the AI)
+  // --------------------------------------------------
+
+  const MAX_CV_CHARS = 9000;
+  const MAX_CV_FILE_BYTES = 5 * 1024 * 1024;
+
+  function setUploadStatus(message, isError) {
+    const box = $("cv-upload-status");
+
+    if (!box) return;
+
+    box.textContent = message || "";
+    box.classList.toggle("is-error", Boolean(isError));
+  }
+
+  async function extractPDFText(file) {
+    await loadScript(
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+      () => Boolean(window.pdfjsLib),
+      "The PDF reader could not be loaded."
+    );
+
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+    const pdf = await window.pdfjsLib.getDocument({
+      data: await file.arrayBuffer()
+    }).promise;
+
+    const pages = [];
+
+    for (let number = 1; number <= Math.min(pdf.numPages, 6); number += 1) {
+      const page = await pdf.getPage(number);
+      const content = await page.getTextContent();
+
+      let text = "";
+      let lastY = null;
+
+      content.items.forEach((item) => {
+        const y = item.transform ? item.transform[5] : null;
+
+        if (lastY !== null && y !== null && Math.abs(y - lastY) > 2) {
+          text += "\n";
+        } else if (text && !text.endsWith(" ") && !text.endsWith("\n")) {
+          text += " ";
+        }
+
+        text += item.str;
+        lastY = y;
+      });
+
+      pages.push(text);
+    }
+
+    return pages.join("\n\n");
+  }
+
+  async function extractDOCXText(file) {
+    await loadScript(
+      "https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js",
+      () => Boolean(window.mammoth),
+      "The Word reader could not be loaded."
+    );
+
+    const result = await window.mammoth.extractRawText({
+      arrayBuffer: await file.arrayBuffer()
+    });
+
+    return result.value || "";
+  }
+
+  async function handleCVFile(event) {
+    const input = event.target;
+    const file = input.files && input.files[0];
+
+    if (!file) return;
+
+    const name = file.name.toLowerCase();
+
+    if (file.size > MAX_CV_FILE_BYTES) {
+      setUploadStatus("That file is larger than 5 MB. Please use a smaller file.", true);
+      input.value = "";
+      return;
+    }
+
+    setUploadStatus("Reading your CV...");
+
+    try {
+      let text = "";
+
+      if (name.endsWith(".pdf") || file.type === "application/pdf") {
+        text = await extractPDFText(file);
+      } else if (name.endsWith(".docx")) {
+        text = await extractDOCXText(file);
+      } else if (name.endsWith(".txt") || file.type === "text/plain") {
+        text = await file.text();
+      } else if (name.endsWith(".doc")) {
+        setUploadStatus("Old .doc files are not supported. Save it as .docx or PDF, or paste the text below.", true);
+        return;
+      } else {
+        setUploadStatus("Please upload a PDF, .docx or .txt file.", true);
+        return;
+      }
+
+      text = text.replace(/\r/g, "").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+
+      if (text.length < 40) {
+        setUploadStatus("No readable text was found. A scanned or image-only PDF cannot be read. Paste your CV text below instead.", true);
+        return;
+      }
+
+      const textarea = $("cv-upload-text");
+
+      if (textarea) textarea.value = text;
+
+      setUploadStatus(
+        text.length > MAX_CV_CHARS
+          ? `CV loaded. Only the first ${MAX_CV_CHARS.toLocaleString()} characters will be sent to the AI.`
+          : "CV loaded. Now choose Review My CV or Fill the Form."
+      );
+
+    } catch (error) {
+      console.error("CV upload error:", error);
+      setUploadStatus(
+        (error && error.message) || "We could not read that file. Paste your CV text below instead.",
+        true
+      );
+    }
+  }
+
+  function parseCVJSON(raw) {
+    let text = String(raw || "").trim();
+
+    text = text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+
+    if (start === -1 || end <= start) return null;
+
+    try {
+      const parsed = JSON.parse(text.slice(start, end + 1));
+
+      return parsed && typeof parsed === "object" ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function fillFormFromCV(raw) {
+    const data = parseCVJSON(raw);
+
+    if (!data) return false;
+
+    const map = {
+      fullName: "full-name",
+      jobTitle: "job-title",
+      email: "email",
+      phone: "phone",
+      location: "location",
+      country: "country",
+      linkedin: "linkedin",
+      summary: "summary",
+      education: "education",
+      experience: "experience",
+      skills: "skills",
+      certificates: "certificates"
+    };
+
+    let count = 0;
+
+    Object.entries(map).forEach(([key, id]) => {
+      const field = $(id);
+      const text = typeof data[key] === "string" ? data[key].trim() : "";
+
+      if (field && text) {
+        field.value = text;
+        count += 1;
+      }
+    });
+
+    updatePreview();
+
+    return count > 0;
+  }
+
+  // --------------------------------------------------
   // AI ERROR MESSAGES
   // --------------------------------------------------
 
@@ -2195,6 +2384,18 @@
         apiAction: "write-letter",
         button: $("ai-write-letter"),
         title: "AI Cover Letter"
+      },
+
+      review: {
+        apiAction: "review-cv",
+        button: $("ai-review-cv"),
+        title: "CV Review"
+      },
+
+      extract: {
+        apiAction: "extract-cv",
+        button: $("ai-extract-cv"),
+        title: "Fill the Form from My CV"
       }
     };
 
@@ -2204,6 +2405,25 @@
 
     if (!aiSignedIn) {
       showSignInMessage(resultBox);
+      return;
+    }
+
+    const isUploadAction = action === "review" || action === "extract";
+
+    if (isUploadAction && value("cv-upload-text").length < 80) {
+      window.alert(
+        "Upload your CV or paste its text first (at least a few lines)."
+      );
+      return;
+    }
+
+    if (
+      action === "extract" &&
+      (value("full-name") || value("experience") || value("education")) &&
+      !window.confirm(
+        "This will replace the details already in the form with details from your CV. Continue?"
+      )
+    ) {
       return;
     }
 
@@ -2245,11 +2465,15 @@
       return;
     }
 
-    const candidateData = {
+    const candidateData = isUploadAction ? {
+      cvText: value("cv-upload-text").slice(0, MAX_CV_CHARS)
+    } : {
       fullName: value("full-name"),
       email: value("email"),
       phone: value("phone"),
       location: value("location"),
+      country: value("country"),
+      linkedin: value("linkedin"),
 
       applicantAddress: value("applicant-address"),
       applicationDate: value("application-date"),
@@ -2358,6 +2582,32 @@
         throw new Error(
           "The AI returned no usable text. Please try again."
         );
+      }
+
+      if (action === "extract") {
+        const filled = fillFormFromCV(data.result);
+
+        resultBox.replaceChildren();
+
+        const doneHeading = document.createElement("h4");
+        doneHeading.textContent = selected.title;
+
+        const doneText = document.createElement("p");
+        doneText.textContent = filled
+          ? "Done. Your form has been filled from your CV. Check each section, add any missing dates or achievements, choose a template, then download your updated CV."
+          : "The AI could not read your CV into the form. Please try again, or paste the CV text and retry.";
+
+        resultBox.append(doneHeading, doneText);
+
+        if (filled) {
+          const toForm = document.createElement("a");
+          toForm.className = "button button-secondary";
+          toForm.href = "#career-form";
+          toForm.textContent = "Go to the form";
+          resultBox.append(toForm);
+        }
+
+        return;
       }
 
       resultBox.replaceChildren();
@@ -2498,6 +2748,7 @@
       if (!confirmed) return;
 
       form.reset();
+      setUploadStatus("");
       configureTemplates();
       updatePreview();
 
@@ -2516,6 +2767,14 @@
   form.addEventListener("reset", () => {
     window.setTimeout(updatePreview, 0);
   });
+
+  const cvFileInput = $("cv-file");
+  const aiReviewButton = $("ai-review-cv");
+  const aiExtractButton = $("ai-extract-cv");
+
+  if (cvFileInput) cvFileInput.addEventListener("change", handleCVFile);
+  if (aiReviewButton) aiReviewButton.addEventListener("click", () => handleAI("review"));
+  if (aiExtractButton) aiExtractButton.addEventListener("click", () => handleAI("extract"));
 
   const aiCVButton = $("ai-improve-cv");
   const aiLetterButton = $("ai-write-letter");
@@ -2549,7 +2808,7 @@
   initAIAccess();
 
   console.info(
-    "[NOH Career Kit] Updated UK-standard version loaded."
+    "[NOH Career Kit] v4 (CV upload) loaded."
   );
 
 })();
