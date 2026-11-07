@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /auth.html
+Disallow: /account.html
+
+Sitemap: https://naijaopportunityhub.com.ng/sitemap.xml

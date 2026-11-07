@@ -884,6 +884,14 @@
           </a>
 
           <a
+            id="reportLink"
+            class="source-link"
+            href="/contact.html?subject=report"
+          >
+            Report a problem with this listing
+          </a>
+
+          <a
             id="sourceLink"
             class="source-link"
             href="#"
@@ -1304,6 +1312,13 @@
 
     function displayOpportunity(data) {
       initialiseBookmarkButton(data.id);
+
+      const reportLink = $("reportLink");
+
+      if (reportLink) {
+        reportLink.href =
+          "/contact.html?subject=report&ref=" + encodeURIComponent(data.id);
+      }
 
       setText(
         "opportunityTitle",
