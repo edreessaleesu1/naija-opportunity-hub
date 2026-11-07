@@ -14,8 +14,18 @@
 
   <link rel="stylesheet" href="career-kit-page.css?v=3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="career-kit-page-v3.js" defer></script>
-  <script src="career-kit-cv-upload.js"></script>
+  <script src="career-kit-page-v4.js" defer></script>
+  <style>
+    .cv-upload{margin:0 0 18px;padding:16px;border:1px dashed #c6a24a;border-radius:14px;background:#fffaf0}
+    .cv-upload h4{margin:0 0 6px;font-size:1.05rem}
+    .cv-upload p{margin:0 0 10px;font-size:.92rem;line-height:1.5}
+    .cv-upload input[type=file]{width:100%;margin:0 0 8px;padding:10px;border:1px solid #e5e7df;border-radius:10px;background:#fff;font:inherit;box-sizing:border-box}
+    .cv-upload textarea{width:100%;min-height:150px;margin:8px 0;padding:10px;border:1px solid #e5e7df;border-radius:10px;font:inherit;box-sizing:border-box}
+    .cv-upload-status{font-size:.9rem;font-weight:600;color:#075b3b}
+    .cv-upload-status.is-error{color:#9a1c1c}
+    .cv-upload-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+    .cv-upload-actions button:disabled{opacity:.55;cursor:not-allowed}
+  </style>
 </head>
 
 <body>
@@ -442,6 +452,18 @@
                 </p>
               </div>
 
+              <div class="cv-upload" id="cv-upload">
+                <h4>Already have a CV? Upload it for review</h4>
+                <p>Upload a PDF, Word (.docx) or text file. The AI will review it and tell you exactly what to fix, or fill the form below so you can update it and download a new design. Your file is read on your device; only its text is sent to the AI when you tap a button.</p>
+                <input type="file" id="cv-file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+                <div id="cv-upload-status" class="cv-upload-status" role="status" aria-live="polite"></div>
+                <textarea id="cv-upload-text" placeholder="Or paste the text of your CV here" aria-label="CV text"></textarea>
+                <div class="cv-upload-actions">
+                  <button class="button button-primary" type="button" id="ai-review-cv">Review My CV with AI</button>
+                  <button class="button button-secondary" type="button" id="ai-extract-cv">Fill the Form from My CV</button>
+                </div>
+              </div>
+
               <div class="ai-actions">
                 <button
                   class="button button-primary"
@@ -478,10 +500,9 @@
             </section>
 
             <p class="privacy-note">
-              Your entries are processed by the Career Kit tools.
-              Do not enter passwords, bank details or other sensitive
-              personal information. AI requests are sent to the
-              configured career-assistant service.
+              Your CV details stay on this page unless you use the AI Career Assistant,
+              which sends only the text you submit to be processed. Do not include
+              passwords, bank details, ID numbers or other sensitive personal information.
             </p>
 
           </form>
