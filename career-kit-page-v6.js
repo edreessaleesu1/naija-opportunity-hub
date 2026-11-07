@@ -2339,6 +2339,126 @@
   }
 
   // --------------------------------------------------
+  // TIDY AI TEXT (the AI sometimes adds markdown symbols)
+  // --------------------------------------------------
+
+  function stripMarkdown(text) {
+    return String(text || "")
+      .replace(/\r/g, "")
+      .split("\n")
+      .filter((line) => !/^\s*-{3,}\s*$/.test(line))
+      .map((line) => line
+        .replace(/^\s{0,}#{1,6}\s*/, "")
+        .replace(/^(\s*)[*•]\s+/, "$1- ")
+        .replace(/\*\*/g, "")
+        .replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,;:]|$)/g, "$1$2")
+        .replace(/`/g, ""))
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  }
+
+  function addInline(parent, text) {
+    String(text).split(/(\*\*[^*]+\*\*|\*[^*\n]+\*)/).forEach((part) => {
+      if (!part) return;
+
+      let node;
+
+      if (/^\*\*[^*]+\*\*$/.test(part)) {
+        node = document.createElement("strong");
+        node.textContent = part.slice(2, -2);
+      } else if (/^\*[^*\n]+\*$/.test(part)) {
+        node = document.createElement("em");
+        node.textContent = part.slice(1, -1);
+      } else {
+        node = document.createTextNode(part.replace(/`/g, ""));
+      }
+
+      parent.appendChild(node);
+    });
+  }
+
+  function renderRichText(text) {
+    const box = document.createElement("div");
+
+    box.style.lineHeight = "1.65";
+    box.style.overflowWrap = "anywhere";
+
+    let list = null;
+
+    String(text || "").replace(/\r/g, "").split("\n").forEach((raw) => {
+      const line = raw.trim();
+
+      if (!line || /^-{3,}$/.test(line)) {
+        list = null;
+        return;
+      }
+
+      const headingMatch = line.match(/^#{1,6}\s*(.+)$/);
+      const plainHeading = !headingMatch &&
+        /^[A-Z][A-Z &/,'()-]{3,}$/.test(line);
+
+      if (headingMatch || plainHeading) {
+        list = null;
+
+        const heading = document.createElement("h5");
+
+        heading.style.margin = "16px 0 6px";
+        heading.style.fontSize = "1rem";
+        heading.style.color = "#075b3b";
+        heading.textContent = (headingMatch ? headingMatch[1] : line)
+          .replace(/\*\*/g, "");
+
+        box.appendChild(heading);
+        return;
+      }
+
+      const bullet = line.match(/^[*•-]\s+(.+)$/);
+
+      if (bullet) {
+        if (!list) {
+          list = document.createElement("ul");
+          list.style.margin = "4px 0 8px";
+          list.style.paddingLeft = "20px";
+          box.appendChild(list);
+        }
+
+        const item = document.createElement("li");
+
+        item.style.margin = "0 0 5px";
+        addInline(item, bullet[1]);
+        list.appendChild(item);
+        return;
+      }
+
+      list = null;
+
+      const paragraph = document.createElement("p");
+
+      paragraph.style.margin = "0 0 8px";
+      addInline(paragraph, line);
+      box.appendChild(paragraph);
+    });
+
+    return box;
+  }
+
+  function extractReviewSummary(text) {
+    const match = String(text || "").match(
+      /REWRITTEN\s+PROFESSIONAL\s+SUMMARY[^\n]*\n([\s\S]*)$/i
+    );
+
+    if (!match) return "";
+
+    return stripMarkdown(match[1])
+      .split("\n")
+      .filter((line) => line.trim() && !/^\(?\s*word count/i.test(line.trim()))
+      .join(" ")
+      .replace(/^\(.*?\)\s*/, "")
+      .trim();
+  }
+
+  // --------------------------------------------------
   // AI ERROR MESSAGES
   // --------------------------------------------------
 
@@ -2735,12 +2855,19 @@
 
       resultHeading.textContent = selected.title;
 
-      const resultText = document.createElement("div");
+      const cleanResult = stripMarkdown(data.result);
 
-      resultText.textContent = data.result;
-      resultText.style.whiteSpace = "pre-wrap";
-      resultText.style.overflowWrap = "anywhere";
-      resultText.style.lineHeight = "1.7";
+      let resultText;
+
+      if (action === "review") {
+        resultText = renderRichText(data.result);
+      } else {
+        resultText = document.createElement("div");
+        resultText.textContent = cleanResult;
+        resultText.style.whiteSpace = "pre-wrap";
+        resultText.style.overflowWrap = "anywhere";
+        resultText.style.lineHeight = "1.7";
+      }
 
       const copyButton = document.createElement("button");
 
@@ -2750,7 +2877,7 @@
 
       copyButton.addEventListener("click", async () => {
         try {
-          await navigator.clipboard.writeText(data.result);
+          await navigator.clipboard.writeText(cleanResult);
 
           copyButton.textContent = "Copied Successfully!";
 
@@ -2766,6 +2893,33 @@
         resultText,
         copyButton
       );
+
+      if (action === "review") {
+        const newSummary = extractReviewSummary(data.result);
+
+        if (newSummary) {
+          const useSummary = document.createElement("button");
+
+          useSummary.type = "button";
+          useSummary.className = "button button-primary";
+          useSummary.textContent = "Use this summary in my CV";
+          useSummary.style.marginLeft = "8px";
+
+          useSummary.addEventListener("click", () => {
+            const field = $("summary");
+
+            if (!field) return;
+
+            field.value = newSummary;
+            updatePreview();
+
+            useSummary.disabled = true;
+            useSummary.textContent = "Added to your CV";
+          });
+
+          resultBox.append(useSummary);
+        }
+      }
 
       resultBox.scrollIntoView({
         behavior: "smooth",
@@ -2927,7 +3081,7 @@
   initAIAccess();
 
   console.info(
-    "[NOH Career Kit] v5 (CV upload and apply) loaded."
+    "[NOH Career Kit] v6 (CV upload, apply, tidy review) loaded."
   );
 
 })();
