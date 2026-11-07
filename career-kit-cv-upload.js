@@ -266,12 +266,11 @@
 
     const existingActions = section.querySelector(".ai-actions");
 
-    if (existingActions) {
-      section.insertBefore(panel, existingActions);
-    } else {
-      section.appendChild(panel);
-    }
-
+    if (existingActions && existingActions.parentNode) {
+  existingActions.parentNode.insertBefore(panel, existingActions);
+} else {
+  section.appendChild(panel);
+}
     fileInput.addEventListener("change", handleFileSelection);
     reviewButton.addEventListener("click", reviewUploadedCV);
     clearButton.addEventListener("click", clearUpload);
