@@ -83,6 +83,70 @@
   <script defer src="/auth.js?v=36"></script>
   <script defer src="/app.js?v=41"></script>
   <script defer src="/pwa.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+  <style id="hk-banner-styles">
+    :root{--hk-deep:#033c29;--hk-green:#075b3b;--hk-gold:#c6a24a;--hk-gold-soft:#e8cf86;}
+    /* ===== HERO BANNER ===== */
+    .hk-banner{position:relative;overflow:hidden;isolation:isolate;margin:0 0 34px;padding:46px 42px;border-radius:26px;color:#fff;
+      background:radial-gradient(circle at 88% 12%,rgba(198,162,74,.30),transparent 36%),radial-gradient(circle at 5% 100%,rgba(255,255,255,.07),transparent 40%),linear-gradient(135deg,#033c29 0%,#075b3b 58%,#0a7050 100%);
+      box-shadow:0 22px 54px rgba(6,69,47,.30)}
+    .hk-banner::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.9;
+      background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 1px,transparent 1px 24px)}
+    .hk-banner::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;z-index:1;
+      background:linear-gradient(90deg,transparent,var(--hk-gold),#f0dca0,var(--hk-gold),transparent)}
+    .hk-banner-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:36px;align-items:center}
+    .hk-eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;padding:6px 14px;border:1px solid rgba(232,207,134,.55);border-radius:999px;
+      color:var(--hk-gold-soft);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;background:rgba(255,255,255,.06)}
+    .hk-banner h2{margin:0 0 14px;font-family:"Playfair Display",Georgia,serif;font-size:clamp(2rem,5.2vw,3.2rem);line-height:1.12;font-weight:700;letter-spacing:-.01em;color:#fff}
+    .hk-banner h2 span{display:block;color:var(--hk-gold-soft)}
+    .hk-lead{margin:0 0 22px;max-width:520px;font-size:1.02rem;line-height:1.65;color:rgba(255,255,255,.88)}
+    .hk-actions{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 22px}
+    .hk-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;border-radius:12px;font-weight:800;font-size:.95rem;text-decoration:none;transition:transform .2s ease,background .2s ease}
+    .hk-btn:hover{transform:translateY(-2px)}
+    .hk-btn-gold{background:var(--hk-gold);color:#1d2a20;border:1.5px solid var(--hk-gold);box-shadow:0 8px 20px rgba(0,0,0,.2)}
+    .hk-btn-gold:hover{background:#d8b45a}
+    .hk-btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(255,255,255,.45)}
+    .hk-btn-ghost:hover{background:rgba(255,255,255,.16)}
+    .hk-chips{display:flex;flex-wrap:wrap;gap:8px 10px;margin:0;padding:0;list-style:none}
+    .hk-chips li{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:.82rem;font-weight:700;color:#fff}
+    .hk-chips li::before{content:"✓";color:var(--hk-gold-soft);font-weight:800}
+
+    /* hero visual */
+    .hk-visual{position:relative;min-height:380px}
+    .hk-page{position:absolute;width:56%;aspect-ratio:3/4;background:#fff;border-radius:10px;box-shadow:0 22px 40px rgba(0,0,0,.30);overflow:hidden}
+    .hk-page.back{left:6%;top:6%;transform:rotate(-6deg);background:#f4efdf}
+    .hk-page.front{left:30%;top:0;transform:rotate(3deg)}
+    .hk-page.front{display:grid;grid-template-columns:34% 1fr}
+    .hk-page .side{background:var(--hk-green);padding:14% 9%;display:flex;flex-direction:column;gap:9px}
+    .hk-page .side i{display:block;height:5px;border-radius:3px;background:rgba(255,255,255,.55)}
+    .hk-page .side i:first-child{height:22px;width:22px;border-radius:50%;background:var(--hk-gold);margin-bottom:6px}
+    .hk-page .main{padding:12% 9%;display:flex;flex-direction:column;gap:8px}
+    .hk-page .main b{display:block;height:11px;width:70%;border-radius:3px;background:var(--hk-green)}
+    .hk-page .main u,.hk-page .main s{display:block;text-decoration:none;border-radius:3px}
+    .hk-page .main u{height:6px;width:38%;margin-top:8px;background:var(--hk-gold)}
+    .hk-page .main s{height:5px;background:#dcdcdc}
+    .hk-page .main s.sh{width:72%}
+    .hk-page.back .bar{height:34%;background:var(--hk-green);opacity:.18}
+    .hk-float{position:absolute;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:#fff;color:var(--hk-deep);box-shadow:0 14px 30px rgba(0,0,0,.25);font-size:.82rem;line-height:1.3}
+    .hk-float strong{display:block;font-size:.88rem}
+    .hk-float small{display:block;color:#66756b;font-size:.72rem}
+    .hk-float .ic{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--hk-gold);color:#1d2a20;font-weight:800}
+    .hk-float.f1{left:0;bottom:12%}
+    .hk-float.f2{right:0;top:44%}
+
+
+    @media(max-width:860px){
+      .hk-banner{padding:30px 22px 34px;border-radius:20px}
+      .hk-banner-grid{grid-template-columns:1fr;gap:26px}
+      .hk-visual{min-height:300px;max-width:420px;margin:0 auto;width:100%}
+      .hk-page{width:58%}
+      .hk-float.f1{left:-2px}.hk-float.f2{right:-2px}
+      .hk-actions .hk-btn{flex:1 1 200px}
+    }
+    @media(prefers-reduced-motion:reduce){.hk-btn{transition:none}}
+    .career-section .hk-banner{margin-bottom:30px}
+  </style>
 </head>
 
 <body>
@@ -439,15 +503,63 @@
     <section class="career-section" id="career-kit">
       <div class="wrap">
 
-        <div class="section-intro">
-          <span class="section-kicker">YOUR CAREER TOOLBOX</span>
+        <div class="hk-banner">
+          <div class="hk-banner-grid">
 
-          <h2>Make Your Next Application Your Best One.</h2>
+            <div>
+              <span class="hk-eyebrow">Your career toolbox</span>
 
-          <p>
-            Practical support for your CV, cover letters, scholarship and job
-            applications, and how you present yourself.
-          </p>
+              <h2>Make your next application<span>your best one.</span></h2>
+
+              <p class="hk-lead">
+                Build a polished CV and cover letter, upload the CV you already
+                have for an AI review, and download a professional PDF you can
+                send with confidence.
+              </p>
+
+              <div class="hk-actions">
+                <a href="/career-workspace.html?tool=cv" class="hk-btn hk-btn-gold">
+                  Start building <span aria-hidden="true">→</span>
+                </a>
+
+                <a href="/career-workspace.html?tool=cv#ai-assistant" class="hk-btn hk-btn-ghost">
+                  Upload my CV for review
+                </a>
+              </div>
+
+              <ul class="hk-chips" aria-label="What the Career Kit offers">
+                <li>7 CV templates</li>
+                <li>AI Career Assistant</li>
+                <li>Upload and review your CV</li>
+                <li>Download as PDF</li>
+              </ul>
+            </div>
+
+            <div class="hk-visual" aria-hidden="true">
+              <div class="hk-page back"><div class="bar"></div></div>
+
+              <div class="hk-page front">
+                <div class="side"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <div class="main">
+                  <b></b><s class="sh"></s>
+                  <u></u><s></s><s></s><s class="sh"></s>
+                  <u></u><s></s><s class="sh"></s>
+                  <u></u><s></s><s></s>
+                </div>
+              </div>
+
+              <div class="hk-float f1">
+                <span class="ic">✦</span>
+                <span><strong>AI review</strong><small>Clear tips to improve your CV</small></span>
+              </div>
+
+              <div class="hk-float f2">
+                <span class="ic">✓</span>
+                <span><strong>PDF ready</strong><small>Download in one tap</small></span>
+              </div>
+            </div>
+
+          </div>
         </div>
 
         <div class="career-grid">
@@ -509,7 +621,7 @@
               skills, experience and achievements.
             </p>
 
-            <a href="/career-kit.html?tool=cv" class="button button-outline">
+            <a href="/career-workspace.html?tool=cv" class="button button-outline">
               Open CV Builder
             </a>
 
@@ -563,7 +675,7 @@
               internships and other applications.
             </p>
 
-            <a href="/career-kit.html?tool=cover-letter" class="button button-primary">
+            <a href="/career-workspace.html?tool=cover-letter" class="button button-primary">
               Explore service
             </a>
 
