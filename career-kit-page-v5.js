@@ -2249,6 +2249,58 @@
     }
   }
 
+  function applyImprovedCV(raw) {
+    const data = parseCVJSON(raw);
+
+    if (!data) return null;
+
+    const always = {
+      summary: "summary",
+      education: "education",
+      experience: "experience",
+      skills: "skills",
+      certificates: "certificates"
+    };
+
+    const onlyIfEmpty = {
+      fullName: "full-name",
+      jobTitle: "job-title",
+      email: "email",
+      phone: "phone",
+      location: "location",
+      country: "country",
+      linkedin: "linkedin"
+    };
+
+    const snapshot = {};
+    let count = 0;
+
+    const apply = (key, id, overwrite) => {
+      const field = $(id);
+      const text = typeof data[key] === "string" ? data[key].trim() : "";
+
+      if (!field || !text) return;
+      if (!overwrite && field.value.trim()) return;
+
+      snapshot[id] = field.value;
+      field.value = text;
+      count += 1;
+    };
+
+    Object.entries(always).forEach(([key, id]) => apply(key, id, true));
+    Object.entries(onlyIfEmpty).forEach(([key, id]) => apply(key, id, false));
+
+    if (!count) return null;
+
+    updatePreview();
+
+    return {
+      snapshot,
+      improvements: typeof data.improvements === "string" ? data.improvements.trim() : "",
+      missing: typeof data.missing === "string" ? data.missing.trim() : ""
+    };
+  }
+
   function fillFormFromCV(raw) {
     const data = parseCVJSON(raw);
 
@@ -2429,6 +2481,7 @@
 
     if (
       action === "cv" &&
+      value("cv-upload-text").length < 80 &&
       !value("full-name") &&
       !value("education") &&
       !value("experience") &&
@@ -2492,6 +2545,16 @@
       jobDescription: value("job-description"),
       letterBody: value("letter-body")
     };
+
+    if (
+      action === "cv" &&
+      value("cv-upload-text").length >= 80 &&
+      !value("experience") &&
+      !value("education") &&
+      !value("summary")
+    ) {
+      candidateData.cvText = value("cv-upload-text").slice(0, MAX_CV_CHARS);
+    }
 
     const originalText = selected.button.textContent;
 
@@ -2582,6 +2645,62 @@
         throw new Error(
           "The AI returned no usable text. Please try again."
         );
+      }
+
+      if (action === "cv") {
+        const applied = applyImprovedCV(data.result);
+
+        if (applied) {
+          resultBox.replaceChildren();
+
+          const h = document.createElement("h4");
+          h.textContent = "Your CV has been improved";
+
+          const p = document.createElement("p");
+          p.textContent =
+            "The improved CV is now in your document preview. Anything in [square brackets] is a detail we could not find, so replace it with your real information before downloading.";
+
+          resultBox.append(h, p);
+
+          [["What I improved", applied.improvements],
+           ["Add these to make it stronger", applied.missing]].forEach(([title, text]) => {
+            if (!text) return;
+
+            const sub = document.createElement("strong");
+            sub.textContent = title;
+
+            const body = document.createElement("div");
+            body.textContent = text;
+            body.style.whiteSpace = "pre-wrap";
+            body.style.margin = "4px 0 12px";
+
+            resultBox.append(sub, body);
+          });
+
+          const view = document.createElement("a");
+          view.className = "button button-primary";
+          view.href = "#document-preview";
+          view.textContent = "View my document";
+
+          const undo = document.createElement("button");
+          undo.type = "button";
+          undo.className = "button button-secondary";
+          undo.textContent = "Undo changes";
+          undo.style.marginLeft = "8px";
+          undo.addEventListener("click", () => {
+            Object.entries(applied.snapshot).forEach(([id, text]) => {
+              const field = $(id);
+              if (field) field.value = text;
+            });
+            updatePreview();
+            undo.disabled = true;
+            undo.textContent = "Changes undone";
+          });
+
+          resultBox.append(view, undo);
+
+          return;
+        }
       }
 
       if (action === "extract") {
@@ -2808,7 +2927,7 @@
   initAIAccess();
 
   console.info(
-    "[NOH Career Kit] v4 (CV upload) loaded."
+    "[NOH Career Kit] v5 (CV upload and apply) loaded."
   );
 
 })();
