@@ -11,7 +11,7 @@
  *
  * Change CACHE_VERSION to clear everything old on the next visit.
  */
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const PAGES = `noh-pages-${CACHE_VERSION}`;
 const ASSETS = `noh-assets-${CACHE_VERSION}`;
 const IMAGES = `noh-images-${CACHE_VERSION}`;
@@ -51,7 +51,8 @@ self.addEventListener("install", event => {
       Promise.all(PRECACHE.map(url => cache.add(url).catch(() => null)))
     )
   );
-  // Do not skipWaiting here: pwa.js asks the visitor before updating.
+  // v2 fixes pages being replaced by the homepage; activate straight away.
+  self.skipWaiting();
 });
 
 self.addEventListener("activate", event => {
@@ -79,9 +80,9 @@ function networkFirst(request, cacheName, { timeout = NETWORK_TIMEOUT_MS, fallba
     const fromCache = () =>
       caches.match(request, { cacheName }).then(hit => hit || fallback?.() || Response.error());
 
-    const timer = setTimeout(() => fromCache().then(hit => {
-      // Only give up on the network if a saved copy exists.
-      if (hit && hit.type !== "error") done(hit);
+    const timer = setTimeout(() => caches.match(request, { cacheName }).then(hit => {
+      // Only give up on the network if a saved copy of THIS exact page exists.
+      if (hit) done(hit);
     }), timeout);
 
     fetch(request)
@@ -171,7 +172,7 @@ self.addEventListener("fetch", event => {
   // Pages
   if (request.mode === "navigate") {
     event.respondWith(networkFirst(request, PAGES, {
-      fallback: () => caches.match("/", { cacheName: PAGES }).then(hit => hit || offlinePage())
+      fallback: () => offlinePage()
     }));
     return;
   }
