@@ -39,6 +39,7 @@ header.site{position:sticky;top:0;z-index:30;background:rgba(255,253,246,.96);bo
 .body{display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px;flex:1}
 .body h2{margin:0;font-size:1.02rem;line-height:1.35;color:var(--green-d)}
 .body .org{color:var(--muted);font-size:.88rem}
+.vt{align-self:flex-start;padding:2px 10px;border:1px solid var(--gold);border-radius:999px;background:var(--gold-l);color:#1d2a20;font-size:.75rem;font-weight:800}
 .meta{margin-top:auto;padding-top:8px;font-size:.82rem;font-weight:700;color:var(--gold-d)}
 .more{display:block;margin:26px auto 0;min-height:48px;padding:0 28px;border:1.5px solid var(--gold);border-radius:12px;background:var(--gold);color:#1d2a20;font:inherit;font-weight:800;cursor:pointer}
 .empty{padding:30px;text-align:center;background:var(--card);border:1px solid var(--gold-b);border-radius:16px}
@@ -66,7 +67,7 @@ footer a{display:inline-flex;align-items:center;min-height:40px;padding:0 8px;fo
 </main>
 
 <footer><div class="wrap">
-  <a href="/">Home</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="#" data-noh-cookie-settings>Cookie settings</a>
+  <a href="/">Home</a><a href="/how-we-verify.html">How we check</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="#" data-noh-cookie-settings>Cookie settings</a>
 </div></footer>
 
 <script>
@@ -97,7 +98,7 @@ footer a{display:inline-flex;align-items:center;min-height:40px;padding:0 8px;fo
   function card(o){
     var img=safe(o.image_url),t=esc(o.title);
     var im=img?'<img class="bd" src="'+esc(img)+'" alt="" aria-hidden="true" loading="lazy" onerror="this.remove()"><img class="mn" src="'+esc(img)+'" alt="" loading="lazy" onerror="this.remove()">':'<span class="ph" aria-hidden="true">'+esc((o.title||"?").charAt(0).toUpperCase())+'</span>';
-    return'<a class="card" href="/opportunity-details.html?id='+encodeURIComponent(o.id)+'"><div class="img">'+im+'</div><div class="body"><h2>'+t+'</h2><span class="org">'+esc(o.organization||"")+'</span><span class="meta">'+esc(dl(o.deadline)||(o.location||""))+'</span></div></a>';
+    return'<a class="card" href="/opportunity-details.html?id='+encodeURIComponent(o.id)+'"><div class="img">'+im+'</div><div class="body"><h2>'+t+'</h2><span class="org">'+esc(o.organization||"")+'</span>'+(o.verified_at?'<span class="vt">✓ Verified</span>':'')+'<span class="meta">'+esc(dl(o.deadline)||(o.location||""))+'</span></div></a>';
   }
   function apply(){
     var q=$("q").value.toLowerCase().trim();
@@ -116,11 +117,12 @@ footer a{display:inline-flex;align-items:center;min-height:40px;padding:0 8px;fo
   var t;$("q").addEventListener("input",function(){clearTimeout(t);t=setTimeout(apply,200)});
   $("sort").addEventListener("change",apply);
   tabs();title();
-  fetch(URL_+"/rest/v1/opportunities?select=id,title,organization,category,location,deadline,image_url,created_at&status=eq.published&order=created_at.desc&limit=1000",{headers:{apikey:KEY,Authorization:"Bearer "+KEY}})
+  fetch(URL_+"/rest/v1/opportunities?select=id,title,organization,category,location,deadline,image_url,verified_at,created_at&status=eq.published&order=created_at.desc&limit=1000",{headers:{apikey:KEY,Authorization:"Bearer "+KEY}})
    .then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){all=Array.isArray(d)?d:[];apply()})
    .catch(function(){$("sub").textContent="We could not load opportunities. Please check your connection and try again."});
 })();
 </script>
+<script defer src="/noh-extras.js?v=1"></script>
 <script defer src="/consent.js"></script>
 </body>
 </html>
