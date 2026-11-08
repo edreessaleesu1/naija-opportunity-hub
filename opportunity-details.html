@@ -278,19 +278,41 @@
 
     .verified {
       display: none;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px 12px;
       width: fit-content;
+      max-width: 100%;
       margin-top: 17px;
-      padding: 6px 11px;
-      color: #14744e;
-      background: #edf8f1;
-      border: 1px solid #d8ebdf;
+      padding: 8px 14px;
+      color: #1d2a20;
+      background: #f6edcf;
+      border: 1px solid #c6a24a;
       border-radius: 30px;
-      font-size: .75rem;
+      font-size: .82rem;
+      font-weight: 800;
+    }
+
+    .verified a,
+    .unverified a {
+      color: #075b3b;
       font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
 
     .verified.visible {
       display: inline-flex;
+    }
+
+    .unverified {
+      margin-top: 17px;
+      padding: 10px 14px;
+      border: 1px dashed #c6a24a;
+      border-radius: 12px;
+      background: #fffdf6;
+      color: #5d4a17;
+      font-size: .85rem;
     }
 
     /* INFORMATION CARDS */
@@ -734,7 +756,7 @@
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <a href="index.html">Home</a>
       /
-      <a href="index.html#opportunities">Opportunities</a>
+      <a href="/category.html">Opportunities</a>
       /
       <span>Details</span>
     </nav>
@@ -787,7 +809,13 @@
             <p id="opportunityOrganisation" class="organisation"></p>
 
             <p id="verifiedLabel" class="verified">
-              ✓ Verified opportunity
+              <span>✓ Verified <span id="verifiedDateText"></span></span>
+              <a href="/how-we-verify.html">How we check</a>
+            </p>
+
+            <p id="unverifiedNote" class="unverified" hidden>
+              Not verified yet. Please confirm the details on the official
+              website before you apply. <a href="/how-we-verify.html">How we check</a>
             </p>
 
           </div>
@@ -965,6 +993,7 @@
 
   <script src="/auth.js?v=37"></script>
   <script defer src="/pwa.js"></script>
+  <script defer src="/noh-extras.js?v=1"></script>
   <script defer src="/consent.js"></script>
 
   <!-- OPPORTUNITY DETAILS AND BOOKMARK LOGIC -->
@@ -1472,9 +1501,12 @@
         setText("opportunityVerified", verifiedDate);
         $("verifiedRow").hidden = false;
         $("verifiedLabel").classList.add("visible");
+        setText("verifiedDateText", "on " + verifiedDate);
+        $("unverifiedNote").hidden = true;
       } else {
         $("verifiedRow").hidden = true;
         $("verifiedLabel").classList.remove("visible");
+        $("unverifiedNote").hidden = false;
       }
 
       /* APPLICATION URL */
