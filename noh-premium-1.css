@@ -1,0 +1,827 @@
+/* ==========================================================================
+   NOH PREMIUM — load AFTER cards-and-auth.css. Additive: nothing is removed.
+   1. Category list rows and full-banner images (safe to repeat)
+   2. Premium hero (emerald + champagne gold), desktop and mobile
+   3. Compact gold "Me" button
+   ========================================================================== */
+
+/* ==========================================================================
+   I. INTERNSHIPS: list layout (tinted panel, small image left, title right)
+   ========================================================================== */
+
+.category-section--list {
+  padding: 28px 28px 32px;
+  border-radius: 6px;
+  background: #f0dd9c; /* a shade deeper than the page so the panel stands out */
+}
+
+.list-section-title {
+  margin: 0 0 18px;
+  color: var(--green-deep);
+  font-size: clamp(1.7rem, 4.5vw, 2.3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+.opportunity-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 40px;
+}
+
+.opportunity-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(120, 86, 8, 0.28);
+}
+
+.opportunity-row:last-child {
+  border-bottom: 0;
+}
+
+.opportunity-row-image {
+  display: block;
+  flex: 0 0 158px;
+  width: 158px;
+  height: 90px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #dbe8df;
+}
+
+.opportunity-row-image img.banner-main {
+  display: block;
+}
+
+.opportunity-row-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.opportunity-row-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.opportunity-row-title a {
+  color: #1d2b22;
+  text-decoration: none;
+}
+
+.opportunity-row-title a:hover {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.save-link {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--green-dark);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.save-link:hover {
+  text-decoration: underline;
+}
+
+.save-link.is-saved {
+  color: var(--green);
+}
+
+/* Two columns of rows on wide screens */
+@media (min-width: 900px) {
+  .opportunity-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .opportunity-row:nth-last-child(2):nth-child(odd) {
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .category-section--list {
+    padding: 22px 16px 26px;
+    margin-inline: -4px;
+  }
+
+  .opportunity-row {
+    gap: 14px;
+    padding: 16px 0;
+  }
+
+  .opportunity-row-image {
+    flex-basis: 118px;
+    width: 118px;
+    height: 76px;
+  }
+
+  .opportunity-row-title {
+    font-size: 1rem;
+  }
+}
+
+
+/* ==========================================================================
+   J. FULL BANNERS: show the whole image, with a soft blurred fill behind it
+   so logos and flyers are never cut off.
+   ========================================================================== */
+
+.opportunity-card .opportunity-image,
+.opportunity-row-image {
+  position: relative;
+  overflow: hidden;
+  background: #e9efeb;
+}
+
+.opportunity-card .opportunity-image-link {
+  position: relative;
+}
+
+.banner-backdrop {
+  position: absolute;
+  inset: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  max-width: none;
+  object-fit: cover;
+  filter: blur(14px) saturate(1.1);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.opportunity-card .opportunity-image img.banner-main,
+.opportunity-row-image img.banner-main {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* the hover zoom would crop the banner again, so it is switched off */
+.opportunity-card:hover .opportunity-image img.banner-main {
+  transform: none;
+}
+
+/* the backdrop is the same file, so it adds no extra download */
+
+/* ==========================================================================
+   2. PREMIUM HERO — emerald depth with champagne-gold accents
+   ========================================================================== */
+
+.hero-banner {
+  background: #06402a;
+  border-top: 4px solid #c6a24a;
+}
+
+.hero-banner::after {
+  background:
+    radial-gradient(60% 90% at 8% 12%, rgba(198, 162, 74, 0.18), transparent 60%),
+    linear-gradient(90deg,
+      rgba(4, 50, 33, 0.95) 0%,
+      rgba(5, 62, 41, 0.80) 36%,
+      rgba(6, 72, 48, 0.20) 66%,
+      rgba(6, 72, 48, 0) 100%);
+}
+
+.hero-bg::after { background: rgba(5, 52, 34, 0.55); }
+
+/* gold edge along the bottom of the hero */
+.hero-banner::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 1;
+  height: 5px;
+  pointer-events: none;
+  background: linear-gradient(90deg, #a9822d, #f0d88f 50%, #a9822d);
+}
+
+.hero-banner .eyebrow {
+  border-color: rgba(231, 200, 117, 0.55);
+  background: rgba(3, 38, 25, 0.62);
+  color: #f0d88f;
+}
+
+.hero-banner h1 span {
+  color: #ecce7d;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.28);
+}
+
+.hero-banner .hero-description { color: rgba(255, 252, 240, 0.94); }
+
+.button-hero {
+  border: 1px solid #e7c875;
+  background: linear-gradient(135deg, #efd286, #c6a24a);
+  color: #14301f;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+}
+.button-hero:hover {
+  background: linear-gradient(135deg, #f5dc98, #d3b055);
+  color: #14301f;
+}
+
+.button-hero-ghost {
+  border: 2px solid rgba(240, 216, 143, 0.85);
+  background: rgba(3, 38, 25, 0.35);
+  color: #fff;
+}
+.button-hero-ghost:hover { background: rgba(240, 216, 143, 0.16); }
+
+@media (max-width: 1199px) {
+  .hero-banner::after {
+    background:
+      radial-gradient(80% 50% at 15% 6%, rgba(198, 162, 74, 0.2), transparent 60%),
+      linear-gradient(180deg,
+        rgba(4, 50, 33, 0.94) 0%,
+        rgba(5, 62, 41, 0.72) 44%,
+        rgba(6, 72, 48, 0) 76%);
+  }
+}
+
+
+/* ==========================================================================
+   3. "ME" BUTTON — small, gold
+   ========================================================================== */
+
+.nav-auth .account-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  min-height: 38px;
+  padding: 0 12px 0 8px;
+  border: 1px solid #b08a2e;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #efd286, #c6a24a);
+  color: #1d2a20;
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(120, 90, 20, 0.2);
+  cursor: pointer;
+}
+
+.nav-auth .account-menu-trigger:hover {
+  background: linear-gradient(135deg, #f5dc98, #d3b055);
+}
+
+.nav-auth .account-menu-trigger .account-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+}
+
+.nav-auth .account-menu-trigger .account-chevron {
+  font-size: 0.8rem;
+  margin-top: -3px;
+  color: #3a2f10;
+}
+
+@media (max-width: 600px) {
+  .nav-auth .account-menu-trigger {
+    min-height: 40px;
+    align-self: flex-start;
+  }
+}
+
+
+/* ==========================================================================
+   4. MOBILE REFINEMENTS (from your attached block; page background kept gold)
+   ========================================================================== */
+/* ==========================================================================
+   NOH — MOBILE UX & PREMIUM FINISH
+   Append this block to the VERY END of cards-and-auth.css.
+   Preserves existing functionality and desktop layout.
+   ========================================================================== */
+
+/* 1. Softer ivory background with balanced champagne gold */
+:root {
+  --noh-gold: #c49a43;
+  --noh-gold-dark: #a77d27;
+  --noh-gold-soft: #f7efd9;
+  --noh-ivory: #fffdf8;
+}
+
+/* 2. Consistent focus visibility and comfortable touch interaction */
+button,
+a,
+select,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 3px solid rgba(196, 154, 67, 0.65);
+  outline-offset: 3px;
+}
+
+/* 3. Mobile refinements */
+@media (max-width: 600px) {
+
+  /* Prevent accidental horizontal overflow */
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .wrap {
+    width: min(100% - 28px, 100%);
+  }
+
+  /* Header and brand */
+  .site-header {
+    z-index: 100;
+  }
+
+  .nav {
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .brand {
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .brand-logo {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .brand-copy {
+    min-width: 0;
+  }
+
+  .brand-name {
+    font-size: 0.92rem;
+    line-height: 1.2;
+  }
+
+  .brand-tagline {
+    font-size: 0.65rem;
+    line-height: 1.3;
+  }
+
+  .menu-toggle {
+    flex-shrink: 0;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Account controls */
+  .nav-auth {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  .account-menu {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  .account-menu-trigger {
+    min-height: 44px;
+  }
+
+  .account-dropdown {
+    max-width: calc(100vw - 32px);
+  }
+
+  .account-dropdown-item {
+    min-height: 46px;
+  }
+
+  /* Category strip: swipe horizontally instead of squeezing labels */
+  .category-strip .wrap {
+    min-width: 0;
+  }
+
+  .category-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 5px 2px 12px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .category {
+    flex: 0 0 auto;
+    min-height: 76px;
+    scroll-snap-align: start;
+  }
+
+  .category-link {
+    flex: 0 0 auto;
+  }
+
+  .trust-bar-grid {
+    gap: 12px;
+  }
+
+  /* Opportunity section */
+  .opportunities-section {
+    padding-top: 34px;
+    padding-bottom: 38px;
+  }
+
+  .section-head {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .section-head h2 {
+    font-size: clamp(1.45rem, 6vw, 1.85rem);
+    line-height: 1.2;
+  }
+
+  .section-head p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .results-badge {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+  }
+
+  /* Two-column opportunity cards are retained */
+  #opportunityGrid,
+  .opportunity-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .opportunity-card {
+    min-width: 0;
+    border-radius: 13px;
+    box-shadow: 0 3px 12px rgba(20, 55, 38, 0.07);
+  }
+
+  .opportunity-card .opportunity-image {
+    height: 124px;
+  }
+
+  .opportunity-card .opportunity-content {
+    gap: 11px;
+    padding: 12px;
+  }
+
+  .opportunity-card .opportunity-title {
+    font-size: 0.9rem;
+    line-height: 1.42;
+    -webkit-line-clamp: 4;
+  }
+
+  .save-btn {
+    min-height: 44px;
+    padding: 9px 6px;
+    border-radius: 9px;
+    font-size: 0.76rem;
+  }
+
+  .view-more-wrap {
+    margin-top: 24px;
+  }
+
+  .view-more-wrap .button {
+    min-height: 46px;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  /* Category-specific opportunity sections */
+  .category-sections {
+    gap: 32px;
+  }
+
+  .category-section--list {
+    border-radius: 13px;
+  }
+
+  .opportunity-row-image {
+    flex-basis: 105px;
+    width: 105px;
+    height: 78px;
+  }
+
+  .opportunity-row-title {
+    font-size: 0.95rem;
+  }
+
+  /* Career Kit — stronger premium gold identity */
+  .career-section {
+    padding-top: 42px;
+    padding-bottom: 42px;
+  }
+
+  .career-section .section-intro h2 {
+    font-size: clamp(1.5rem, 6vw, 1.9rem);
+    line-height: 1.25;
+  }
+
+  .career-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .career-panel {
+    min-width: 0;
+    border: 1px solid rgba(196, 154, 67, 0.35);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--noh-ivory);
+    box-shadow: 0 5px 18px rgba(20, 55, 38, 0.07);
+  }
+
+  .career-panel .career-visual {
+    overflow: hidden;
+  }
+
+  .career-panel .career-visual svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .career-panel .service-label {
+    color: var(--noh-gold-dark);
+    letter-spacing: 0.08em;
+  }
+
+  .career-panel h3 {
+    line-height: 1.3;
+  }
+
+  .career-panel .button {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+  }
+
+  .career-panel .button-primary {
+    border-color: var(--noh-gold);
+    background: var(--noh-gold);
+    color: #183b2b;
+  }
+
+  .career-panel .button-primary:hover {
+    background: var(--noh-gold-dark);
+    border-color: var(--noh-gold-dark);
+    color: #fff;
+  }
+
+  .career-panel .button-outline {
+    border-color: var(--noh-gold);
+    color: #77571c;
+  }
+
+  .career-panel .button-outline:hover {
+    background: var(--noh-gold-soft);
+  }
+
+  .featured-panel {
+    border-color: var(--noh-gold);
+    box-shadow: 0 6px 20px rgba(196, 154, 67, 0.13);
+  }
+
+  .featured-label {
+    background: var(--noh-gold);
+    color: #183b2b;
+  }
+
+  /* Pricing */
+  .pricing-card {
+    margin-top: 22px;
+    padding: 20px 16px;
+    border: 1px solid rgba(196, 154, 67, 0.4);
+    border-radius: 15px;
+    background: var(--noh-ivory);
+  }
+
+  .price-row {
+    gap: 12px;
+    padding: 13px 0;
+  }
+
+  .price-row strong {
+    color: var(--noh-gold-dark);
+    text-align: right;
+  }
+
+  /* Final call to action */
+  .cta-banner {
+    padding-top: 42px;
+    padding-bottom: 42px;
+  }
+
+  .cta-banner h2 {
+    font-size: clamp(1.5rem, 6vw, 1.9rem);
+    line-height: 1.25;
+  }
+
+  .cta-banner .button-gold {
+    min-height: 46px;
+  }
+
+  /* Footer */
+  .footer-grid {
+    gap: 28px;
+  }
+
+  .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+  }
+
+  .footer-bottom {
+    gap: 8px;
+  }
+
+  /* Account dashboard */
+  .account-dashboard {
+    padding: 0;
+  }
+
+  .account-dashboard-panel {
+    width: 100%;
+    max-width: 100%;
+    max-height: 92dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .account-dashboard-header {
+    gap: 12px;
+    padding: 20px 16px;
+  }
+
+  .account-dashboard-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .account-dashboard-close {
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .account-dashboard-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .account-tab {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 10px 14px;
+    white-space: nowrap;
+  }
+
+  .account-view {
+    padding: 16px;
+  }
+
+  .account-profile-card {
+    gap: 14px;
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .account-dashboard-shortcuts {
+    gap: 12px;
+  }
+
+  .account-shortcut {
+    min-height: 72px;
+    padding: 13px;
+  }
+
+  .account-saved-toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .account-saved-toolbar .button {
+    min-height: 44px;
+    padding-inline: 8px;
+  }
+
+  .account-saved-card {
+    padding: 15px;
+    border-radius: 13px;
+  }
+
+  .account-saved-actions .button {
+    min-height: 44px;
+  }
+
+  .account-password-form {
+    gap: 10px;
+  }
+
+  .account-password-form input {
+    width: 100%;
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .account-password-form .button {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+
+/* 4. Very small phones */
+@media (max-width: 380px) {
+
+  .wrap {
+    width: min(100% - 22px, 100%);
+  }
+
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand-name {
+    font-size: 0.84rem;
+  }
+
+  .brand-tagline {
+    font-size: 0.59rem;
+  }
+
+  #opportunityGrid,
+  .opportunity-grid {
+    gap: 10px;
+  }
+
+  .opportunity-card .opportunity-image {
+    height: 112px;
+  }
+
+  .opportunity-card .opportunity-content {
+    padding: 10px;
+  }
+
+  .opportunity-card .opportunity-title {
+    font-size: 0.84rem;
+  }
+
+  .save-btn {
+    font-size: 0.7rem;
+  }
+
+  .account-dashboard-header h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* 5. Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .opportunity-card,
+  .opportunity-card img,
+  .save-btn,
+  .button {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .opportunity-card:hover {
+    transform: none;
+  }
+}
