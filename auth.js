@@ -142,6 +142,14 @@
 
   addTermsConsent();
 
+  // Make sure the cookie choices also appear on the sign-in page.
+  if (!window.NOH_CONSENT) {
+    const notice = document.createElement("script");
+    notice.src = "/consent.js";
+    notice.defer = true;
+    document.head.appendChild(notice);
+  }
+
   const authPageExists = Boolean(
     signupForm &&
     loginForm &&
