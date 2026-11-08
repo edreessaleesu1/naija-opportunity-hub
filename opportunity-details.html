@@ -809,6 +809,8 @@
           <p id="opportunityEligibility"></p>
         </section>
 
+        <div class="noh-ad" data-ad-slot="" hidden></div>
+
         <!-- ADDITIONAL INFORMATION -->
 
         <section class="info-card">
@@ -962,11 +964,15 @@
 
   <script src="/auth.js?v=37"></script>
   <script defer src="/pwa.js"></script>
+  <script defer src="/consent.js"></script>
 
   <!-- OPPORTUNITY DETAILS AND BOOKMARK LOGIC -->
 
   <script>
     "use strict";
+
+    // Tell the analytics script to wait until the opportunity title is known.
+    window.NOH_DEFER_PAGEVIEW = true;
 
     /* SUPABASE CONFIGURATION */
 
@@ -1057,6 +1063,9 @@
 
       setText("errorTitle", title);
       setText("errorMessage", message);
+
+      window.NOH_PAGE_READY = true;
+      if (window.NOH_PAGEVIEW) window.NOH_PAGEVIEW();
     }
 
     /* =====================================================
@@ -1512,7 +1521,23 @@
 
       // Confirm the correct saved state once the opportunity is displayed.
       updateBookmarkButton();
+
+      // Analytics page view (title is now known) and ad refresh.
+      window.NOH_PAGE_READY = true;
+      if (window.NOH_PAGEVIEW) window.NOH_PAGEVIEW();
+      if (window.NOH_ADS_REFRESH) window.NOH_ADS_REFRESH();
     }
+
+    /* ANALYTICS: Apply Now clicks (only counted if the visitor accepted analytics) */
+
+    $("applyButton").addEventListener("click", () => {
+      if (window.NOH_TRACK && currentOpportunityId) {
+        window.NOH_TRACK("apply_click", {
+          opportunity_id: currentOpportunityId,
+          opportunity_title: $("opportunityTitle").textContent
+        });
+      }
+    });
 
     /* SHARE OPPORTUNITY */
 
