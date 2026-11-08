@@ -3,267 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#086b45">
+  <meta name="theme-color" content="#f8eec9">
   <meta name="robots" content="noindex, follow">
 
   <title>My Account | Naija Opportunity Hub</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/naija-opportunity-hub-logo.png">
 
   <meta name="description" content="Create an account or log in to access your Naija Opportunity Hub Career Kit.">
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f3f8f4;
-      color: #18352a;
-      line-height: 1.6;
-    }
-
-    header {
-      background: #086b45;
-      color: white;
-      padding: 18px 20px;
-    }
-
-    .header-inner {
-      max-width: 1100px;
-      margin: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      color: white;
-      text-decoration: none;
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    nav {
-      display: flex;
-      gap: 18px;
-      flex-wrap: wrap;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
-
-    .page {
-      max-width: 1100px;
-      margin: 45px auto;
-      padding: 0 20px;
-    }
-
-    .account-layout {
-      display: grid;
-      grid-template-columns: 1fr 420px;
-      gap: 40px;
-      align-items: center;
-    }
-
-    .intro .eyebrow {
-      color: #087443;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-    }
-
-    .intro h1 {
-      font-size: clamp(32px, 5vw, 48px);
-      line-height: 1.15;
-      margin: 15px 0;
-    }
-
-    .intro p {
-      color: #5b6c63;
-      font-size: 17px;
-      max-width: 520px;
-    }
-
-    .features {
-      list-style: none;
-      padding: 0;
-      margin-top: 25px;
-    }
-
-    .features li {
-      margin: 12px 0;
-    }
-
-    .features li::before {
-      content: "✓";
-      color: #087443;
-      font-weight: bold;
-      margin-right: 10px;
-    }
-
-    .account-card {
-      background: white;
-      padding: 30px;
-      border-radius: 18px;
-      box-shadow: 0 12px 40px rgba(20, 60, 40, 0.09);
-      border: 1px solid #e1ece4;
-    }
-
-    .account-card h2 {
-      margin-top: 0;
-      margin-bottom: 5px;
-      font-size: 26px;
-    }
-
-    .description {
-      color: #69766e;
-      font-size: 14px;
-      margin-top: 0;
-      margin-bottom: 22px;
-    }
-
-    form label {
-      display: block;
-      font-size: 14px;
-      font-weight: 600;
-      margin: 14px 0 6px;
-    }
-
-    form input {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid #d4dfd7;
-      border-radius: 9px;
-      font-size: 16px;
-      background: #fff;
-    }
-
-    form input:focus {
-      outline: 2px solid #a7d8bb;
-      border-color: #087443;
-    }
-
-    button {
-      cursor: pointer;
-      font-size: 15px;
-    }
-
-    .primary-button {
-      width: 100%;
-      border: 0;
-      border-radius: 9px;
-      background: #087443;
-      color: white;
-      padding: 14px;
-      font-weight: 700;
-      margin-top: 22px;
-    }
-
-    .primary-button:hover {
-      background: #065c35;
-    }
-
-    button:disabled {
-      opacity: 0.65;
-      cursor: wait;
-    }
-
-    .auth-switch {
-      text-align: center;
-      font-size: 14px;
-      color: #69766e;
-      margin-bottom: 0;
-    }
-
-    .text-button {
-      background: none;
-      border: none;
-      color: #087443;
-      font-weight: 700;
-      padding: 4px;
-    }
-
-    .text-button:hover {
-      text-decoration: underline;
-    }
-
-    #authMessage {
-      font-size: 14px;
-      margin-bottom: 12px;
-      overflow-wrap: anywhere;
-    }
-
-    #authMessage:empty {
-      display: none;
-    }
-
-    #authMessage.error {
-      color: #b42318;
-    }
-
-    #authMessage.success {
-      color: #087443;
-    }
-
-    .dashboard-links {
-      display: grid;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .dashboard-links a {
-      text-decoration: none;
-      text-align: center;
-      padding: 12px;
-      border-radius: 9px;
-      color: #087443;
-      background: #edf7f0;
-      font-weight: 700;
-    }
-
-    .dashboard-links a:hover {
-      background: #dcefe2;
-    }
-
-    .footer {
-      text-align: center;
-      padding: 25px 20px;
-      color: #6b7c72;
-      font-size: 13px;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-
-    @media (max-width: 800px) {
-      .account-layout {
-        grid-template-columns: 1fr;
-        gap: 25px;
-      }
-
-      .page {
-        margin: 30px auto;
-      }
-
-      .account-card {
-        padding: 24px;
-      }
-
-      .intro h1 {
-        font-size: 34px;
-      }
-    }
+    :root{--bg:#f8eec9;--card:#fffdf6;--green:#075b3b;--green-d:#033c29;--gold:#c6a24a;--gold-d:#a9822d;--gold-l:#f6edcf;--gold-b:#e6d7a3;--text:#1c3026;--muted:#5d6b61;--danger:#a32d2d}
+    *{box-sizing:border-box}
+    html{background:var(--bg)}
+    body{margin:0;font-family:"DM Sans","Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-text-size-adjust:100%}
+    header{position:sticky;top:0;z-index:20;background:rgba(255,253,246,.96);border-bottom:2px solid var(--gold);backdrop-filter:blur(8px)}
+    .header-inner{max-width:1100px;margin:auto;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:10px;color:var(--green-d);text-decoration:none;font-size:1.05rem;font-weight:800}
+    .brand img{width:42px;height:42px;object-fit:contain}
+    nav{display:flex;gap:6px;flex-wrap:wrap}
+    nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;color:var(--text);text-decoration:none;font-size:.9rem;font-weight:700}
+    nav a:hover{background:var(--gold-l)}
+    nav a[aria-current],nav #accountNavLink{background:var(--gold);color:#1d2a20}
+    .page{max-width:1100px;margin:40px auto;padding:0 20px}
+    .account-layout{display:grid;grid-template-columns:1fr 420px;gap:40px;align-items:center}
+    .intro .eyebrow{color:var(--gold-d);font-size:.8rem;font-weight:800;letter-spacing:1.5px}
+    .intro h1{font-size:clamp(30px,5vw,46px);line-height:1.15;margin:14px 0;color:var(--green-d)}
+    .intro p{color:var(--muted);font-size:1.05rem;max-width:520px}
+    .features{list-style:none;padding:0;margin-top:24px}
+    .features li{margin:12px 0}
+    .features li::before{content:"\2713";color:var(--gold-d);font-weight:bold;margin-right:10px}
+    .account-card{background:var(--card);padding:30px;border-radius:18px;box-shadow:0 10px 34px rgba(28,48,38,.1);border:1px solid var(--gold-b);border-top:4px solid var(--gold)}
+    .account-card h2{margin:0 0 5px;font-size:1.6rem;color:var(--green-d)}
+    .description{color:var(--muted);font-size:.92rem;margin:0 0 20px}
+    form label{display:block;font-size:.9rem;font-weight:700;margin:14px 0 6px}
+    form input{width:100%;padding:13px;border:1.5px solid #d9d4bd;border-radius:10px;font-size:16px;background:#fffefb;color:var(--text)}
+    form input[type=checkbox]{width:auto;margin:0}
+    form input:focus{outline:3px solid rgba(198,162,74,.3);border-color:var(--gold)}
+    button{cursor:pointer;font:inherit}
+    .primary-button{width:100%;min-height:50px;border:1.5px solid var(--gold);border-radius:12px;background:var(--gold);color:#1d2a20;padding:12px;font-weight:800;font-size:1rem;margin-top:22px}
+    .primary-button:hover{background:#d8b45a}
+    button:disabled{opacity:.65;cursor:wait}
+    .auth-switch{text-align:center;font-size:.92rem;color:var(--muted);margin:14px 0 0}
+    .text-button{background:none;border:none;color:var(--green);font-weight:800;padding:8px 6px;min-height:40px}
+    .text-button:hover{text-decoration:underline}
+    #authMessage{font-size:.92rem;margin-bottom:12px;overflow-wrap:anywhere}
+    #authMessage:empty{display:none}
+    #authMessage.error{color:var(--danger);background:#f6e3e3;padding:10px 14px;border-radius:10px;font-weight:600}
+    #authMessage.success{color:var(--green);background:#e4f1e8;padding:10px 14px;border-radius:10px;font-weight:600}
+    .dashboard-links{display:grid;gap:12px;margin-top:20px}
+    .dashboard-links a{text-decoration:none;text-align:center;padding:13px;border-radius:12px;color:var(--green-d);background:var(--gold-l);border:1px solid var(--gold-b);font-weight:800}
+    .dashboard-links a:hover{background:#efe2b8}
+    .footer{text-align:center;padding:25px 20px 34px;color:var(--muted);font-size:.85rem}
+    .footer a{display:inline-flex;align-items:center;min-height:40px;padding:0 8px;color:var(--green);font-weight:700}
+    [hidden]{display:none !important}
+    @media (max-width:520px){.header-inner{padding:8px 14px}nav{width:100%;justify-content:space-between;gap:0}nav a{padding:0 8px;font-size:.84rem}}
+    @media (max-width:800px){.account-layout{grid-template-columns:1fr;gap:24px}.page{margin:26px auto}.account-card{padding:22px}.intro h1{font-size:32px}}
   </style>
 
   <!-- Order matters: the Supabase library must load before auth.js. -->
@@ -274,7 +69,7 @@
 <body>
   <header>
     <div class="header-inner">
-      <a class="brand" href="/">Naija Opportunity Hub</a>
+      <a class="brand" href="/"><img src="/naija-opportunity-hub-logo.png" alt="" width="42" height="42"><span>Naija Opportunity Hub</span></a>
 
       <nav aria-label="Main navigation">
         <a href="/">Home</a>
@@ -455,8 +250,9 @@
   </main>
 
   <footer class="footer">
-    &copy; 2026 Naija Opportunity Hub. Discover Opportunities. Build Your Future.
+    <div><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms of Use</a><a href="#" data-noh-cookie-settings>Cookie settings</a></div>
+    <div>&copy; 2026 Naija Opportunity Hub. Discover Opportunities. Build Your Future.</div>
   </footer>
+  <script defer src="/consent.js"></script>
 </body>
-                                                         </html>
-  
+</html>
