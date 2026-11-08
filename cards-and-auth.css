@@ -1,672 +1,520 @@
+
 /* ==========================================================================
-   NAIJA OPPORTUNITY HUB — cards-and-auth.css
-   Load this AFTER style.css. It replaces the opportunity-card rules in
-   section 9 and adds the signed-in "Active" badge styles.
+   NOH — MOBILE UX & PREMIUM FINISH
+   Append this block to the VERY END of cards-and-auth.css.
+   Preserves existing functionality and desktop layout.
    ========================================================================== */
 
+/* 1. Softer ivory background with balanced champagne gold */
 :root {
-  --success: #087a55; /* was used by .verified-label but never defined */
-  --background: #f8eec9; /* site background: soft gold */
+  --background: #fbf8ef;
+  --noh-gold: #c49a43;
+  --noh-gold-dark: #a77d27;
+  --noh-gold-soft: #f7efd9;
+  --noh-ivory: #fffdf8;
 }
 
-html,
-body {
-  background: var(--background);
+/* 2. Consistent focus visibility and comfortable touch interaction */
+button,
+a,
+select,
+input {
+  -webkit-tap-highlight-color: transparent;
 }
 
-
-/* ==========================================================================
-   A. OPPORTUNITY GRID
-   ========================================================================== */
-
-#opportunityGrid,
-.opportunity-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-  margin-top: 24px;
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 3px solid rgba(196, 154, 67, 0.65);
+  outline-offset: 3px;
 }
 
-@media (max-width: 899px) {
-  #opportunityGrid,
-  .opportunity-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
-  }
-}
-
-/* Phones: 2 cards per row, with a more compact card (see section H) */
+/* 3. Mobile refinements */
 @media (max-width: 600px) {
-  #opportunityGrid,
-  .opportunity-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  /* Prevent accidental horizontal overflow */
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .wrap {
+    width: min(100% - 28px, 100%);
+  }
+
+  /* Header and brand */
+  .site-header {
+    z-index: 100;
+  }
+
+  .nav {
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .brand {
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .brand-logo {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .brand-copy {
+    min-width: 0;
+  }
+
+  .brand-name {
+    font-size: 0.92rem;
+    line-height: 1.2;
+  }
+
+  .brand-tagline {
+    font-size: 0.65rem;
+    line-height: 1.3;
+  }
+
+  .menu-toggle {
+    flex-shrink: 0;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Account controls */
+  .nav-auth {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  .account-menu {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  .account-menu-trigger {
+    min-height: 44px;
+  }
+
+  .account-dropdown {
+    max-width: calc(100vw - 32px);
+  }
+
+  .account-dropdown-item {
+    min-height: 46px;
+  }
+
+  /* Category strip: swipe horizontally instead of squeezing labels */
+  .category-strip .wrap {
+    min-width: 0;
+  }
+
+  .category-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 5px 2px 12px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .category {
+    flex: 0 0 auto;
+    min-height: 76px;
+    scroll-snap-align: start;
+  }
+
+  .category-link {
+    flex: 0 0 auto;
+  }
+
+  .trust-bar-grid {
     gap: 12px;
   }
-}
 
-
-/* ==========================================================================
-   B. OPPORTUNITY CARD: image + title + Save button
-   ========================================================================== */
-
-.opportunity-card {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.opportunity-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-}
-
-/* Image wrapper: always full width, fixed height */
-.opportunity-card .opportunity-image {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-  background: #e9efeb;
-}
-
-.opportunity-card .opportunity-image-link {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.opportunity-card .opportunity-image img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  object-fit: cover; /* banner-main overrides this with contain (section J) */
-  transition: transform 0.4s ease;
-}
-
-.opportunity-card:hover .opportunity-image img {
-  transform: scale(1.05);
-}
-
-/* Title and Track button */
-.opportunity-card .opportunity-content {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  flex: 1;
-  padding: 18px;
-}
-
-.opportunity-card .opportunity-title {
-  margin: 0;
-  color: var(--green-deep);
-  font-size: 1.05rem;
-  font-weight: 800;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
-.opportunity-card .opportunity-title-link {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.opportunity-card .opportunity-title-link:hover {
-  color: var(--green);
-  text-decoration: underline;
-  text-decoration-color: var(--gold);
-  text-underline-offset: 4px;
-}
-
-.save-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 44px;
-  margin-top: auto;
-  padding: 10px 14px;
-  border: 1px solid var(--green);
-  border-radius: 10px;
-  background: var(--white);
-  color: var(--green-dark);
-  font-size: 13px;
-  font-weight: 750;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-.save-btn:hover {
-  background: var(--green-light);
-  transform: translateY(-1px);
-}
-
-.save-btn.is-saved {
-  background: var(--green);
-  color: var(--white);
-}
-
-.save-btn.is-saved:hover {
-  background: var(--green-dark);
-}
-
-@media (max-width: 380px) {
-  .opportunity-card .opportunity-image {
-    height: 180px;
+  /* Opportunity section */
+  .opportunities-section {
+    padding-top: 34px;
+    padding-bottom: 38px;
   }
-}
 
-
-/* ==========================================================================
-   C. FILTER BAR (search, category, sort, clear)
-   ========================================================================== */
-
-.opportunities-section select {
-  appearance: none;
-  -webkit-appearance: none;
-  padding-right: 38px;
-  background-image:
-    linear-gradient(45deg, transparent 50%, var(--green-dark) 50%),
-    linear-gradient(135deg, var(--green-dark) 50%, transparent 50%);
-  background-position:
-    calc(100% - 20px) 50%,
-    calc(100% - 14px) 50%;
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
-}
-
-/* index.html also has a real <span>⌕</span> in the search box, which
-   floated above the input as a second icon. Hide it; the ::before icon stays. */
-.search-box > span {
-  display: none;
-}
-
-/* The select is wrapped in a bordered label, which doubled the border */
-.filter-control {
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
-/* The search icon was floating above the box on phones */
-.search-box::before {
-  top: 50%;
-  transform: translateY(-52%);
-  font-size: 1.35rem;
-  line-height: 1;
-  pointer-events: none;
-}
-
-
-/* ==========================================================================
-   D. SIGNED-IN STATE: green "Active" badge + Sign Out
-   ========================================================================== */
-
-.status-active {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  padding: 5px 11px;
-  border: 1px solid #cfe8d8;
-  border-radius: 999px;
-  background: #e6f4ea;
-  color: #0b6b3a;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
-.status-active i {
-  display: block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #1fa65a;
-  box-shadow: 0 0 0 3px rgba(31, 166, 90, 0.18);
-}
-
-.btn-signout {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 12px;
-  border: 1px solid #ead9d7;
-  border-radius: 8px;
-  background: #fff6f5;
-  color: #8a2c24;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.2;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.btn-signout:hover {
-  background: #fbe9e7;
-}
-
-/* Header auth area (#navAuth in index.html) */
-.nav-auth {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Sign In / Create Account are no longer in the navigation menu: the "Me"
-   button takes signed-out visitors to the sign-in page. index.html no longer
-   has these links; this rule only hides them on any other page that still
-   has an older copy of the header. */
-#signInLink,
-#createAccountLink {
-  display: none !important;
-}
-
-/* Keeps the badge and Sign Out side by side in the header */
-.auth-status-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-@media (max-width: 720px) {
-  .navlinks .status-active,
-  .navlinks .btn-signout {
-    align-self: flex-start;
-    margin: 6px 13px;
+  .section-head {
+    align-items: flex-start;
+    gap: 12px;
   }
-}
 
+  .section-head h2 {
+    font-size: clamp(1.45rem, 6vw, 1.85rem);
+    line-height: 1.2;
+  }
 
-/* Signed-in account menu: Active badge sits beside the "Me" button */
-.account-menu {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+  .section-head p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
 
-.account-menu .status-active {
-  margin: 0;
-}
+  .results-badge {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+  }
 
-
-/* ==========================================================================
-   E. VIEW MORE / VIEW LESS and 3 CARDS PER ROW ON DESKTOP
-   ========================================================================== */
-
-.view-more-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
-}
-
-.view-more-wrap .button {
-  min-width: 190px;
-}
-
-@media (min-width: 900px) {
+  /* Two-column opportunity cards are retained */
   #opportunityGrid,
   .opportunity-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-
-/* ==========================================================================
-   F. SAVED OPPORTUNITIES INSIDE THE ACCOUNT DASHBOARD
-   (this replaces the old homepage application tracker)
-   ========================================================================== */
-
-.account-saved-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 18px 0;
-}
-
-.account-saved-list {
-  display: grid;
-  gap: 14px;
-}
-
-.account-saved-card {
-  padding: 18px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--white);
-}
-
-.account-saved-card h4 {
-  margin-bottom: 4px;
-  color: var(--green-deep);
-  font-size: 1rem;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
-.account-saved-card p {
-  color: var(--muted);
-  font-size: 0.85rem;
-  line-height: 1.6;
-}
-
-.account-saved-status {
-  display: block;
-  margin-top: 12px;
-}
-
-.account-saved-status span {
-  display: block;
-  margin-bottom: 5px;
-  color: #35463b;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.account-saved-status select {
-  width: 100%;
-  min-height: 44px;
-  padding: 0 10px;
-  border: 1px solid #dce7df;
-  border-radius: 10px;
-  background: var(--white);
-  color: #43544a;
-  font-size: 13px;
-}
-
-.account-saved-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
-}
-
-.account-saved-actions .button {
-  flex: 1 1 130px;
-  min-height: 42px;
-  padding: 9px 12px;
-}
-
-@media (max-width: 420px) {
-  .account-saved-toolbar .button {
-    flex: 1;
-  }
-}
-
-
-/* ==========================================================================
-   G. CATEGORY SECTIONS (homepage: one block per category)
-   ========================================================================== */
-
-.category-sections {
-  display: grid;
-  gap: 46px;
-  margin-top: 28px;
-}
-
-.category-section-head {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding-bottom: 14px;
-  border-bottom: 2px solid var(--gold-line);
-}
-
-.category-section-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  font-size: 24px;
-}
-
-.category-section-head h3 {
-  color: var(--green-deep);
-  font-size: 1.3rem;
-  font-weight: 800;
-  line-height: 1.25;
-  letter-spacing: -0.4px;
-}
-
-.category-section-head p {
-  margin-top: 2px;
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-
-.category-section .category-grid {
-  margin-top: 20px;
-}
-
-.category-section .view-more-wrap {
-  margin-top: 22px;
-}
-
-@media (max-width: 600px) {
-  .category-sections {
-    gap: 38px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
   }
 
-  .category-section-head h3 {
-    font-size: 1.15rem;
+  .opportunity-card {
+    min-width: 0;
+    border-radius: 13px;
+    box-shadow: 0 3px 12px rgba(20, 55, 38, 0.07);
   }
-}
 
-
-/* ==========================================================================
-   H. COMPACT CARDS ON PHONES (2 per row)
-   ========================================================================== */
-
-@media (max-width: 600px) {
   .opportunity-card .opportunity-image {
-    height: 110px;
+    height: 124px;
   }
 
   .opportunity-card .opportunity-content {
-    gap: 10px;
+    gap: 11px;
     padding: 12px;
   }
 
   .opportunity-card .opportunity-title {
-    display: -webkit-box;
+    font-size: 0.9rem;
+    line-height: 1.42;
     -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    font-size: 0.86rem;
-    line-height: 1.35;
   }
 
   .save-btn {
-    min-height: 38px;
-    padding: 8px 6px;
-    font-size: 12px;
-  }
-}
-
-
-/* ==========================================================================
-   I. INTERNSHIPS: list layout (tinted panel, small image left, title right)
-   ========================================================================== */
-
-.category-section--list {
-  padding: 28px 28px 32px;
-  border-radius: 6px;
-  background: #f0dd9c; /* a shade deeper than the page so the panel stands out */
-}
-
-.list-section-title {
-  margin: 0 0 18px;
-  color: var(--green-deep);
-  font-size: clamp(1.7rem, 4.5vw, 2.3rem);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.5px;
-}
-
-.opportunity-list {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  column-gap: 40px;
-}
-
-.opportunity-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 18px;
-  padding: 18px 0;
-  border-bottom: 1px solid rgba(120, 86, 8, 0.28);
-}
-
-.opportunity-row:last-child {
-  border-bottom: 0;
-}
-
-.opportunity-row-image {
-  display: block;
-  flex: 0 0 158px;
-  width: 158px;
-  height: 90px;
-  overflow: hidden;
-  border-radius: 3px;
-  background: #dbe8df;
-}
-
-.opportunity-row-image img.banner-main {
-  display: block;
-}
-
-.opportunity-row-body {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  min-width: 0;
-}
-
-.opportunity-row-title {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 500;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
-.opportunity-row-title a {
-  color: #1d2b22;
-  text-decoration: none;
-}
-
-.opportunity-row-title a:hover {
-  color: var(--green);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.save-link {
-  padding: 4px 0;
-  border: 0;
-  background: none;
-  color: var(--green-dark);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.save-link:hover {
-  text-decoration: underline;
-}
-
-.save-link.is-saved {
-  color: var(--green);
-}
-
-/* Two columns of rows on wide screens */
-@media (min-width: 900px) {
-  .opportunity-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 44px;
+    padding: 9px 6px;
+    border-radius: 9px;
+    font-size: 0.76rem;
   }
 
-  .opportunity-row:nth-last-child(2):nth-child(odd) {
-    border-bottom: 0;
+  .view-more-wrap {
+    margin-top: 24px;
   }
-}
 
-@media (max-width: 600px) {
+  .view-more-wrap .button {
+    min-height: 46px;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  /* Category-specific opportunity sections */
+  .category-sections {
+    gap: 32px;
+  }
+
   .category-section--list {
-    padding: 22px 16px 26px;
-    margin-inline: -4px;
-  }
-
-  .opportunity-row {
-    gap: 14px;
-    padding: 16px 0;
+    border-radius: 13px;
   }
 
   .opportunity-row-image {
-    flex-basis: 118px;
-    width: 118px;
-    height: 76px;
+    flex-basis: 105px;
+    width: 105px;
+    height: 78px;
   }
 
   .opportunity-row-title {
-    font-size: 1rem;
+    font-size: 0.95rem;
+  }
+
+  /* Career Kit — stronger premium gold identity */
+  .career-section {
+    padding-top: 42px;
+    padding-bottom: 42px;
+  }
+
+  .career-section .section-intro h2 {
+    font-size: clamp(1.5rem, 6vw, 1.9rem);
+    line-height: 1.25;
+  }
+
+  .career-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .career-panel {
+    min-width: 0;
+    border: 1px solid rgba(196, 154, 67, 0.35);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--noh-ivory);
+    box-shadow: 0 5px 18px rgba(20, 55, 38, 0.07);
+  }
+
+  .career-panel .career-visual {
+    overflow: hidden;
+  }
+
+  .career-panel .career-visual svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .career-panel .service-label {
+    color: var(--noh-gold-dark);
+    letter-spacing: 0.08em;
+  }
+
+  .career-panel h3 {
+    line-height: 1.3;
+  }
+
+  .career-panel .button {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+  }
+
+  .career-panel .button-primary {
+    border-color: var(--noh-gold);
+    background: var(--noh-gold);
+    color: #183b2b;
+  }
+
+  .career-panel .button-primary:hover {
+    background: var(--noh-gold-dark);
+    border-color: var(--noh-gold-dark);
+    color: #fff;
+  }
+
+  .career-panel .button-outline {
+    border-color: var(--noh-gold);
+    color: #77571c;
+  }
+
+  .career-panel .button-outline:hover {
+    background: var(--noh-gold-soft);
+  }
+
+  .featured-panel {
+    border-color: var(--noh-gold);
+    box-shadow: 0 6px 20px rgba(196, 154, 67, 0.13);
+  }
+
+  .featured-label {
+    background: var(--noh-gold);
+    color: #183b2b;
+  }
+
+  /* Pricing */
+  .pricing-card {
+    margin-top: 22px;
+    padding: 20px 16px;
+    border: 1px solid rgba(196, 154, 67, 0.4);
+    border-radius: 15px;
+    background: var(--noh-ivory);
+  }
+
+  .price-row {
+    gap: 12px;
+    padding: 13px 0;
+  }
+
+  .price-row strong {
+    color: var(--noh-gold-dark);
+    text-align: right;
+  }
+
+  /* Final call to action */
+  .cta-banner {
+    padding-top: 42px;
+    padding-bottom: 42px;
+  }
+
+  .cta-banner h2 {
+    font-size: clamp(1.5rem, 6vw, 1.9rem);
+    line-height: 1.25;
+  }
+
+  .cta-banner .button-gold {
+    min-height: 46px;
+  }
+
+  /* Footer */
+  .footer-grid {
+    gap: 28px;
+  }
+
+  .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+  }
+
+  .footer-bottom {
+    gap: 8px;
+  }
+
+  /* Account dashboard */
+  .account-dashboard {
+    padding: 0;
+  }
+
+  .account-dashboard-panel {
+    width: 100%;
+    max-width: 100%;
+    max-height: 92dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .account-dashboard-header {
+    gap: 12px;
+    padding: 20px 16px;
+  }
+
+  .account-dashboard-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .account-dashboard-close {
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .account-dashboard-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .account-tab {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 10px 14px;
+    white-space: nowrap;
+  }
+
+  .account-view {
+    padding: 16px;
+  }
+
+  .account-profile-card {
+    gap: 14px;
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .account-dashboard-shortcuts {
+    gap: 12px;
+  }
+
+  .account-shortcut {
+    min-height: 72px;
+    padding: 13px;
+  }
+
+  .account-saved-toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .account-saved-toolbar .button {
+    min-height: 44px;
+    padding-inline: 8px;
+  }
+
+  .account-saved-card {
+    padding: 15px;
+    border-radius: 13px;
+  }
+
+  .account-saved-actions .button {
+    min-height: 44px;
+  }
+
+  .account-password-form {
+    gap: 10px;
+  }
+
+  .account-password-form input {
+    width: 100%;
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .account-password-form .button {
+    width: 100%;
+    min-height: 48px;
   }
 }
 
+/* 4. Very small phones */
+@media (max-width: 380px) {
 
-/* ==========================================================================
-   J. FULL BANNERS: show the whole image, with a soft blurred fill behind it
-   so logos and flyers are never cut off.
-   ========================================================================== */
+  .wrap {
+    width: min(100% - 22px, 100%);
+  }
 
-.opportunity-card .opportunity-image,
-.opportunity-row-image {
-  position: relative;
-  overflow: hidden;
-  background: #e9efeb;
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand-name {
+    font-size: 0.84rem;
+  }
+
+  .brand-tagline {
+    font-size: 0.59rem;
+  }
+
+  #opportunityGrid,
+  .opportunity-grid {
+    gap: 10px;
+  }
+
+  .opportunity-card .opportunity-image {
+    height: 112px;
+  }
+
+  .opportunity-card .opportunity-content {
+    padding: 10px;
+  }
+
+  .opportunity-card .opportunity-title {
+    font-size: 0.84rem;
+  }
+
+  .save-btn {
+    font-size: 0.7rem;
+  }
+
+  .account-dashboard-header h2 {
+    font-size: 1.25rem;
+  }
 }
 
-.opportunity-card .opportunity-image-link {
-  position: relative;
-}
+/* 5. Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .opportunity-card,
+  .opportunity-card img,
+  .save-btn,
+  .button {
+    transition: none !important;
+    animation: none !important;
+  }
 
-.banner-backdrop {
-  position: absolute;
-  inset: -12px;
-  width: calc(100% + 24px);
-  height: calc(100% + 24px);
-  max-width: none;
-  object-fit: cover;
-  filter: blur(14px) saturate(1.1);
-  opacity: 0.75;
-  pointer-events: none;
+  .opportunity-card:hover {
+    transform: none;
+  }
 }
-
-.opportunity-card .opportunity-image img.banner-main,
-.opportunity-row-image img.banner-main {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* the hover zoom would crop the banner again, so it is switched off */
-.opportunity-card:hover .opportunity-image img.banner-main {
-  transform: none;
-}
-
-/* the backdrop is the same file, so it adds no extra download */
