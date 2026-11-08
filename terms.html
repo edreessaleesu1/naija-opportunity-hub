@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="/naija-opportunity-hub-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{--green:#075b3b;--green-dark:#033c29;--gold:#c6a24a;--gold-dark:#a9822d;--gold-light:#f8f0dc;--gold-border:#e8d7aa;--bg:#f8eec9;--text:#1c3026;--muted:#5f6f65;--border:#e5e1cf;--danger:#9a1c1c}
     *{box-sizing:border-box}
@@ -38,12 +38,10 @@
     .nav-links a{text-decoration:none;font-weight:600;font-size:.9rem;padding:8px 10px;border-radius:10px;color:var(--text)}
     .nav-links a:hover,.nav-links a[aria-current]{background:var(--gold-light)}
     @media(max-width:560px){.brand-sub{display:none}.nav-links a.hide-s{display:none}}
-    .banner{position:relative;overflow:hidden;isolation:isolate;margin:20px 0 22px;padding:34px 30px;border-radius:22px;color:#fff;background:radial-gradient(circle at 90% 0%,rgba(198,162,74,.30),transparent 40%),linear-gradient(135deg,#033c29,#075b3b 70%,#0a7050);box-shadow:0 16px 38px rgba(6,69,47,.24)}
-    .banner::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,transparent,var(--gold),#f0dca0,var(--gold),transparent)}
-    .banner .kicker{display:inline-block;margin:0 0 10px;padding:5px 13px;border:1px solid rgba(232,207,134,.55);border-radius:999px;color:#e8cf86;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
-    .banner h1{margin:0 0 8px;font-family:"Playfair Display",Georgia,serif;font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.15}
-    .banner p{margin:0;max-width:640px;color:rgba(255,255,255,.88)}
     main{padding-bottom:56px}
+    .page-head{margin:26px 0 16px}
+    .page-head h1{margin:0 0 6px;font-size:clamp(1.6rem,4.6vw,2.2rem);line-height:1.2;color:var(--green-dark)}
+    .page-head p{margin:0;max-width:640px;color:var(--muted)}
     .card{background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 6px 22px rgba(28,48,38,.08);padding:26px 24px}
     .doc h2{margin:28px 0 8px;padding-bottom:6px;font-size:1.2rem;color:var(--green);border-bottom:2px solid var(--gold-border)}
     .doc h2:first-child{margin-top:0}
@@ -60,6 +58,7 @@
     footer a{font-weight:700}
 </style>
   <script defer src="/pwa.js"></script>
+  <script defer src="/consent.js"></script>
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
@@ -80,11 +79,10 @@
   </header>
 
   <main id="content" class="wrap" tabindex="-1">
-    <section class="banner">
-      <span class="kicker">Using the site</span>
+    <header class="page-head">
       <h1>Terms of Use</h1>
       <p>The simple rules for using Naija Opportunity Hub, and how to stay safe when you apply.</p>
-    </section>
+    </header>
     <article class="card doc">
       <p class="meta">Last updated: 7 November 2026</p>
 
@@ -140,6 +138,8 @@
       <h2 id="ip">8. Content and ownership</h2>
       <p>The NOH name, design, code and original content belong to us or our licensors and are protected by law. Listing data comes from third parties and remains theirs. You keep ownership of the documents you create, and you give us permission to process your inputs only as needed to provide the features you ask for.</p>
 
+      <p><strong>Advertising.</strong> Some pages may show ads provided by third parties such as Google AdSense. We do not endorse advertisers or their products, and we are not responsible for what they offer. An advertisement is not a listed opportunity. Never pay a fee to apply because of an advert.</p>
+
       <h2 id="liability">9. Limits of liability</h2>
       <p>The site and its content are provided &ldquo;as is&rdquo;, without promises that they are complete, current or error-free. To the extent the law allows, NOH is not liable for losses that result from relying on a listing, missing a deadline, an AI result, the actions of third-party organisations or websites, or the site being unavailable. Nothing in these terms limits any right you have under Nigerian consumer law that cannot be limited.</p>
 
@@ -157,7 +157,7 @@
   <footer>
     <div class="wrap">
       <p>&copy; <span id="year"></span> Naija Opportunity Hub. All rights reserved.</p>
-      <p class="links"><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms of Use</a><a href="/#opportunities">Opportunities</a></p>
+      <p class="links"><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms of Use</a><a href="#" data-noh-cookie-settings>Cookie settings</a><a href="/#opportunities">Opportunities</a></p>
     </div>
   </footer>
   <script>document.getElementById("year").textContent=new Date().getFullYear();</script>
