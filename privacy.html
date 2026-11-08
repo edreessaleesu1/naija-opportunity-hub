@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="/naija-opportunity-hub-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{--green:#075b3b;--green-dark:#033c29;--gold:#c6a24a;--gold-dark:#a9822d;--gold-light:#f8f0dc;--gold-border:#e8d7aa;--bg:#f8eec9;--text:#1c3026;--muted:#5f6f65;--border:#e5e1cf;--danger:#9a1c1c}
     *{box-sizing:border-box}
@@ -38,12 +38,10 @@
     .nav-links a{text-decoration:none;font-weight:600;font-size:.9rem;padding:8px 10px;border-radius:10px;color:var(--text)}
     .nav-links a:hover,.nav-links a[aria-current]{background:var(--gold-light)}
     @media(max-width:560px){.brand-sub{display:none}.nav-links a.hide-s{display:none}}
-    .banner{position:relative;overflow:hidden;isolation:isolate;margin:20px 0 22px;padding:34px 30px;border-radius:22px;color:#fff;background:radial-gradient(circle at 90% 0%,rgba(198,162,74,.30),transparent 40%),linear-gradient(135deg,#033c29,#075b3b 70%,#0a7050);box-shadow:0 16px 38px rgba(6,69,47,.24)}
-    .banner::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,transparent,var(--gold),#f0dca0,var(--gold),transparent)}
-    .banner .kicker{display:inline-block;margin:0 0 10px;padding:5px 13px;border:1px solid rgba(232,207,134,.55);border-radius:999px;color:#e8cf86;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
-    .banner h1{margin:0 0 8px;font-family:"Playfair Display",Georgia,serif;font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.15}
-    .banner p{margin:0;max-width:640px;color:rgba(255,255,255,.88)}
     main{padding-bottom:56px}
+    .page-head{margin:26px 0 16px}
+    .page-head h1{margin:0 0 6px;font-size:clamp(1.6rem,4.6vw,2.2rem);line-height:1.2;color:var(--green-dark)}
+    .page-head p{margin:0;max-width:640px;color:var(--muted)}
     .card{background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 6px 22px rgba(28,48,38,.08);padding:26px 24px}
     .doc h2{margin:28px 0 8px;padding-bottom:6px;font-size:1.2rem;color:var(--green);border-bottom:2px solid var(--gold-border)}
     .doc h2:first-child{margin-top:0}
@@ -60,6 +58,7 @@
     footer a{font-weight:700}
 </style>
   <script defer src="/pwa.js"></script>
+  <script defer src="/consent.js"></script>
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
@@ -80,15 +79,14 @@
   </header>
 
   <main id="content" class="wrap" tabindex="-1">
-    <section class="banner">
-      <span class="kicker">Your privacy</span>
+    <header class="page-head">
       <h1>Privacy Policy</h1>
       <p>What we collect, why we collect it, and the choices you have.</p>
-    </section>
+    </header>
     <article class="card doc">
       <p class="meta">Last updated: 7 November 2026</p>
 
-      <div class="notice"><strong>In short:</strong> We collect only what the site needs to work. We do not sell your personal information. Your CV details stay on your device unless you choose to use the AI Career Assistant.</div>
+      <div class="notice"><strong>In short:</strong> We collect only what the site needs to work. We do not sell your personal information. Analytics and advertising cookies are used only if you accept them. Your CV details stay on your device unless you choose to use the AI Career Assistant.</div>
 
       <nav class="toc" aria-label="Contents"><strong>On this page</strong><ol>
         <li><a href="#who">Who we are</a></li><li><a href="#collect">Information we collect</a></li><li><a href="#ai">The AI Career Assistant</a></li><li><a href="#use">How we use information</a></li>
@@ -107,6 +105,10 @@
       <p>What you type into the CV and cover letter builder, and any CV file you upload, is processed in your browser to build and preview your document. We do not receive it unless you use an AI feature (see section 3).</p>
       <h3>Messages you send us</h3>
       <p>If you use our contact form, we store your name, email address, the subject, any link you add and your message, so we can reply.</p>
+      <h3>Analytics (only if you accept)</h3>
+      <p>If you accept analytics cookies, we use Google Analytics to see how the site is used, for example which pages are visited, the type of device and browser, and your approximate location. This helps us improve the site. It is not used to identify you personally.</p>
+      <h3>Advertising (only if you accept)</h3>
+      <p>If you accept advertising cookies, Google AdSense may show ads on some pages. Google and its partners may use cookies and similar technologies to show and measure ads. Ads are not shown on sign-in, contact, legal or Career Kit pages.</p>
       <h3>Technical information</h3>
       <p>Our hosting provider (Cloudflare) and our other service providers may process technical data such as IP address, browser type and pages requested, to deliver the site, keep it secure and prevent abuse.</p>
 
@@ -129,11 +131,11 @@
       <p>Where the law requires a legal basis, we rely on the performance of our service to you, our legitimate interest in running and securing the site, and your consent where you choose to use optional features.</p>
 
       <h2 id="share">5. Who we share it with</h2>
-      <p>We do not sell personal information. We use trusted service providers who process data for us:</p>
+      <p>We do not sell personal information. If you accept advertising cookies, Google and its partners may use them to show ads. We use trusted service providers who process data for us:</p>
       <ul>
         <li><strong>Supabase</strong> &ndash; sign-in, database and server functions.</li>
         <li><strong>Cloudflare</strong> &ndash; website hosting and delivery.</li>
-        <li><strong>Google</strong> &ndash; the Gemini API for AI features, and Google Fonts for typefaces.</li>
+        <li><strong>Google</strong> &ndash; the Gemini API for AI features, Google Fonts for typefaces, Google Analytics for site statistics and Google AdSense for ads (the last two only if you accept them).</li>
         <li><strong>Content delivery networks</strong> &ndash; to load code libraries used by the site.</li>
       </ul>
       <p>These providers may process data outside Nigeria. We may also disclose information if the law requires it or to protect the rights and safety of users and the site.</p>
@@ -141,9 +143,10 @@
 
       <h2 id="storage">6. Cookies and device storage</h2>
       <p>We use your browser&rsquo;s local storage and a service worker to keep you signed in, remember saved opportunities, and make the site load faster and work better offline. These are needed for the site to work. You can clear them in your browser settings, which may sign you out and remove saved items.</p>
+      <p><strong>Optional cookies.</strong> Google Analytics and Google AdSense set cookies only after you choose &ldquo;Accept all&rdquo; or switch them on under &ldquo;Customise&rdquo;. Nothing from Google is loaded for these purposes before that. You can change or withdraw your choice at any time using <a href="#" data-noh-cookie-settings>Cookie settings</a> in the footer of every page. Loading typefaces from Google Fonts and code libraries from content delivery networks means those providers receive your IP address when a page loads.</p>
 
       <h2 id="keep">7. How long we keep it</h2>
-      <p>We keep account information while your account is active. Contact messages are kept only as long as needed to respond and to keep a record of the request. AI usage records are kept for a short period for fair-use limits. You can ask us to delete your information at any time.</p>
+      <p>We keep account information while your account is active. Analytics data is kept for a limited period set in our analytics settings. Contact messages are kept only as long as needed to respond and to keep a record of the request. AI usage records are kept for a short period for fair-use limits. You can ask us to delete your information at any time.</p>
 
       <h2 id="rights">8. Your rights and choices</h2>
       <p>Under the Nigeria Data Protection Act 2023 and other applicable law, you may have the right to ask us to access, correct or delete your personal data, to object to or restrict certain processing, and to complain to the Nigeria Data Protection Commission. To make a request, use our <a href="/contact.html?subject=privacy">contact form</a> and choose &ldquo;Privacy request&rdquo;.</p>
@@ -165,7 +168,7 @@
   <footer>
     <div class="wrap">
       <p>&copy; <span id="year"></span> Naija Opportunity Hub. All rights reserved.</p>
-      <p class="links"><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms of Use</a><a href="/#opportunities">Opportunities</a></p>
+      <p class="links"><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms of Use</a><a href="#" data-noh-cookie-settings>Cookie settings</a><a href="/#opportunities">Opportunities</a></p>
     </div>
   </footer>
   <script>document.getElementById("year").textContent=new Date().getFullYear();</script>
