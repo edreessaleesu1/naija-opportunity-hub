@@ -58,6 +58,7 @@
     footer a{font-weight:700}
 </style>
   <script defer src="/pwa.js"></script>
+  <script defer src="/noh-extras.js?v=1"></script>
   <script defer src="/consent.js"></script>
 </head>
 <body>
@@ -71,8 +72,8 @@
       </a>
       <nav class="nav-links" aria-label="Main navigation">
         <a class="hide-s" href="/#home">Home</a>
-        <a href="/#opportunities">Opportunities</a>
-        <a class="hide-s" href="/#career-kit">Career Kit</a>
+        <a href="/category.html">Opportunities</a>
+        <a class="hide-s" href="/career-kit.html">Career Kit</a>
         <a href="/contact.html">Contact</a>
       </nav>
     </div>
@@ -149,7 +150,7 @@
       <p>We keep account information while your account is active. Analytics data is kept for a limited period set in our analytics settings. Contact messages are kept only as long as needed to respond and to keep a record of the request. AI usage records are kept for a short period for fair-use limits. You can ask us to delete your information at any time.</p>
 
       <h2 id="rights">8. Your rights and choices</h2>
-      <p>Under the Nigeria Data Protection Act 2023 and other applicable law, you may have the right to ask us to access, correct or delete your personal data, to object to or restrict certain processing, and to complain to the Nigeria Data Protection Commission. To make a request, use our <a href="/contact.html?subject=privacy">contact form</a> and choose &ldquo;Privacy request&rdquo;.</p>
+      <p>Under the Nigeria Data Protection Act 2023 and other applicable law, you may have the right to ask us to access, correct or delete your personal data (you can delete your account yourself at <a href="/delete-account.html">Delete account</a>), to object to or restrict certain processing, and to complain to the Nigeria Data Protection Commission. To make a request, use our <a href="/contact.html?subject=privacy">contact form</a> and choose &ldquo;Privacy request&rdquo;.</p>
 
       <h2 id="security">9. Security</h2>
       <p>We use reasonable technical measures, including encrypted connections, access controls and restricted database permissions. No online service is completely secure, so please use a strong, unique password.</p>
@@ -168,7 +169,7 @@
   <footer>
     <div class="wrap">
       <p>&copy; <span id="year"></span> Naija Opportunity Hub. All rights reserved.</p>
-      <p class="links"><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms of Use</a><a href="#" data-noh-cookie-settings>Cookie settings</a><a href="/#opportunities">Opportunities</a></p>
+      <p class="links"><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms of Use</a><a href="#" data-noh-cookie-settings>Cookie settings</a><a href="/category.html">Opportunities</a></p>
     </div>
   </footer>
   <script>document.getElementById("year").textContent=new Date().getFullYear();</script>
