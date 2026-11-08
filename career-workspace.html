@@ -29,6 +29,25 @@
   </style>
   
   <noscript><style>html.noh-lock body{visibility:visible}</style><p style="padding:16px">Please turn on JavaScript and <a href="/auth.html?mode=login">sign in</a> to use the Career Kit.</p></noscript>
+
+  <style id="noh-mobile">
+    @media (max-width:640px){
+      .tool-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:6px}
+      .tool-tabs::-webkit-scrollbar{display:none}
+      .tool-tabs a{flex:none;white-space:nowrap;min-height:44px;display:inline-flex;align-items:center;font-size:13px;padding:0 16px}
+      h1{line-height:1.2}
+      .back-link,.workspace-back-link,.button,.privacy-note,.tool-card-label,.tool-card-action,.kicker,.eyebrow,.form-section-number,.form-card p,.ai-assistant p,.ai-assistant strong,.preview-heading p,.tool-card p,.step-card p,footer a,footer p,.footer a,.footer p{font-size:13px}
+      .brand small,.brand-text small{font-size:10px}
+      .form-card label,.form-card small,.preview-status,.step-label,.section-kicker{font-size:13px}
+      .form-card input,.form-card select,.form-card textarea{font-size:16px;min-height:44px}
+      .form-card button,.workspace-back-link,.footer a,footer a{min-height:44px}
+      footer a{display:inline-flex;align-items:center;padding:0 6px}
+      .mob-jump{position:fixed;right:14px;bottom:14px;z-index:60;display:flex;gap:0;border-radius:999px;overflow:hidden;box-shadow:0 6px 20px rgba(28,48,38,.25);border:1.5px solid #c6a24a}
+      .mob-jump a{min-height:46px;padding:0 18px;display:inline-flex;align-items:center;background:#fffdf6;color:#075b3b;font-weight:800;font-size:14px;text-decoration:none}
+      .mob-jump a+a{background:#c6a24a;color:#1d2a20}
+    }
+    @media (min-width:641px){.mob-jump{display:none}}
+  </style>
 </head>
 
 <body>
@@ -611,6 +630,7 @@
     </div>
   </footer>
 
+  <div class="mob-jump" aria-label="Jump between editor and preview"><a href="#workspace-grid">Edit</a><a href="#document-preview">Preview</a></div>
   <script defer src="/consent.js"></script>
 </body>
 </html>
