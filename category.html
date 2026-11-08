@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f8eec9">
+<title>Opportunities by Category | Naija Opportunity Hub</title>
+<meta name="description" content="Browse scholarships, jobs, internships, fellowships, grants, training and volunteering opportunities for Nigerians.">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/naija-opportunity-hub-logo.png">
+<style>
+:root{--bg:#f8eec9;--card:#fffdf6;--green:#075b3b;--green-d:#033c29;--gold:#c6a24a;--gold-d:#a9822d;--gold-l:#f6edcf;--gold-b:#e6d7a3;--text:#1c3026;--muted:#5d6b61}
+*{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "DM Sans","Segoe UI",system-ui,-apple-system,sans-serif;-webkit-text-size-adjust:100%}
+a{color:var(--green)}
+.wrap{width:min(1120px,100% - 32px);margin:0 auto}
+header.site{position:sticky;top:0;z-index:30;background:rgba(255,253,246,.96);border-bottom:1px solid var(--gold-b);backdrop-filter:blur(8px)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--green-d);font-weight:800}
+.brand img{width:40px;height:40px;object-fit:contain}
+.nav a.home{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border:1px solid var(--gold-b);border-radius:999px;background:#fff;text-decoration:none;font-weight:700;font-size:.9rem}
+.head{padding:30px 0 10px}
+.head h1{margin:0 0 4px;font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.15;color:var(--green-d)}
+.head p{margin:0;color:var(--muted)}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:14px 0 6px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tabs a{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid var(--gold-b);border-radius:999px;background:#fff;color:var(--text);text-decoration:none;font-weight:700;font-size:.9rem}
+.tabs a[aria-current]{background:var(--gold);border-color:var(--gold);color:#1d2a20}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 18px}
+.tools input,.tools select{flex:1 1 220px;min-height:46px;padding:0 14px;border:1.5px solid #d9d4bd;border-radius:12px;background:#fffefb;font:inherit;color:var(--text)}
+.tools select{flex:0 1 180px}
+.count{margin:0 0 12px;color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--gold-b);border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;box-shadow:0 4px 16px rgba(28,48,38,.07);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(28,48,38,.12)}
+.img{position:relative;height:150px;overflow:hidden;background:var(--gold-l);display:grid;place-items:center}
+.img .bd{position:absolute;inset:-12px;width:calc(100% + 24px);height:calc(100% + 24px);object-fit:cover;filter:blur(14px);opacity:.7}
+.img .mn{position:relative;z-index:1;width:100%;height:100%;object-fit:contain}
+.img .ph{font-size:2.4rem;font-weight:800;color:var(--gold-d)}
+.body{display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px;flex:1}
+.body h2{margin:0;font-size:1.02rem;line-height:1.35;color:var(--green-d)}
+.body .org{color:var(--muted);font-size:.88rem}
+.meta{margin-top:auto;padding-top:8px;font-size:.82rem;font-weight:700;color:var(--gold-d)}
+.more{display:block;margin:26px auto 0;min-height:48px;padding:0 28px;border:1.5px solid var(--gold);border-radius:12px;background:var(--gold);color:#1d2a20;font:inherit;font-weight:800;cursor:pointer}
+.empty{padding:30px;text-align:center;background:var(--card);border:1px solid var(--gold-b);border-radius:16px}
+footer{margin-top:50px;padding:24px 0 34px;border-top:1px solid var(--gold-b);text-align:center;font-size:.9rem}
+footer a{display:inline-flex;align-items:center;min-height:40px;padding:0 8px;font-weight:700}
+.hide{display:none}
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap nav">
+  <a class="brand" href="/"><img src="/naija-opportunity-hub-logo.png" alt="" width="40" height="40"><span>Naija Opportunity Hub</span></a>
+  <a class="home" href="/">&larr; Home</a>
+</div></header>
+
+<main class="wrap">
+  <div class="head"><h1 id="title">Opportunities</h1><p id="sub">Loading…</p></div>
+  <nav class="tabs" id="tabs" aria-label="Categories"></nav>
+  <div class="tools">
+    <input id="q" type="search" placeholder="Search this category" aria-label="Search this category">
+    <select id="sort" aria-label="Sort"><option value="new">Newest first</option><option value="deadline">Closing soonest</option></select>
+  </div>
+  <p class="count" id="count" aria-live="polite"></p>
+  <div class="grid" id="grid"></div>
+  <button class="more hide" id="more" type="button">Show more</button>
+</main>
+
+<footer><div class="wrap">
+  <a href="/">Home</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="#" data-noh-cookie-settings>Cookie settings</a>
+</div></footer>
+
+<script>
+(function(){
+  var URL_="https://djxornmwvkauhkcuhgxc.supabase.co",KEY="sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
+  var CATS=[["Scholarship","🎓","Scholarships"],["Job","💼","Jobs"],["Internship","💻","Internships"],["Fellowship","👥","Fellowships"],["Grant","💰","Grants"],["Training","🧑‍🏫","Training"],["Volunteering","💖","Volunteering"]];
+  var $=function(i){return document.getElementById(i)},all=[],list=[],shown=0,PAGE=12;
+  function key(v){return String(v||"").toLowerCase().trim().replace(/s$/,"")}
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+  function safe(u){try{var x=new URL(u);return /^https?:$/.test(x.protocol)?x.href:""}catch(e){return ""}}
+  var want=new URLSearchParams(location.search).get("c")||"";
+  var cur=CATS.find(function(c){return key(c[0])===key(want)||key(c[2])===key(want)})||null;
+
+  function tabs(){
+    $("tabs").innerHTML='<a href="/category.html"'+(cur?'':' aria-current="page"')+'>All</a>'+CATS.map(function(c){
+      return'<a href="/category.html?c='+encodeURIComponent(c[0])+'"'+(cur&&cur[0]===c[0]?' aria-current="page"':'')+'><span aria-hidden="true">'+c[1]+'</span>'+esc(c[2])+'</a>'}).join("");
+    var a=$("tabs").querySelector("[aria-current]");if(a&&a.scrollIntoView)a.scrollIntoView({inline:"center",block:"nearest"});
+  }
+  function title(){
+    var t=cur?cur[2]:"All opportunities";
+    $("title").textContent=t;document.title=t+" | Naija Opportunity Hub";
+    $("sub").textContent=cur?"Latest "+cur[2].toLowerCase()+" for Nigerians, with links to the official source.":"Every published opportunity, newest first.";
+  }
+  function dl(d){if(!d)return"";var x=new Date(String(d).slice(0,10)+"T00:00:00");if(isNaN(x))return"";
+    var days=Math.ceil((x-new Date(new Date().toDateString()))/864e5);
+    if(days<0)return"Closed";if(days===0)return"Closes today";if(days<=14)return"Closes in "+days+" day"+(days>1?"s":"");
+    return"Closes "+x.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}
+  function card(o){
+    var img=safe(o.image_url),t=esc(o.title);
+    var im=img?'<img class="bd" src="'+esc(img)+'" alt="" aria-hidden="true" loading="lazy" onerror="this.remove()"><img class="mn" src="'+esc(img)+'" alt="" loading="lazy" onerror="this.remove()">':'<span class="ph" aria-hidden="true">'+esc((o.title||"?").charAt(0).toUpperCase())+'</span>';
+    return'<a class="card" href="/opportunity-details.html?id='+encodeURIComponent(o.id)+'"><div class="img">'+im+'</div><div class="body"><h2>'+t+'</h2><span class="org">'+esc(o.organization||"")+'</span><span class="meta">'+esc(dl(o.deadline)||(o.location||""))+'</span></div></a>';
+  }
+  function apply(){
+    var q=$("q").value.toLowerCase().trim();
+    list=all.filter(function(o){return(!cur||key(o.category)===key(cur[0]))&&(!q||((o.title||"")+" "+(o.organization||"")).toLowerCase().indexOf(q)>-1)});
+    if($("sort").value==="deadline")list.sort(function(a,b){var x=a.deadline||"9999",y=b.deadline||"9999";return x<y?-1:x>y?1:0});
+    shown=0;$("grid").innerHTML="";more();
+    $("count").textContent=list.length+" "+(list.length===1?"opportunity":"opportunities");
+    if(!list.length)$("grid").innerHTML='<div class="empty" style="grid-column:1/-1">Nothing here yet. Try another category or clear your search.</div>';
+  }
+  function more(){
+    var next=list.slice(shown,shown+PAGE);shown+=next.length;
+    $("grid").insertAdjacentHTML("beforeend",next.map(card).join(""));
+    $("more").classList.toggle("hide",shown>=list.length);
+  }
+  $("more").addEventListener("click",more);
+  var t;$("q").addEventListener("input",function(){clearTimeout(t);t=setTimeout(apply,200)});
+  $("sort").addEventListener("change",apply);
+  tabs();title();
+  fetch(URL_+"/rest/v1/opportunities?select=id,title,organization,category,location,deadline,image_url,created_at&status=eq.published&order=created_at.desc&limit=1000",{headers:{apikey:KEY,Authorization:"Bearer "+KEY}})
+   .then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){all=Array.isArray(d)?d:[];apply()})
+   .catch(function(){$("sub").textContent="We could not load opportunities. Please check your connection and try again."});
+})();
+</script>
+<script defer src="/consent.js"></script>
+</body>
+</html>
