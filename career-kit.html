@@ -13,65 +13,13 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="career-kit-page.css">
-
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
-  <style id="ck-banner-styles">
-    :root{--ck-deep:#033c29;--ck-green:#075b3b;--ck-gold:#c6a24a;--ck-gold-soft:#e8cf86;}
-    .ck-serif{font-family:"Playfair Display",Georgia,"Times New Roman",serif}
-
-    /* ===== HERO BANNER ===== */
-    .ck-banner{position:relative;overflow:hidden;isolation:isolate;margin:0 0 34px;padding:46px 42px;border-radius:26px;color:#fff;
-      background:radial-gradient(circle at 88% 12%,rgba(198,162,74,.30),transparent 36%),radial-gradient(circle at 5% 100%,rgba(255,255,255,.07),transparent 40%),linear-gradient(135deg,#033c29 0%,#075b3b 58%,#0a7050 100%);
-      box-shadow:0 22px 54px rgba(6,69,47,.30)}
-    .ck-banner::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.9;
-      background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 1px,transparent 1px 24px)}
-    .ck-banner::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;z-index:1;
-      background:linear-gradient(90deg,transparent,var(--ck-gold),#f0dca0,var(--ck-gold),transparent)}
-    .ck-banner-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:36px;align-items:center}
-    .ck-eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;padding:6px 14px;border:1px solid rgba(232,207,134,.55);border-radius:999px;
-      color:var(--ck-gold-soft);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;background:rgba(255,255,255,.06)}
-    .ck-banner h1{margin:0 0 14px;font-family:"Playfair Display",Georgia,serif;font-size:clamp(2rem,5.2vw,3.2rem);line-height:1.12;font-weight:700;letter-spacing:-.01em;color:#fff}
-    .ck-banner h1 span{display:block;color:var(--ck-gold-soft)}
-    .ck-lead{margin:0 0 22px;max-width:520px;font-size:1.02rem;line-height:1.65;color:rgba(255,255,255,.88)}
-    .ck-actions{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 22px}
-    .ck-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 22px;border-radius:12px;font-weight:800;font-size:.95rem;text-decoration:none;transition:transform .2s ease,background .2s ease}
-    .ck-btn:hover{transform:translateY(-2px)}
-    .ck-btn-gold{background:var(--ck-gold);color:#1d2a20;border:1.5px solid var(--ck-gold);box-shadow:0 8px 20px rgba(0,0,0,.2)}
-    .ck-btn-gold:hover{background:#d8b45a}
-    .ck-btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(255,255,255,.45)}
-    .ck-btn-ghost:hover{background:rgba(255,255,255,.16)}
-    .ck-chips{display:flex;flex-wrap:wrap;gap:8px 10px;margin:0;padding:0;list-style:none}
-    .ck-chips li{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:.82rem;font-weight:700;color:#fff}
-    .ck-chips li::before{content:"✓";color:var(--ck-gold-soft);font-weight:800}
-
-    /* hero visual */
-    .ck-visual{position:relative;min-height:380px}
-    .ck-page{position:absolute;width:56%;aspect-ratio:3/4;background:#fff;border-radius:10px;box-shadow:0 22px 40px rgba(0,0,0,.30);overflow:hidden}
-    .ck-page.back{left:6%;top:6%;transform:rotate(-6deg);background:#f4efdf}
-    .ck-page.front{left:30%;top:0;transform:rotate(3deg)}
-    .ck-page.front{display:grid;grid-template-columns:34% 1fr}
-    .ck-page .side{background:var(--ck-green);padding:14% 9%;display:flex;flex-direction:column;gap:9px}
-    .ck-page .side i{display:block;height:5px;border-radius:3px;background:rgba(255,255,255,.55)}
-    .ck-page .side i:first-child{height:22px;width:22px;border-radius:50%;background:var(--ck-gold);margin-bottom:6px}
-    .ck-page .main{padding:12% 9%;display:flex;flex-direction:column;gap:8px}
-    .ck-page .main b{display:block;height:11px;width:70%;border-radius:3px;background:var(--ck-green)}
-    .ck-page .main u,.ck-page .main s{display:block;text-decoration:none;border-radius:3px}
-    .ck-page .main u{height:6px;width:38%;margin-top:8px;background:var(--ck-gold)}
-    .ck-page .main s{height:5px;background:#dcdcdc}
-    .ck-page .main s.sh{width:72%}
-    .ck-page.back .bar{height:34%;background:var(--ck-green);opacity:.18}
-    .ck-float{position:absolute;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:#fff;color:var(--ck-deep);box-shadow:0 14px 30px rgba(0,0,0,.25);font-size:.82rem;line-height:1.3}
-    .ck-float strong{display:block;font-size:.88rem}
-    .ck-float small{display:block;color:#66756b;font-size:.72rem}
-    .ck-float .ic{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--ck-gold);color:#1d2a20;font-weight:800}
-    .ck-float.f1{left:0;bottom:12%}
-    .ck-float.f2{right:0;top:44%}
-
+  <style id="ck-section-styles">
+    :root{--ck-deep:#033c29;--ck-green:#075b3b;--ck-gold:#c6a24a;}
     /* ===== SECTIONS ===== */
     .ck-section{margin:0 0 36px}
     .ck-head{margin:0 0 16px}
     .ck-head .kicker{display:block;margin:0 0 6px;color:#a9822d;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
-    .ck-head h2{margin:0 0 6px;font-family:"Playfair Display",Georgia,serif;font-size:clamp(1.4rem,3.4vw,1.9rem);color:var(--ck-deep)}
+    .ck-head h2{margin:0 0 6px;font-size:clamp(1.4rem,3.4vw,1.9rem);color:var(--ck-deep)}
     .ck-head p{margin:0;color:#5f6f65;max-width:620px}
 
     .ck-tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
@@ -102,26 +50,11 @@
     .ck-steps span{color:#5f6f65;font-size:.9rem;line-height:1.5}
 
     @media(max-width:860px){
-      .ck-banner{padding:30px 22px 34px;border-radius:20px}
-      .ck-banner-grid{grid-template-columns:1fr;gap:26px}
-      .ck-visual{min-height:300px;max-width:420px;margin:0 auto;width:100%}
-      .ck-page{width:58%}
-      .ck-float.f1{left:-2px}.ck-float.f2{right:-2px}
-      .ck-actions .ck-btn{flex:1 1 200px}
       .ck-tpl-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
     @media(prefers-reduced-motion:reduce){.ck-btn,.ck-tpl{transition:none}}
 
-    /* ===== WORKSPACE HEADER BANNER ===== */
-    main .workspace-heading.ck-ws{position:relative;overflow:hidden;isolation:isolate;margin-bottom:18px;padding:26px 28px;border-radius:20px;color:#fff;
-      background:radial-gradient(circle at 92% 0%,rgba(198,162,74,.30),transparent 40%),linear-gradient(135deg,#033c29,#075b3b 70%,#0a7050);
-      box-shadow:0 14px 34px rgba(6,69,47,.22);border:0}
-    main .workspace-heading.ck-ws::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,transparent,var(--ck-gold),#f0dca0,var(--ck-gold),transparent)}
-    main .workspace-heading.ck-ws .step-label{color:var(--ck-gold-soft)}
-    main .workspace-heading.ck-ws h1{margin:4px 0 6px;font-family:"Playfair Display",Georgia,serif;font-size:clamp(1.5rem,4vw,2.1rem);color:#fff}
-    main .workspace-heading.ck-ws p{margin:0;color:rgba(255,255,255,.86);max-width:620px}
-    main .workspace-heading.ck-ws .workspace-back-link{color:#fff;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.08);border-radius:10px;padding:9px 14px;font-weight:700;text-decoration:none}
-    main .workspace-heading.ck-ws .workspace-back-link:hover{background:rgba(255,255,255,.18)}
+
   </style>
 </head>
 
@@ -149,54 +82,58 @@
   <main class="workspace">
     <section class="dashboard" id="dashboard">
 
-      <div class="ck-banner">
-        <div class="ck-banner-grid">
-          <div>
-            <span class="ck-eyebrow">Your professional growth starts here</span>
+      <div class="dashboard-welcome">
+        <div class="dashboard-intro">
+          <span class="eyebrow">YOUR PROFESSIONAL GROWTH STARTS HERE</span>
 
-            <h1>Build your career.<span>Present your best self.</span></h1>
+          <h1>
+            Build your career.
+            <span>Present your best self.</span>
+          </h1>
 
-            <p class="ck-lead">
-              Create a polished CV and cover letter, get an AI review of the
-              CV you already have, and download a professional PDF you can
-              send with confidence.
-            </p>
+          <p>
+            Create impressive career documents, prepare stronger job
+            applications and take your next professional step with confidence.
+          </p>
 
-            <div class="ck-actions">
-              <a href="career-workspace.html?tool=cv" class="ck-btn ck-btn-gold">Start building <span aria-hidden="true">→</span></a>
-              <a href="career-workspace.html?tool=cv#ai-assistant" class="ck-btn ck-btn-ghost">Upload my CV for review</a>
-            </div>
+          <div class="welcome-actions">
+            <a href="career-workspace.html?tool=cv" class="button button-primary">
+              Start Building <span aria-hidden="true">→</span>
+            </a>
 
-            <ul class="ck-chips" aria-label="What you can do">
-              <li>7 CV templates</li>
-              <li>AI Career Assistant</li>
-              <li>Upload and review your CV</li>
-              <li>Download as PDF</li>
-            </ul>
+            <a href="index.html#opportunities" class="button button-secondary">
+              Explore Opportunities
+            </a>
+          </div>
+        </div>
+
+        <div class="dashboard-visual" aria-hidden="true">
+          <div class="visual-decoration decoration-one"></div>
+          <div class="visual-decoration decoration-two"></div>
+
+          <div class="career-document">
+            <div class="document-brand-line"></div>
+            <div class="document-avatar">CV</div>
+            <div class="document-line document-line-long"></div>
+            <div class="document-line document-line-short"></div>
+            <div class="document-divider"></div>
+            <div class="document-heading"></div>
+            <div class="document-line"></div>
+            <div class="document-line"></div>
+            <div class="document-line document-line-short"></div>
+            <div class="document-heading"></div>
+            <div class="document-line"></div>
+            <div class="document-line document-line-short"></div>
+            <div class="document-heading"></div>
+            <div class="document-line"></div>
           </div>
 
-          <div class="ck-visual" aria-hidden="true">
-            <div class="ck-page back"><div class="bar"></div></div>
-
-            <div class="ck-page front">
-              <div class="side"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-              <div class="main">
-                <b></b><s class="sh"></s>
-                <u></u><s></s><s></s><s class="sh"></s>
-                <u></u><s></s><s class="sh"></s>
-                <u></u><s></s><s></s>
-              </div>
-            </div>
-
-            <div class="ck-float f1">
-              <span class="ic">✦</span>
-              <span><strong>AI review</strong><small>Clear tips to improve your CV</small></span>
-            </div>
-
-            <div class="ck-float f2">
-              <span class="ic">✓</span>
-              <span><strong>PDF ready</strong><small>Download in one tap</small></span>
-            </div>
+          <div class="visual-floating-card">
+            <span class="floating-check">✓</span>
+            <span>
+              <strong>Career ready</strong>
+              <small>Your next opportunity awaits</small>
+            </span>
           </div>
         </div>
       </div>
