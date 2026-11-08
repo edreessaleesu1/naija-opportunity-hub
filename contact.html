@@ -79,6 +79,7 @@
     .side strong{display:block}.side span.d{display:block;color:var(--muted);font-size:.9rem;line-height:1.5}
 </style>
   <script defer src="/pwa.js"></script>
+  <script defer src="/consent.js"></script>
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
@@ -151,7 +152,7 @@
         <h2>Before you write</h2>
         <ul>
           <li><span class="ic" aria-hidden="true">&#128269;</span><span><strong>Found a wrong deadline or link?</strong><span class="d">Choose &ldquo;Report an incorrect or suspicious opportunity&rdquo; and paste the link. It helps us fix it faster.</span></span></li>
-          <li><span class="ic" aria-hidden="true">&#128196;</span><span><strong>Need help with your CV?</strong><span class="d">Choose &ldquo;Career services request&rdquo; and tell us what you need. Prices are agreed with you before any payment.</span></span></li>
+          <li><span class="ic" aria-hidden="true">&#128196;</span><span><strong>Need help with your CV?</strong><span class="d">For CV, cover letter and application help, use the <a href="/application-assistance.html">Application Assistance</a> page. Prices are agreed with you before any payment.</span></span></li>
           <li><span class="ic" aria-hidden="true">&#128274;</span><span><strong>Your privacy</strong><span class="d">We use your details only to reply. See our <a href="/privacy.html">Privacy Policy</a>.</span></span></li>
           <li><span class="ic" aria-hidden="true">&#9888;</span><span><strong>Stay safe</strong><span class="d">We will never ask you for a password. Genuine opportunities do not charge you to apply.</span></span></li>
         </ul>
@@ -162,7 +163,7 @@
   <footer>
     <div class="wrap">
       <p>&copy; <span id="year"></span> Naija Opportunity Hub. All rights reserved.</p>
-      <p class="links"><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms of Use</a><a href="/#opportunities">Opportunities</a></p>
+      <p class="links"><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms of Use</a><a href="#" data-noh-cookie-settings>Cookie settings</a><a href="/#opportunities">Opportunities</a></p>
     </div>
   </footer>
   <script>document.getElementById("year").textContent=new Date().getFullYear();</script>
