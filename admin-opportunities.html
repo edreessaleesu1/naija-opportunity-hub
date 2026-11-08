@@ -39,6 +39,18 @@ button:disabled{opacity:.6;cursor:not-allowed}
   <div id="gate" class="card">Checking your access…</div>
 
   <div id="app" class="hide">
+    <details class="card" id="pwCard">
+      <summary style="cursor:pointer;font-weight:800;color:var(--green)">Account &amp; password</summary>
+      <div style="margin-top:14px">
+        <div id="pwMsg"></div>
+        <form id="pwForm" autocomplete="off">
+          <label for="pw1">New password (at least 8 characters)</label><input id="pw1" type="password" minlength="8" autocomplete="new-password" required>
+          <label for="pw2">Confirm new password</label><input id="pw2" type="password" minlength="8" autocomplete="new-password" required>
+          <button id="pwSave" type="submit">Change password</button>
+          <button id="pwMail" type="button" class="alt">Email me a reset link instead</button>
+        </form>
+      </div>
+    </details>
     <div class="card">
       <div class="top" style="margin:0 0 10px"><strong id="formTitle">Add opportunity</strong><button class="alt hide" id="cancel" type="button">Cancel edit</button></div>
       <div id="fmsg"></div>
@@ -140,6 +152,23 @@ button:disabled{opacity:.6;cursor:not-allowed}
     var wasEdit=!!editId;reset();note(wasEdit?"Changes saved.":"Opportunity added.","ok");load();
   });
   $("out").addEventListener("click",async function(e){e.preventDefault();await sb.auth.signOut();location.reload()});
+  function pwNote(t,k){$("pwMsg").innerHTML=t?'<p class="msg '+k+'">'+esc(t)+'</p>':""}
+  $("pwForm").addEventListener("submit",async function(e){
+    e.preventDefault();var a=$("pw1").value,b=$("pw2").value;
+    if(a.length<8)return pwNote("Use at least 8 characters.","err");
+    if(a!==b)return pwNote("The two passwords do not match.","err");
+    $("pwSave").disabled=true;
+    var r=await sb.auth.updateUser({password:a});
+    $("pwSave").disabled=false;
+    if(r.error)return pwNote(r.error.message,"err");
+    $("pwForm").reset();pwNote("Password changed. Use it next time you sign in.","ok");
+  });
+  $("pwMail").addEventListener("click",async function(){
+    var s=await sb.auth.getSession(),u=s.data&&s.data.session&&s.data.session.user;
+    if(!u||!u.email)return pwNote("Please sign in again.","err");
+    var r=await sb.auth.resetPasswordForEmail(u.email,{redirectTo:location.origin+"/auth.html"});
+    pwNote(r.error?r.error.message:"A reset link has been sent to "+u.email+".",r.error?"err":"ok");
+  });
   init();
 })();
 </script>
