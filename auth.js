@@ -79,6 +79,69 @@
 
   const accountEmail = $("accountEmail");
 
+  /* ---------------------------------------------------------
+     TERMS AND PRIVACY CONSENT (sign-up form)
+  --------------------------------------------------------- */
+
+  const TERMS_VERSION = "2026-11-07";
+
+  function addTermsConsent() {
+    if (!signupForm || !signupButton || $("termsConsent")) return;
+
+    const block = document.createElement("div");
+
+    block.id = "termsConsentBlock";
+    block.style.cssText =
+      "margin:4px 0 14px;padding:12px 14px;border:1px solid #e8d7aa;" +
+      "border-radius:12px;background:#fffaf0;";
+
+    const label = document.createElement("label");
+
+    label.htmlFor = "termsConsent";
+    label.style.cssText =
+      "display:flex;align-items:flex-start;gap:10px;cursor:pointer;" +
+      "font-size:.92rem;line-height:1.5;font-weight:500;text-align:left;";
+
+    const box = document.createElement("input");
+
+    box.type = "checkbox";
+    box.id = "termsConsent";
+    box.name = "termsConsent";
+    box.required = true;
+    box.setAttribute("aria-required", "true");
+    box.style.cssText =
+      "flex:none;width:20px;height:20px;margin:2px 0 0;" +
+      "accent-color:#075b3b;";
+
+    const text = document.createElement("span");
+
+    text.append("I agree to the ");
+
+    [["Terms of Use", "/terms.html"], ["Privacy Policy", "/privacy.html"]]
+      .forEach(([name, url], index) => {
+        if (index) text.append(" and ");
+
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = name;
+        link.style.cssText = "color:#075b3b;font-weight:700;";
+
+        text.appendChild(link);
+      });
+
+    text.append(".");
+
+    label.append(box, text);
+    block.appendChild(label);
+
+    signupButton.parentNode.insertBefore(block, signupButton);
+  }
+
+  addTermsConsent();
+
   const authPageExists = Boolean(
     signupForm &&
     loginForm &&
@@ -1409,6 +1472,17 @@
         return;
       }
 
+      const termsBox = $("termsConsent");
+
+      if (termsBox && !termsBox.checked) {
+        showMessage(
+          "Please tick the box to accept the Terms of Use and Privacy Policy."
+        );
+
+        termsBox.focus();
+        return;
+      }
+
       setLoading(
         signupButton,
         true,
@@ -1421,7 +1495,11 @@
           email,
           password,
           options: {
-            emailRedirectTo: getAuthPageURL()
+            emailRedirectTo: getAuthPageURL(),
+            data: {
+              terms_accepted_at: new Date().toISOString(),
+              terms_version: TERMS_VERSION
+            }
           }
         });
 
