@@ -13,7 +13,7 @@
   /* ===================== YOUR SETTINGS ===================== */
   const CONFIG = {
     GA_MEASUREMENT_ID: "G-H3L5FL9GMN",   // e.g. "G-ABCD123456"  (Google Analytics > Admin > Data streams)
-    ADSENSE_CLIENT: ""       // e.g. "ca-pub-1234567890123456"  (AdSense > Account > Settings)
+    ADSENSE_CLIENT: "ca-pub-6140977755982286"       // e.g. "ca-pub-1234567890123456"  (AdSense > Account > Settings)
   };
 
   const AD_PAGES = ["/", "/index.html", "/opportunity-details", "/opportunity-details.html"];
