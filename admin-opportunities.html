@@ -1,611 +1,279 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#086b45">
-
-  <title>Opportunity Manager | Naija Opportunity Hub</title>
-
-  <meta
-    name="description"
-    content="Naija Opportunity Hub administrator opportunity publishing dashboard."
-  >
-
+  <meta name="theme-color" content="#f8eec9">
+  <title>Application Assistance | Naija Opportunity Hub</title>
+  <meta name="description" content="Get practical help with CVs, cover letters and scholarship, job, internship and grant applications from Naija Opportunity Hub.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://naijaopportunityhub.com.ng/application-assistance.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Naija Opportunity Hub">
+  <meta property="og:title" content="Application Assistance | Naija Opportunity Hub">
+  <meta property="og:description" content="Get practical help with CVs, cover letters and scholarship, job, internship and grant applications from Naija Opportunity Hub.">
+  <meta property="og:url" content="https://naijaopportunityhub.com.ng/application-assistance.html">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/png" href="/naija-opportunity-hub-logo.png">
+  <link rel="apple-touch-icon" href="/naija-opportunity-hub-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --green: #086b45;
-      --green-dark: #064b32;
-      --gold: #c49a43;
-      --ivory: #faf8f1;
-      --white: #ffffff;
-      --ink: #202923;
-      --muted: #6c776f;
-      --border: #e5e9e4;
-      --danger: #b42318;
-      --success: #137547;
-      --shadow: 0 12px 35px rgba(20, 50, 35, .07);
-    }
+    :root{--green:#075b3b;--green-dark:#033c29;--gold:#c6a24a;--gold-dark:#a9822d;--gold-light:#f8f0dc;--gold-border:#e8d7aa;--bg:#f8eec9;--text:#1c3026;--muted:#5f6f65;--border:#e5e1cf;--danger:#9a1c1c}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--bg)}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans","Segoe UI",system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.7;-webkit-text-size-adjust:100%}
+    a{color:var(--green)}
+    :focus-visible{outline:3px solid var(--gold-dark);outline-offset:2px}
+    .skip{position:absolute;left:-999px;top:8px;background:var(--green);color:#fff;padding:10px 14px;border-radius:8px;z-index:100}.skip:focus{left:8px}
+    .wrap{width:100%;max-width:1040px;margin:0 auto;padding:0 16px}
+    .site-header{position:sticky;top:0;z-index:50;background:rgba(255,253,246,.96);border-bottom:1px solid var(--gold-border);backdrop-filter:blur(8px)}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px}
+    .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);min-width:0}
+    .brand img{width:42px;height:42px;border-radius:10px;flex:none}
+    .brand-name{display:block;font-weight:800;font-size:.98rem;line-height:1.15}
+    .brand-sub{display:block;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dark);font-weight:700}
+    .nav-links{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+    .nav-links a{text-decoration:none;font-weight:600;font-size:.9rem;padding:8px 10px;border-radius:10px;color:var(--text)}
+    .nav-links a:hover,.nav-links a[aria-current]{background:var(--gold-light)}
+    @media(max-width:560px){.brand-sub{display:none}.nav-links a.hide-s{display:none}}
+    main{padding-bottom:56px}
+    .page-head{margin:26px 0 16px}
+    .page-head h1{margin:0 0 6px;font-size:clamp(1.6rem,4.6vw,2.2rem);line-height:1.2;color:var(--green-dark)}
+    .page-head p{margin:0;max-width:640px;color:var(--muted)}
+    .card{background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 6px 22px rgba(28,48,38,.08);padding:26px 24px}
+    .doc h2{margin:28px 0 8px;padding-bottom:6px;font-size:1.2rem;color:var(--green);border-bottom:2px solid var(--gold-border)}
+    .doc h2:first-child{margin-top:0}
+    .doc h3{margin:18px 0 4px;font-size:1.02rem;color:var(--green-dark)}
+    .doc p{margin:0 0 12px}
+    .doc ul{margin:0 0 12px;padding-left:22px}.doc li{margin:0 0 6px}
+    .meta{margin:0 0 18px;color:var(--muted);font-size:.9rem}
+    .notice{margin:0 0 16px;padding:14px 16px;border:1px solid var(--gold-border);border-left:4px solid var(--gold);border-radius:12px;background:#fffaf0}
+    .toc{margin:0 0 20px;padding:14px 18px;background:#fffaf0;border:1px solid var(--gold-border);border-radius:12px}
+    .toc strong{display:block;margin-bottom:6px}.toc ol{margin:0;padding-left:20px;columns:2;column-gap:28px}.toc li{margin:0 0 3px;break-inside:avoid}
+    @media(max-width:620px){.toc ol{columns:1}.banner{padding:26px 20px}.card{padding:20px 16px}}
+    footer{padding:22px 0 30px;border-top:1px solid var(--gold-border);font-size:.88rem;color:var(--muted);text-align:center}
+    footer .links{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin:0}
+    footer a{font-weight:700}
 
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: var(--ivory);
-      color: var(--ink);
-      font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.6;
-    }
-
-    button,
-    input,
-    select,
-    textarea {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    .topbar {
-      background: var(--green-dark);
-      color: white;
-      padding: 17px 5%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      font-weight: 800;
-      font-size: 18px;
-    }
-
-    .brand span {
-      color: var(--gold);
-    }
-
-    .topbar small {
-      color: #d5e5dc;
-    }
-
-    .container {
-      width: min(1150px, 92%);
-      margin: 35px auto 70px;
-    }
-
-    .page-heading {
-      margin-bottom: 25px;
-    }
-
-    .page-heading h1 {
-      margin: 0 0 5px;
-      font-size: clamp(25px, 4vw, 34px);
-      color: var(--green-dark);
-    }
-
-    .page-heading p {
-      color: var(--muted);
-      margin: 0;
-    }
-
-    .panel {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      padding: 25px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
-    }
-
-    .panel h2 {
-      color: var(--green-dark);
-      margin: 0 0 5px;
-      font-size: 21px;
-    }
-
-    .panel-intro {
-      color: var(--muted);
-      font-size: 14px;
-      margin: 0 0 22px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 13px;
-      padding: 20px;
-      box-shadow: var(--shadow);
-    }
-
-    .stat-card span {
-      display: block;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .stat-card strong {
-      display: block;
-      color: var(--green-dark);
-      font-size: 29px;
-      margin-top: 5px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 17px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .field.full {
-      grid-column: 1 / -1;
-    }
-
-    label {
-      font-weight: 700;
-      font-size: 13px;
-      color: #34443a;
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      border: 1px solid #d8dfd9;
-      border-radius: 8px;
-      padding: 12px 13px;
-      background: white;
-      color: var(--ink);
-      outline: none;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(8, 107, 69, .09);
-    }
-
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    .hint {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .checkbox-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin: 18px 0;
-      font-size: 13px;
-      color: #46534a;
-    }
-
-    .checkbox-row input {
-      width: auto;
-      margin-top: 5px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 8px;
-      padding: 12px 19px;
-      font-weight: 700;
-      transition: .2s ease;
-    }
-
-    .btn-primary {
-      background: var(--green);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--green-dark);
-    }
-
-    .btn-gold {
-      background: var(--gold);
-      color: #241b0b;
-    }
-
-    .btn-light {
-      background: #edf3ee;
-      color: var(--green-dark);
-    }
-
-    .btn:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-    }
-
-    .notice {
-      display: none;
-      padding: 12px 15px;
-      border-radius: 8px;
-      margin: 15px 0;
-      font-size: 14px;
-      white-space: pre-wrap;
-    }
-
-    .notice.show {
-      display: block;
-    }
-
-    .notice.success {
-      background: #eaf6ee;
-      color: #145b36;
-      border: 1px solid #c7e6d0;
-    }
-
-    .notice.error {
-      background: #fff0ee;
-      color: #9e261c;
-      border: 1px solid #f2cbc6;
-    }
-
-    .notice.info {
-      background: #edf4fa;
-      color: #214f73;
-      border: 1px solid #d1e2f0;
-    }
-
-    .auth-panel {
-      max-width: 480px;
-      margin: 55px auto;
-    }
-
-    .auth-panel[hidden],
-    .dashboard[hidden] {
-      display: none;
-    }
-
-    .bulk-example {
-      background: #f5f7f4;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 15px;
-      margin-top: 15px;
-      overflow-x: auto;
-    }
-
-    .bulk-example pre {
-      margin: 0;
-      font-size: 12px;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    .security-note {
-      background: #fff8e8;
-      border-left: 4px solid var(--gold);
-      padding: 12px 15px;
-      font-size: 13px;
-      color: #66501f;
-      margin-top: 15px;
-    }
-
-    .footer {
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-      padding: 20px;
-    }
-
-    @media (max-width: 700px) {
-      .stats {
-        grid-template-columns: 1fr;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .panel {
-        padding: 18px;
-      }
-
-      .container {
-        margin-top: 25px;
-      }
-    }
-  </style>
+    .help-card ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 22px}
+    .help-card li{padding-left:24px;position:relative}
+    .help-card li::before{content:"\2713";position:absolute;left:0;top:0;color:var(--green);font-weight:800}
+    .help-card li strong{display:block;color:var(--green-dark)}
+    .help-card li span{display:block;color:var(--muted);font-size:.9rem;line-height:1.5}
+    @media(max-width:640px){.help-card ul{grid-template-columns:1fr}}
+    .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:20px;align-items:start;margin-top:20px}
+    @media(max-width:860px){.grid{grid-template-columns:1fr}}
+    .steps{margin:0 0 16px;padding:0;list-style:none}
+    .steps li{display:flex;gap:12px;margin:0 0 14px}
+    .steps b{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--gold-light);border:1px solid var(--gold-border);color:var(--gold-dark)}
+    .steps strong{display:block}.steps span{display:block;color:var(--muted);font-size:.9rem;line-height:1.5}
+    .wa{display:block;margin-top:14px;padding:14px 16px;border:1px solid var(--gold-border);border-left:4px solid var(--gold);border-radius:12px;background:#fffaf0}
+    .wa a{font-weight:800}
+    label.f{display:block;margin:0 0 4px;font-weight:700;font-size:.92rem}
+    .opt{font-weight:500;color:var(--muted)}
+    input.f,select.f,textarea.f{width:100%;padding:12px 13px;margin:0 0 14px;border:1.5px solid #d9d4bd;border-radius:12px;background:#fffefb;font:inherit;color:var(--text)}
+    textarea.f{min-height:140px;resize:vertical}
+    .f:focus{border-color:var(--green)}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+    @media(max-width:560px){.two{grid-template-columns:1fr}}
+    .count{margin:-10px 0 14px;font-size:.8rem;color:var(--muted);text-align:right}
+    .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+    .agree{display:flex;gap:10px;align-items:flex-start;margin:0 0 14px;padding:12px 14px;border:1px solid var(--gold-border);border-radius:12px;background:#fffaf0;font-size:.9rem;cursor:pointer}
+    .agree input{flex:none;width:20px;height:20px;margin:2px 0 0;accent-color:var(--green)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;padding:12px 20px;border:1.5px solid var(--gold);border-radius:12px;background:var(--gold);color:#1d2a20;font:inherit;font-weight:800;font-size:1rem;cursor:pointer;text-decoration:none}
+    .btn:hover{background:#d8b45a}.btn:disabled{opacity:.6;cursor:not-allowed}
+    .btn.alt{background:#fff;color:var(--green);margin-top:10px}
+    .err{margin:0 0 12px;padding:10px 14px;border-radius:10px;background:#f6e3e3;color:var(--danger);font-weight:600}
+    .ok{text-align:center;padding:26px 6px}
+    .ok .tick{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:var(--green);color:#fff;font-size:30px}
+    .ok h2{margin:0 0 6px;color:var(--green-dark)}
+    .small{font-size:.82rem;color:var(--muted);margin:12px 0 0}
+</style>
+  <script defer src="/pwa.js"></script>
+  <script defer src="/consent.js"></script>
 </head>
-
 <body>
-  <header class="topbar">
-    <div class="brand">Naija Opportunity <span>Hub</span></div>
-    <small>Administrator dashboard</small>
+  <a class="skip" href="#content">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap nav">
+      <a class="brand" href="/#home" aria-label="Naija Opportunity Hub homepage">
+        <img src="/naija-opportunity-hub-logo.png" alt="" width="42" height="42">
+        <span><span class="brand-name">Naija Opportunity Hub</span><span class="brand-sub">Discover opportunities</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="hide-s" href="/#home">Home</a>
+        <a href="/#opportunities">Opportunities</a>
+        <a class="hide-s" href="/#career-kit">Career Kit</a>
+        <a href="/contact.html">Contact</a>
+      </nav>
+    </div>
   </header>
 
-  <main class="container">
-
-    <!-- SIGN-IN -->
-    <section class="panel auth-panel" id="auth-panel">
-      <h2>Administrator Sign In</h2>
-      <p class="panel-intro">
-        Sign in with your authorised NOH administrator account.
-      </p>
-
-      <div id="auth-message" class="notice" role="alert"></div>
-
-      <form id="login-form">
-        <div class="field">
-          <label for="login-email">Email address</label>
-          <input
-            type="email"
-            id="login-email"
-            autocomplete="username"
-            required
-          >
-        </div>
-
-        <div class="field" style="margin-top:15px">
-          <label for="login-password">Password</label>
-          <input
-            type="password"
-            id="login-password"
-            autocomplete="current-password"
-            required
-          >
-        </div>
-
-        <div class="actions">
-          <button class="btn btn-primary" id="login-button" type="submit">
-            Sign In
-          </button>
-        </div>
-      </form>
+  <main id="content" class="wrap" tabindex="-1">
+    <header class="page-head">
+      <h1>Application Assistance</h1>
+      <p>Not sure how to prepare your application? Tell us what you need and our team will guide you through the next steps.</p>
+    </header>
+    <section class="card help-card" aria-labelledby="help-title">
+      <h2 id="help-title" style="margin:0 0 14px;font-size:1.2rem;color:#075b3b">How we can help</h2>
+      <ul>
+        <li><strong>CV and resume guidance</strong><span>Improve your CV and present your qualifications clearly.</span></li>
+        <li><strong>Cover letter support</strong><span>Prepare a clear, relevant letter for your opportunity.</span></li>
+        <li><strong>Scholarship applications</strong><span>Requirements, personal statements and supporting information.</span></li>
+        <li><strong>Job applications</strong><span>Practical help preparing and submitting your application.</span></li>
+        <li><strong>Internships and fellowships</strong><span>Understand the requirements and show your experience well.</span></li>
+        <li><strong>General guidance</strong><span>Tell us where you are stuck and we will help you find the next step.</span></li>
+      </ul>
     </section>
 
-    <!-- ADMIN DASHBOARD -->
-    <section class="dashboard" id="dashboard" hidden>
+    <div class="grid">
+      <aside class="card" aria-label="How it works">
+        <h2 style="margin:0 0 14px;font-size:1.2rem;color:#075b3b">How it works</h2>
+        <ol class="steps">
+          <li><b>1</b><span><strong>Send your request</strong><span>Tell us about the opportunity and the help you need.</span></span></li>
+          <li><b>2</b><span><strong>We review it</strong><span>Our team reads your request and replies by email or WhatsApp.</span></span></li>
+          <li><b>3</b><span><strong>Agree the next steps</strong><span>We discuss the service, the price and how to proceed before any payment.</span></span></li>
+        </ol>
+        <div class="wa"><strong>Prefer WhatsApp?</strong><br>You can message our team directly. <a href="https://wa.me/2349026473284" target="_blank" rel="noopener noreferrer">Chat on WhatsApp &rarr;</a></div>
+        <p class="small">Never pay anyone to apply for an opportunity you found on any website. Paid help from us is agreed with you in writing first.</p>
+      </aside>
 
-      <div class="page-heading">
-        <h1>Opportunity Manager</h1>
-        <p>
-          Publish and manage verified opportunities on Naija Opportunity Hub.
-        </p>
-      </div>
+      <section class="card" aria-labelledby="form-title">
+        <div id="formWrap">
+          <h2 id="form-title" style="margin:0 0 4px;font-size:1.25rem;color:#033c29">Request assistance</h2>
+          <p class="small" style="margin:0 0 14px">Fields marked * are required.</p>
+          <div id="formError" class="err" role="alert" hidden></div>
 
-      <div class="actions" style="margin:0 0 20px">
-        <span id="admin-email" class="hint"></span>
-        <button class="btn btn-light" id="refresh-button" type="button">
-          Refresh Dashboard
-        </button>
-        <button class="btn btn-light" id="logout-button" type="button">
-          Sign Out
-        </button>
-      </div>
+          <form id="aaForm" novalidate>
+            <label class="f" for="name">Full name *</label>
+            <input class="f" id="name" type="text" autocomplete="name" maxlength="100" required>
 
-      <div id="dashboard-message" class="notice" role="status"></div>
+            <div class="two">
+              <div>
+                <label class="f" for="email">Email address *</label>
+                <input class="f" id="email" type="email" autocomplete="email" maxlength="200" required>
+              </div>
+              <div>
+                <label class="f" for="phone">WhatsApp number *</label>
+                <input class="f" id="phone" type="tel" autocomplete="tel" maxlength="30" placeholder="+234..." required>
+              </div>
+            </div>
 
-      <!-- STATISTICS -->
-      <div class="stats">
-        <div class="stat-card">
-          <span>Total opportunities</span>
-          <strong id="stat-total">—</strong>
+            <label class="f" for="type">What do you need help with? *</label>
+            <select class="f" id="type" required>
+              <option value="">Select assistance type</option>
+              <option>CV or resume improvement</option>
+              <option>Cover letter preparation</option>
+              <option>Scholarship application</option>
+              <option>Job application</option>
+              <option>Internship or fellowship application</option>
+              <option>Grant application</option>
+              <option>General application guidance</option>
+              <option>Other</option>
+            </select>
+
+            <label class="f" for="reference">Opportunity link <span class="opt">(optional)</span></label>
+            <input class="f" id="reference" type="text" maxlength="300" placeholder="https://...">
+
+            <label class="f" for="message">Tell us briefly what you need *</label>
+            <textarea class="f" id="message" maxlength="1500" required placeholder="Describe the opportunity and the help you need. Please do not include passwords or ID numbers."></textarea>
+            <div class="count"><span id="chars">0</span> / 1500</div>
+
+            <div class="hp" aria-hidden="true"><label>Leave this empty<input id="website" type="text" tabindex="-1" autocomplete="off"></label></div>
+
+            <label class="agree" for="agree">
+              <input type="checkbox" id="agree" required>
+              <span>I agree to share these details with Naija Opportunity Hub so it can respond to my request, as described in the <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and <a href="/terms.html" target="_blank" rel="noopener">Terms of Use</a>.</span>
+            </label>
+
+            <button class="btn" id="sendBtn" type="submit">Send request</button>
+          </form>
         </div>
 
-        <div class="stat-card">
-          <span>Published</span>
-          <strong id="stat-published">—</strong>
-        </div>
-
-        <div class="stat-card">
-          <span>Pending review</span>
-          <strong id="stat-pending">—</strong>
-        </div>
-      </div>
-
-      <!-- SINGLE OPPORTUNITY -->
-      <section class="panel">
-        <h2>Add a New Opportunity</h2>
-        <p class="panel-intro">
-          Complete the details below to add one opportunity.
-        </p>
-
-        <form id="single-form">
-          <div class="form-grid">
-
-            <div class="field full">
-              <label for="title">Opportunity title *</label>
-              <input id="title" name="title" required maxlength="250"
-                placeholder="e.g. Graduate Internship Programme 2027">
-            </div>
-
-            <div class="field">
-              <label for="organization">Organisation *</label>
-              <input id="organization" name="organization" required
-                maxlength="200" placeholder="Organisation name">
-            </div>
-
-            <div class="field">
-              <label for="category">Category *</label>
-              <select id="category" name="category" required>
-                <option value="">Select category</option>
-                <option value="Scholarship">Scholarship</option>
-                <option value="Job">Job</option>
-                <option value="Internship">Internship</option>
-                <option value="Grant">Grant</option>
-                <option value="Fellowship">Fellowship</option>
-                <option value="Training">Training</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="location">Location</label>
-              <input id="location" name="location" maxlength="150"
-                placeholder="Nigeria, Africa, Remote, etc.">
-            </div>
-
-            <div class="field">
-              <label for="deadline">Application deadline</label>
-              <input id="deadline" name="deadline" type="date">
-            </div>
-
-            <div class="field full">
-              <label for="description">Description *</label>
-              <textarea id="description" name="description" required
-                maxlength="12000"
-                placeholder="Explain the opportunity, its benefits and important details."></textarea>
-            </div>
-
-            <div class="field full">
-              <label for="eligibility">Eligibility</label>
-              <textarea id="eligibility" name="eligibility"
-                maxlength="5000"
-                placeholder="Who can apply? Include qualifications, age limits or country requirements where applicable."></textarea>
-            </div>
-
-            <div class="field">
-              <label for="application_url">Application link *</label>
-              <input id="application_url" name="application_url"
-                type="url" required placeholder="https://...">
-            </div>
-
-            <div class="field">
-              <label for="source_url">Official source link</label>
-              <input id="source_url" name="source_url"
-                type="url" placeholder="https://...">
-            </div>
-
-            <div class="field">
-              <label for="status">Publication status</label>
-              <select id="status" name="status">
-                <option value="pending">Pending review</option>
-                <option value="published">Publish immediately</option>
-              </select>
-            </div>
-
-          </div>
-
-          <label class="checkbox-row">
-            <input type="checkbox" id="verified-confirmation">
-            <span>
-              I have checked the official source, eligibility details,
-              application link and deadline. I confirm this opportunity is
-              accurate and suitable for publication.
-            </span>
-          </label>
-
-          <div class="actions">
-            <button class="btn btn-primary" id="single-submit" type="submit">
-              Add Opportunity
-            </button>
-            <button class="btn btn-light" type="reset">
-              Clear Form
-            </button>
-          </div>
-        </form>
-      </section>
-
-      <!-- BULK IMPORT -->
-      <section class="panel">
-        <h2>Bulk Opportunity Import</h2>
-        <p class="panel-intro">
-          Import up to 100 opportunities in one submission using JSON.
-          Each opportunity must have a title, organisation, category,
-          description and application link.
-        </p>
-
-        <div id="bulk-message" class="notice" role="status"></div>
-
-        <form id="bulk-form">
-          <div class="field">
-            <label for="bulk-json">Opportunity JSON data *</label>
-            <textarea id="bulk-json" required
-              style="min-height:260px;font-family:monospace;font-size:13px"
-              placeholder='Paste your JSON array here...'></textarea>
-            <span class="hint">
-              Maximum: 100 opportunities per submission.
-            </span>
-          </div>
-
-          <label class="checkbox-row">
-            <input type="checkbox" id="bulk-verified-confirmation">
-            <span>
-              I have verified the official details and links for every
-              opportunity in this batch. I authorise publication of entries
-              marked as published.
-            </span>
-          </label>
-
-          <div class="actions">
-            <button class="btn btn-gold" id="bulk-submit" type="submit">
-              Import Opportunities
-            </button>
-            <button class="btn btn-light" id="load-example" type="button">
-              Load Example
-            </button>
-            <button class="btn btn-light" id="clear-bulk" type="button">
-              Clear
-            </button>
-          </div>
-        </form>
-
-        <div class="bulk-example">
-          <strong>JSON format example</strong>
-          <pre>[
-  {
-    "title": "Graduate Internship Programme 2027",
-    "organization": "Example Organisation",
-    "category": "Internship",
-    "description": "A graduate internship opportunity.",
-    "eligibility": "Graduates from recognised institutions.",
-    "location": "Nigeria",
-    "deadline": "2027-01-30",
-    "application_url": "https://example.org/apply",
-    "source_url": "https://example.org",
-    "status": "pending"
-  }
-]</pre>
-        </div>
-
-        <div class="security-note">
-          Only submit opportunities you have checked. Duplicate titles are
-          skipped. Entries marked as pending will not appear in the public
-          opportunities section until approved.
+        <div id="success" class="ok" hidden tabindex="-1">
+          <div class="tick" aria-hidden="true">&#10003;</div>
+          <h2>Request sent</h2>
+          <p>Thank you. We have received your request and will reply by email or WhatsApp.</p>
+          <a class="btn alt" id="waFollow" href="https://wa.me/2349026473284" target="_blank" rel="noopener noreferrer">Also message us on WhatsApp</a>
+          <a class="btn alt" href="/#opportunities">Back to opportunities</a>
         </div>
       </section>
-
-    </section>
+    </div>
   </main>
 
-  <footer class="footer">
-    Naija Opportunity Hub · Administrator Access
+  <footer>
+    <div class="wrap">
+      <p>&copy; <span id="year"></span> Naija Opportunity Hub. All rights reserved.</p>
+      <p class="links"><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms of Use</a><a href="#" data-noh-cookie-settings>Cookie settings</a><a href="/#opportunities">Opportunities</a></p>
+    </div>
   </footer>
+  <script>document.getElementById("year").textContent=new Date().getFullYear();</script>
+  <script>
+  (() => {
+    "use strict";
+    const SUPABASE_URL = "https://djxornmwvkauhkcuhgxc.supabase.co";
+    const KEY = "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
+    const WA = "https://wa.me/2349026473284";
+    const LAST = "noh_contact_last_v1";
+    const $ = (id) => document.getElementById(id);
+    const form = $("aaForm"), err = $("formError"), btn = $("sendBtn");
 
-  <script type="module" src="admin-opportunities.js"></script>
+    $("message").addEventListener("input", () => { $("chars").textContent = $("message").value.length; });
+
+    function fail(msg) { err.textContent = msg; err.hidden = false; err.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+
+    function done(summary) {
+      $("formWrap").hidden = true;
+      if (summary) $("waFollow").href = WA + "?text=" + encodeURIComponent(summary);
+      const s = $("success"); s.hidden = false; s.focus();
+      if (window.NOH_TRACK) window.NOH_TRACK("assistance_request", { type: $("type").value });
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      err.hidden = true;
+
+      if ($("website").value) { done(""); return; }
+
+      const name = $("name").value.trim(), email = $("email").value.trim(), phone = $("phone").value.trim();
+      const type = $("type").value, ref = $("reference").value.trim(), text = $("message").value.trim();
+
+      if (!name) return fail("Please enter your full name.");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fail("Please enter a valid email address so we can reply.");
+      if (!/^[+\d][\d\s()-]{6,24}$/.test(phone)) return fail("Please enter a valid WhatsApp number, for example +2348012345678.");
+      if (!type) return fail("Please choose what you need help with.");
+      if (text.length < 10) return fail("Please write a little more so we can help (at least 10 characters).");
+      if (!$("agree").checked) return fail("Please tick the box to agree to the Privacy Policy and Terms of Use.");
+
+      try {
+        if (Date.now() - Number(localStorage.getItem(LAST) || 0) < 60000) return fail("Please wait a minute before sending another request.");
+      } catch {}
+
+      const body = "Assistance needed: " + type + "\nWhatsApp: " + phone + "\n\n" + text;
+
+      btn.disabled = true; btn.textContent = "Sending...";
+
+      try {
+        const res = await fetch(SUPABASE_URL + "/rest/v1/contact_messages", {
+          method: "POST",
+          headers: { apikey: KEY, Authorization: "Bearer " + KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
+          body: JSON.stringify({ name, email, subject: "Career services request", reference: ref || null, message: body })
+        });
+
+        if (!res.ok) throw new Error("status " + res.status);
+
+        try { localStorage.setItem(LAST, String(Date.now())); } catch {}
+        done("Hello Naija Opportunity Hub, I have just sent an application assistance request (" + type + "). My name is " + name + ".");
+      } catch (error) {
+        console.error("Assistance request error:", error);
+        fail("We could not send your request. Please check your connection and try again, or message us on WhatsApp.");
+        btn.disabled = false; btn.textContent = "Send request";
+      }
+    });
+  })();
+  </script>
 </body>
 </html>
