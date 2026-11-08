@@ -196,6 +196,10 @@
       object-fit: contain;
     }
 
+    .hero-image.no-image {
+      display: none;
+    }
+
     .hero-image img.hero-backdrop {
       position: absolute;
       inset: -14px;
@@ -1361,6 +1365,8 @@
       const image = $("opportunityImage");
 
       const backdrop = $("opportunityBackdrop");
+      const heroBox = image.parentElement;
+      heroBox.classList.toggle("no-image", !imageURL);
 
       image.classList.remove("loaded");
       image.removeAttribute("src");
@@ -1378,6 +1384,7 @@
         image.onerror = () => {
           image.classList.remove("loaded");
           backdrop.classList.remove("loaded");
+          heroBox.classList.add("no-image");
         };
 
         image.src = imageURL;
