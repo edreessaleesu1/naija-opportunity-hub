@@ -4,3 +4,4 @@ Disallow: /auth.html
 Disallow: /account.html
 
 Sitemap: https://naijaopportunityhub.com.ng/sitemap.xml
+Sitemap: https://naijaopportunityhub.com.ng/sitemap-opportunities.xml
