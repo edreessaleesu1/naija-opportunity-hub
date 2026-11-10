@@ -2,6 +2,9 @@ User-agent: *
 Allow: /
 Disallow: /auth.html
 Disallow: /account.html
+Disallow: /career-workspace.html
+Disallow: /application-assistance.html
+Disallow: /delete-account.html
 
 Sitemap: https://naijaopportunityhub.com.ng/sitemap.xml
 Sitemap: https://naijaopportunityhub.com.ng/sitemap-opportunities.xml
