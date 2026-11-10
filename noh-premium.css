@@ -871,3 +871,126 @@ input:focus-visible {
   .cta-banner { padding-top: 22px !important; padding-bottom: 22px !important; }
   .footer-grid { gap: 20px !important; }
 }
+
+/* ==========================================================================
+   V. INTERNATIONAL POLISH
+   One consistent card, button, type and focus style across the site,
+   plus the "sources" strip. Additive: nothing above is removed.
+   ========================================================================== */
+:root { --noh-ease: cubic-bezier(.2, .7, .2, 1); }
+
+html { -webkit-text-size-adjust: 100%; }
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+h1, h2, h3, h4 { text-wrap: balance; }
+p, li { text-wrap: pretty; }
+
+/* Cards: quiet gold hairline, soft layered shadow, gentle lift */
+.opportunity-card {
+  border: 1px solid #eadfbd !important;
+  border-radius: 18px !important;
+  background: #fffdf6;
+  box-shadow: 0 1px 2px rgba(3, 60, 41, .04), 0 10px 26px rgba(3, 60, 41, .06) !important;
+  transition: transform .3s var(--noh-ease), box-shadow .3s var(--noh-ease), border-color .3s var(--noh-ease) !important;
+}
+.opportunity-card:hover {
+  transform: translateY(-3px) !important;
+  border-color: #c6a24a !important;
+  box-shadow: 0 2px 4px rgba(3, 60, 41, .05), 0 18px 38px rgba(3, 60, 41, .11) !important;
+}
+.opportunity-card .opportunity-content { gap: 14px; padding: 18px 18px 20px; }
+.opportunity-card .opportunity-title {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.38;
+  letter-spacing: -.005em;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Save button: same shape everywhere, filled when saved */
+.save-btn {
+  min-height: 44px;
+  border: 1.5px solid #075b3b !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: #075b3b !important;
+  font-weight: 700 !important;
+  letter-spacing: .01em;
+  transition: background .25s var(--noh-ease), color .25s var(--noh-ease), transform .25s var(--noh-ease);
+}
+.save-btn:hover { background: #075b3b !important; color: #fffdf6 !important; }
+.save-btn.is-saved { background: #075b3b !important; color: #fffdf6 !important; }
+
+/* Section headings share one scale */
+.section-head h2,
+.section-intro h2 { font-size: clamp(1.6rem, 3.6vw, 2.2rem); line-height: 1.15; letter-spacing: -.015em; }
+
+/* Keyboard focus: clearly visible, on-brand */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #c6a24a;
+  outline-offset: 2px;
+}
+
+/* Respect "reduce motion" */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .opportunity-card:hover { transform: none !important; }
+}
+
+/* Sources strip */
+.noh-sources {
+  padding: 18px 0 16px;
+  background: #fffdf6;
+  border-top: 1px solid #eadfbd;
+  border-bottom: 1px solid #eadfbd;
+  text-align: center;
+}
+.noh-sources .wrap { display: grid; gap: 8px; justify-items: center; }
+.noh-sources-label {
+  margin: 0;
+  color: #a9822d;
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.noh-sources-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #033c29;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(.92rem, 2.4vw, 1.08rem);
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+.noh-sources-list li { display: inline-flex; align-items: center; white-space: nowrap; }
+.noh-sources-list li + li::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  margin: 0 12px;
+  border-radius: 50%;
+  background: #c6a24a;
+}
+.noh-sources-note { margin: 0; color: #6b7a70; font-size: .72rem; }
+@media (max-width: 640px) {
+  .noh-sources { padding: 14px 0 12px; }
+  .noh-sources-list li + li::before { margin: 0 9px; }
+}
