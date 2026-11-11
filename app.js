@@ -19,6 +19,7 @@
   // Relative link, so it works on every domain the site is served from.
   const DETAILS_PAGE = "opportunity-details.html";
 
+  const PAGE_SIZE = 10;                 // latest list: items per numbered page
   const DEFAULT_VISIBLE_COUNT = 6;      // flat results (search / one category)
   const SECTION_PREVIEW_COUNT = 6;      // items per category section before View More
   const LIST_CATEGORIES = new Set(["internship"]); // sections shown as a list, not cards
@@ -65,6 +66,7 @@
   let filteredOpportunities = [];
   let activeCategory = "All";
   let showAll = false;
+  let currentPage = 1;
   let isLoading = false;
   let toastTimer = null;
   const expandedSections = new Set();
@@ -392,6 +394,7 @@
     });
 
     sortOpportunities();
+    currentPage = 1;
     renderOpportunities();
   }
 
@@ -478,7 +481,7 @@
   }
 
   // List row (used by the Internships section): small image, title, Save link.
-  function createOpportunityRow(item) {
+  function createOpportunityRow(item, withSave = true) {
     const id = escapeHTML(item.id);
     const title = escapeHTML(item.title);
     const url = escapeHTML(detailsURL(item.id));
@@ -494,9 +497,9 @@
         </a>
         <div class="opportunity-row-body">
           <h4 class="opportunity-row-title"><a href="${url}">${title}</a></h4>
-          <button type="button" class="save-link ${saved ? "is-saved" : ""}"
+          ${withSave ? `<button type="button" class="save-link ${saved ? "is-saved" : ""}"
             data-action="save" data-id="${id}" aria-pressed="${saved}"
-          >${saved ? "✓ Saved" : "+ Save"}</button>
+          >${saved ? "✓ Saved" : "+ Save"}</button>` : ""}
         </div>
       </article>`;
   }
@@ -563,7 +566,7 @@
         <section class="category-section category-section--list" id="category-${slug}" aria-labelledby="category-${slug}-title">
           <h3 class="list-section-title" id="category-${slug}-title">${escapeHTML(label)}</h3>
           <div class="opportunity-list">
-            ${visible.map(createOpportunityRow).join("")}
+            ${visible.map(i => createOpportunityRow(i)).join("")}
           </div>
           ${toggle}
         </section>`;
@@ -619,20 +622,26 @@
       showElement(el.sections, browse);
       if (!browse) el.sections.innerHTML = "";
     }
-    showElement(el.grid, !browse);
+    showElement(el.grid, true);
+    el.grid.classList.remove("opportunity-grid");
+    el.grid.classList.add("opportunity-list", "latest-list");
 
     if (browse) {
-      el.grid.innerHTML = "";
       el.sections.innerHTML = groupByCategory(filteredOpportunities)
         .map(createCategorySection)
         .join("");
-    } else {
-      const visible = showAll
-        ? filteredOpportunities
-        : filteredOpportunities.slice(0, DEFAULT_VISIBLE_COUNT);
-
-      el.grid.innerHTML = visible.map(createOpportunityCard).join("");
     }
+
+    const pages = Math.max(1, Math.ceil(filteredOpportunities.length / PAGE_SIZE));
+    if (currentPage > pages) currentPage = pages;
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const visible = filteredOpportunities.slice(start, start + PAGE_SIZE);
+
+    el.grid.innerHTML = (browse && hasResults
+      ? `<h3 class="list-section-title latest-title" id="latestTitle">Latest opportunities</h3>`
+      : "") + visible.map(i => createOpportunityRow(i, false)).join("");
+
+    renderPager(pages);
 
     if (el.empty) {
       el.empty.textContent = "No opportunities found. Try another search or category.";
@@ -653,14 +662,45 @@
     // The page-level View More / View Less is for flat results only;
     // each category section has its own.
     if (el.viewAll) {
-      const extra = filteredOpportunities.length - DEFAULT_VISIBLE_COUNT;
-
-      showElement(el.viewAll, !browse && extra > 0);
-      el.viewAll.textContent = showAll ? "View Less" : `View More (${extra} more)`;
-      el.viewAll.setAttribute("aria-expanded", String(showAll));
+      showElement(el.viewAll, false);
     }
 
     syncCategoryButtons();
+  }
+
+  function renderPager(pages) {
+    let nav = document.getElementById("latestPager");
+    if (!nav) {
+      nav = document.createElement("nav");
+      nav.id = "latestPager";
+      nav.className = "pager";
+      nav.setAttribute("aria-label", "Opportunity pages");
+      el.grid.insertAdjacentElement("afterend", nav);
+      nav.addEventListener("click", event => {
+        const btn = event.target.closest("[data-page]");
+        if (!btn || btn.disabled) return;
+        currentPage = Number(btn.dataset.page);
+        renderOpportunities();
+        (document.getElementById("latestTitle") || el.grid)
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+    if (pages <= 1) { nav.innerHTML = ""; nav.hidden = true; return; }
+    nav.hidden = false;
+
+    const nums = pages <= 7
+      ? new Set(Array.from({ length: pages }, (_, i) => i + 1))
+      : new Set([1, pages, currentPage - 1, currentPage, currentPage + 1]);
+    const list = [...nums].filter(n => n >= 1 && n <= pages).sort((a, b) => a - b);
+    let html = `<button type="button" class="pager-btn" data-page="${currentPage - 1}" ${currentPage === 1 ? "disabled" : ""}>‹ Prev</button>`;
+    let prev = 0;
+    list.forEach(n => {
+      if (n - prev > 1) html += `<span class="pager-gap" aria-hidden="true">…</span>`;
+      html += `<button type="button" class="pager-btn${n === currentPage ? " is-current" : ""}" data-page="${n}" ${n === currentPage ? 'aria-current="page"' : ""}>${n}</button>`;
+      prev = n;
+    });
+    html += `<button type="button" class="pager-btn" data-page="${currentPage + 1}" ${currentPage === pages ? "disabled" : ""}>Next ›</button>`;
+    nav.innerHTML = html;
   }
 
   function syncCategoryButtons() {
