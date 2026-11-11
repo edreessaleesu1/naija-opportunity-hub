@@ -632,16 +632,18 @@
         .join("");
     }
 
-    const pages = Math.max(1, Math.ceil(filteredOpportunities.length / PAGE_SIZE));
-    if (currentPage > pages) currentPage = pages;
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const visible = filteredOpportunities.slice(start, start + PAGE_SIZE);
+    const total = filteredOpportunities.length;
+    const visible = filteredOpportunities.slice(0, currentPage * PAGE_SIZE);
 
-    el.grid.innerHTML = (browse && hasResults
-      ? `<h3 class="list-section-title latest-title" id="latestTitle">Latest opportunities</h3>`
-      : "") + visible.map(i => createOpportunityRow(i, false)).join("");
+    el.grid.innerHTML = hasResults ? `
+      <section class="category-section category-section--list latest-panel" aria-label="Latest opportunities">
+        ${browse ? `<h3 class="list-section-title latest-title" id="latestTitle">Latest opportunities</h3>` : ""}
+        <div class="opportunity-list">
+          ${visible.map(i => createOpportunityRow(i, false)).join("")}
+        </div>
+      </section>` : "";
 
-    renderPager(pages);
+    renderPager(total, visible.length);
 
     if (el.empty) {
       el.empty.textContent = "No opportunities found. Try another search or category.";
@@ -668,39 +670,28 @@
     syncCategoryButtons();
   }
 
-  function renderPager(pages) {
+  function renderPager(total, shown) {
     let nav = document.getElementById("latestPager");
     if (!nav) {
       nav = document.createElement("nav");
       nav.id = "latestPager";
       nav.className = "pager";
-      nav.setAttribute("aria-label", "Opportunity pages");
+      nav.setAttribute("aria-label", "Load more opportunities");
       el.grid.insertAdjacentElement("afterend", nav);
       nav.addEventListener("click", event => {
-        const btn = event.target.closest("[data-page]");
-        if (!btn || btn.disabled) return;
-        currentPage = Number(btn.dataset.page);
+        if (!event.target.closest("[data-more]")) return;
+        const before = el.grid.querySelectorAll(".opportunity-row").length;
+        currentPage += 1;
         renderOpportunities();
-        (document.getElementById("latestTitle") || el.grid)
-          .scrollIntoView({ behavior: "smooth", block: "start" });
+        el.grid.querySelectorAll(".opportunity-row")[before]
+          ?.querySelector("a")?.focus({ preventScroll: false });
       });
     }
-    if (pages <= 1) { nav.innerHTML = ""; nav.hidden = true; return; }
+    const left = total - shown;
+    if (left <= 0) { nav.innerHTML = ""; nav.hidden = true; return; }
     nav.hidden = false;
-
-    const nums = pages <= 7
-      ? new Set(Array.from({ length: pages }, (_, i) => i + 1))
-      : new Set([1, pages, currentPage - 1, currentPage, currentPage + 1]);
-    const list = [...nums].filter(n => n >= 1 && n <= pages).sort((a, b) => a - b);
-    let html = `<button type="button" class="pager-btn" data-page="${currentPage - 1}" ${currentPage === 1 ? "disabled" : ""}>‹ Prev</button>`;
-    let prev = 0;
-    list.forEach(n => {
-      if (n - prev > 1) html += `<span class="pager-gap" aria-hidden="true">…</span>`;
-      html += `<button type="button" class="pager-btn${n === currentPage ? " is-current" : ""}" data-page="${n}" ${n === currentPage ? 'aria-current="page"' : ""}>${n}</button>`;
-      prev = n;
-    });
-    html += `<button type="button" class="pager-btn" data-page="${currentPage + 1}" ${currentPage === pages ? "disabled" : ""}>Next ›</button>`;
-    nav.innerHTML = html;
+    const next = Math.min(PAGE_SIZE, left);
+    nav.innerHTML = `<button type="button" class="button button-outline" data-more>Load more (${left} left)</button>`;
   }
 
   function syncCategoryButtons() {
