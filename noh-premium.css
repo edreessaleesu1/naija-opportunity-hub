@@ -996,15 +996,26 @@ summary:focus-visible {
 }
 
 
-/* ===== VI. Latest list (row design) + numbered pager ===== */
-.latest-list{display:flex;flex-direction:column;gap:12px;margin-top:28px}
-.latest-list .latest-title{margin:0 0 4px}
-.latest-list .loading-card,.latest-list .empty-state{width:100%}
-.pager{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin:24px 0 8px}
+/* ===== VI. Latest list: same panel + row design as Internships, but compact ===== */
+#opportunityGrid.latest-list{display:block;margin-top:28px;padding:0;gap:0}
+#opportunityGrid.latest-list .loading-card,#opportunityGrid.latest-list .empty-state{width:100%}
+.latest-panel{padding:20px 20px 22px}
+.latest-panel .list-section-title{font-size:clamp(1.35rem,4vw,1.75rem);margin-bottom:10px}
+.latest-panel .opportunity-row{gap:12px;padding:11px 0;align-items:center}
+.latest-panel .opportunity-row-image{flex:0 0 104px;width:104px;height:64px}
+.latest-panel .opportunity-row-title{font-size:.95rem;line-height:1.35}
+@media (max-width:600px){
+  .latest-panel{padding:16px 14px 18px;margin-inline:-4px}
+  .latest-panel .opportunity-list{grid-template-columns:minmax(0,1fr)}
+  .latest-panel .opportunity-row{gap:10px;padding:10px 0}
+  .latest-panel .opportunity-row-image{flex-basis:88px;width:88px;height:56px}
+  .latest-panel .opportunity-row-title{font-size:.9rem}
+}
+.pager{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin:22px 0 8px}
 .pager[hidden]{display:none}
-.pager-btn{min-width:42px;height:42px;padding:0 14px;border:1px solid #d7deea;border-radius:10px;background:#fff;color:#16325c;font-weight:600;font-size:15px;line-height:1;font-family:inherit;cursor:pointer}
-.pager-btn:hover:not(:disabled){border-color:#1b5fd1;color:#1b5fd1}
-.pager-btn.is-current{background:#1b5fd1;border-color:#1b5fd1;color:#fff}
-.pager-btn:disabled{opacity:.4;cursor:default}
-.pager-gap{color:#6b7a90;padding:0 2px}
-@media (max-width:480px){.pager-btn{min-width:38px;height:38px;padding:0 10px}}
+
+
+
+
+
+@media (max-width:480px){.pager-btn{min-width:36px;height:36px;padding:0 9px}}
