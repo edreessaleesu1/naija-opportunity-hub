@@ -994,3 +994,17 @@ summary:focus-visible {
   .noh-sources { padding: 14px 0 12px; }
   .noh-sources-list li + li::before { margin: 0 9px; }
 }
+
+
+/* ===== VI. Latest list (row design) + numbered pager ===== */
+.latest-list{display:flex;flex-direction:column;gap:12px;margin-top:28px}
+.latest-list .latest-title{margin:0 0 4px}
+.latest-list .loading-card,.latest-list .empty-state{width:100%}
+.pager{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin:24px 0 8px}
+.pager[hidden]{display:none}
+.pager-btn{min-width:42px;height:42px;padding:0 14px;border:1px solid #d7deea;border-radius:10px;background:#fff;color:#16325c;font-weight:600;font-size:15px;line-height:1;font-family:inherit;cursor:pointer}
+.pager-btn:hover:not(:disabled){border-color:#1b5fd1;color:#1b5fd1}
+.pager-btn.is-current{background:#1b5fd1;border-color:#1b5fd1;color:#fff}
+.pager-btn:disabled{opacity:.4;cursor:default}
+.pager-gap{color:#6b7a90;padding:0 2px}
+@media (max-width:480px){.pager-btn{min-width:38px;height:38px;padding:0 10px}}
