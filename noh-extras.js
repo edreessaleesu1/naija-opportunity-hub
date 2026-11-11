@@ -28,7 +28,7 @@
     "No opportunities found. Try another search or category.":"Aucune opportunité trouvée. Essayez une autre recherche ou catégorie.",
     "Filter by category":"Filtrer par catégorie","All categories":"Toutes les catégories","Other":"Autre",
     "Sort opportunities":"Trier les opportunités","Newest first":"Plus récentes d’abord","Closing date":"Date de clôture",
-    "Title A–Z":"Titre A–Z","Clear filters":"Effacer les filtres","View More":"Voir plus","View All":"Tout voir",
+    "Title A–Z":"Titre A–Z","Clear filters":"Effacer les filtres","View More":"Voir plus","Latest opportunities":"Dernières opportunités","‹ Prev":"‹ Préc.","Next ›":"Suiv. ›","View All":"Tout voir",
     "Always confirm eligibility, deadlines and application requirements on the official source before applying.":"Vérifiez toujours les critères d’éligibilité, les dates limites et les conditions de candidature sur la source officielle avant de postuler.",
     "YOUR CAREER TOOLBOX":"VOTRE BOÎTE À OUTILS DE CARRIÈRE","Make Your Next Application Your Best One.":"Faites de votre prochaine candidature la meilleure.",
     "Practical support for your CV, cover letters, scholarship and job applications, and how you present yourself.":"Un soutien pratique pour votre CV, vos lettres de motivation, vos candidatures aux bourses et aux emplois, et votre présentation.",
