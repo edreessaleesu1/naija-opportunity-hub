@@ -28,7 +28,7 @@
     "No opportunities found. Try another search or category.":"Aucune opportunité trouvée. Essayez une autre recherche ou catégorie.",
     "Filter by category":"Filtrer par catégorie","All categories":"Toutes les catégories","Other":"Autre",
     "Sort opportunities":"Trier les opportunités","Newest first":"Plus récentes d’abord","Closing date":"Date de clôture",
-    "Title A–Z":"Titre A–Z","Clear filters":"Effacer les filtres","View More":"Voir plus","Latest opportunities":"Dernières opportunités","‹ Prev":"‹ Préc.","Next ›":"Suiv. ›","View All":"Tout voir",
+    "Title A–Z":"Titre A–Z","Clear filters":"Effacer les filtres","View More":"Voir plus","Latest opportunities":"Dernières opportunités","View All":"Tout voir",
     "Always confirm eligibility, deadlines and application requirements on the official source before applying.":"Vérifiez toujours les critères d’éligibilité, les dates limites et les conditions de candidature sur la source officielle avant de postuler.",
     "YOUR CAREER TOOLBOX":"VOTRE BOÎTE À OUTILS DE CARRIÈRE","Make Your Next Application Your Best One.":"Faites de votre prochaine candidature la meilleure.",
     "Practical support for your CV, cover letters, scholarship and job applications, and how you present yourself.":"Un soutien pratique pour votre CV, vos lettres de motivation, vos candidatures aux bourses et aux emplois, et votre présentation.",
@@ -116,6 +116,7 @@
     [/^on (\d{1,2}) (\w+) (\d{4})$/, function (m) { return "le " + m[1] + " " + (MONTHS[m[2]] || m[2]) + " " + m[3]; }],
     [/^Verified on (\d{1,2}) (\w+) (\d{4})$/, function (m) { return "Vérifiée le " + m[1] + " " + (MONTHS[m[2]] || m[2]) + " " + m[3]; }],
     [/^(\d+) opportunit(?:y|ies) found$/i, function (m) { return m[1] + " opportunité" + (m[1] === "1" ? "" : "s") + " trouvée" + (m[1] === "1" ? "" : "s"); }],
+    [/^Load more \((\d+) left\)$/i, function (m) { return "Voir plus (" + m[1] + " restantes)"; }],
     [/^Showing (\d+) of (\d+)$/i, function (m) { return "Affichage de " + m[1] + " sur " + m[2]; }]
   ];
   var lang = "en";
