@@ -236,16 +236,13 @@
       return;
     }
 
-    const button = $("runDiscoveryBtn");
+    const buttons = ["runDiscoveryBtn", "runDiscoveryHeaderBtn"].map($).filter(Boolean);
     const label = $("discoveryRunLabel");
 
     discoveryBusy = true;
     busy = true;
 
-    if (button) {
-      button.disabled = true;
-      button.textContent = "Running discovery…";
-    }
+    buttons.forEach(b => { b.disabled = true; b.textContent = "Running discovery…"; });
 
     if (label) {
       label.textContent =
@@ -367,10 +364,7 @@
       discoveryBusy = false;
       busy = false;
 
-      if (button) {
-        button.disabled = false;
-        button.textContent = "Run discovery + prepare images";
-      }
+      buttons.forEach(b => { b.disabled = false; b.textContent = "Run discovery + prepare images"; });
 
       updatePublishButton();
     }
@@ -907,9 +901,17 @@
   }
 
   async function init() {
-    // Backup: works even if the button is re-created or onclick is replaced.
+    // The page's header button shares an id with the one this script creates
+    // and ships disabled. Rename it so ids are unique and enable it.
+    const headerBtn = $("runDiscoveryBtn");
+    if (headerBtn) {
+      headerBtn.id = "runDiscoveryHeaderBtn";
+      headerBtn.disabled = false;
+      headerBtn.textContent = "Run discovery + prepare images";
+    }
+
     document.addEventListener("click", ev => {
-      const b = ev.target.closest("#runDiscoveryBtn");
+      const b = ev.target.closest("#runDiscoveryBtn, #runDiscoveryHeaderBtn");
       if (b) { ev.preventDefault(); runDiscovery(); }
     });
 
