@@ -29,9 +29,42 @@
 
   function notice(message, error = false) {
     const el = $("notice");
-    if (!el) return;
-    el.textContent = message;
-    el.classList.toggle("error", error);
+    if (el) {
+      el.textContent = message;
+      el.classList.toggle("error", error);
+    }
+    // Fixed bar so the message is visible wherever the page is scrolled.
+    let bar = $("nohFixedNotice");
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "nohFixedNotice";
+      bar.setAttribute("role", "status");
+      bar.style.cssText =
+        "position:fixed;left:10px;right:10px;bottom:10px;z-index:99999;padding:12px 14px;" +
+        "border-radius:12px;font:600 14px/1.4 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.25);" +
+        "max-height:40vh;overflow:auto";
+      document.body.appendChild(bar);
+    }
+    bar.textContent = message;
+    bar.style.background = error ? "#fde8e8" : "#e6f4ea";
+    bar.style.color = error ? "#8a1c1c" : "#14532d";
+    bar.style.border = "1px solid " + (error ? "#f5b5b5" : "#b7dfc2");
+    bar.hidden = false;
+    clearTimeout(bar._t);
+    if (!error) bar._t = setTimeout(() => { bar.hidden = true; }, 12000);
+  }
+
+  window.addEventListener("error", e => notice("Page error: " + (e.message || "unknown"), true));
+  window.addEventListener("unhandledrejection", e =>
+    notice("Page error: " + (e.reason?.message || e.reason || "unknown"), true));
+
+  // Never leave the dashboard locked by a request that hung.
+  function withTimeout(promise, ms, what) {
+    let t;
+    const timeout = new Promise((_, rej) => {
+      t = setTimeout(() => rej(new Error(what + " is taking too long. Please try again.")), ms);
+    });
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
   }
 
   function dateLabel(value) {
@@ -167,8 +200,6 @@
     }
 
     // onclick assignment is safe if initialisation runs more than once.
-    const runButton = $("runDiscoveryBtn");
-    if (runButton) runButton.onclick = runDiscovery;
 
     const grantButton = $("grantPermissionBtn");
     if (grantButton) grantButton.onclick = grantPermission;
@@ -180,7 +211,14 @@
     if (publishButton) publishButton.onclick = publishSelected;
   }
 
+  let busySince = 0;
   async function runDiscovery() {
+    notice("Run discovery tapped…");
+    // A lock older than 90 seconds is a hung request, not real work.
+    if ((discoveryBusy || busy) && busySince && Date.now() - busySince > 90000) {
+      discoveryBusy = false;
+      busy = false;
+    }
     if (discoveryBusy || busy) {
       notice(
         "The dashboard is completing another operation. Please wait a moment and try again.",
@@ -188,6 +226,7 @@
       );
       return;
     }
+    busySince = Date.now();
 
     if (!db) {
       notice(
@@ -219,9 +258,9 @@
       const {
         data: discovery,
         error: discoveryError
-      } = await db.functions.invoke("noh-discover-opportunities", {
+      } = await withTimeout(db.functions.invoke("noh-discover-opportunities", {
         body: {}
-      });
+      }), 120000, "Discovery");
 
       if (discoveryError) {
         let message =
@@ -266,9 +305,9 @@
       const {
         data: images,
         error: imageError
-      } = await db.functions.invoke("noh-prepare-discovery-images", {
+      } = await withTimeout(db.functions.invoke("noh-prepare-discovery-images", {
         body: imageBody
-      });
+      }), 120000, "Image preparation");
 
       if (imageError) {
         let message =
@@ -868,9 +907,13 @@
   }
 
   async function init() {
+    // Backup: works even if the button is re-created or onclick is replaced.
+    document.addEventListener("click", ev => {
+      const b = ev.target.closest("#runDiscoveryBtn");
+      if (b) { ev.preventDefault(); runDiscovery(); }
+    });
+
     // Wire an existing HTML button before any asynchronous setup.
-    const existingRunButton = $("runDiscoveryBtn");
-    if (existingRunButton) existingRunButton.onclick = runDiscovery;
 
     try {
       if (!window.supabase?.createClient) {
