@@ -11,6 +11,7 @@
   let currentRows = [];
   let selectedIds = new Set();
   let busy = false;
+  let discoveryBusy = false;
   let permission = "not_granted";
 
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c =>
@@ -45,8 +46,8 @@
   }
 
   async function invoke(action, extra = {}) {
-    const {data, error} = await db.functions.invoke(PUBLISHER, {
-      body: {action, ...extra}
+    const { data, error } = await db.functions.invoke(PUBLISHER, {
+      body: { action, ...extra }
     });
 
     if (error) {
@@ -65,7 +66,7 @@
   }
 
   async function requireAdmin() {
-    const {data: {session}, error} = await db.auth.getSession();
+    const { data: { session }, error } = await db.auth.getSession();
 
     if (error || !session?.user) {
       throw new Error(
@@ -73,7 +74,7 @@
       );
     }
 
-    const {data: admin, error: adminError} = await db
+    const { data: admin, error: adminError } = await db
       .from("admins")
       .select("user_id")
       .eq("user_id", session.user.id)
@@ -86,104 +87,120 @@
     return session.user;
   }
 
-  function addWorkflowControls() {
-    if ($("publishWorkflowControls")) return;
-
-    const discovery = document.createElement("section");
-    discovery.id = "discoveryWorkflowControls";
-
-    discovery.style.cssText =
-      "display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;border:1px solid #e6e9e3;border-radius:14px;padding:14px 16px;margin:18px 0";
-
-    discovery.innerHTML = `
-      <div>
-        <strong>Discovery and image preparation</strong>
-        <div id="discoveryRunLabel" class="entry-meta" style="margin-top:5px">
-          Runs discovery, enriches up to six records, then prepares their images.
-          No approval or publication takes place.
-        </div>
-      </div>
-      <button class="btn btn-primary" type="button" id="runDiscoveryBtn">
-        Run discovery + prepare images
-      </button>
-    `;
-
+  function insertWorkflowSection(element) {
     const stats = $("pendingCount")?.closest(".review-stats");
+    const queue = $("queue");
 
     if (stats) {
-      stats.insertAdjacentElement("afterend", discovery);
-    } else {
-      const queue = $("queue");
-      if (queue) {
-        queue.insertAdjacentElement("beforebegin", discovery);
+      stats.insertAdjacentElement("afterend", element);
+      return true;
+    }
+
+    if (queue?.parentNode) {
+      queue.parentNode.insertBefore(element, queue);
+      return true;
+    }
+
+    (document.querySelector("main") || document.body).appendChild(element);
+    return true;
+  }
+
+  function addWorkflowControls() {
+    // Discovery controls are independent of publishing controls.
+    if (!$("discoveryWorkflowControls")) {
+      const discovery = document.createElement("section");
+      discovery.id = "discoveryWorkflowControls";
+
+      discovery.style.cssText =
+        "display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;border:1px solid #e6e9e3;border-radius:14px;padding:14px 16px;margin:18px 0";
+
+      discovery.innerHTML = `
+        <div>
+          <strong>Discovery and image preparation</strong>
+          <div id="discoveryRunLabel" class="entry-meta" style="margin-top:5px">
+            Runs discovery, enriches up to six records, then prepares their images.
+            No approval or publication takes place.
+          </div>
+        </div>
+        <button class="btn btn-primary" type="button" id="runDiscoveryBtn">
+          Run discovery + prepare images
+        </button>
+      `;
+
+      insertWorkflowSection(discovery);
+    }
+
+    if (!$("publishWorkflowControls")) {
+      const section = document.createElement("section");
+      section.id = "publishWorkflowControls";
+
+      section.style.cssText =
+        "display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;border:1px solid #e6e9e3;border-radius:14px;padding:14px 16px;margin:18px 0";
+
+      section.innerHTML = `
+        <div>
+          <strong>Publishing control</strong>
+          <div id="permissionLabel" class="entry-meta" style="margin-top:5px">
+            Checking permission…
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-outline" type="button" id="grantPermissionBtn">
+            Grant 15-minute permission
+          </button>
+          <button class="btn btn-outline" type="button" id="revokePermissionBtn">
+            Revoke permission
+          </button>
+          <button class="btn btn-primary" type="button" id="publishSelectedBtn" disabled>
+            Publish selected approved (0)
+          </button>
+        </div>
+      `;
+
+      const discoverySection = $("discoveryWorkflowControls");
+
+      if (discoverySection?.parentNode) {
+        discoverySection.insertAdjacentElement("afterend", section);
       } else {
-        document.body.appendChild(discovery);
+        insertWorkflowSection(section);
       }
     }
 
+    // onclick assignment is safe if initialisation runs more than once.
     const runButton = $("runDiscoveryBtn");
+    if (runButton) runButton.onclick = runDiscovery;
 
-    if (runButton) {
-      runButton.addEventListener("click", event => {
-        event.preventDefault();
-        notice("Starting opportunity discovery and image preparation...");
-        runDiscovery();
-      });
-    }
+    const grantButton = $("grantPermissionBtn");
+    if (grantButton) grantButton.onclick = grantPermission;
 
-    const section = document.createElement("section");
-    section.id = "publishWorkflowControls";
+    const revokeButton = $("revokePermissionBtn");
+    if (revokeButton) revokeButton.onclick = revokePermission;
 
-    section.style.cssText =
-      "display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;border:1px solid #e6e9e3;border-radius:14px;padding:14px 16px;margin:18px 0";
-
-    section.innerHTML = `
-      <div>
-        <strong>Publishing control</strong>
-        <div id="permissionLabel" class="entry-meta" style="margin-top:5px">
-          Checking permission…
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-outline" type="button" id="grantPermissionBtn">
-          Grant 15-minute permission
-        </button>
-        <button class="btn btn-outline" type="button" id="revokePermissionBtn">
-          Revoke permission
-        </button>
-        <button class="btn btn-primary" type="button" id="publishSelectedBtn" disabled>
-          Publish selected approved (0)
-        </button>
-      </div>
-    `;
-
-    discovery.insertAdjacentElement("afterend", section);
-
-    $("grantPermissionBtn")?.addEventListener("click", grantPermission);
-    $("revokePermissionBtn")?.addEventListener("click", revokePermission);
-    $("publishSelectedBtn")?.addEventListener("click", publishSelected);
+    const publishButton = $("publishSelectedBtn");
+    if (publishButton) publishButton.onclick = publishSelected;
   }
 
   async function runDiscovery() {
-    const button = $("runDiscoveryBtn");
-    const label = $("discoveryRunLabel");
-
-    if (busy) {
-      const message =
-        "The dashboard is still processing another request. Please wait for it to finish, then try again.";
-
-      if (label) label.textContent = message;
-      notice(message, true);
+    if (discoveryBusy || busy) {
+      notice(
+        "The dashboard is completing another operation. Please wait a moment and try again.",
+        true
+      );
       return;
     }
 
     if (!db) {
-      const message = "The database connection is not ready. Refresh the dashboard.";
-      if (label) label.textContent = message;
-      notice(message, true);
+      notice(
+        "The database connection is not ready. Refresh the page and sign in again.",
+        true
+      );
       return;
     }
 
+    const button = $("runDiscoveryBtn");
+    const label = $("discoveryRunLabel");
+
+    discoveryBusy = true;
     busy = true;
 
     if (button) {
@@ -193,10 +210,10 @@
 
     if (label) {
       label.textContent =
-        "Checking opportunity sources and enriching up to six pending records…";
+        "Checking sources and enriching up to six pending records…";
     }
 
-    notice("Discovery has started. Please keep this page open.");
+    notice("Discovery started. Please keep this page open.");
 
     try {
       const {
@@ -207,7 +224,8 @@
       });
 
       if (discoveryError) {
-        let message = discoveryError.message || "Discovery request failed.";
+        let message =
+          discoveryError.message || "Discovery request failed.";
 
         if (
           discoveryError.context &&
@@ -231,17 +249,19 @@
         : [];
 
       const ids = [
-        ...new Set(enriched.map(row => row?.id).filter(Boolean))
+        ...new Set(
+          enriched
+            .map(row => row?.id)
+            .filter(Boolean)
+        )
       ].slice(0, 6);
 
       if (label) {
         label.textContent =
-          "Discovery finished. Preparing images for pending opportunities…";
+          "Discovery finished. Preparing images for the discovered batch…";
       }
 
-      notice("Discovery completed. Image preparation is now starting…");
-
-      const imageBody = ids.length ? {ids} : {limit: 6};
+      const imageBody = ids.length ? { ids } : { limit: 6 };
 
       const {
         data: images,
@@ -251,7 +271,8 @@
       });
 
       if (imageError) {
-        let message = imageError.message || "Image preparation request failed.";
+        let message =
+          imageError.message || "Image preparation request failed.";
 
         if (
           imageError.context &&
@@ -292,19 +313,19 @@
         `Nothing was approved or published.`;
 
       if (label) label.textContent = summary;
-
       notice(summary, sourceErrors > 0 || attention > 0);
 
       await loadQueue(true);
 
     } catch (e) {
       const message =
-        e?.message || "Unable to complete discovery and image preparation.";
+        e.message || "Unable to complete discovery and image preparation.";
 
       if (label) label.textContent = message;
       notice(message, true);
 
     } finally {
+      discoveryBusy = false;
       busy = false;
 
       if (button) {
@@ -347,9 +368,12 @@
 
   async function grantPermission() {
     if (busy) {
-      notice("Please wait for the current dashboard operation to finish.", true);
+      notice("Another dashboard operation is running. Please wait.", true);
       return;
     }
+
+    busy = true;
+    updatePublishButton();
 
     try {
       const result = await invoke("grant_permission", {
@@ -361,19 +385,29 @@
       await loadPermission();
 
       notice(
-        `Publishing permission granted until ${dateLabel(result.expires_at)}. Only approved records can now be published.`
+        `Publishing permission granted until ${dateLabel(result.expires_at)}. ` +
+        "Only approved records can now be published."
       );
 
     } catch (e) {
-      notice(e.message || "Unable to grant publishing permission.", true);
+      notice(
+        e.message || "Unable to grant publishing permission.",
+        true
+      );
+    } finally {
+      busy = false;
+      updatePublishButton();
     }
   }
 
   async function revokePermission() {
     if (busy) {
-      notice("Please wait for the current dashboard operation to finish.", true);
+      notice("Another dashboard operation is running. Please wait.", true);
       return;
     }
+
+    busy = true;
+    updatePublishButton();
 
     try {
       await invoke("revoke_permission", {
@@ -386,32 +420,38 @@
       notice("Publishing permission revoked. Publishing is locked.");
 
     } catch (e) {
-      notice(e.message || "Unable to revoke publishing permission.", true);
+      notice(
+        e.message || "Unable to revoke publishing permission.",
+        true
+      );
+    } finally {
+      busy = false;
+      updatePublishButton();
     }
   }
 
   async function loadStats() {
     const [
-      {count: pending, error: pErr},
-      {count: approved, error: aErr},
-      {count: imported, error: iErr},
-      {data: runs, error: rErr}
+      { count: pending, error: pErr },
+      { count: approved, error: aErr },
+      { count: imported, error: iErr },
+      { data: runs, error: rErr }
     ] = await Promise.all([
       db.from("noh_discovered_opportunities")
-        .select("id", {count: "exact", head: true})
+        .select("id", { count: "exact", head: true })
         .eq("status", "pending"),
 
       db.from("noh_discovered_opportunities")
-        .select("id", {count: "exact", head: true})
+        .select("id", { count: "exact", head: true })
         .eq("status", "approved"),
 
       db.from("noh_discovered_opportunities")
-        .select("id", {count: "exact", head: true})
+        .select("id", { count: "exact", head: true })
         .eq("status", "imported"),
 
       db.from("noh_discovery_runs")
         .select("finished_at,entries_added,errors")
-        .order("id", {ascending: false})
+        .order("id", { ascending: false })
         .limit(1)
     ]);
 
@@ -419,11 +459,14 @@
       throw pErr || aErr || iErr || rErr;
     }
 
-    $("pendingCount").textContent = pending ?? 0;
-    $("importedCount").textContent = imported ?? 0;
-    $("lastRun").textContent = runs?.[0]?.finished_at
-      ? dateLabel(runs[0].finished_at)
-      : "Not run yet";
+    if ($("pendingCount")) $("pendingCount").textContent = pending ?? 0;
+    if ($("importedCount")) $("importedCount").textContent = imported ?? 0;
+
+    if ($("lastRun")) {
+      $("lastRun").textContent = runs?.[0]?.finished_at
+        ? dateLabel(runs[0].finished_at)
+        : "Not run yet";
+    }
 
     let approvedStat = $("approvedCount");
 
@@ -431,7 +474,8 @@
       const stat = document.createElement("div");
       stat.className = "stat";
       stat.innerHTML =
-        '<strong id="approvedCount">—</strong><span>Approved, awaiting publication</span>';
+        '<strong id="approvedCount">—</strong>' +
+        '<span>Approved, awaiting publication</span>';
 
       $("pendingCount")
         ?.closest(".review-stats")
@@ -440,14 +484,12 @@
       approvedStat = $("approvedCount");
     }
 
-    if (approvedStat) {
-      approvedStat.textContent = approved ?? 0;
-    }
+    if (approvedStat) approvedStat.textContent = approved ?? 0;
   }
 
   function render() {
-    const status = $("statusFilter").value;
-    const term = $("searchInput").value
+    const status = $("statusFilter")?.value || "all";
+    const term = ($("searchInput")?.value || "")
       .trim()
       .toLocaleLowerCase("en-GB");
 
@@ -461,15 +503,23 @@
       )
     );
 
+    const queue = $("queue");
+
+    if (!queue) {
+      updatePublishButton();
+      return;
+    }
+
     if (!rows.length) {
-      $("queue").innerHTML =
-        '<div class="empty">No entries match this view. New discoveries will appear here after the next scheduled run.</div>';
+      queue.innerHTML =
+        '<div class="empty">No entries match this view. ' +
+        'New discoveries will appear here after the next discovery run.</div>';
 
       updatePublishButton();
       return;
     }
 
-    $("queue").innerHTML = rows.map(row => {
+    queue.innerHTML = rows.map(row => {
       const approved = row.status === "approved";
       const pending = row.status === "pending";
 
@@ -485,7 +535,10 @@
             <h3>${esc(row.title)}</h3>
 
             <p>
-              ${esc(row.summary || "No summary supplied by feed. Open the source and verify the details.")}
+              ${esc(
+                row.summary ||
+                "No summary supplied by feed. Open the source and verify the details."
+              )}
             </p>
 
             <p class="entry-meta">
@@ -496,29 +549,54 @@
               href="${esc(safeHttps(row.source_url))}"
               target="_blank"
               rel="noopener noreferrer"
-            >Open original listing ↗</a>
+            >
+              Open original listing →
+            </a>
 
-            ${row.review_note
-              ? `<p class="entry-meta">Review note: ${esc(row.review_note)}</p>`
-              : ""}
+            ${
+              row.review_note
+                ? `<p class="entry-meta">Review note: ${esc(row.review_note)}</p>`
+                : ""
+            }
 
-            ${approved
-              ? `<label style="display:inline-flex;gap:8px;align-items:center;margin-top:12px;font-weight:650">
-                  <input
-                    type="checkbox"
-                    data-select="${esc(row.id)}"
-                    ${selectedIds.has(row.id) ? "checked" : ""}
-                  >
-                  Select for publication
-                </label>`
-              : ""}
+            ${
+              approved
+                ? `
+                  <label style="display:inline-flex;gap:8px;align-items:center;margin-top:12px;font-weight:650">
+                    <input
+                      type="checkbox"
+                      data-select="${esc(row.id)}"
+                      ${selectedIds.has(row.id) ? "checked" : ""}
+                    >
+                    Select for publication
+                  </label>
+                `
+                : ""
+            }
           </div>
 
           <div class="entry-actions">
-            ${pending
-              ? `<button class="btn btn-primary" data-action="approve" data-id="${esc(row.id)}">Review & approve</button>
-                 <button class="btn btn-danger" data-action="reject" data-id="${esc(row.id)}">Reject</button>`
-              : ""}
+            ${
+              pending
+                ? `
+                  <button
+                    class="btn btn-primary"
+                    data-action="approve"
+                    data-id="${esc(row.id)}"
+                  >
+                    Review & approve
+                  </button>
+
+                  <button
+                    class="btn btn-danger"
+                    data-action="reject"
+                    data-id="${esc(row.id)}"
+                  >
+                    Reject
+                  </button>
+                `
+                : ""
+            }
           </div>
         </article>
       `;
@@ -528,11 +606,9 @@
   }
 
   async function loadQueue(force = false) {
-    if (busy && !force) {
-      notice("The dashboard is already processing a request. Please wait.", true);
-      return;
-    }
+    if (busy && !force) return;
 
+    const callerOwnsLock = busy;
     busy = true;
 
     try {
@@ -542,7 +618,9 @@
 
       selectedIds = new Set(
         [...selectedIds].filter(id =>
-          currentRows.some(row => row.id === id && row.status === "approved")
+          currentRows.some(row =>
+            row.id === id && row.status === "approved"
+          )
         )
       );
 
@@ -554,14 +632,20 @@
       ]);
 
       notice(
-        `Connected. ${currentRows.filter(x => x.status === "pending").length} pending and ${currentRows.filter(x => x.status === "approved").length} approved listings are in the review queue.`
+        `Connected. ` +
+        `${currentRows.filter(x => x.status === "pending").length} pending and ` +
+        `${currentRows.filter(x => x.status === "approved").length} approved listings ` +
+        `are in the review queue.`
       );
 
     } catch (e) {
-      notice(e.message || "Unable to load the discovery queue.", true);
+      notice(
+        e.message || "Unable to load the discovery queue.",
+        true
+      );
 
     } finally {
-      busy = false;
+      busy = callerOwnsLock;
       updatePublishButton();
     }
   }
@@ -583,10 +667,15 @@
     $("officialVerified").checked = false;
 
     $("sourceSummary").textContent =
-      `Source: ${row.source_name}. This feed item is only a discovery lead. Verify the organisation's official website, eligibility, deadline and application channel before approving.`;
+      `Source: ${row.source_name}. ` +
+      "This feed item is only a discovery lead. Verify the organisation's " +
+      "official website, eligibility, deadline and application channel before approving.";
 
     const heading = $("reviewDialog")?.querySelector("h2");
-    if (heading) heading.textContent = "Review and approve";
+
+    if (heading) {
+      heading.textContent = "Review and approve";
+    }
 
     $("publishBtn").textContent = "Approve for publishing";
     $("reviewDialog").showModal();
@@ -596,14 +685,17 @@
     event.preventDefault();
 
     if (busy) {
-      notice("Please wait for the current dashboard operation to finish.", true);
+      notice("Another dashboard operation is running. Please wait.", true);
       return;
     }
 
     const id = $("discoveryId").value;
 
     if (!$("officialVerified").checked) {
-      notice("Confirm the official-source checks before approving.", true);
+      notice(
+        "Confirm the official-source checks before approving.",
+        true
+      );
       return;
     }
 
@@ -613,8 +705,12 @@
       category: $("category").value,
       location: $("location").value.trim() || "Nigeria",
       deadline: $("deadline").value || null,
-      application_url: safeHttps($("applicationUrl").value.trim()),
-      source_url: safeHttps($("sourceUrl").value.trim()),
+      application_url: safeHttps(
+        $("applicationUrl").value.trim()
+      ),
+      source_url: safeHttps(
+        $("sourceUrl").value.trim()
+      ),
       description: $("description").value.trim(),
       eligibility: $("eligibility").value.trim() || null
     };
@@ -629,7 +725,10 @@
       !opportunity.organization ||
       !opportunity.description
     ) {
-      notice("Complete the title, organisation and description.", true);
+      notice(
+        "Complete the title, organisation and description.",
+        true
+      );
       return;
     }
 
@@ -645,6 +744,8 @@
     }
 
     busy = true;
+    updatePublishButton();
+
     $("publishBtn").disabled = true;
     $("publishBtn").textContent = "Saving approval…";
 
@@ -659,28 +760,42 @@
       $("reviewDialog").close();
 
       notice(
-        "Opportunity approved and saved in the queue. It has NOT been published yet. Select it and use Publish selected approved when ready."
+        "Opportunity approved and saved in the queue. " +
+        "It has NOT been published yet. Select it and use " +
+        "Publish selected approved when ready."
       );
 
       await loadQueue(true);
 
     } catch (e) {
-      notice(e.message || "Unable to approve this discovery.", true);
+      notice(
+        e.message || "Unable to approve this discovery.",
+        true
+      );
 
     } finally {
       busy = false;
       $("publishBtn").disabled = false;
       $("publishBtn").textContent = "Approve for publishing";
+      updatePublishButton();
     }
   }
 
   async function reject(id) {
+    if (busy) {
+      notice("Another dashboard operation is running. Please wait.", true);
+      return;
+    }
+
     const note = window.prompt(
       "Why are you rejecting this discovery? (Optional)",
       "Not suitable or could not be verified from an official source."
     );
 
     if (note === null) return;
+
+    busy = true;
+    updatePublishButton();
 
     try {
       await invoke("reject", {
@@ -690,28 +805,35 @@
 
       selectedIds.delete(id);
       notice("Discovery rejected.");
-
-      await loadQueue();
+      await loadQueue(true);
 
     } catch (e) {
-      notice(e.message || "Unable to reject this discovery.", true);
+      notice(
+        e.message || "Unable to reject this discovery.",
+        true
+      );
+    } finally {
+      busy = false;
+      updatePublishButton();
     }
   }
 
   async function publishSelected() {
     if (busy || permission !== "granted" || selectedIds.size === 0) {
-      notice(
-        "Publishing is locked, or no approved records have been selected.",
-        true
-      );
+      if (busy) notice("Another dashboard operation is running. Please wait.", true);
+      else if (permission !== "granted") notice("Grant temporary publishing permission first.", true);
+      else notice("Select at least one approved opportunity to publish.", true);
       return;
     }
 
     const ids = [...selectedIds];
 
-    if (!window.confirm(
-      `Publish ${ids.length} approved opportunity record(s) to the public NOH website now?`
-    )) {
+    if (
+      !window.confirm(
+        `Publish ${ids.length} approved opportunity record(s) ` +
+        "to the public NOH website now?"
+      )
+    ) {
       return;
     }
 
@@ -719,20 +841,25 @@
     updatePublishButton();
 
     try {
-      const result = await invoke("publish_approved", {ids});
+      const result = await invoke("publish_approved", { ids });
 
       selectedIds.clear();
 
       const inserted = Number(result.inserted || 0);
 
       notice(
-        `Publication completed. ${inserted} opportunity record(s) published to NOH. ${Number(result.skipped || 0)} duplicate(s) skipped. Images were already checked by the publishing safeguards.`
+        `Publication completed. ${inserted} opportunity record(s) ` +
+        `published to NOH. ${Number(result.skipped || 0)} duplicate(s) skipped. ` +
+        "Images were already checked by the publishing safeguards."
       );
 
       await loadQueue(true);
 
     } catch (e) {
-      notice(e.message || "Unable to publish the approved opportunities.", true);
+      notice(
+        e.message || "Unable to publish the approved opportunities.",
+        true
+      );
 
     } finally {
       busy = false;
@@ -741,6 +868,10 @@
   }
 
   async function init() {
+    // Wire an existing HTML button before any asynchronous setup.
+    const existingRunButton = $("runDiscoveryBtn");
+    if (existingRunButton) existingRunButton.onclick = runDiscovery;
+
     try {
       if (!window.supabase?.createClient) {
         throw new Error(
@@ -767,37 +898,38 @@
         option.value = "approved";
         option.textContent = "Approved — awaiting publication";
 
-        status.insertBefore(
-          option,
-          status.querySelector('option[value="imported"]')
-        );
+        const importedOption = status.querySelector('option[value="imported"]');
+        status.insertBefore(option, importedOption || null);
       }
 
       await loadQueue();
 
     } catch (e) {
-      notice(e.message || "Administrator access required.", true);
+      notice(
+        e.message || "Administrator access required.",
+        true
+      );
     }
 
     $("refreshBtn")?.addEventListener("click", () => loadQueue());
     $("searchInput")?.addEventListener("input", render);
     $("statusFilter")?.addEventListener("change", render);
 
-    $("queue")?.addEventListener("click", event => {
-      const button = event.target.closest("button[data-action]");
-      if (!button) return;
+    $("queue")?.addEventListener("click", e => {
+      const b = e.target.closest("button[data-action]");
+      if (!b) return;
 
-      if (button.dataset.action === "approve") {
-        openApproval(button.dataset.id);
+      if (b.dataset.action === "approve") {
+        openApproval(b.dataset.id);
       }
 
-      if (button.dataset.action === "reject") {
-        reject(button.dataset.id);
+      if (b.dataset.action === "reject") {
+        reject(b.dataset.id);
       }
     });
 
-    $("queue")?.addEventListener("change", event => {
-      const input = event.target.closest("input[data-select]");
+    $("queue")?.addEventListener("change", e => {
+      const input = e.target.closest("input[data-select]");
       if (!input) return;
 
       if (input.checked) {
@@ -811,9 +943,10 @@
 
     $("approveForm")?.addEventListener("submit", approve);
 
-    $("closeDialog")?.addEventListener("click", () => {
-      $("reviewDialog")?.close();
-    });
+    $("closeDialog")?.addEventListener(
+      "click",
+      () => $("reviewDialog")?.close()
+    );
 
     db?.auth.onAuthStateChange(() => {
       if (db && !busy) loadQueue();
@@ -821,7 +954,7 @@
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init, {once: true});
+    document.addEventListener("DOMContentLoaded", init, { once: true });
   } else {
     init();
   }
