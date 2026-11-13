@@ -15,7 +15,13 @@
   let permission = "not_granted";
 
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c =>
-    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]
+    ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[c]
   );
 
   const safeHttps = value => {
@@ -29,47 +35,107 @@
 
   function notice(message, error = false) {
     const el = $("notice");
+
     if (el) {
       el.textContent = message;
       el.classList.toggle("error", error);
     }
-    // Fixed bar so the message is visible wherever the page is scrolled.
+
     let bar = $("nohFixedNotice");
+
     if (!bar) {
       bar = document.createElement("div");
       bar.id = "nohFixedNotice";
       bar.setAttribute("role", "status");
+
       bar.style.cssText =
-        "position:fixed;left:10px;right:10px;bottom:10px;z-index:99999;padding:12px 14px;" +
-        "border-radius:12px;font:600 14px/1.4 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.25);" +
+        "position:fixed;left:10px;right:10px;bottom:10px;z-index:99999;" +
+        "padding:12px 14px;border-radius:12px;" +
+        "font:600 14px/1.4 system-ui,sans-serif;" +
+        "box-shadow:0 6px 24px rgba(0,0,0,.25);" +
         "max-height:40vh;overflow:auto";
+
       document.body.appendChild(bar);
     }
+
     bar.textContent = message;
     bar.style.background = error ? "#fde8e8" : "#e6f4ea";
     bar.style.color = error ? "#8a1c1c" : "#14532d";
-    bar.style.border = "1px solid " + (error ? "#f5b5b5" : "#b7dfc2");
+    bar.style.border =
+      "1px solid " + (error ? "#f5b5b5" : "#b7dfc2");
+
     bar.hidden = false;
+
     clearTimeout(bar._t);
-    if (!error) bar._t = setTimeout(() => { bar.hidden = true; }, 12000);
+
+    if (!error) {
+      bar._t = setTimeout(() => {
+        bar.hidden = true;
+      }, 12000);
+    }
   }
 
-  window.addEventListener("error", e => notice("Page error: " + (e.message || "unknown"), true));
-  window.addEventListener("unhandledrejection", e =>
-    notice("Page error: " + (e.reason?.message || e.reason || "unknown"), true));
+  window.addEventListener("error", e => {
+    notice("Page error: " + (e.message || "unknown"), true);
+  });
 
-  // Never leave the dashboard locked by a request that hung.
-  function withTimeout(promise, ms, what) {
-    let t;
-    const timeout = new Promise((_, rej) => {
-      t = setTimeout(() => rej(new Error(what + " is taking too long. Please try again.")), ms);
+  window.addEventListener("unhandledrejection", e => {
+    notice(
+      "Page error: " +
+      (e.reason?.message || e.reason || "unknown"),
+      true
+    );
+  });
+
+  /*
+   * Warn if a request is taking too long, but do not release
+   * the dashboard lock until the original request actually settles.
+   *
+   * A timeout warning does not cancel a Supabase server request.
+   */
+  async function waitForOperation(promise, ms, what) {
+    let timer;
+
+    const request = Promise.resolve(promise);
+
+    const warning = new Promise(resolve => {
+      timer = setTimeout(() => {
+        notice(
+          `${what} is taking longer than expected. ` +
+          "The request is still running. Please do not start it again.",
+          true
+        );
+
+        resolve({ timedOut: true });
+      }, ms);
     });
-    return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
+
+    try {
+      const firstResult = await Promise.race([
+        request.then(value => ({
+          completed: true,
+          value
+        })),
+        warning
+      ]);
+
+      if (firstResult.completed) {
+        return firstResult.value;
+      }
+
+      // Keep waiting. The caller's busy lock remains active.
+      return await request;
+
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   function dateLabel(value) {
     if (!value) return "Date not supplied";
+
     const d = new Date(value);
+
     return Number.isNaN(d.getTime())
       ? "Date not supplied"
       : d.toLocaleString("en-GB", {
@@ -79,27 +145,47 @@
   }
 
   async function invoke(action, extra = {}) {
+    if (!db) {
+      throw new Error("The database connection is not ready.");
+    }
+
     const { data, error } = await db.functions.invoke(PUBLISHER, {
-      body: { action, ...extra }
+      body: {
+        action,
+        ...extra
+      }
     });
 
     if (error) {
-      let message = error.message || "The publisher request failed.";
+      let message =
+        error.message || "The publisher request failed.";
 
-      if (error.context && typeof error.context.json === "function") {
+      if (
+        error.context &&
+        typeof error.context.json === "function"
+      ) {
         const detail = await error.context.json().catch(() => null);
-        if (detail?.error) message = detail.error;
+
+        if (detail?.error) {
+          message = detail.error;
+        }
       }
 
       throw new Error(message);
     }
 
-    if (data?.error) throw new Error(data.error);
+    if (data?.error) {
+      throw new Error(data.error);
+    }
+
     return data;
   }
 
   async function requireAdmin() {
-    const { data: { session }, error } = await db.auth.getSession();
+    const {
+      data: { session },
+      error
+    } = await db.auth.getSession();
 
     if (error || !session?.user) {
       throw new Error(
@@ -114,7 +200,9 @@
       .maybeSingle();
 
     if (adminError || !admin) {
-      throw new Error("This account is not listed as a NOH administrator.");
+      throw new Error(
+        "This account is not listed as a NOH administrator."
+      );
     }
 
     return session.user;
@@ -134,28 +222,38 @@
       return true;
     }
 
-    (document.querySelector("main") || document.body).appendChild(element);
+    (document.querySelector("main") || document.body)
+      .appendChild(element);
+
     return true;
   }
 
   function addWorkflowControls() {
-    // Discovery controls are independent of publishing controls.
-    if (!$("discoveryWorkflowControls")) {
-      const discovery = document.createElement("section");
+    let discovery = $("discoveryWorkflowControls");
+
+    if (!discovery) {
+      discovery = document.createElement("section");
       discovery.id = "discoveryWorkflowControls";
 
       discovery.style.cssText =
-        "display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;border:1px solid #e6e9e3;border-radius:14px;padding:14px 16px;margin:18px 0";
+        "display:flex;gap:12px;align-items:center;" +
+        "justify-content:space-between;flex-wrap:wrap;" +
+        "background:#fff;border:1px solid #e6e9e3;" +
+        "border-radius:14px;padding:14px 16px;margin:18px 0";
 
       discovery.innerHTML = `
         <div>
           <strong>Discovery and image preparation</strong>
-          <div id="discoveryRunLabel" class="entry-meta" style="margin-top:5px">
+          <div id="discoveryRunLabel"
+               class="entry-meta"
+               style="margin-top:5px">
             Runs discovery, enriches up to six records, then prepares their images.
             No approval or publication takes place.
           </div>
         </div>
-        <button class="btn btn-primary" type="button" id="runDiscoveryBtn">
+        <button class="btn btn-primary"
+                type="button"
+                id="runDiscoveryBtn">
           Run discovery + prepare images
         </button>
       `;
@@ -163,70 +261,90 @@
       insertWorkflowSection(discovery);
     }
 
-    if (!$("publishWorkflowControls")) {
-      const section = document.createElement("section");
-      section.id = "publishWorkflowControls";
+    // Repair an existing section if its button is missing.
+    if (!$("runDiscoveryBtn")) {
+      const button = document.createElement("button");
 
-      section.style.cssText =
-        "display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;border:1px solid #e6e9e3;border-radius:14px;padding:14px 16px;margin:18px 0";
+      button.type = "button";
+      button.id = "runDiscoveryBtn";
+      button.className = "btn btn-primary";
+      button.textContent = "Run discovery + prepare images";
 
-      section.innerHTML = `
+      discovery.appendChild(button);
+    }
+
+    let publishing = $("publishWorkflowControls");
+
+    if (!publishing) {
+      publishing = document.createElement("section");
+      publishing.id = "publishWorkflowControls";
+
+      publishing.style.cssText =
+        "display:flex;gap:12px;align-items:center;" +
+        "justify-content:space-between;flex-wrap:wrap;" +
+        "background:#fff;border:1px solid #e6e9e3;" +
+        "border-radius:14px;padding:14px 16px;margin:18px 0";
+
+      publishing.innerHTML = `
         <div>
           <strong>Publishing control</strong>
-          <div id="permissionLabel" class="entry-meta" style="margin-top:5px">
+          <div id="permissionLabel"
+               class="entry-meta"
+               style="margin-top:5px">
             Checking permission…
           </div>
         </div>
+
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-outline" type="button" id="grantPermissionBtn">
+          <button class="btn btn-outline"
+                  type="button"
+                  id="grantPermissionBtn">
             Grant 15-minute permission
           </button>
-          <button class="btn btn-outline" type="button" id="revokePermissionBtn">
+
+          <button class="btn btn-outline"
+                  type="button"
+                  id="revokePermissionBtn">
             Revoke permission
           </button>
-          <button class="btn btn-primary" type="button" id="publishSelectedBtn" disabled>
+
+          <button class="btn btn-primary"
+                  type="button"
+                  id="publishSelectedBtn"
+                  disabled>
             Publish selected approved (0)
           </button>
         </div>
       `;
 
-      const discoverySection = $("discoveryWorkflowControls");
-
-      if (discoverySection?.parentNode) {
-        discoverySection.insertAdjacentElement("afterend", section);
-      } else {
-        insertWorkflowSection(section);
-      }
+      discovery.insertAdjacentElement("afterend", publishing);
     }
-
-    // onclick assignment is safe if initialisation runs more than once.
 
     const grantButton = $("grantPermissionBtn");
-    if (grantButton) grantButton.onclick = grantPermission;
+    if (grantButton) {
+      grantButton.onclick = grantPermission;
+    }
 
     const revokeButton = $("revokePermissionBtn");
-    if (revokeButton) revokeButton.onclick = revokePermission;
+    if (revokeButton) {
+      revokeButton.onclick = revokePermission;
+    }
 
     const publishButton = $("publishSelectedBtn");
-    if (publishButton) publishButton.onclick = publishSelected;
+    if (publishButton) {
+      publishButton.onclick = publishSelected;
+    }
   }
 
-  let busySince = 0;
   async function runDiscovery() {
-    notice("Run discovery tapped…");
-    // A lock older than 90 seconds is a hung request, not real work.
-    if ((discoveryBusy || busy) && busySince && Date.now() - busySince > 90000) {
-      discoveryBusy = false;
-      busy = false;
-    }
     if (discoveryBusy || busy) {
       notice(
-        "The dashboard is completing another operation. Please wait a moment and try again.",
+        "Another dashboard operation is still running. " +
+        "Please wait for it to finish.",
         true
       );
       return;
     }
-    busySince = Date.now();
 
     if (!db) {
       notice(
@@ -236,13 +354,20 @@
       return;
     }
 
-    const buttons = ["runDiscoveryBtn", "runDiscoveryHeaderBtn"].map($).filter(Boolean);
+    const buttons = [
+      $("runDiscoveryBtn"),
+      $("runDiscoveryHeaderBtn")
+    ].filter(Boolean);
+
     const label = $("discoveryRunLabel");
 
     discoveryBusy = true;
     busy = true;
 
-    buttons.forEach(b => { b.disabled = true; b.textContent = "Running discovery…"; });
+    buttons.forEach(button => {
+      button.disabled = true;
+      button.textContent = "Running discovery…";
+    });
 
     if (label) {
       label.textContent =
@@ -255,9 +380,13 @@
       const {
         data: discovery,
         error: discoveryError
-      } = await withTimeout(db.functions.invoke("noh-discover-opportunities", {
-        body: {}
-      }), 120000, "Discovery");
+      } = await waitForOperation(
+        db.functions.invoke("noh-discover-opportunities", {
+          body: {}
+        }),
+        120000,
+        "Discovery"
+      );
 
       if (discoveryError) {
         let message =
@@ -269,8 +398,13 @@
         ) {
           const detail = await discoveryError.context.json().catch(() => null);
 
-          if (detail?.error) message = detail.error;
-          if (detail?.detail) message += ` — ${detail.detail}`;
+          if (detail?.error) {
+            message = detail.error;
+          }
+
+          if (detail?.detail) {
+            message += ` — ${detail.detail}`;
+          }
         }
 
         throw new Error(message);
@@ -297,14 +431,20 @@
           "Discovery finished. Preparing images for the discovered batch…";
       }
 
-      const imageBody = ids.length ? { ids } : { limit: 6 };
+      const imageBody = ids.length
+        ? { ids }
+        : { limit: 6 };
 
       const {
         data: images,
         error: imageError
-      } = await withTimeout(db.functions.invoke("noh-prepare-discovery-images", {
-        body: imageBody
-      }), 120000, "Image preparation");
+      } = await waitForOperation(
+        db.functions.invoke("noh-prepare-discovery-images", {
+          body: imageBody
+        }),
+        120000,
+        "Image preparation"
+      );
 
       if (imageError) {
         let message =
@@ -315,7 +455,10 @@
           typeof imageError.context.json === "function"
         ) {
           const detail = await imageError.context.json().catch(() => null);
-          if (detail?.error) message = detail.error;
+
+          if (detail?.error) {
+            message = detail.error;
+          }
         }
 
         throw new Error(
@@ -348,23 +491,40 @@
         `${sourceErrors} source/database warning(s). ` +
         `Nothing was approved or published.`;
 
-      if (label) label.textContent = summary;
+      if (label) {
+        label.textContent = summary;
+      }
+
       notice(summary, sourceErrors > 0 || attention > 0);
 
       await loadQueue(true);
 
     } catch (e) {
       const message =
-        e.message || "Unable to complete discovery and image preparation.";
+        e.message ||
+        "Unable to complete discovery and image preparation.";
 
-      if (label) label.textContent = message;
+      if (label) {
+        label.textContent = message;
+      }
+
       notice(message, true);
+
+      // Refresh the queue if discovery may already have completed.
+      try {
+        await loadQueue(true);
+      } catch {
+        // Preserve the original discovery error.
+      }
 
     } finally {
       discoveryBusy = false;
       busy = false;
 
-      buttons.forEach(b => { b.disabled = false; b.textContent = "Run discovery + prepare images"; });
+      buttons.forEach(button => {
+        button.disabled = false;
+        button.textContent = "Run discovery + prepare images";
+      });
 
       updatePublishButton();
     }
@@ -388,6 +548,7 @@
 
   function updatePublishButton() {
     const button = $("publishSelectedBtn");
+
     if (!button) return;
 
     button.disabled =
@@ -401,7 +562,10 @@
 
   async function grantPermission() {
     if (busy) {
-      notice("Another dashboard operation is running. Please wait.", true);
+      notice(
+        "Another dashboard operation is running. Please wait.",
+        true
+      );
       return;
     }
 
@@ -415,6 +579,7 @@
       });
 
       permission = "granted";
+
       await loadPermission();
 
       notice(
@@ -427,6 +592,7 @@
         e.message || "Unable to grant publishing permission.",
         true
       );
+
     } finally {
       busy = false;
       updatePublishButton();
@@ -435,7 +601,10 @@
 
   async function revokePermission() {
     if (busy) {
-      notice("Another dashboard operation is running. Please wait.", true);
+      notice(
+        "Another dashboard operation is running. Please wait.",
+        true
+      );
       return;
     }
 
@@ -448,15 +617,19 @@
       });
 
       permission = "not_granted";
+
       await loadPermission();
 
-      notice("Publishing permission revoked. Publishing is locked.");
+      notice(
+        "Publishing permission revoked. Publishing is locked."
+      );
 
     } catch (e) {
       notice(
         e.message || "Unable to revoke publishing permission.",
         true
       );
+
     } finally {
       busy = false;
       updatePublishButton();
@@ -492,8 +665,13 @@
       throw pErr || aErr || iErr || rErr;
     }
 
-    if ($("pendingCount")) $("pendingCount").textContent = pending ?? 0;
-    if ($("importedCount")) $("importedCount").textContent = imported ?? 0;
+    if ($("pendingCount")) {
+      $("pendingCount").textContent = pending ?? 0;
+    }
+
+    if ($("importedCount")) {
+      $("importedCount").textContent = imported ?? 0;
+    }
 
     if ($("lastRun")) {
       $("lastRun").textContent = runs?.[0]?.finished_at
@@ -505,6 +683,7 @@
 
     if (!approvedStat) {
       const stat = document.createElement("div");
+
       stat.className = "stat";
       stat.innerHTML =
         '<strong id="approvedCount">—</strong>' +
@@ -517,11 +696,14 @@
       approvedStat = $("approvedCount");
     }
 
-    if (approvedStat) approvedStat.textContent = approved ?? 0;
+    if (approvedStat) {
+      approvedStat.textContent = approved ?? 0;
+    }
   }
 
   function render() {
     const status = $("statusFilter")?.value || "all";
+
     const term = ($("searchInput")?.value || "")
       .trim()
       .toLocaleLowerCase("en-GB");
@@ -685,6 +867,7 @@
 
   function openApproval(id) {
     const row = currentRows.find(x => x.id === id);
+
     if (!row) return;
 
     $("discoveryId").value = row.id;
@@ -718,7 +901,10 @@
     event.preventDefault();
 
     if (busy) {
-      notice("Another dashboard operation is running. Please wait.", true);
+      notice(
+        "Another dashboard operation is running. Please wait.",
+        true
+      );
       return;
     }
 
@@ -748,8 +934,14 @@
       eligibility: $("eligibility").value.trim() || null
     };
 
-    if (!opportunity.application_url || !opportunity.source_url) {
-      notice("Both URLs must be valid HTTPS links.", true);
+    if (
+      !opportunity.application_url ||
+      !opportunity.source_url
+    ) {
+      notice(
+        "Both URLs must be valid HTTPS links.",
+        true
+      );
       return;
     }
 
@@ -808,15 +1000,20 @@
 
     } finally {
       busy = false;
+
       $("publishBtn").disabled = false;
       $("publishBtn").textContent = "Approve for publishing";
+
       updatePublishButton();
     }
   }
 
   async function reject(id) {
     if (busy) {
-      notice("Another dashboard operation is running. Please wait.", true);
+      notice(
+        "Another dashboard operation is running. Please wait.",
+        true
+      );
       return;
     }
 
@@ -837,7 +1034,9 @@
       });
 
       selectedIds.delete(id);
+
       notice("Discovery rejected.");
+
       await loadQueue(true);
 
     } catch (e) {
@@ -845,6 +1044,7 @@
         e.message || "Unable to reject this discovery.",
         true
       );
+
     } finally {
       busy = false;
       updatePublishButton();
@@ -852,10 +1052,28 @@
   }
 
   async function publishSelected() {
-    if (busy || permission !== "granted" || selectedIds.size === 0) {
-      if (busy) notice("Another dashboard operation is running. Please wait.", true);
-      else if (permission !== "granted") notice("Grant temporary publishing permission first.", true);
-      else notice("Select at least one approved opportunity to publish.", true);
+    if (
+      busy ||
+      permission !== "granted" ||
+      selectedIds.size === 0
+    ) {
+      if (busy) {
+        notice(
+          "Another dashboard operation is running. Please wait.",
+          true
+        );
+      } else if (permission !== "granted") {
+        notice(
+          "Grant temporary publishing permission first.",
+          true
+        );
+      } else {
+        notice(
+          "Select at least one approved opportunity to publish.",
+          true
+        );
+      }
+
       return;
     }
 
@@ -901,21 +1119,37 @@
   }
 
   async function init() {
-    // The page's header button shares an id with the one this script creates
-    // and ships disabled. Rename it so ids are unique and enable it.
+    /*
+     * Preserve the existing header button.
+     * Give it a unique ID so the dynamically created dashboard
+     * discovery button can have its own unique ID.
+     */
     const headerBtn = $("runDiscoveryBtn");
+
     if (headerBtn) {
       headerBtn.id = "runDiscoveryHeaderBtn";
       headerBtn.disabled = false;
       headerBtn.textContent = "Run discovery + prepare images";
     }
 
+    /*
+     * One delegated click handler supports both buttons,
+     * including buttons created after page initialisation.
+     */
     document.addEventListener("click", ev => {
-      const b = ev.target.closest("#runDiscoveryBtn, #runDiscoveryHeaderBtn");
-      if (b) { ev.preventDefault(); runDiscovery(); }
-    });
+      const target = ev.target;
 
-    // Wire an existing HTML button before any asynchronous setup.
+      if (!(target instanceof Element)) return;
+
+      const button = target.closest(
+        "#runDiscoveryBtn, #runDiscoveryHeaderBtn"
+      );
+
+      if (!button) return;
+
+      ev.preventDefault();
+      runDiscovery();
+    });
 
     try {
       if (!window.supabase?.createClient) {
@@ -940,11 +1174,18 @@
         ![...status.options].some(o => o.value === "approved")
       ) {
         const option = document.createElement("option");
-        option.value = "approved";
-        option.textContent = "Approved — awaiting publication";
 
-        const importedOption = status.querySelector('option[value="imported"]');
-        status.insertBefore(option, importedOption || null);
+        option.value = "approved";
+        option.textContent =
+          "Approved — awaiting publication";
+
+        const importedOption =
+          status.querySelector('option[value="imported"]');
+
+        status.insertBefore(
+          option,
+          importedOption || null
+        );
       }
 
       await loadQueue();
@@ -956,25 +1197,38 @@
       );
     }
 
-    $("refreshBtn")?.addEventListener("click", () => loadQueue());
+    $("refreshBtn")?.addEventListener("click", () => {
+      loadQueue();
+    });
+
     $("searchInput")?.addEventListener("input", render);
     $("statusFilter")?.addEventListener("change", render);
 
     $("queue")?.addEventListener("click", e => {
-      const b = e.target.closest("button[data-action]");
-      if (!b) return;
+      const target = e.target;
 
-      if (b.dataset.action === "approve") {
-        openApproval(b.dataset.id);
+      if (!(target instanceof Element)) return;
+
+      const button = target.closest("button[data-action]");
+
+      if (!button) return;
+
+      if (button.dataset.action === "approve") {
+        openApproval(button.dataset.id);
       }
 
-      if (b.dataset.action === "reject") {
-        reject(b.dataset.id);
+      if (button.dataset.action === "reject") {
+        reject(button.dataset.id);
       }
     });
 
     $("queue")?.addEventListener("change", e => {
-      const input = e.target.closest("input[data-select]");
+      const target = e.target;
+
+      if (!(target instanceof Element)) return;
+
+      const input = target.closest("input[data-select]");
+
       if (!input) return;
 
       if (input.checked) {
@@ -994,12 +1248,18 @@
     );
 
     db?.auth.onAuthStateChange(() => {
-      if (db && !busy) loadQueue();
+      if (db && !busy) {
+        loadQueue();
+      }
     });
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init, { once: true });
+    document.addEventListener(
+      "DOMContentLoaded",
+      init,
+      { once: true }
+    );
   } else {
     init();
   }
