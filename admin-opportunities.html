@@ -5,172 +5,974 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Admin – Opportunities | Naija Opportunity Hub</title>
+
 <style>
-:root{--bg:#f8eec9;--card:#fffdf6;--green:#075b3b;--gold:#c6a24a;--gold-b:#e6d7a3;--text:#1c3026;--muted:#5d6b61;--danger:#a32d2d}
-*{box-sizing:border-box}html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "DM Sans","Segoe UI",system-ui,sans-serif}
-.wrap{width:min(1000px,100% - 32px);margin:0 auto;padding:20px 0 60px}
+:root{
+  --bg:#f8eec9;
+  --card:#fffdf6;
+  --green:#075b3b;
+  --gold:#c6a24a;
+  --gold-b:#e6d7a3;
+  --text:#1c3026;
+  --muted:#5d6b61;
+  --danger:#a32d2d
+}
+
+*{box-sizing:border-box}
+html{background:var(--bg)}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:16px/1.6 "DM Sans","Segoe UI",system-ui,sans-serif
+}
+
+.wrap{
+  width:min(1000px,100% - 32px);
+  margin:0 auto;
+  padding:20px 0 60px
+}
+
 h1{margin:0;font-size:1.5rem;color:var(--green)}
-.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px}
+
+.top{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px
+}
+
 .top a{color:var(--green);font-weight:700}
-.card{background:var(--card);border:1px solid var(--gold-b);border-radius:16px;padding:18px;margin-bottom:16px}
-input,select,textarea{width:100%;padding:11px 12px;margin:0 0 12px;border:1.5px solid #d9d4bd;border-radius:10px;background:#fff;font:inherit;color:var(--text)}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--gold-b);
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:16px
+}
+
+input,select,textarea{
+  width:100%;
+  padding:11px 12px;
+  margin:0 0 12px;
+  border:1.5px solid #d9d4bd;
+  border-radius:10px;
+  background:#fff;
+  font:inherit;
+  color:var(--text)
+}
+
 textarea{min-height:90px;resize:vertical}
-label{display:block;font-size:.85rem;font-weight:700;margin-bottom:4px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-@media(max-width:640px){.row{grid-template-columns:1fr}}
-button,.btn{font:inherit;font-weight:800;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#1d2a20;padding:10px 16px;cursor:pointer}
-button.alt{background:#fff;color:var(--green)}button.del{background:#fff;color:var(--danger);border-color:#d9a5a5}
+
+label{
+  display:block;
+  font-size:.85rem;
+  font-weight:700;
+  margin-bottom:4px
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0 14px
+}
+
+@media(max-width:640px){
+  .row{grid-template-columns:1fr}
+}
+
+button,.btn{
+  font:inherit;
+  font-weight:800;
+  border-radius:10px;
+  border:1.5px solid var(--gold);
+  background:var(--gold);
+  color:#1d2a20;
+  padding:10px 16px;
+  cursor:pointer
+}
+
+button.alt{background:#fff;color:var(--green)}
+button.del{background:#fff;color:var(--danger);border-color:#d9a5a5}
 button:disabled{opacity:.6;cursor:not-allowed}
-.item{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:12px 0;border-top:1px solid var(--gold-b)}
+
+.item{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  justify-content:space-between;
+  padding:12px 0;
+  border-top:1px solid var(--gold-b)
+}
+
 .item:first-child{border-top:0}
-.item h3{margin:0;font-size:1rem}.item small{color:var(--muted)}
-.tag{display:inline-block;padding:1px 9px;border-radius:99px;background:#f3e7bd;font-size:.75rem;font-weight:700;margin-right:6px}
+.item h3{margin:0;font-size:1rem}
+.item small{color:var(--muted)}
+
+.tag{
+  display:inline-block;
+  padding:1px 9px;
+  border-radius:99px;
+  background:#f3e7bd;
+  font-size:.75rem;
+  font-weight:700;
+  margin-right:6px
+}
+
 .acts{display:flex;gap:8px;flex:none}
-.msg{padding:10px 14px;border-radius:10px;margin:0 0 12px;font-weight:600}
-.msg.ok{background:#e4f1e8;color:var(--green)}.msg.err{background:#f6e3e3;color:var(--danger)}
+
+.msg{
+  padding:10px 14px;
+  border-radius:10px;
+  margin:0 0 12px;
+  font-weight:600
+}
+
+.msg.ok{background:#e4f1e8;color:var(--green)}
+.msg.err{background:#f6e3e3;color:var(--danger)}
+
 .hide{display:none}
-.prev{max-width:160px;max-height:90px;border-radius:8px;margin:0 0 12px;display:block;object-fit:cover}
+
+.prev{
+  max-width:160px;
+  max-height:90px;
+  border-radius:8px;
+  margin:0 0 12px;
+  display:block;
+  object-fit:cover
+}
+
+/* Opportunity image preparation */
+.prep-results{margin-top:14px}
+
+.prep-result{
+  padding:12px 0;
+  border-top:1px solid var(--gold-b);
+  display:flex;
+  gap:12px;
+  align-items:flex-start
+}
+
+.prep-result img{
+  width:90px;
+  height:65px;
+  object-fit:cover;
+  border-radius:8px
+}
+
+.prep-result small{
+  display:block;
+  color:var(--muted)
+}
+
+.prep-stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin:14px 0
+}
+
+.prep-stat{
+  background:#f3e7bd;
+  padding:10px;
+  border-radius:10px;
+  text-align:center
+}
+
+.prep-stat strong{
+  display:block;
+  font-size:1.3rem;
+  color:var(--green)
+}
+
+@media(max-width:500px){
+  .prep-stats{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
+
 <body>
+
 <div class="wrap">
-  <div class="top"><h1>Opportunities admin</h1><span><a href="/admin-messages.html">Messages</a> &nbsp; <a href="/">Back to site</a> &nbsp; <a href="#" id="out" class="hide">Sign out</a></span></div>
+
+  <div class="top">
+    <h1>Opportunities admin</h1>
+    <span>
+      <a href="/admin-messages.html">Messages</a>
+      &nbsp;
+      <a href="/">Back to site</a>
+      &nbsp;
+      <a href="#" id="out" class="hide">Sign out</a>
+    </span>
+  </div>
+
   <div id="gate" class="card">Checking your access…</div>
 
   <div id="app" class="hide">
+
+    <!-- Account and password -->
     <details class="card" id="pwCard">
-      <summary style="cursor:pointer;font-weight:800;color:var(--green)">Account &amp; password</summary>
+      <summary style="cursor:pointer;font-weight:800;color:var(--green)">
+        Account &amp; password
+      </summary>
+
       <div style="margin-top:14px">
         <div id="pwMsg"></div>
+
         <form id="pwForm" autocomplete="off">
-          <label for="pw1">New password (at least 8 characters)</label><input id="pw1" type="password" minlength="8" autocomplete="new-password" required>
-          <label for="pw2">Confirm new password</label><input id="pw2" type="password" minlength="8" autocomplete="new-password" required>
+          <label for="pw1">New password (at least 8 characters)</label>
+          <input id="pw1" type="password" minlength="8" autocomplete="new-password" required>
+
+          <label for="pw2">Confirm new password</label>
+          <input id="pw2" type="password" minlength="8" autocomplete="new-password" required>
+
           <button id="pwSave" type="submit">Change password</button>
-          <button id="pwMail" type="button" class="alt">Email me a reset link instead</button>
+          <button id="pwMail" type="button" class="alt">
+            Email me a reset link instead
+          </button>
         </form>
       </div>
     </details>
+
+    <!-- Opportunity image preparation -->
+    <div class="card" id="imagePrepCard">
+
+      <h2 style="margin:0;color:var(--green);font-size:1.15rem">
+        Opportunity image preparation
+      </h2>
+
+      <p>
+        Prepare unique images for pending opportunity discoveries.
+        Each batch processes up to six records. This does not approve
+        or publish opportunities.
+      </p>
+
+      <div class="prep-stats">
+
+        <div class="prep-stat">
+          <strong id="prepProcessed">0</strong>
+          <small>Processed</small>
+        </div>
+
+        <div class="prep-stat">
+          <strong id="prepReady">0</strong>
+          <small>Images ready</small>
+        </div>
+
+        <div class="prep-stat">
+          <strong id="prepFailed">0</strong>
+          <small>Needs attention</small>
+        </div>
+
+        <div class="prep-stat">
+          <strong id="prepRemaining">—</strong>
+          <small>Pending remaining</small>
+        </div>
+
+      </div>
+
+      <div id="prepMsg"></div>
+
+      <button type="button" id="prepareImages">
+        Prepare next batch (6)
+      </button>
+
+      <div id="prepResults" class="prep-results"></div>
+
+    </div>
+
+    <!-- Add or edit opportunity -->
     <div class="card">
-      <div class="top" style="margin:0 0 10px"><strong id="formTitle">Add opportunity</strong><button class="alt hide" id="cancel" type="button">Cancel edit</button></div>
+
+      <div class="top" style="margin:0 0 10px">
+        <strong id="formTitle">Add opportunity</strong>
+        <button class="alt hide" id="cancel" type="button">
+          Cancel edit
+        </button>
+      </div>
+
       <div id="fmsg"></div>
+
       <form id="form" autocomplete="off">
-        <label for="title">Title *</label><input id="title" required maxlength="200">
+
+        <label for="title">Title *</label>
+        <input id="title" required maxlength="200">
+
         <div class="row">
-          <div><label for="organization">Organisation *</label><input id="organization" required maxlength="160"></div>
-          <div><label for="category">Category *</label><input id="category" list="cats" required maxlength="60"><datalist id="cats"></datalist></div>
+          <div>
+            <label for="organization">Organisation *</label>
+            <input id="organization" required maxlength="160">
+          </div>
+
+          <div>
+            <label for="category">Category *</label>
+            <input id="category" list="cats" required maxlength="60">
+            <datalist id="cats"></datalist>
+          </div>
         </div>
+
         <div class="row">
-          <div><label for="location">Location</label><input id="location" maxlength="120"></div>
-          <div><label for="deadline">Deadline</label><input id="deadline" type="date"></div>
+          <div>
+            <label for="location">Location</label>
+            <input id="location" maxlength="120">
+          </div>
+
+          <div>
+            <label for="deadline">Deadline</label>
+            <input id="deadline" type="date">
+          </div>
         </div>
-        <label for="description">Description *</label><textarea id="description" required></textarea>
-        <label for="eligibility">Eligibility</label><textarea id="eligibility"></textarea>
+
+        <label for="description">Description *</label>
+        <textarea id="description" required></textarea>
+
+        <label for="eligibility">Eligibility</label>
+        <textarea id="eligibility"></textarea>
+
         <div class="row">
-          <div><label for="application_url">Application link</label><input id="application_url" type="url" placeholder="https://"></div>
-          <div><label for="source_url">Source link</label><input id="source_url" type="url" placeholder="https://"></div>
+          <div>
+            <label for="application_url">Application link</label>
+            <input id="application_url" type="url" placeholder="https://">
+          </div>
+
+          <div>
+            <label for="source_url">Source link</label>
+            <input id="source_url" type="url" placeholder="https://">
+          </div>
         </div>
-        <label for="image_url">Image link</label><input id="image_url" type="url" placeholder="https://">
+
+        <label for="image_url">Image link</label>
+        <input id="image_url" type="url" placeholder="https://">
+
         <img id="prev" class="prev hide" alt="">
-        <label for="status">Status *</label><input id="status" list="stats" required maxlength="40"><datalist id="stats"></datalist>
-        <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input id="verified" type="checkbox" style="width:auto;margin:0"> Mark as verified today</label>
-        <br><button id="save" type="submit">Save opportunity</button>
+
+        <label for="status">Status *</label>
+        <input id="status" list="stats" required maxlength="40">
+        <datalist id="stats"></datalist>
+
+        <label style="display:flex;gap:8px;align-items:center;font-weight:600">
+          <input id="verified" type="checkbox" style="width:auto;margin:0">
+          Mark as verified today
+        </label>
+
+        <br>
+
+        <button id="save" type="submit">Save opportunity</button>
+
       </form>
     </div>
 
+    <!-- Existing opportunities -->
     <div class="card">
-      <div class="row"><div><input id="q" placeholder="Search title or organisation"></div><div><select id="fstat"><option value="">All statuses</option></select></div></div>
+
+      <div class="row">
+        <div>
+          <input id="q" placeholder="Search title or organisation">
+        </div>
+
+        <div>
+          <select id="fstat">
+            <option value="">All statuses</option>
+          </select>
+        </div>
+      </div>
+
       <div id="list">Loading…</div>
+
     </div>
+
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+
 <script>
 (function(){
-  var URL_="https://djxornmwvkauhkcuhgxc.supabase.co",KEY="sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
-  var sb=window.NOH_SUPABASE_CLIENT||window.supabase.createClient(URL_,KEY);
-  var $=function(i){return document.getElementById(i)},rows=[],editId=null;
-  var F=["title","organization","category","location","deadline","description","eligibility","application_url","source_url","image_url","status"];
-  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
-  function note(t,k){$("fmsg").innerHTML=t?'<p class="msg '+k+'">'+esc(t)+'</p>':""}
-  function gate(h){$("gate").innerHTML=h;$("gate").classList.remove("hide");$("app").classList.add("hide")}
 
-  async function init(){
-    var s=await sb.auth.getSession(), u=s.data&&s.data.session&&s.data.session.user;
-    if(!u){gate('Please <a href="/auth.html?mode=login&redirect='+encodeURIComponent("/admin-opportunities.html")+'"><strong>sign in</strong></a> with your admin account.');return}
-    $("out").classList.remove("hide");
-    var a=await sb.from("admins").select("user_id").eq("user_id",u.id).maybeSingle();
-    if(a.error||!a.data){gate("This account ("+esc(u.email)+") is not an admin. If this is your account, run the admin SQL in Supabase first.");return}
-    $("gate").classList.add("hide");$("app").classList.remove("hide");load();
+  var URL_="https://djxornmwvkauhkcuhgxc.supabase.co";
+  var KEY="sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
+
+  var sb=window.NOH_SUPABASE_CLIENT||window.supabase.createClient(URL_,KEY);
+
+  var $=function(i){return document.getElementById(i)};
+  var rows=[],editId=null;
+
+  var F=[
+    "title",
+    "organization",
+    "category",
+    "location",
+    "deadline",
+    "description",
+    "eligibility",
+    "application_url",
+    "source_url",
+    "image_url",
+    "status"
+  ];
+
+  function esc(s){
+    return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+      return {
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[c]
+    })
   }
+
+  function note(t,k){
+    $("fmsg").innerHTML=t
+      ?'<p class="msg '+k+'">'+esc(t)+'</p>'
+      :"";
+  }
+
+  function gate(h){
+    $("gate").innerHTML=h;
+    $("gate").classList.remove("hide");
+    $("app").classList.add("hide");
+  }
+
+  // Admin authentication and access verification
+  async function init(){
+
+    var s=await sb.auth.getSession();
+    var u=s.data&&s.data.session&&s.data.session.user;
+
+    if(!u){
+      gate(
+        'Please <a href="/auth.html?mode=login&redirect='+
+        encodeURIComponent("/admin-opportunities.html")+
+        '"><strong>sign in</strong></a> with your admin account.'
+      );
+      return;
+    }
+
+    $("out").classList.remove("hide");
+
+    var a=await sb.from("admins")
+      .select("user_id")
+      .eq("user_id",u.id)
+      .maybeSingle();
+
+    if(a.error||!a.data){
+      gate(
+        "This account ("+esc(u.email)+
+        ") is not an admin. If this is your account, run the admin SQL in Supabase first."
+      );
+      return;
+    }
+
+    $("gate").classList.add("hide");
+    $("app").classList.remove("hide");
+
+    load();
+  }
+
+  // Load existing published opportunities
   async function load(){
-    var r=await sb.from("opportunities").select("*").order("created_at",{ascending:false}).limit(500);
-    if(r.error){$("list").innerHTML='<p class="msg err">'+esc(r.error.message)+'</p>';return}
+
+    var r=await sb.from("opportunities")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(500);
+
+    if(r.error){
+      $("list").innerHTML='<p class="msg err">'+esc(r.error.message)+'</p>';
+      return;
+    }
+
     rows=r.data||[];
-    var cats={},stats={};rows.forEach(function(o){if(o.category)cats[o.category]=1;if(o.status)stats[o.status]=1});
-    $("cats").innerHTML=Object.keys(cats).map(function(c){return'<option value="'+esc(c)+'">'}).join("");
-    $("stats").innerHTML=Object.keys(stats).map(function(c){return'<option value="'+esc(c)+'">'}).join("");
-    var cur=$("fstat").value;$("fstat").innerHTML='<option value="">All statuses</option>'+Object.keys(stats).map(function(c){return'<option>'+esc(c)+'</option>'}).join("");$("fstat").value=cur;
+
+    var cats={},stats={};
+
+    rows.forEach(function(o){
+      if(o.category)cats[o.category]=1;
+      if(o.status)stats[o.status]=1;
+    });
+
+    $("cats").innerHTML=Object.keys(cats).map(function(c){
+      return '<option value="'+esc(c)+'">';
+    }).join("");
+
+    $("stats").innerHTML=Object.keys(stats).map(function(c){
+      return '<option value="'+esc(c)+'">';
+    }).join("");
+
+    var cur=$("fstat").value;
+
+    $("fstat").innerHTML=
+      '<option value="">All statuses</option>'+
+      Object.keys(stats).map(function(c){
+        return '<option>'+esc(c)+'</option>';
+      }).join("");
+
+    $("fstat").value=cur;
+
     render();
   }
+
   function render(){
-    var q=$("q").value.toLowerCase(),st=$("fstat").value;
-    var list=rows.filter(function(o){return(!st||o.status===st)&&(!q||((o.title||"")+" "+(o.organization||"")).toLowerCase().indexOf(q)>-1)});
-    $("list").innerHTML=list.length?list.map(function(o){
-      return'<div class="item"><div><h3>'+esc(o.title)+'</h3><small><span class="tag">'+esc(o.status||"—")+'</span>'+esc(o.organization)+' · '+esc(o.category)+(o.deadline?' · closes '+esc(o.deadline):'')+'</small></div><div class="acts"><button class="alt" data-e="'+esc(o.id)+'">Edit</button><button class="del" data-d="'+esc(o.id)+'">Delete</button></div></div>'
-    }).join(""):"<p>No opportunities found.</p>";
+
+    var q=$("q").value.toLowerCase();
+    var st=$("fstat").value;
+
+    var list=rows.filter(function(o){
+      return (!st||o.status===st)&&
+        (!q||((o.title||"")+" "+(o.organization||""))
+        .toLowerCase().indexOf(q)>-1);
+    });
+
+    $("list").innerHTML=list.length
+      ?list.map(function(o){
+
+        return '<div class="item">'+
+          '<div>'+
+            '<h3>'+esc(o.title)+'</h3>'+
+            '<small>'+
+              '<span class="tag">'+esc(o.status||"—")+'</span>'+
+              esc(o.organization)+' · '+
+              esc(o.category)+
+              (o.deadline?' · closes '+esc(o.deadline):'')+
+            '</small>'+
+          '</div>'+
+          '<div class="acts">'+
+            '<button class="alt" data-e="'+esc(o.id)+'">Edit</button>'+
+            '<button class="del" data-d="'+esc(o.id)+'">Delete</button>'+
+          '</div>'+
+        '</div>';
+
+      }).join("")
+      :"<p>No opportunities found.</p>";
   }
-  function reset(){editId=null;$("form").reset();$("formTitle").textContent="Add opportunity";$("cancel").classList.add("hide");$("prev").classList.add("hide");note("")}
+
+  function reset(){
+
+    editId=null;
+    $("form").reset();
+    $("formTitle").textContent="Add opportunity";
+    $("cancel").classList.add("hide");
+    $("prev").classList.add("hide");
+
+    note("");
+  }
+
   function edit(id){
-    var o=rows.find(function(x){return x.id===id});if(!o)return;editId=id;
-    F.forEach(function(f){$(f).value=f==="deadline"&&o[f]?String(o[f]).slice(0,10):(o[f]||"")});
-    $("formTitle").textContent="Edit opportunity";$("cancel").classList.remove("hide");preview();note("");window.scrollTo({top:0,behavior:"smooth"});
+
+    var o=rows.find(function(x){return x.id===id});
+    if(!o)return;
+
+    editId=id;
+
+    F.forEach(function(f){
+      $(f).value=
+        f==="deadline"&&o[f]
+          ?String(o[f]).slice(0,10)
+          :(o[f]||"");
+    });
+
+    $("formTitle").textContent="Edit opportunity";
+    $("cancel").classList.remove("hide");
+
+    preview();
+    note("");
+
+    window.scrollTo({top:0,behavior:"smooth"});
   }
-  function preview(){var v=$("image_url").value.trim();$("prev").classList.toggle("hide",!v);if(v)$("prev").src=v}
+
+  function preview(){
+
+    var v=$("image_url").value.trim();
+
+    $("prev").classList.toggle("hide",!v);
+
+    if(v)$("prev").src=v;
+  }
+
   $("image_url").addEventListener("input",preview);
-  $("prev").addEventListener("error",function(){this.classList.add("hide")});
-  $("q").addEventListener("input",render);$("fstat").addEventListener("change",render);
+
+  $("prev").addEventListener("error",function(){
+    this.classList.add("hide");
+  });
+
+  $("q").addEventListener("input",render);
+  $("fstat").addEventListener("change",render);
   $("cancel").addEventListener("click",reset);
+
+  // Existing opportunity edit and delete actions
   $("list").addEventListener("click",async function(e){
-    var b=e.target.closest("button");if(!b)return;
+
+    var b=e.target.closest("button");
+    if(!b)return;
+
     if(b.dataset.e)return edit(b.dataset.e);
-    if(b.dataset.d){var o=rows.find(function(x){return x.id===b.dataset.d});
+
+    if(b.dataset.d){
+
+      var o=rows.find(function(x){
+        return x.id===b.dataset.d;
+      });
+
       if(!confirm('Delete "'+(o&&o.title)+'" permanently?'))return;
-      var r=await sb.from("opportunities").delete().eq("id",b.dataset.d);
-      if(r.error)alert(r.error.message);else{if(editId===b.dataset.d)reset();load()}}
+
+      var r=await sb.from("opportunities")
+        .delete()
+        .eq("id",b.dataset.d);
+
+      if(r.error){
+        alert(r.error.message);
+      }else{
+        if(editId===b.dataset.d)reset();
+        load();
+      }
+    }
   });
+
+  // Existing opportunity creation and editing
   $("form").addEventListener("submit",async function(e){
-    e.preventDefault();var p={};
-    F.forEach(function(f){var v=$(f).value.trim();p[f]=v===""?null:v});
-    p.title=p.title||"";if($("verified").checked)p.verified_at=new Date().toISOString();
-    $("save").disabled=true;note("");
-    var r=editId?await sb.from("opportunities").update(p).eq("id",editId).select():await sb.from("opportunities").insert(p).select();
+
+    e.preventDefault();
+
+    var p={};
+
+    F.forEach(function(f){
+      var v=$(f).value.trim();
+      p[f]=v===""?null:v;
+    });
+
+    p.title=p.title||"";
+
+    if($("verified").checked){
+      p.verified_at=new Date().toISOString();
+    }
+
+    $("save").disabled=true;
+    note("");
+
+    var r=editId
+      ?await sb.from("opportunities").update(p).eq("id",editId).select()
+      :await sb.from("opportunities").insert(p).select();
+
     $("save").disabled=false;
-    if(r.error){note(r.error.message,"err");return}
-    if(!r.data||!r.data.length){note("Nothing was saved. Check that the admin SQL has been run for this account.","err");return}
-    var wasEdit=!!editId;reset();note(wasEdit?"Changes saved.":"Opportunity added.","ok");load();
+
+    if(r.error){
+      note(r.error.message,"err");
+      return;
+    }
+
+    if(!r.data||!r.data.length){
+      note(
+        "Nothing was saved. Check that the admin SQL has been run for this account.",
+        "err"
+      );
+      return;
+    }
+
+    var wasEdit=!!editId;
+
+    reset();
+
+    note(
+      wasEdit?"Changes saved.":"Opportunity added.",
+      "ok"
+    );
+
+    load();
   });
-  $("out").addEventListener("click",async function(e){e.preventDefault();await sb.auth.signOut();location.reload()});
-  function pwNote(t,k){$("pwMsg").innerHTML=t?'<p class="msg '+k+'">'+esc(t)+'</p>':""}
+
+  // Sign out
+  $("out").addEventListener("click",async function(e){
+
+    e.preventDefault();
+
+    await sb.auth.signOut();
+
+    location.reload();
+  });
+
+  // Password management
+  function pwNote(t,k){
+
+    $("pwMsg").innerHTML=t
+      ?'<p class="msg '+k+'">'+esc(t)+'</p>'
+      :"";
+  }
+
   $("pwForm").addEventListener("submit",async function(e){
-    e.preventDefault();var a=$("pw1").value,b=$("pw2").value;
-    if(a.length<8)return pwNote("Use at least 8 characters.","err");
-    if(a!==b)return pwNote("The two passwords do not match.","err");
+
+    e.preventDefault();
+
+    var a=$("pw1").value;
+    var b=$("pw2").value;
+
+    if(a.length<8){
+      return pwNote("Use at least 8 characters.","err");
+    }
+
+    if(a!==b){
+      return pwNote("The two passwords do not match.","err");
+    }
+
     $("pwSave").disabled=true;
+
     var r=await sb.auth.updateUser({password:a});
+
     $("pwSave").disabled=false;
-    if(r.error)return pwNote(r.error.message,"err");
-    $("pwForm").reset();pwNote("Password changed. Use it next time you sign in.","ok");
+
+    if(r.error){
+      return pwNote(r.error.message,"err");
+    }
+
+    $("pwForm").reset();
+
+    pwNote(
+      "Password changed. Use it next time you sign in.",
+      "ok"
+    );
   });
+
   $("pwMail").addEventListener("click",async function(){
-    var s=await sb.auth.getSession(),u=s.data&&s.data.session&&s.data.session.user;
-    if(!u||!u.email)return pwNote("Please sign in again.","err");
-    var r=await sb.auth.resetPasswordForEmail(u.email,{redirectTo:location.origin+"/auth.html"});
-    pwNote(r.error?r.error.message:"A reset link has been sent to "+u.email+".",r.error?"err":"ok");
+
+    var s=await sb.auth.getSession();
+    var u=s.data&&s.data.session&&s.data.session.user;
+
+    if(!u||!u.email){
+      return pwNote("Please sign in again.","err");
+    }
+
+    var r=await sb.auth.resetPasswordForEmail(
+      u.email,
+      {redirectTo:location.origin+"/auth.html"}
+    );
+
+    pwNote(
+      r.error
+        ?r.error.message
+        :"A reset link has been sent to "+u.email+".",
+      r.error?"err":"ok"
+    );
   });
+
+  // --------------------------------------------------
+  // NOH: Protected opportunity discovery image preparation
+  // --------------------------------------------------
+
+  function prepMessage(message,type){
+
+    $("prepMsg").innerHTML=message
+      ?'<p class="msg '+(type==="err"?"err":"ok")+'">'+
+        esc(message)+
+        '</p>'
+      :"";
+  }
+
+  function prepNumber(value){
+
+    var n=Number(value);
+
+    return Number.isFinite(n)?n:0;
+  }
+
+  function renderPrepResults(data){
+
+    if(!data||typeof data!=="object")return;
+
+    var processed=
+      data.processed ??
+      data.processed_count;
+
+    var ready=
+      data.image_ready ??
+      data.images_ready ??
+      data.ready;
+
+    var failed=
+      data.needs_attention ??
+      data.failed ??
+      data.failures;
+
+    var remaining=data.remaining_pending;
+
+    if(processed!=null){
+      $("prepProcessed").textContent=prepNumber(processed);
+    }
+
+    if(ready!=null){
+      $("prepReady").textContent=prepNumber(ready);
+    }
+
+    if(failed!=null){
+      $("prepFailed").textContent=prepNumber(failed);
+    }
+
+    if(remaining!=null){
+      $("prepRemaining").textContent=prepNumber(remaining);
+    }
+
+    var results=Array.isArray(data.results)
+      ?data.results
+      :[];
+
+    if(!results.length){
+
+      $("prepResults").innerHTML=
+        '<p>No individual image results were returned. '+
+        'Check the preparation response below.</p>'+
+        '<pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+
+        esc(JSON.stringify(data,null,2))+
+        '</pre>';
+
+      return;
+    }
+
+    $("prepResults").innerHTML=results.map(function(item){
+
+      item=item||{};
+
+      var title=
+        item.title||
+        item.opportunity_title||
+        "Opportunity";
+
+      var status=
+        item.status||
+        item.result||
+        "Processed";
+
+      var image=
+        item.image_url||
+        item.imageUrl||
+        "";
+
+      var reason=
+        item.error||
+        item.message||
+        item.reason||
+        "";
+
+      var safeImage=
+        typeof image==="string"&&
+        /^https:\/\//i.test(image);
+
+      return '<div class="prep-result">'+
+
+        (safeImage
+          ?'<img src="'+esc(image)+'" alt="Opportunity image" loading="lazy">'
+          :'')+
+
+        '<div>'+
+          '<strong>'+esc(title)+'</strong>'+
+          '<small>Status: '+esc(status)+'</small>'+
+          (reason
+            ?'<small>'+esc(reason)+'</small>'
+            :'')+
+        '</div>'+
+
+      '</div>';
+
+    }).join("");
+  }
+
+  // Process the next six pending discovery records
+  $("prepareImages").addEventListener("click",async function(){
+
+    var button=$("prepareImages");
+
+    if(button.disabled)return;
+
+    button.disabled=true;
+    button.textContent="Preparing images…";
+
+    prepMessage(
+      "Connecting securely to the image preparation function…"
+    );
+
+    try{
+
+      var sessionResult=await sb.auth.getSession();
+
+      var session=
+        sessionResult.data&&
+        sessionResult.data.session;
+
+      if(
+        sessionResult.error||
+        !session||
+        !session.access_token
+      ){
+        throw new Error(
+          "Your admin session has expired. Sign in again."
+        );
+      }
+
+      var result=await sb.functions.invoke(
+        "noh-prepare-discovery-images",
+        {
+          body:{limit:6},
+          headers:{
+            Authorization:"Bearer "+session.access_token
+          }
+        }
+      );
+
+      if(result.error){
+
+        var detail=
+          result.error.message||
+          "Image preparation failed.";
+
+        if(result.data&&result.data.error){
+          detail=result.data.error;
+        }
+
+        throw new Error(detail);
+      }
+
+      var data=result.data||{};
+
+      if(data.success===false){
+
+        throw new Error(
+          data.error||
+          "The image preparation function reported an error."
+        );
+      }
+
+      renderPrepResults(data);
+
+      prepMessage(
+        "Image preparation request completed. Check the results below. "+
+        "No opportunities were approved or published.",
+        "ok"
+      );
+
+    }catch(error){
+
+      prepMessage(
+        error&&error.message
+          ?error.message
+          :"Unable to prepare images.",
+        "err"
+      );
+
+    }finally{
+
+      button.disabled=false;
+      button.textContent="Prepare next batch (6)";
+    }
+  });
+
+  // Start dashboard
   init();
+
 })();
 </script>
+
 </body>
 </html>
