@@ -784,8 +784,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
     if(!data||typeof data!=="object")return;
 
     var processed=
-      data.processed ??
-      data.processed_count;
+  data.processed ??
+  data.processed_count ??
+  data.selected;
 
     var ready=
       data.image_ready ??
