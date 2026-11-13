@@ -1,19 +1,20 @@
-
 (() => {
   "use strict";
 
   const SUPABASE_URL = "https://djxornmwvkauhkcuhgxc.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
-
+  const PUBLISHER = "noh-publish-opportunities";
   const $ = id => document.getElementById(id);
+
   let db = null;
   let currentRows = [];
+  let selectedIds = new Set();
   let busy = false;
-  let discoveryRunning = false;
+  let permission = "not_granted";
 
-  const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  })[c]);
+  const esc = value => String(value ?? "").replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]
+  );
 
   const safeHttps = value => {
     try {
@@ -25,8 +26,10 @@
   };
 
   function notice(message, error = false) {
-    $("notice").textContent = message;
-    $("notice").classList.toggle("error", error);
+    const el = $("notice");
+    if (!el) return;
+    el.textContent = message;
+    el.classList.toggle("error", error);
   }
 
   function dateLabel(value) {
@@ -34,20 +37,45 @@
     const d = new Date(value);
     return Number.isNaN(d.getTime())
       ? "Date not supplied"
-      : d.toLocaleString("en-GB", {dateStyle:"medium",timeStyle:"short"});
+      : d.toLocaleString("en-GB", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        });
+  }
+
+  async function invoke(action, extra = {}) {
+    const { data, error } = await db.functions.invoke(PUBLISHER, {
+      body: { action, ...extra }
+    });
+
+    if (error) {
+      let message = error.message || "The publisher request failed.";
+
+      if (error.context && typeof error.context.json === "function") {
+        const detail = await error.context.json().catch(() => null);
+        if (detail?.error) message = detail.error;
+      }
+
+      throw new Error(message);
+    }
+
+    if (data?.error) throw new Error(data.error);
+    return data;
   }
 
   async function requireAdmin() {
-    const {data:{session},error} = await db.auth.getSession();
+    const { data: { session }, error } = await db.auth.getSession();
 
     if (error || !session?.user) {
-      throw new Error("Sign in to your NOH administrator account first, then reopen this page.");
+      throw new Error(
+        "Sign in to your NOH administrator account first, then reopen this page."
+      );
     }
 
-    const {data:admin,error:adminError} = await db
+    const { data: admin, error: adminError } = await db
       .from("admins")
       .select("user_id")
-      .eq("user_id",session.user.id)
+      .eq("user_id", session.user.id)
       .maybeSingle();
 
     if (adminError || !admin) {
@@ -57,200 +85,492 @@
     return session.user;
   }
 
+  function addWorkflowControls() {
+    if ($("publishWorkflowControls")) return;
+
+    const discovery = document.createElement("section");
+    discovery.id = "discoveryWorkflowControls";
+
+    discovery.style.cssText =
+      "display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;border:1px solid #e6e9e3;border-radius:14px;padding:14px 16px;margin:18px 0";
+
+    discovery.innerHTML = `
+      <div>
+        <strong>Discovery and image preparation</strong>
+        <div id="discoveryRunLabel" class="entry-meta" style="margin-top:5px">
+          Runs discovery, enriches up to six records, then prepares their images.
+          No approval or publication takes place.
+        </div>
+      </div>
+      <button class="btn btn-primary" type="button" id="runDiscoveryBtn">
+        Run discovery + prepare images
+      </button>
+    `;
+
+    $("pendingCount")
+      ?.closest(".review-stats")
+      ?.insertAdjacentElement("afterend", discovery);
+
+    $("runDiscoveryBtn").addEventListener("click", runDiscovery);
+
+    const section = document.createElement("section");
+    section.id = "publishWorkflowControls";
+
+    section.style.cssText =
+      "display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;border:1px solid #e6e9e3;border-radius:14px;padding:14px 16px;margin:18px 0";
+
+    section.innerHTML = `
+      <div>
+        <strong>Publishing control</strong>
+        <div id="permissionLabel" class="entry-meta" style="margin-top:5px">
+          Checking permission…
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline" type="button" id="grantPermissionBtn">
+          Grant 15-minute permission
+        </button>
+        <button class="btn btn-outline" type="button" id="revokePermissionBtn">
+          Revoke permission
+        </button>
+        <button class="btn btn-primary" type="button" id="publishSelectedBtn" disabled>
+          Publish selected approved (0)
+        </button>
+      </div>
+    `;
+
+    discovery.insertAdjacentElement("afterend", section);
+
+    $("grantPermissionBtn").addEventListener("click", grantPermission);
+    $("revokePermissionBtn").addEventListener("click", revokePermission);
+    $("publishSelectedBtn").addEventListener("click", publishSelected);
+  }
+
+  async function runDiscovery() {
+    if (busy) return;
+
+    const button = $("runDiscoveryBtn");
+    const label = $("discoveryRunLabel");
+
+    busy = true;
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Running discovery…";
+    }
+
+    if (label) {
+      label.textContent =
+        "Checking sources and enriching up to six pending records…";
+    }
+
+    try {
+      const {
+        data: discovery,
+        error: discoveryError
+      } = await db.functions.invoke("noh-discover-opportunities", {
+        body: {}
+      });
+
+      if (discoveryError) {
+        let message =
+          discoveryError.message || "Discovery request failed.";
+
+        if (
+          discoveryError.context &&
+          typeof discoveryError.context.json === "function"
+        ) {
+          const detail = await discoveryError.context.json().catch(() => null);
+
+          if (detail?.error) message = detail.error;
+          if (detail?.detail) message += ` — ${detail.detail}`;
+        }
+
+        throw new Error(message);
+      }
+
+      if (discovery?.error) {
+        throw new Error(discovery.error);
+      }
+
+      const enriched = Array.isArray(discovery?.enriched)
+        ? discovery.enriched
+        : [];
+
+      const ids = [
+        ...new Set(
+          enriched
+            .map(row => row?.id)
+            .filter(Boolean)
+        )
+      ].slice(0, 6);
+
+      if (label) {
+        label.textContent =
+          "Discovery finished. Preparing images for the same batch…";
+      }
+
+      const imageBody = ids.length ? { ids } : { limit: 6 };
+
+      const {
+        data: images,
+        error: imageError
+      } = await db.functions.invoke("noh-prepare-discovery-images", {
+        body: imageBody
+      });
+
+      if (imageError) {
+        let message =
+          imageError.message || "Image preparation request failed.";
+
+        if (
+          imageError.context &&
+          typeof imageError.context.json === "function"
+        ) {
+          const detail = await imageError.context.json().catch(() => null);
+          if (detail?.error) message = detail.error;
+        }
+
+        throw new Error(
+          `Discovery ran, but image preparation failed: ${message}`
+        );
+      }
+
+      if (images?.error) {
+        throw new Error(
+          `Discovery ran, but image preparation failed: ${images.error}`
+        );
+      }
+
+      const ready = Number(images?.image_ready ?? 0);
+      const selected = Number(images?.selected ?? 0);
+      const attention = Number(images?.needs_attention ?? 0);
+
+      const sourceErrors = Array.isArray(discovery?.errors)
+        ? discovery.errors.length
+        : 0;
+
+      const summary =
+        `Discovery complete: ` +
+        `${Number(discovery?.sources_checked ?? 0)} sources checked, ` +
+        `${Number(discovery?.entries_seen ?? 0)} listings found, ` +
+        `${Number(discovery?.new_pending_entries ?? 0)} new records, ` +
+        `${enriched.length} enrichment attempts. ` +
+        `Images: ${ready} ready from ${selected} selected; ` +
+        `${attention} need attention. ` +
+        `${sourceErrors} source/database warning(s). ` +
+        `Nothing was approved or published.`;
+
+      if (label) label.textContent = summary;
+
+      notice(summary, sourceErrors > 0 || attention > 0);
+
+      await loadQueue(true);
+
+    } catch (e) {
+      const message =
+        e.message || "Unable to complete discovery and image preparation.";
+
+      if (label) label.textContent = message;
+      notice(message, true);
+
+    } finally {
+      busy = false;
+
+      if (button) {
+        button.disabled = false;
+        button.textContent = "Run discovery + prepare images";
+      }
+
+      updatePublishButton();
+    }
+  }
+
+  async function loadPermission() {
+    const result = await invoke("permission_status");
+
+    permission = result.permission || "not_granted";
+
+    const label = $("permissionLabel");
+
+    if (label) {
+      label.textContent = permission === "granted"
+        ? `Active until ${dateLabel(result.expires_at)}`
+        : "Locked — publishing is disabled until you grant temporary permission.";
+    }
+
+    updatePublishButton();
+  }
+
+  function updatePublishButton() {
+    const button = $("publishSelectedBtn");
+    if (!button) return;
+
+    button.disabled =
+      permission !== "granted" ||
+      selectedIds.size === 0 ||
+      busy;
+
+    button.textContent =
+      `Publish selected approved (${selectedIds.size})`;
+  }
+
+  async function grantPermission() {
+    if (busy) return;
+
+    try {
+      const result = await invoke("grant_permission", {
+        expires_in_minutes: 15,
+        note: "Temporary permission granted from NOH discovery review."
+      });
+
+      permission = "granted";
+
+      await loadPermission();
+
+      notice(
+        `Publishing permission granted until ${dateLabel(result.expires_at)}. ` +
+        "Only approved records can now be published."
+      );
+
+    } catch (e) {
+      notice(
+        e.message || "Unable to grant publishing permission.",
+        true
+      );
+    }
+  }
+
+  async function revokePermission() {
+    if (busy) return;
+
+    try {
+      await invoke("revoke_permission", {
+        note: "Permission revoked from NOH discovery review."
+      });
+
+      permission = "not_granted";
+
+      await loadPermission();
+
+      notice("Publishing permission revoked. Publishing is locked.");
+
+    } catch (e) {
+      notice(
+        e.message || "Unable to revoke publishing permission.",
+        true
+      );
+    }
+  }
+
   async function loadStats() {
     const [
-      {count:pending,error:pErr},
-      {count:imported,error:iErr},
-      {data:runs,error:rErr}
+      { count: pending, error: pErr },
+      { count: approved, error: aErr },
+      { count: imported, error: iErr },
+      { data: runs, error: rErr }
     ] = await Promise.all([
       db.from("noh_discovered_opportunities")
-        .select("id",{count:"exact",head:true})
-        .eq("status","pending"),
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending"),
 
       db.from("noh_discovered_opportunities")
-        .select("id",{count:"exact",head:true})
-        .eq("status","imported"),
+        .select("id", { count: "exact", head: true })
+        .eq("status", "approved"),
+
+      db.from("noh_discovered_opportunities")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "imported"),
 
       db.from("noh_discovery_runs")
         .select("finished_at,entries_added,errors")
-        .order("id",{ascending:false})
+        .order("id", { ascending: false })
         .limit(1)
     ]);
 
-    if (pErr || iErr || rErr) throw pErr || iErr || rErr;
+    if (pErr || aErr || iErr || rErr) {
+      throw pErr || aErr || iErr || rErr;
+    }
 
     $("pendingCount").textContent = pending ?? 0;
     $("importedCount").textContent = imported ?? 0;
+
     $("lastRun").textContent = runs?.[0]?.finished_at
       ? dateLabel(runs[0].finished_at)
       : "Not run yet";
+
+    let approvedStat = $("approvedCount");
+
+    if (!approvedStat) {
+      const stat = document.createElement("div");
+      stat.className = "stat";
+      stat.innerHTML =
+        '<strong id="approvedCount">—</strong>' +
+        '<span>Approved, awaiting publication</span>';
+
+      $("pendingCount")
+        ?.closest(".review-stats")
+        ?.append(stat);
+
+      approvedStat = $("approvedCount");
+    }
+
+    approvedStat.textContent = approved ?? 0;
   }
 
   function render() {
     const status = $("statusFilter").value;
-    const term = $("searchInput").value.trim().toLocaleLowerCase("en-GB");
+    const term = $("searchInput")
+      .value
+      .trim()
+      .toLocaleLowerCase("en-GB");
 
     const rows = currentRows.filter(row =>
       (status === "all" || row.status === status) &&
-      (!term || `${row.title} ${row.source_name} ${row.summary || ""}`
-        .toLocaleLowerCase("en-GB").includes(term))
+      (
+        !term ||
+        `${row.title} ${row.source_name} ${row.summary || ""}`
+          .toLocaleLowerCase("en-GB")
+          .includes(term)
+      )
     );
 
     if (!rows.length) {
       $("queue").innerHTML =
-        '<div class="empty">No entries match this view. Run discovery to look for new opportunities.</div>';
+        '<div class="empty">No entries match this view. ' +
+        'New discoveries will appear here after the next scheduled run.</div>';
+
+      updatePublishButton();
       return;
     }
 
-    $("queue").innerHTML = rows.map(row => `
-      <article class="entry" data-id="${esc(row.id)}">
-        <div>
-          <div class="entry-meta">
-            <span class="pill">${esc(row.status)}</span>
-            · ${esc(row.source_name)}
-            · Discovered ${esc(dateLabel(row.discovered_at))}
+    $("queue").innerHTML = rows.map(row => {
+      const approved = row.status === "approved";
+      const pending = row.status === "pending";
+
+      return `
+        <article class="entry" data-id="${esc(row.id)}">
+          <div>
+            <div class="entry-meta">
+              <span class="pill">${esc(row.status)}</span>
+              · ${esc(row.source_name)}
+              · Discovered ${esc(dateLabel(row.discovered_at))}
+            </div>
+
+            <h3>${esc(row.title)}</h3>
+
+            <p>
+              ${esc(
+                row.summary ||
+                "No summary supplied by feed. Open the source and verify the details."
+              )}
+            </p>
+
+            <p class="entry-meta">
+              Published by source: ${esc(dateLabel(row.published_at))}
+            </p>
+
+            <a
+              href="${esc(safeHttps(row.source_url))}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open original listing ↗
+            </a>
+
+            ${
+              row.review_note
+                ? `<p class="entry-meta">Review note: ${esc(row.review_note)}</p>`
+                : ""
+            }
+
+            ${
+              approved
+                ? `
+                  <label style="display:inline-flex;gap:8px;align-items:center;margin-top:12px;font-weight:650">
+                    <input
+                      type="checkbox"
+                      data-select="${esc(row.id)}"
+                      ${selectedIds.has(row.id) ? "checked" : ""}
+                    >
+                    Select for publication
+                  </label>
+                `
+                : ""
+            }
           </div>
-          <h3>${esc(row.title)}</h3>
-          <p>${esc(row.summary || "No summary supplied by feed. Open the source and verify the details.")}</p>
-          <p class="entry-meta">Published by source: ${esc(dateLabel(row.published_at))}</p>
-          <a href="${esc(safeHttps(row.source_url))}" target="_blank" rel="noopener noreferrer">
-            Open original listing ↗
-          </a>
-          ${row.review_note ? `<p class="entry-meta">Review note: ${esc(row.review_note)}</p>` : ""}
-        </div>
-        <div class="entry-actions">
-          ${row.status === "pending" ? `
-            <button class="btn btn-primary" data-action="approve" data-id="${esc(row.id)}">
-              Review & publish
-            </button>
-            <button class="btn btn-danger" data-action="reject" data-id="${esc(row.id)}">
-              Reject
-            </button>` : ""}
-        </div>
-      </article>
-    `).join("");
+
+          <div class="entry-actions">
+            ${
+              pending
+                ? `
+                  <button
+                    class="btn btn-primary"
+                    data-action="approve"
+                    data-id="${esc(row.id)}"
+                  >
+                    Review & approve
+                  </button>
+
+                  <button
+                    class="btn btn-danger"
+                    data-action="reject"
+                    data-id="${esc(row.id)}"
+                  >
+                    Reject
+                  </button>
+                `
+                : ""
+            }
+          </div>
+        </article>
+      `;
+    }).join("");
+
+    updatePublishButton();
   }
 
-  async function loadQueue() {
-    if (busy) return;
+  async function loadQueue(force = false) {
+    if (busy && !force) return;
+
     busy = true;
 
     try {
-      const {data,error} = await db
-        .from("noh_discovered_opportunities")
-        .select("id,source_name,source_url,title,summary,published_at,discovered_at,status,review_note")
-        .order("discovered_at",{ascending:false})
-        .limit(500);
+      const result = await invoke("review_list");
 
-      if (error) throw error;
+      currentRows = result.records || [];
 
-      currentRows = data || [];
-      render();
-      await loadStats();
-
-      notice(`Connected. ${currentRows.filter(x => x.status === "pending").length} pending listings are waiting for administrator review.`);
-    } catch (e) {
-      notice(e.message || "Unable to load the discovery queue.",true);
-    } finally {
-      busy = false;
-    }
-  }
-
-  function showDiscoveryResult(data) {
-    const enriched = Array.isArray(data.enriched) ? data.enriched : [];
-    const completed = enriched.filter(x => x.status === "enriched").length;
-    const attention = enriched.filter(x => x.status === "needs_attention").length;
-    const errors = Array.isArray(data.errors) ? data.errors : [];
-
-    const result = $("discoveryResult");
-    if (!result) return;
-
-    result.hidden = false;
-    result.classList.toggle("error", !data.success || errors.length > 0);
-
-    result.innerHTML = `
-      <strong>Discovery run completed</strong>
-      <p>
-        Sources checked: ${esc(data.sources_checked ?? 0)} ·
-        Listings found: ${esc(data.entries_seen ?? 0)} ·
-        New records: ${esc(data.new_pending_entries ?? 0)}
-      </p>
-      <p>
-        Records enriched: ${completed} ·
-        Need attention: ${attention} ·
-        Enrichment attempted: ${esc(data.enrichment_attempted ?? 0)}
-      </p>
-      <p>${esc(data.note || "Records remain pending until reviewed.")}</p>
-      ${errors.length ? `
-        <details>
-          <summary>${errors.length} discovery error(s)</summary>
-          ${errors.map(x => `<p>${esc(x.source)}: ${esc(x.error)}</p>`).join("")}
-        </details>` : ""}
-      ${attention ? `
-        <details>
-          <summary>Records needing attention</summary>
-          ${enriched.filter(x => x.status === "needs_attention")
-            .map(x => `<p>${esc(x.title)}: ${esc(x.reason)}</p>`).join("")}
-        </details>` : ""}
-    `;
-  }
-
-  async function runDiscovery() {
-    if (discoveryRunning || busy) return;
-
-    discoveryRunning = true;
-    const button = $("runDiscoveryBtn");
-    button.disabled = true;
-    button.textContent = "Discovering…";
-
-    const result = $("discoveryResult");
-    result.hidden = false;
-    result.classList.remove("error");
-    result.textContent = "Contacting the secure NOH discovery service. Please wait…";
-
-    notice("Running opportunity discovery. Your existing administrator session is being verified.");
-
-    try {
-      const {data,error} = await db.functions.invoke(
-        "noh-discover-opportunities",
-        {body:{}}
+      selectedIds = new Set(
+        [...selectedIds].filter(id =>
+          currentRows.some(row =>
+            row.id === id && row.status === "approved"
+          )
+        )
       );
 
-      if (error) {
-        let detail = error.message || "The discovery service returned an error.";
+      render();
 
-        try {
-          const response = error.context;
-          if (response && typeof response.json === "function") {
-            const body = await response.json();
-            detail = body.detail || body.error || detail;
-          }
-        } catch {}
+      await Promise.all([
+        loadStats(),
+        loadPermission()
+      ]);
 
-        throw new Error(detail);
-      }
-
-      if (!data) throw new Error("The discovery service returned an empty response.");
-
-      showDiscoveryResult(data);
-
-      if (data.success) {
-        notice("Discovery finished successfully. New records remain pending for review.");
-      } else {
-        notice("Discovery finished with some errors. Check the results below.",true);
-      }
-
-      await loadQueue();
+      notice(
+        `Connected. ` +
+        `${currentRows.filter(x => x.status === "pending").length} pending and ` +
+        `${currentRows.filter(x => x.status === "approved").length} approved listings ` +
+        `are in the review queue.`
+      );
 
     } catch (e) {
-      result.hidden = false;
-      result.classList.add("error");
-      result.textContent = e.message || "Unable to run opportunity discovery.";
-      notice(e.message || "Discovery failed. Please try again.",true);
+      notice(
+        e.message || "Unable to load the discovery queue.",
+        true
+      );
+
     } finally {
-      discoveryRunning = false;
-      button.disabled = false;
-      button.textContent = "Run Discovery";
+      busy = false;
+      updatePublishButton();
     }
   }
 
@@ -260,128 +580,123 @@
 
     $("discoveryId").value = row.id;
     $("title").value = row.title || "";
-    $("organization").value = "";
-    $("category").value = "Other";
-    $("location").value = "Nigeria";
-    $("deadline").value = "";
-    $("applicationUrl").value = "";
+    $("organization").value = row.organization || "";
+    $("category").value = row.category || "Other";
+    $("location").value = row.location || "Nigeria";
+    $("deadline").value = row.deadline || "";
+    $("applicationUrl").value = row.application_url || "";
     $("sourceUrl").value = safeHttps(row.source_url);
-    $("description").value = row.summary ||
-      `Visit the official source for full details about ${row.title}. Confirm all requirements before publishing.`;
-    $("eligibility").value = "";
+    $("description").value = row.description || row.summary || "";
+    $("eligibility").value = row.eligibility || "";
     $("officialVerified").checked = false;
 
     $("sourceSummary").textContent =
-      `Source: ${row.source_name}. The feed is a discovery lead, not proof of eligibility or an official application channel. Verify the organisation's own website before publishing.`;
+      `Source: ${row.source_name}. ` +
+      "This feed item is only a discovery lead. Verify the organisation's " +
+      "official website, eligibility, deadline and application channel before approving.";
 
+    const heading = $("reviewDialog")?.querySelector("h2");
+
+    if (heading) {
+      heading.textContent = "Review and approve";
+    }
+
+    $("publishBtn").textContent = "Approve for publishing";
     $("reviewDialog").showModal();
   }
 
   async function approve(event) {
     event.preventDefault();
+
     if (busy) return;
 
     const id = $("discoveryId").value;
 
     if (!$("officialVerified").checked) {
-      notice("Confirm the official-source checks before publishing.",true);
+      notice(
+        "Confirm the official-source checks before approving.",
+        true
+      );
       return;
     }
 
-    const applicationUrl = safeHttps($("applicationUrl").value.trim());
-    const sourceUrl = safeHttps($("sourceUrl").value.trim());
-
-    if (!applicationUrl || !sourceUrl) {
-      notice("Both URLs must be valid HTTPS links.",true);
-      return;
-    }
-
-    const deadline = $("deadline").value || null;
-
-    if (deadline && deadline < new Date().toISOString().slice(0,10)) {
-      notice("This deadline has passed. Do not publish it as an open opportunity.",true);
-      return;
-    }
-
-    const row = {
-      title:$("title").value.trim(),
-      organization:$("organization").value.trim(),
-      category:$("category").value,
-      location:$("location").value.trim() || "Nigeria",
-      description:$("description").value.trim(),
-      eligibility:$("eligibility").value.trim() || null,
-      application_url:applicationUrl,
-      source_url:sourceUrl,
-      deadline,
-      status:"published",
-      verified_at:new Date().toISOString(),
-      updated_at:new Date().toISOString()
+    const opportunity = {
+      title: $("title").value.trim(),
+      organization: $("organization").value.trim(),
+      category: $("category").value,
+      location: $("location").value.trim() || "Nigeria",
+      deadline: $("deadline").value || null,
+      application_url: safeHttps(
+        $("applicationUrl").value.trim()
+      ),
+      source_url: safeHttps(
+        $("sourceUrl").value.trim()
+      ),
+      description: $("description").value.trim(),
+      eligibility: $("eligibility").value.trim() || null
     };
 
-    if (!row.title || !row.organization || !row.description) {
-      notice("Complete the title, organisation and description.",true);
+    if (!opportunity.application_url || !opportunity.source_url) {
+      notice("Both URLs must be valid HTTPS links.", true);
+      return;
+    }
+
+    if (
+      !opportunity.title ||
+      !opportunity.organization ||
+      !opportunity.description
+    ) {
+      notice(
+        "Complete the title, organisation and description.",
+        true
+      );
+      return;
+    }
+
+    if (
+      opportunity.deadline &&
+      opportunity.deadline < new Date().toISOString().slice(0, 10)
+    ) {
+      notice(
+        "This deadline has passed. Do not approve it as an open opportunity.",
+        true
+      );
       return;
     }
 
     busy = true;
+
     $("publishBtn").disabled = true;
-    $("publishBtn").textContent = "Publishing…";
+    $("publishBtn").textContent = "Saving approval…";
 
     try {
-      const {data:existing,error:findError} = await db
-        .from("opportunities")
-        .select("id")
-        .ilike("title",row.title)
-        .limit(1);
-
-      if (findError) throw findError;
-
-      if (existing?.length) {
-        throw new Error("A published or existing opportunity already uses this title. Check the main opportunities table before proceeding.");
-      }
-
-      const {data:inserted,error:insertError} = await db
-        .from("opportunities")
-        .insert(row)
-        .select("id")
-        .single();
-
-      if (insertError) throw insertError;
-
-      const {data:{user}} = await db.auth.getUser();
-
-      const {data:reviewed,error:updateError} = await db
-        .from("noh_discovered_opportunities")
-        .update({
-          status:"imported",
-          imported_opportunity_id:inserted.id,
-          reviewed_at:new Date().toISOString(),
-          reviewed_by:user.id,
-          review_note:"Official source, eligibility, deadline and application URL checked by administrator."
-        })
-        .eq("id",id)
-        .eq("status","pending")
-        .select("id")
-        .maybeSingle();
-
-      if (updateError || !reviewed) {
-        await db.from("opportunities").delete().eq("id",inserted.id);
-        throw updateError || new Error("This discovery item is no longer pending. The new opportunity insert was rolled back.");
-      }
-
-      db.functions.invoke("fetch-opportunity-image",{body:{id:inserted.id}})
-        .catch(err => console.warn("NOH image retrieval queued/failed:",err));
+      await invoke("approve", {
+        id,
+        opportunity,
+        review_note:
+          "Official source, eligibility, deadline and application URL checked by administrator."
+      });
 
       $("reviewDialog").close();
-      notice("Opportunity approved and published. Image retrieval has been requested.");
-      await loadQueue();
+
+      notice(
+        "Opportunity approved and saved in the queue. " +
+        "It has NOT been published yet. Select it and use " +
+        "Publish selected approved when ready."
+      );
+
+      await loadQueue(true);
 
     } catch (e) {
-      notice(e.message || "Unable to publish this opportunity.",true);
+      notice(
+        e.message || "Unable to approve this discovery.",
+        true
+      );
+
     } finally {
       busy = false;
       $("publishBtn").disabled = false;
-      $("publishBtn").textContent = "Approve & publish";
+      $("publishBtn").textContent = "Approve for publishing";
     }
   }
 
@@ -394,33 +709,81 @@
     if (note === null) return;
 
     try {
-      const {data:{user}} = await db.auth.getUser();
+      await invoke("reject", {
+        id,
+        review_note: note.trim() || "Rejected by administrator."
+      });
 
-      const {error} = await db
-        .from("noh_discovered_opportunities")
-        .update({
-          status:"rejected",
-          reviewed_at:new Date().toISOString(),
-          reviewed_by:user.id,
-          review_note:note.trim() || "Rejected by administrator."
-        })
-        .eq("id",id)
-        .eq("status","pending");
-
-      if (error) throw error;
+      selectedIds.delete(id);
 
       notice("Discovery rejected.");
+
       await loadQueue();
 
     } catch (e) {
-      notice(e.message || "Unable to reject this discovery.",true);
+      notice(
+        e.message || "Unable to reject this discovery.",
+        true
+      );
+    }
+  }
+
+  async function publishSelected() {
+    if (
+      busy ||
+      permission !== "granted" ||
+      selectedIds.size === 0
+    ) {
+      return;
+    }
+
+    const ids = [...selectedIds];
+
+    if (
+      !window.confirm(
+        `Publish ${ids.length} approved opportunity record(s) ` +
+        "to the public NOH website now?"
+      )
+    ) {
+      return;
+    }
+
+    busy = true;
+    updatePublishButton();
+
+    try {
+      const result = await invoke("publish_approved", { ids });
+
+      selectedIds.clear();
+
+      const inserted = Number(result.inserted || 0);
+
+      notice(
+        `Publication completed. ${inserted} opportunity record(s) ` +
+        `published to NOH. ${Number(result.skipped || 0)} duplicate(s) skipped. ` +
+        "Images were already checked by the publishing safeguards."
+      );
+
+      await loadQueue(true);
+
+    } catch (e) {
+      notice(
+        e.message || "Unable to publish the approved opportunities.",
+        true
+      );
+
+    } finally {
+      busy = false;
+      updatePublishButton();
     }
   }
 
   async function init() {
     try {
       if (!window.supabase?.createClient) {
-        throw new Error("Supabase client did not load. Refresh this page.");
+        throw new Error(
+          "Supabase client did not load. Refresh this page."
+        );
       }
 
       db = window.supabase.createClient(
@@ -430,28 +793,69 @@
 
       await requireAdmin();
 
-      $("runDiscoveryBtn").disabled = false;
+      addWorkflowControls();
+
+      const status = $("statusFilter");
+
+      if (
+        status &&
+        ![...status.options].some(o => o.value === "approved")
+      ) {
+        const option = document.createElement("option");
+        option.value = "approved";
+        option.textContent = "Approved — awaiting publication";
+
+        status.insertBefore(
+          option,
+          status.querySelector('option[value="imported"]')
+        );
+      }
+
       await loadQueue();
 
     } catch (e) {
-      notice(e.message || "Administrator access required.",true);
+      notice(
+        e.message || "Administrator access required.",
+        true
+      );
     }
 
-    $("refreshBtn").addEventListener("click",loadQueue);
-    $("runDiscoveryBtn").addEventListener("click",runDiscovery);
-    $("searchInput").addEventListener("input",render);
-    $("statusFilter").addEventListener("change",render);
+    $("refreshBtn")?.addEventListener("click", loadQueue);
+    $("searchInput")?.addEventListener("input", render);
+    $("statusFilter")?.addEventListener("change", render);
 
-    $("queue").addEventListener("click",e => {
+    $("queue")?.addEventListener("click", e => {
       const b = e.target.closest("button[data-action]");
       if (!b) return;
 
-      if (b.dataset.action === "approve") openApproval(b.dataset.id);
-      if (b.dataset.action === "reject") reject(b.dataset.id);
+      if (b.dataset.action === "approve") {
+        openApproval(b.dataset.id);
+      }
+
+      if (b.dataset.action === "reject") {
+        reject(b.dataset.id);
+      }
     });
 
-    $("approveForm").addEventListener("submit",approve);
-    $("closeDialog").addEventListener("click",() => $("reviewDialog").close());
+    $("queue")?.addEventListener("change", e => {
+      const input = e.target.closest("input[data-select]");
+      if (!input) return;
+
+      if (input.checked) {
+        selectedIds.add(input.dataset.select);
+      } else {
+        selectedIds.delete(input.dataset.select);
+      }
+
+      updatePublishButton();
+    });
+
+    $("approveForm")?.addEventListener("submit", approve);
+
+    $("closeDialog")?.addEventListener(
+      "click",
+      () => $("reviewDialog").close()
+    );
 
     db?.auth.onAuthStateChange(() => {
       if (db) loadQueue();
@@ -459,7 +863,7 @@
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded",init);
+    document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }
