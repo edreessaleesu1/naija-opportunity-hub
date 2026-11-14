@@ -1,126 +1,684 @@
+
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
-<title>Admin – Messages | Naija Opportunity Hub</title>
-<style>
-:root{--bg:#f8eec9;--card:#fffdf6;--green:#075b3b;--gold:#c6a24a;--gold-b:#e6d7a3;--text:#1c3026;--muted:#5d6b61;--danger:#a32d2d}
-*{box-sizing:border-box}html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "DM Sans","Segoe UI",system-ui,sans-serif}
-.wrap{width:min(1000px,100% - 32px);margin:0 auto;padding:20px 0 60px}
-h1{margin:0;font-size:1.5rem;color:var(--green)}
-.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px}
-.top a{color:var(--green);font-weight:700}
-.card{background:var(--card);border:1px solid var(--gold-b);border-radius:16px;padding:18px;margin-bottom:16px}
-input,select,textarea{width:100%;padding:11px 12px;margin:0 0 12px;border:1.5px solid #d9d4bd;border-radius:10px;background:#fff;font:inherit;color:var(--text)}
-textarea{min-height:90px;resize:vertical}
-label{display:block;font-size:.85rem;font-weight:700;margin-bottom:4px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-@media(max-width:640px){.row{grid-template-columns:1fr}}
-button,.btn{font:inherit;font-weight:800;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#1d2a20;padding:10px 16px;cursor:pointer}
-button.alt{background:#fff;color:var(--green)}button.del{background:#fff;color:var(--danger);border-color:#d9a5a5}
-button:disabled{opacity:.6;cursor:not-allowed}
-.item{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:12px 0;border-top:1px solid var(--gold-b)}
-.item:first-child{border-top:0}
-.item h3{margin:0;font-size:1rem}.item small{color:var(--muted)}
-.tag{display:inline-block;padding:1px 9px;border-radius:99px;background:#f3e7bd;font-size:.75rem;font-weight:700;margin-right:6px}
-.acts{display:flex;gap:8px;flex:none}
-.msg{padding:10px 14px;border-radius:10px;margin:0 0 12px;font-weight:600}
-.msg.ok{background:#e4f1e8;color:var(--green)}.msg.err{background:#f6e3e3;color:var(--danger)}
-.hide{display:none}
-.pre{white-space:pre-wrap;word-break:break-word;margin:6px 0 0}.prev{max-width:160px;max-height:90px;border-radius:8px;margin:0 0 12px;display:block;object-fit:cover}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#086b45">
+
+  <title>Opportunity Review Queue | Naija Opportunity Hub</title>
+
+  <link rel="stylesheet" href="/style.css">
+
+  <style>
+    :root {
+      --noh-green:#086b45;
+      --noh-gold:#c49a43;
+      --noh-ivory:#fffdf7;
+      --noh-ink:#20332a;
+      --noh-muted:#68766e;
+      --noh-border:#e6e9e3;
+    }
+
+    * {
+      box-sizing:border-box;
+    }
+
+    body {
+      background:#f7f8f4;
+      color:var(--noh-ink);
+    }
+
+    .review-wrap {
+      width:min(1120px,calc(100% - 32px));
+      margin:36px auto 72px;
+    }
+
+    .review-head {
+      display:flex;
+      justify-content:space-between;
+      gap:20px;
+      align-items:center;
+      margin-bottom:24px;
+    }
+
+    .review-head h1 {
+      margin:0;
+      color:var(--noh-green);
+      font-size:clamp(1.6rem,4vw,2.25rem);
+    }
+
+    .review-head p {
+      margin:7px 0 0;
+      color:var(--noh-muted);
+    }
+
+    .review-actions {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .review-stats {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+      margin:20px 0;
+    }
+
+    .stat {
+      background:white;
+      border:1px solid var(--noh-border);
+      border-radius:14px;
+      padding:16px;
+    }
+
+    .stat strong {
+      display:block;
+      font-size:1.7rem;
+      color:var(--noh-green);
+    }
+
+    .stat span {
+      font-size:.88rem;
+      color:var(--noh-muted);
+    }
+
+    .review-tools {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:18px 0;
+    }
+
+    .review-tools input,
+    .review-tools select,
+    .field input,
+    .field textarea,
+    .field select {
+      width:100%;
+      border:1px solid #d9dfd8;
+      border-radius:10px;
+      padding:11px 12px;
+      background:white;
+      color:var(--noh-ink);
+      font:inherit;
+    }
+
+    .review-tools input {
+      flex:1;
+      min-width:220px;
+    }
+
+    .queue {
+      display:grid;
+      gap:14px;
+    }
+
+    .entry {
+      background:white;
+      border:1px solid var(--noh-border);
+      border-radius:16px;
+      padding:18px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:14px;
+    }
+
+    .entry h3 {
+      margin:0 0 7px;
+      font-size:1.08rem;
+    }
+
+    .entry p {
+      margin:5px 0;
+      color:var(--noh-muted);
+      line-height:1.5;
+    }
+
+    .entry-meta {
+      font-size:.83rem;
+    }
+
+    .entry a {
+      color:var(--noh-green);
+      overflow-wrap:anywhere;
+    }
+
+    .entry-actions {
+      display:flex;
+      gap:8px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .btn {
+      border:0;
+      border-radius:9px;
+      padding:10px 14px;
+      font-weight:650;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .btn:disabled {
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .btn-primary {
+      background:var(--noh-green);
+      color:white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background:#075638;
+    }
+
+    .btn-outline {
+      background:#f3f6f1;
+      color:var(--noh-green);
+      border:1px solid #dce5dc;
+    }
+
+    .btn-danger {
+      background:#fff0ee;
+      color:#a33225;
+    }
+
+    .pill {
+      display:inline-block;
+      padding:4px 9px;
+      border-radius:99px;
+      background:#fff5dc;
+      color:#77550d;
+      font-size:.78rem;
+      font-weight:700;
+    }
+
+    .notice {
+      padding:13px 15px;
+      border-radius:10px;
+      background:#eef6ef;
+      color:#245c3c;
+      margin:14px 0;
+      line-height:1.55;
+      overflow-wrap:anywhere;
+    }
+
+    .notice.error {
+      background:#fff0ee;
+      color:#94392d;
+    }
+
+    .notice[hidden] {
+      display:none;
+    }
+
+    .notice p {
+      margin:7px 0;
+    }
+
+    .notice details {
+      margin-top:10px;
+    }
+
+    .notice summary {
+      cursor:pointer;
+      font-weight:650;
+    }
+
+    .discovery-panel {
+      border-left:4px solid var(--noh-gold);
+    }
+
+    .empty {
+      padding:34px;
+      text-align:center;
+      background:white;
+      border:1px dashed #cbd6cb;
+      border-radius:14px;
+      color:var(--noh-muted);
+    }
+
+    dialog {
+      border:0;
+      border-radius:16px;
+      width:min(680px,calc(100% - 24px));
+      padding:0;
+      box-shadow:0 20px 70px #10291e33;
+    }
+
+    dialog::backdrop {
+      background:#12241dbb;
+    }
+
+    .modal-head,
+    .modal-foot {
+      padding:16px 20px;
+      border-bottom:1px solid var(--noh-border);
+    }
+
+    .modal-head {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .modal-head h2 {
+      margin:0;
+      color:var(--noh-green);
+    }
+
+    .modal-body {
+      padding:18px 20px;
+      max-height:70vh;
+      overflow:auto;
+    }
+
+    .form-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:13px;
+    }
+
+    .field {
+      display:grid;
+      gap:6px;
+    }
+
+    .field label {
+      font-weight:650;
+      font-size:.88rem;
+    }
+
+    .field.full {
+      grid-column:1/-1;
+    }
+
+    .modal-foot {
+      border-top:1px solid var(--noh-border);
+      border-bottom:0;
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+    }
+
+    .muted {
+      color:var(--noh-muted);
+    }
+
+    @media(max-width:650px) {
+      .review-head {
+        align-items:flex-start;
+        flex-direction:column;
+      }
+
+      .review-actions {
+        width:100%;
+      }
+
+      .review-actions .btn {
+        flex:1;
+      }
+
+      .review-stats {
+        grid-template-columns:1fr;
+      }
+
+      .entry {
+        grid-template-columns:1fr;
+      }
+
+      .form-grid {
+        grid-template-columns:1fr;
+      }
+
+      .field.full {
+        grid-column:auto;
+      }
+    }
+
+    /* ---- dashboard additions ---- */
+    .review-stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+    .panel{background:#fff;border:1px solid var(--noh-border);border-radius:14px;padding:14px 16px;margin:16px 0}
+    .panel h2{margin:0 0 4px;font-size:1.02rem;color:var(--noh-green)}
+    .panel .entry-meta{color:var(--noh-muted);margin:2px 0 10px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px}
+    .toolbar .btn{flex:0 1 auto}
+    .btn-warn{background:#fff5dc;color:#77550d;border:1px solid #efdca8}
+    .btn[hidden]{display:none}
+    .result-list{margin:8px 0 0;padding-left:18px;font-size:.9rem;line-height:1.55}
+    .result-list li.bad{color:#94392d}
+    .result-list li.good{color:#14532d}
+    .result-list li.warn{color:#77550d}
+    .noh-review-card{display:grid;grid-template-columns:24px 160px minmax(0,1fr) auto;gap:14px;align-items:start;background:#fff;border:1px solid #e6e9e3;border-radius:16px;padding:16px;margin-bottom:14px;min-width:0}
+    .noh-review-card.is-selected{border-color:var(--noh-green);box-shadow:0 0 0 2px #086b4522}
+    .noh-pick{margin-top:4px;width:20px;height:20px}
+    .noh-image-column{min-width:0}
+    .noh-image-link{display:block;width:100%;overflow:hidden;border-radius:11px;background:#f0f3ee}
+    .noh-opportunity-image{display:block;width:100%;height:125px;object-fit:cover;background:#f0f3ee}
+    .noh-image-placeholder,.noh-image-error{width:100%;height:125px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px dashed #cbd6cb;border-radius:11px;background:#f8faf6;color:#68766e;text-align:center;font-size:13px;padding:8px}
+    .noh-image-error{background:#fff0ee;color:#94392d;border-color:#f0c4be}
+    .noh-image-caption{margin-top:6px;font-size:11px;color:#167044;font-weight:650}
+    .noh-card-content{min-width:0;overflow-wrap:anywhere}
+    .noh-card-title{margin:9px 0 7px;font-size:1.08rem;line-height:1.4}
+    .noh-card-meta{display:flex;flex-wrap:wrap;gap:7px;margin:7px 0;color:#68766e;font-size:12px;align-items:center}
+    .noh-card-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:13px}
+    .noh-card-links a{color:#086b45;font-weight:650}
+    .noh-card-description{color:#52635a;line-height:1.55;margin:8px 0;font-size:14px;max-height:4.7em;overflow:hidden}
+    .noh-card-actions{display:flex;flex-direction:column;gap:8px;min-width:125px}
+    .noh-state{display:inline-block;padding:4px 9px;border-radius:99px;font-size:11px;font-weight:750;text-transform:uppercase;background:#fff5dc;color:#77550d}
+    .noh-state.ready,.noh-state.approved,.noh-state.published{background:#e6f4ea;color:#14532d}
+    .noh-state.failed,.noh-state.rejected{background:#fff0ee;color:#94392d}
+    .noh-state.info{background:#e8f0fb;color:#1d4ed8}
+    .noh-flag{font-size:12px;color:#94392d;margin:4px 0}
+    .noh-flag.ok{color:#167044}
+    @media(max-width:700px){
+      .noh-review-card{grid-template-columns:24px 100px minmax(0,1fr);gap:10px;padding:12px}
+      .noh-opportunity-image,.noh-image-placeholder,.noh-image-error{height:90px}
+      .noh-card-actions{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;min-width:0}
+      .noh-card-actions .btn{flex:1}
+    }
+    @media(max-width:420px){.noh-review-card{grid-template-columns:24px minmax(0,1fr)}.noh-image-column{grid-column:1/-1;grid-row:2}}
+  </style>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/admin-discovery.js?v=20261114-4" defer></script>
 </head>
+
 <body>
-<div class="wrap">
-  <div class="top"><h1>Messages</h1><span><a href="/admin-opportunities.html">Opportunities</a> &nbsp; <a href="/">Back to site</a> &nbsp; <a href="#" id="out" class="hide">Sign out</a></span></div>
-  <div id="gate" class="card">Checking your access…</div>
-  <div id="app" class="hide">
-    <details class="card" id="pwCard">
-      <summary style="cursor:pointer;font-weight:800;color:var(--green)">Account &amp; password</summary>
-      <div style="margin-top:14px">
-        <div id="pwMsg"></div>
-        <form id="pwForm" autocomplete="off">
-          <label for="pw1">New password (at least 8 characters)</label><input id="pw1" type="password" minlength="8" autocomplete="new-password" required>
-          <label for="pw2">Confirm new password</label><input id="pw2" type="password" minlength="8" autocomplete="new-password" required>
-          <button id="pwSave" type="submit">Change password</button>
-          <button id="pwMail" type="button" class="alt">Email me a reset link instead</button>
-        </form>
+
+  <main class="review-wrap">
+
+    <header class="review-head">
+      <div>
+        <p class="entry-meta">NAIJA OPPORTUNITY HUB · ADMIN</p>
+        <h1>Opportunity discovery queue</h1>
+        <p>Discover, check, review and publish opportunities. Nothing goes public without your approval.</p>
       </div>
-    </details>
-    <div class="card">
-      <div class="row"><div><select id="fstat"><option value="">All messages</option><option value="new">New</option><option value="read">Read</option><option value="replied">Replied</option><option value="spam">Spam</option></select></div><div><input id="q" placeholder="Search name, email or message"></div></div>
-      <p id="count" style="margin:0;color:var(--muted)"></p>
+      <div class="review-actions">
+        <a class="btn btn-outline" href="/admin-opportunities.html">Main admin dashboard</a>
+      </div>
+    </header>
+
+    <div id="notice" class="notice" role="status" aria-live="polite">Checking your administrator access…</div>
+
+    <section id="discoveryResult" class="notice discovery-panel" role="status" aria-live="polite" hidden></section>
+
+    <!-- PIPELINE COUNTS -->
+    <section class="review-stats" aria-label="Pipeline">
+      <div class="stat"><strong id="cntDiscovered">—</strong><span>Discovered / checking</span></div>
+      <div class="stat"><strong id="cntImage">—</strong><span>Waiting for image</span></div>
+      <div class="stat"><strong id="cntReady">—</strong><span>Ready for review</span></div>
+      <div class="stat"><strong id="cntApproved">—</strong><span>Approved, not published</span></div>
+      <div class="stat"><strong id="cntPublished">—</strong><span>Published</span></div>
+      <div class="stat"><strong id="cntRejected">—</strong><span>Rejected</span></div>
+      <div class="stat"><strong id="lastRun">—</strong><span>Last discovery run</span></div>
+    </section>
+
+    <!-- DISCOVERY CONTROLS -->
+    <section class="panel" aria-label="Discovery controls">
+      <h2>1 · Discovery and images</h2>
+      <p class="entry-meta" id="discoveryRunLabel">Start discovery to collect new listings, check them for duplicates and expired deadlines, and prepare an image for each.</p>
+      <div class="toolbar">
+        <button class="btn btn-primary" id="startDiscoveryBtn" type="button" disabled>Start Discovery</button>
+        <button class="btn btn-danger" id="stopDiscoveryBtn" type="button" disabled>Stop Discovery</button>
+        <button class="btn btn-outline" id="validateBtn" type="button" disabled>Check duplicates &amp; deadlines</button>
+        <button class="btn btn-outline" id="prepareImagesBtn" type="button" disabled>Prepare Images</button>
+        <button class="btn btn-outline" id="retryImagesBtn" type="button" disabled>Retry Failed Images</button>
+        <button class="btn btn-outline" id="refreshBtn" type="button">Refresh Results</button>
+      </div>
+    </section>
+
+    <!-- REVIEW CONTROLS -->
+    <section class="panel" aria-label="Review controls">
+      <h2>2 · Review and approve</h2>
+      <p class="entry-meta" id="selectionLabel">No records selected.</p>
+      <div class="toolbar">
+        <button class="btn btn-outline" id="selectAllBtn" type="button">Select All</button>
+        <button class="btn btn-outline" id="deselectAllBtn" type="button">Deselect All</button>
+        <button class="btn btn-primary" id="approveSelectedBtn" type="button" disabled>Approve selected (0)</button>
+        <button class="btn btn-danger" id="rejectSelectedBtn" type="button" disabled>Reject selected (0)</button>
+      </div>
+    </section>
+
+    <!-- PUBLISHING CONTROLS -->
+    <section class="panel" aria-label="Publishing controls">
+      <h2>3 · Publish approved</h2>
+      <p class="entry-meta" id="permissionLabel">Checking permission…</p>
+      <div class="toolbar">
+        <button class="btn btn-outline" id="grantPermissionBtn" type="button" disabled>Grant 15-minute permission</button>
+        <button class="btn btn-outline" id="revokePermissionBtn" type="button" disabled>Revoke permission</button>
+        <button class="btn btn-primary" id="publishSelectedBtn" type="button" disabled>Publish Approved (0)</button>
+        <button class="btn btn-outline" id="viewPublishLogBtn" type="button" disabled>View Publishing Results</button>
+      </div>
+      <div id="publishResults" class="result-box" hidden></div>
+    </section>
+
+    <!-- SEARCH AND FILTER -->
+    <div class="review-tools">
+      <input id="searchInput" type="search" placeholder="Search titles, organisations or sources" aria-label="Search discovery queue">
+      <select id="statusFilter" aria-label="Filter status">
+        <option value="active">Pending + approved</option>
+        <option value="pending">Pending review</option>
+        <option value="approved">Approved — awaiting publication</option>
+        <option value="imported">Published</option>
+        <option value="rejected">Rejected</option>
+        <option value="all">All statuses</option>
+      </select>
+      <select id="stageFilter" aria-label="Filter stage">
+        <option value="all">All stages</option>
+        <option value="READY_FOR_REVIEW">Ready for review</option>
+        <option value="IMAGE_PENDING">Waiting for image</option>
+        <option value="IMAGE_FAILED">Image failed</option>
+        <option value="NEEDS_DETAILS">Needs details</option>
+        <option value="DISCOVERED">Just discovered</option>
+      </select>
     </div>
-    <div id="list"></div>
-  </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>
-(function(){
-  var URL_="https://djxornmwvkauhkcuhgxc.supabase.co",KEY="sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
-  var sb=window.NOH_SUPABASE_CLIENT||window.supabase.createClient(URL_,KEY);
-  var $=function(i){return document.getElementById(i)},rows=[];
-  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
-  function gate(h){$("gate").innerHTML=h;$("gate").classList.remove("hide");$("app").classList.add("hide")}
-  async function init(){
-    var s=await sb.auth.getSession(),u=s.data&&s.data.session&&s.data.session.user;
-    if(!u){gate('Please <a href="/auth.html?mode=login&redirect='+encodeURIComponent("/admin-messages.html")+'"><strong>sign in</strong></a> with your admin account.');return}
-    $("out").classList.remove("hide");
-    var a=await sb.from("admins").select("user_id").eq("user_id",u.id).maybeSingle();
-    if(a.error||!a.data){gate("This account ("+esc(u.email)+") is not an admin. Run admin-opportunities.sql in Supabase first.");return}
-    $("gate").classList.add("hide");$("app").classList.remove("hide");load();
-  }
-  async function load(){
-    var r=await sb.from("contact_messages").select("*").order("created_at",{ascending:false}).limit(500);
-    if(r.error){$("list").innerHTML='<p class="msg err">'+esc(r.error.message)+' (run admin-messages.sql in Supabase)</p>';return}
-    rows=r.data||[];render();
-  }
-  function render(){
-    var q=$("q").value.toLowerCase(),st=$("fstat").value;
-    var l=rows.filter(function(m){return(!st||m.status===st)&&(!q||((m.name||"")+" "+(m.email||"")+" "+(m.message||"")).toLowerCase().indexOf(q)>-1)});
-    var n=rows.filter(function(m){return m.status==="new"}).length;
-    $("count").textContent=n+" new · "+rows.length+" total";
-    $("list").innerHTML=l.length?l.map(function(m){
-      var sub="Re: "+m.subject;
-      return'<div class="card"><div class="top" style="margin:0"><strong>'+esc(m.name)+'</strong><span><span class="tag">'+esc(m.status)+'</span><small>'+esc(new Date(m.created_at).toLocaleString())+'</small></span></div>'
-      +'<small>'+esc(m.email)+' · '+esc(m.subject)+(m.reference?' · ref: '+esc(m.reference):'')+'</small>'
-      +'<p class="pre">'+esc(m.message)+'</p>'
-      +'<div class="acts" style="flex-wrap:wrap;margin-top:12px"><a class="btn" href="mailto:'+esc(m.email)+'?subject='+encodeURIComponent(sub)+'" style="text-decoration:none">Reply by email</a>'
-      +['read','replied','spam'].filter(function(x){return x!==m.status}).map(function(x){return'<button class="alt" data-s="'+x+'" data-id="'+esc(m.id)+'">Mark '+x+'</button>'}).join("")
-      +'<button class="del" data-d="'+esc(m.id)+'">Delete</button></div></div>'
-    }).join(""):'<div class="card">No messages.</div>';
-  }
-  $("q").addEventListener("input",render);$("fstat").addEventListener("change",render);
-  $("list").addEventListener("click",async function(e){
-    var b=e.target.closest("button");if(!b)return;var r;
-    if(b.dataset.s){r=await sb.from("contact_messages").update({status:b.dataset.s}).eq("id",b.dataset.id)}
-    else if(b.dataset.d){if(!confirm("Delete this message permanently?"))return;r=await sb.from("contact_messages").delete().eq("id",b.dataset.d)}
-    else return;
-    if(r&&r.error)alert(r.error.message);else load();
-  });
-  $("out").addEventListener("click",async function(e){e.preventDefault();await sb.auth.signOut();location.reload()});
-  function pwNote(t,k){$("pwMsg").innerHTML=t?'<p class="msg '+k+'">'+esc(t)+'</p>':""}
-  $("pwForm").addEventListener("submit",async function(e){
-    e.preventDefault();var a=$("pw1").value,b=$("pw2").value;
-    if(a.length<8)return pwNote("Use at least 8 characters.","err");
-    if(a!==b)return pwNote("The two passwords do not match.","err");
-    $("pwSave").disabled=true;
-    var r=await sb.auth.updateUser({password:a});
-    $("pwSave").disabled=false;
-    if(r.error)return pwNote(r.error.message,"err");
-    $("pwForm").reset();pwNote("Password changed. Use it next time you sign in.","ok");
-  });
-  $("pwMail").addEventListener("click",async function(){
-    var s=await sb.auth.getSession(),u=s.data&&s.data.session&&s.data.session.user;
-    if(!u||!u.email)return pwNote("Please sign in again.","err");
-    var r=await sb.auth.resetPasswordForEmail(u.email,{redirectTo:location.origin+"/auth.html"});
-    pwNote(r.error?r.error.message:"A reset link has been sent to "+u.email+".",r.error?"err":"ok");
-  });
-  init();
-})();
-</script>
+
+    <!-- QUEUE -->
+    <section id="queue" class="queue" aria-live="polite">
+      <div class="empty">Loading discovered opportunities…</div>
+    </section>
+    <div class="view-more-wrap" style="text-align:center;margin-top:12px">
+      <button class="btn btn-outline" id="loadMoreBtn" type="button" hidden>Load more</button>
+    </div>
+
+  </main>
+
+  <!-- REVIEW AND APPROVAL DIALOG -->
+  <dialog id="reviewDialog">
+
+    <form id="approveForm">
+
+      <div class="modal-head">
+
+        <h2>Review and publish</h2>
+
+        <button
+          class="btn btn-outline"
+          type="button"
+          id="closeDialog"
+        >
+          Close
+        </button>
+
+      </div>
+
+
+      <div class="modal-body">
+
+        <p class="muted" id="sourceSummary"></p>
+
+        <input
+          type="hidden"
+          id="discoveryId"
+        >
+
+        <div class="form-grid">
+
+          <div class="field full">
+            <label for="title">Opportunity title</label>
+            <input
+              id="title"
+              required
+              maxlength="500"
+            >
+          </div>
+
+
+          <div class="field">
+            <label for="organization">Organisation</label>
+            <input
+              id="organization"
+              required
+              maxlength="300"
+            >
+          </div>
+
+
+          <div class="field">
+            <label for="category">Category</label>
+
+            <select id="category" required>
+              <option>Scholarship</option>
+              <option>Job</option>
+              <option>Internship</option>
+              <option>Grant</option>
+              <option>Fellowship</option>
+              <option>Training</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+
+          <div class="field">
+            <label for="location">Location</label>
+            <input
+              id="location"
+              value="Nigeria"
+              maxlength="200"
+            >
+          </div>
+
+
+          <div class="field">
+            <label for="deadline">Application deadline</label>
+            <input
+              id="deadline"
+              type="date"
+            >
+          </div>
+
+
+          <div class="field full">
+            <label for="applicationUrl">
+              Official application URL (HTTPS)
+            </label>
+
+            <input
+              id="applicationUrl"
+              type="url"
+              required
+              placeholder="https://..."
+              autocomplete="url"
+            >
+          </div>
+
+
+          <div class="field full">
+            <label for="sourceUrl">
+              Source / announcement URL
+            </label>
+
+            <input
+              id="sourceUrl"
+              type="url"
+              required
+              placeholder="https://..."
+            >
+          </div>
+
+
+          <div class="field full">
+            <label for="description">
+              Opportunity description
+            </label>
+
+            <textarea
+              id="description"
+              rows="5"
+              required
+            ></textarea>
+          </div>
+
+
+          <div class="field full">
+            <label for="eligibility">
+              Eligibility requirements (confirm from official source)
+            </label>
+
+            <textarea
+              id="eligibility"
+              rows="3"
+            ></textarea>
+          </div>
+
+        </div>
+
+
+        <!-- OFFICIAL SOURCE VERIFICATION -->
+        <label
+          class="field full"
+          style="display:flex;grid-template-columns:auto 1fr;align-items:start;gap:9px;margin-top:14px"
+        >
+
+          <input
+            id="officialVerified"
+            type="checkbox"
+            required
+            style="width:auto;margin-top:4px"
+          >
+
+          <span>
+            I have checked the organisation's official website,
+            confirmed that this opportunity is genuine and open,
+            and verified its eligibility, deadline and official
+            application link.
+          </span>
+
+        </label>
+
+
+        <p class="muted">
+          Approval does not replace image verification.
+          Each published opportunity must have its own relevant,
+          verified image. Listings without a suitable image must
+          not be published.
+        </p>
+
+      </div>
+
+
+      <div class="modal-foot">
+
+        <button
+          class="btn btn-primary"
+          id="publishBtn"
+          type="submit"
+        >
+          Approve & publish
+        </button>
+
+      </div>
+
+    </form>
+
+  </dialog>
+
 </body>
 </html>
