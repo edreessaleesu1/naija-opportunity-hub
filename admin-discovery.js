@@ -18,8 +18,6 @@
   let permission = "not_granted";
   let authSubscription = null;
 
-  const MIN_PUBLISH_BATCH = 20;
-  const MIN_PUBLISH_CATEGORIES = 3;
   const MAX_IMAGE_BATCH = 6;
 
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c =>
@@ -95,10 +93,6 @@
     );
   });
 
-  /*
-   * A timeout warning does not cancel a Supabase request.
-   * Keep the dashboard lock until the real request settles.
-   */
   async function waitForOperation(promise, ms, what) {
     let timer;
     const request = Promise.resolve(promise);
@@ -184,6 +178,10 @@
   }
 
   async function requireAdmin() {
+    if (!db) {
+      throw new Error("The database connection is not ready.");
+    }
+
     const {
       data: { session },
       error
@@ -272,11 +270,6 @@
 
     const group = $("discoveryButtonGroup");
 
-    /*
-     * Reuse the original HTML discovery button.
-     * Move it into this section rather than creating a second button
-     * with the same ID.
-     */
     let discoveryButton = $("runDiscoveryBtn");
 
     if (!discoveryButton) {
@@ -292,8 +285,6 @@
     }
 
     discoveryButton.onclick = runDiscovery;
-
-    // FIX: enable the button after successful administrator verification.
     discoveryButton.disabled = false;
     discoveryButton.textContent = "Run discovery + prepare images";
 
@@ -336,7 +327,7 @@
           <div id="publishSelectionLabel"
                class="entry-meta"
                style="margin-top:5px">
-            Select at least 20 approved, image-ready records across 3 categories.
+            Select any number of approved records with individual verified images.
           </div>
         </div>
 
@@ -393,58 +384,37 @@
     return pattern.test(imageUrl);
   }
 
-  function selectedCategoryCount() {
-    const rows = currentRows.filter(row =>
-      selectedIds.has(row.id)
-    );
-
-    return new Set(
-      rows
-        .map(row => String(row.category || "").trim())
-        .filter(Boolean)
-    ).size;
-  }
-
   function updatePublishButton() {
     const button = $("publishSelectedBtn");
-
-    const categoryCount = selectedCategoryCount();
     const selectedCount = selectedIds.size;
-
-    const enoughRecords =
-      selectedCount >= MIN_PUBLISH_BATCH;
-
-    const enoughCategories =
-      categoryCount >= MIN_PUBLISH_CATEGORIES;
+    const canPublish =
+      selectedCount > 0 &&
+      permission === "granted" &&
+      !busy;
 
     if (button) {
-      button.disabled =
-        permission !== "granted" ||
-        !enoughRecords ||
-        !enoughCategories ||
-        busy;
-
+      button.disabled = !canPublish;
       button.textContent =
-        `Publish ${selectedCount} approved · ${categoryCount} categories`;
+        "Publish selected approved (" + selectedCount + ")";
     }
 
     const label = $("publishSelectionLabel");
 
     if (label) {
-      if (!enoughRecords) {
+      if (!selectedCount) {
         label.textContent =
-          `${selectedCount}/${MIN_PUBLISH_BATCH} selected. ` +
-          `Select at least ${MIN_PUBLISH_BATCH} image-ready approved records.`;
-      } else if (!enoughCategories) {
-        label.textContent =
-          `${categoryCount}/${MIN_PUBLISH_CATEGORIES} categories selected. ` +
-          "Choose opportunities from at least three categories.";
+          "Select any number of approved opportunities with their own verified images.";
       } else if (permission !== "granted") {
         label.textContent =
-          "Selection target reached. Grant temporary publishing permission when ready.";
+          selectedCount +
+          " selected. Grant temporary publishing permission to continue.";
+      } else if (busy) {
+        label.textContent =
+          "Please wait for the current operation to finish.";
       } else {
         label.textContent =
-          "Publishing requirements met. Confirm the final batch when ready.";
+          selectedCount +
+          " approved, image-ready record(s) selected. Ready to publish.";
       }
     }
   }
@@ -521,12 +491,14 @@
 
     if (label) {
       label.textContent =
-        "Checking opportunity sources and enriching pending records…";
+        "Checking administrator access and opportunity sources…";
     }
 
     notice("Discovery started. Please keep this page open.");
 
     try {
+      await requireAdmin();
+
       const discoveryResult = await waitForOperation(
         db.functions.invoke(DISCOVERY_FUNCTION, {
           body: {}
@@ -543,7 +515,8 @@
           discoveryResult.error.context &&
           typeof discoveryResult.error.context.json === "function"
         ) {
-          const detail = await discoveryResult.error.context.json().catch(() => null);
+          const detail =
+            await discoveryResult.error.context.json().catch(() => null);
 
           if (detail?.error) message = detail.error;
           if (detail?.detail) message += " — " + detail.detail;
@@ -573,10 +546,6 @@
       let images = {};
       let imageError = null;
 
-      /*
-       * First try the records enriched in this discovery run.
-       * Some already have images, so the image function may select zero.
-       */
       if (ids.length) {
         try {
           images = await prepareImageBatch({ ids }, label);
@@ -585,10 +554,6 @@
         }
       }
 
-      /*
-       * If the enriched records already have images, prepare the next
-       * pending records that still need their own images.
-       */
       if (
         !imageError &&
         (!images || Number(images.selected || 0) === 0)
@@ -695,6 +660,8 @@
     }
 
     try {
+      await requireAdmin();
+
       const images = await prepareImageBatch(
         { limit: MAX_IMAGE_BATCH },
         label
@@ -770,6 +737,8 @@
     }
 
     try {
+      await requireAdmin();
+
       const result = await invoke("grant_permission", {
         expires_in_minutes: 15,
         note: "Temporary permission granted from NOH discovery review."
@@ -819,6 +788,8 @@
     }
 
     try {
+      await requireAdmin();
+
       await invoke("revoke_permission", {
         note: "Permission revoked from NOH discovery review."
       });
@@ -1199,6 +1170,8 @@
     button.textContent = "Saving approval…";
 
     try {
+      await requireAdmin();
+
       await invoke("approve", {
         id,
         opportunity,
@@ -1250,6 +1223,8 @@
     updatePublishButton();
 
     try {
+      await requireAdmin();
+
       await invoke("reject", {
         id,
         review_note: note.trim() || "Rejected by administrator."
@@ -1291,9 +1266,9 @@
 
     const ids = [...selectedIds];
 
-    if (ids.length < MIN_PUBLISH_BATCH) {
+    if (ids.length === 0) {
       notice(
-        `Select at least ${MIN_PUBLISH_BATCH} approved, image-ready opportunities.`,
+        "Select at least one approved, image-ready opportunity.",
         true
       );
       return;
@@ -1321,20 +1296,6 @@
       return;
     }
 
-    const categories = new Set(
-      rows
-        .map(row => String(row.category || "").trim())
-        .filter(Boolean)
-    );
-
-    if (categories.size < MIN_PUBLISH_CATEGORIES) {
-      notice(
-        `Choose opportunities from at least ${MIN_PUBLISH_CATEGORIES} categories.`,
-        true
-      );
-      return;
-    }
-
     if (ids.length > 100) {
       notice(
         "The publishing workflow allows a maximum of 100 records per batch.",
@@ -1345,7 +1306,7 @@
 
     if (!window.confirm(
       `Publish ${ids.length} approved opportunity records ` +
-      `across ${categories.size} categories to the public NOH website now?`
+      `to the public NOH website now?`
     )) {
       return;
     }
@@ -1361,6 +1322,8 @@
     }
 
     try {
+      await requireAdmin();
+
       const result = await invoke("publish_approved", { ids });
 
       selectedIds.clear();
@@ -1386,7 +1349,7 @@
 
       if (button) {
         button.textContent =
-          `Publish ${selectedIds.size} approved · ${selectedCategoryCount()} categories`;
+          "Publish selected approved (" + selectedIds.size + ")";
       }
 
       updatePublishButton();
@@ -1496,6 +1459,15 @@
   }
 
   async function init() {
+    // Attach the click handler before authentication finishes.
+    // The operation itself still verifies admin access.
+    const earlyDiscoveryButton = $("runDiscoveryBtn");
+
+    if (earlyDiscoveryButton) {
+      earlyDiscoveryButton.disabled = false;
+      earlyDiscoveryButton.onclick = runDiscovery;
+    }
+
     try {
       if (!window.supabase?.createClient) {
         throw new Error(
@@ -1571,7 +1543,6 @@
       );
 
       const controls = [
-        $("runDiscoveryBtn"),
         $("prepareImagesBtn"),
         $("grantPermissionBtn"),
         $("revokePermissionBtn"),
@@ -1581,6 +1552,13 @@
       controls.filter(Boolean).forEach(button => {
         button.disabled = true;
       });
+
+      // Keep Run Discovery clickable so it can display the precise
+      // authentication or connection error when pressed.
+      if (earlyDiscoveryButton) {
+        earlyDiscoveryButton.disabled = false;
+        earlyDiscoveryButton.onclick = runDiscovery;
+      }
     }
   }
 
