@@ -5,6 +5,9 @@
   const SUPABASE_URL = "https://djxornmwvkauhkcuhgxc.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
   const PUBLISHER = "noh-publish-opportunities";
+  const IMAGE_FUNCTION = "noh-prepare-discovery-images";
+  const DISCOVERY_FUNCTION = "noh-discover-opportunities";
+
   const $ = id => document.getElementById(id);
 
   let db = null;
@@ -13,6 +16,11 @@
   let busy = false;
   let discoveryBusy = false;
   let permission = "not_granted";
+  let authSubscription = null;
+
+  const MIN_PUBLISH_BATCH = 20;
+  const MIN_PUBLISH_CATEGORIES = 3;
+  const MAX_IMAGE_BATCH = 6;
 
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c =>
     ({
@@ -88,14 +96,11 @@
   });
 
   /*
-   * Warn if a request is taking too long, but do not release
-   * the dashboard lock until the original request actually settles.
-   *
-   * A timeout warning does not cancel a Supabase server request.
+   * A timeout warning does not cancel a Supabase request.
+   * Keep the dashboard lock until the real request settles.
    */
   async function waitForOperation(promise, ms, what) {
     let timer;
-
     const request = Promise.resolve(promise);
 
     const warning = new Promise(resolve => {
@@ -105,7 +110,6 @@
           "The request is still running. Please do not start it again.",
           true
         );
-
         resolve({ timedOut: true });
       }, ms);
     });
@@ -123,9 +127,7 @@
         return firstResult.value;
       }
 
-      // Keep waiting. The caller's busy lock remains active.
       return await request;
-
     } finally {
       clearTimeout(timer);
     }
@@ -228,6 +230,15 @@
     return true;
   }
 
+  function createButton(id, text, className) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.id = id;
+    button.className = className;
+    button.textContent = text;
+    return button;
+  }
+
   function addWorkflowControls() {
     let discovery = $("discoveryWorkflowControls");
 
@@ -242,36 +253,61 @@
         "border-radius:14px;padding:14px 16px;margin:18px 0";
 
       discovery.innerHTML = `
-        <div>
+        <div style="flex:1;min-width:220px">
           <strong>Discovery and image preparation</strong>
           <div id="discoveryRunLabel"
                class="entry-meta"
                style="margin-top:5px">
-            Runs discovery, enriches up to six records, then prepares their images.
-            No approval or publication takes place.
+            Discover listings, enrich records and prepare individual images.
+            Nothing is approved or published automatically.
           </div>
         </div>
-        <button class="btn btn-primary"
-                type="button"
-                id="runDiscoveryBtn">
-          Run discovery + prepare images
-        </button>
+        <div id="discoveryButtonGroup"
+             style="display:flex;gap:8px;flex-wrap:wrap">
+        </div>
       `;
 
       insertWorkflowSection(discovery);
     }
 
-    // Repair an existing section if its button is missing.
-    if (!$("runDiscoveryBtn")) {
-      const button = document.createElement("button");
+    const group = $("discoveryButtonGroup");
 
-      button.type = "button";
-      button.id = "runDiscoveryBtn";
-      button.className = "btn btn-primary";
-      button.textContent = "Run discovery + prepare images";
+    /*
+     * Reuse the original HTML discovery button.
+     * Move it into this section rather than creating a second button
+     * with the same ID.
+     */
+    let discoveryButton = $("runDiscoveryBtn");
 
-      discovery.appendChild(button);
+    if (!discoveryButton) {
+      discoveryButton = createButton(
+        "runDiscoveryBtn",
+        "Run discovery + prepare images",
+        "btn btn-primary"
+      );
     }
+
+    if (group && discoveryButton.parentElement !== group) {
+      group.appendChild(discoveryButton);
+    }
+
+    discoveryButton.onclick = runDiscovery;
+
+    let prepareButton = $("prepareImagesBtn");
+
+    if (!prepareButton) {
+      prepareButton = createButton(
+        "prepareImagesBtn",
+        "Prepare next 6 images",
+        "btn btn-outline"
+      );
+    }
+
+    if (group && prepareButton.parentElement !== group) {
+      group.appendChild(prepareButton);
+    }
+
+    prepareButton.onclick = prepareNextImages;
 
     let publishing = $("publishWorkflowControls");
 
@@ -286,12 +322,17 @@
         "border-radius:14px;padding:14px 16px;margin:18px 0";
 
       publishing.innerHTML = `
-        <div>
+        <div style="flex:1;min-width:220px">
           <strong>Publishing control</strong>
           <div id="permissionLabel"
                class="entry-meta"
                style="margin-top:5px">
             Checking permission…
+          </div>
+          <div id="publishSelectionLabel"
+               class="entry-meta"
+               style="margin-top:5px">
+            Select at least 20 approved, image-ready records across 3 categories.
           </div>
         </div>
 
@@ -320,27 +361,130 @@
       discovery.insertAdjacentElement("afterend", publishing);
     }
 
-    const grantButton = $("grantPermissionBtn");
-    if (grantButton) {
-      grantButton.onclick = grantPermission;
+    $("grantPermissionBtn").onclick = grantPermission;
+    $("revokePermissionBtn").onclick = revokePermission;
+    $("publishSelectedBtn").onclick = publishSelected;
+  }
+
+  function validIndividualImage(row) {
+    if (!row?.id || !row?.image_url) return false;
+
+    const imageUrl = safeHttps(row.image_url);
+
+    if (!imageUrl) return false;
+
+    const escapedId = String(row.id).replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
+
+    const pattern = new RegExp(
+      "^https://djxornmwvkauhkcuhgxc\\.supabase\\.co/" +
+      "storage/v1/object/public/opportunity-images/" +
+      escapedId +
+      "\\.(jpg|png|webp|gif|avif)$",
+      "i"
+    );
+
+    return pattern.test(imageUrl);
+  }
+
+  function selectedCategoryCount() {
+    const rows = currentRows.filter(row =>
+      selectedIds.has(row.id)
+    );
+
+    return new Set(
+      rows
+        .map(row => String(row.category || "").trim())
+        .filter(Boolean)
+    ).size;
+  }
+
+  function updatePublishButton() {
+    const button = $("publishSelectedBtn");
+
+    const categoryCount = selectedCategoryCount();
+    const selectedCount = selectedIds.size;
+
+    const enoughRecords =
+      selectedCount >= MIN_PUBLISH_BATCH;
+
+    const enoughCategories =
+      categoryCount >= MIN_PUBLISH_CATEGORIES;
+
+    if (button) {
+      button.disabled =
+        permission !== "granted" ||
+        !enoughRecords ||
+        !enoughCategories ||
+        busy;
+
+      button.textContent =
+        `Publish ${selectedCount} approved · ${categoryCount} categories`;
     }
 
-    const revokeButton = $("revokePermissionBtn");
-    if (revokeButton) {
-      revokeButton.onclick = revokePermission;
+    const label = $("publishSelectionLabel");
+
+    if (label) {
+      if (!enoughRecords) {
+        label.textContent =
+          `${selectedCount}/${MIN_PUBLISH_BATCH} selected. ` +
+          `Select at least ${MIN_PUBLISH_BATCH} image-ready approved records.`;
+      } else if (!enoughCategories) {
+        label.textContent =
+          `${categoryCount}/${MIN_PUBLISH_CATEGORIES} categories selected. ` +
+          "Choose opportunities from at least three categories.";
+      } else if (permission !== "granted") {
+        label.textContent =
+          "Selection target reached. Grant temporary publishing permission when ready.";
+      } else {
+        label.textContent =
+          "Publishing requirements met. Confirm the final batch when ready.";
+      }
+    }
+  }
+
+  async function prepareImageBatch(body, label) {
+    if (label) {
+      label.textContent = "Preparing individual opportunity images…";
     }
 
-    const publishButton = $("publishSelectedBtn");
-    if (publishButton) {
-      publishButton.onclick = publishSelected;
+    const result = await waitForOperation(
+      db.functions.invoke(IMAGE_FUNCTION, { body }),
+      120000,
+      "Image preparation"
+    );
+
+    if (result.error) {
+      let message =
+        result.error.message || "Image preparation request failed.";
+
+      if (
+        result.error.context &&
+        typeof result.error.context.json === "function"
+      ) {
+        const detail = await result.error.context.json().catch(() => null);
+
+        if (detail?.error) {
+          message = detail.error;
+        }
+      }
+
+      throw new Error(message);
     }
+
+    if (result.data?.error) {
+      throw new Error(result.data.error);
+    }
+
+    return result.data || {};
   }
 
   async function runDiscovery() {
     if (discoveryBusy || busy) {
       notice(
-        "Another dashboard operation is still running. " +
-        "Please wait for it to finish.",
+        "Another dashboard operation is running. Please wait.",
         true
       );
       return;
@@ -348,73 +492,69 @@
 
     if (!db) {
       notice(
-        "The database connection is not ready. Refresh the page and sign in again.",
+        "The database connection is not ready. Refresh and sign in again.",
         true
       );
       return;
     }
 
-    const buttons = [
-      $("runDiscoveryBtn"),
-      $("runDiscoveryHeaderBtn")
-    ].filter(Boolean);
-
+    const button = $("runDiscoveryBtn");
     const label = $("discoveryRunLabel");
 
     discoveryBusy = true;
     busy = true;
 
-    buttons.forEach(button => {
+    if (button) {
       button.disabled = true;
       button.textContent = "Running discovery…";
-    });
+    }
+
+    const prepareButton = $("prepareImagesBtn");
+
+    if (prepareButton) {
+      prepareButton.disabled = true;
+    }
 
     if (label) {
       label.textContent =
-        "Checking sources and enriching up to six pending records…";
+        "Checking opportunity sources and enriching pending records…";
     }
 
     notice("Discovery started. Please keep this page open.");
 
     try {
-      const {
-        data: discovery,
-        error: discoveryError
-      } = await waitForOperation(
-        db.functions.invoke("noh-discover-opportunities", {
+      const discoveryResult = await waitForOperation(
+        db.functions.invoke(DISCOVERY_FUNCTION, {
           body: {}
         }),
         120000,
         "Discovery"
       );
 
-      if (discoveryError) {
+      if (discoveryResult.error) {
         let message =
-          discoveryError.message || "Discovery request failed.";
+          discoveryResult.error.message || "Discovery request failed.";
 
         if (
-          discoveryError.context &&
-          typeof discoveryError.context.json === "function"
+          discoveryResult.error.context &&
+          typeof discoveryResult.error.context.json === "function"
         ) {
-          const detail = await discoveryError.context.json().catch(() => null);
+          const detail = await discoveryResult.error.context.json().catch(() => null);
 
-          if (detail?.error) {
-            message = detail.error;
-          }
-
-          if (detail?.detail) {
-            message += ` — ${detail.detail}`;
-          }
+          if (detail?.error) message = detail.error;
+          if (detail?.detail) message += " — " + detail.detail;
         }
 
         throw new Error(message);
       }
 
-      if (discovery?.error) {
+      const discovery = discoveryResult.data || {};
+
+      if (discovery.error) {
         throw new Error(discovery.error);
       }
 
-      const enriched = Array.isArray(discovery?.enriched)
+      const enriched = Array.isArray(discovery.enriched)
         ? discovery.enriched
         : [];
 
@@ -424,67 +564,59 @@
             .map(row => row?.id)
             .filter(Boolean)
         )
-      ].slice(0, 6);
+      ].slice(0, MAX_IMAGE_BATCH);
 
-      if (label) {
-        label.textContent =
-          "Discovery finished. Preparing images for the discovered batch…";
+      let images = {};
+      let imageError = null;
+
+      /*
+       * First try the records enriched in this discovery run.
+       * Some already have images, so the image function may select zero.
+       */
+      if (ids.length) {
+        try {
+          images = await prepareImageBatch({ ids }, label);
+        } catch (error) {
+          imageError = error;
+        }
       }
 
-      const imageBody = ids.length
-        ? { ids }
-        : { limit: 6 };
-
-      const {
-        data: images,
-        error: imageError
-      } = await waitForOperation(
-        db.functions.invoke("noh-prepare-discovery-images", {
-          body: imageBody
-        }),
-        120000,
-        "Image preparation"
-      );
-
-      if (imageError) {
-        let message =
-          imageError.message || "Image preparation request failed.";
-
-        if (
-          imageError.context &&
-          typeof imageError.context.json === "function"
-        ) {
-          const detail = await imageError.context.json().catch(() => null);
-
-          if (detail?.error) {
-            message = detail.error;
-          }
+      /*
+       * If the enriched records already have images, prepare the next
+       * pending records that still need their own images.
+       */
+      if (
+        !imageError &&
+        (!images || Number(images.selected || 0) === 0)
+      ) {
+        if (label) {
+          label.textContent =
+            "The enriched batch has no missing images. Checking other pending records…";
         }
 
-        throw new Error(
-          `Discovery ran, but image preparation failed: ${message}`
+        images = await prepareImageBatch(
+          { limit: MAX_IMAGE_BATCH },
+          label
         );
       }
 
-      if (images?.error) {
-        throw new Error(
-          `Discovery ran, but image preparation failed: ${images.error}`
-        );
+      if (imageError) {
+        throw imageError;
       }
 
-      const ready = Number(images?.image_ready ?? 0);
-      const selected = Number(images?.selected ?? 0);
-      const attention = Number(images?.needs_attention ?? 0);
+      const ready = Number(images.image_ready ?? 0);
+      const selected = Number(images.selected ?? 0);
+      const attention = Number(images.needs_attention ?? 0);
 
-      const sourceErrors = Array.isArray(discovery?.errors)
+      const sourceErrors = Array.isArray(discovery.errors)
         ? discovery.errors.length
         : 0;
 
       const summary =
         `Discovery complete: ` +
-        `${Number(discovery?.sources_checked ?? 0)} sources checked, ` +
-        `${Number(discovery?.entries_seen ?? 0)} listings found, ` +
-        `${Number(discovery?.new_pending_entries ?? 0)} new records, ` +
+        `${Number(discovery.sources_checked ?? 0)} sources checked, ` +
+        `${Number(discovery.entries_seen ?? 0)} listings found, ` +
+        `${Number(discovery.new_pending_entries ?? 0)} new records, ` +
         `${enriched.length} enrichment attempts. ` +
         `Images: ${ready} ready from ${selected} selected; ` +
         `${attention} need attention. ` +
@@ -510,21 +642,89 @@
 
       notice(message, true);
 
-      // Refresh the queue if discovery may already have completed.
       try {
         await loadQueue(true);
       } catch {
-        // Preserve the original discovery error.
+        // Keep the original error visible.
       }
 
     } finally {
       discoveryBusy = false;
       busy = false;
 
-      buttons.forEach(button => {
+      if (button) {
         button.disabled = false;
         button.textContent = "Run discovery + prepare images";
-      });
+      }
+
+      if (prepareButton) {
+        prepareButton.disabled = false;
+      }
+
+      updatePublishButton();
+    }
+  }
+
+  async function prepareNextImages() {
+    if (busy || discoveryBusy) {
+      notice(
+        "Another dashboard operation is running. Please wait.",
+        true
+      );
+      return;
+    }
+
+    if (!db) {
+      notice("The database connection is not ready.", true);
+      return;
+    }
+
+    const button = $("prepareImagesBtn");
+    const label = $("discoveryRunLabel");
+
+    busy = true;
+    updatePublishButton();
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Preparing images…";
+    }
+
+    try {
+      const images = await prepareImageBatch(
+        { limit: MAX_IMAGE_BATCH },
+        label
+      );
+
+      const ready = Number(images.image_ready ?? 0);
+      const selected = Number(images.selected ?? 0);
+      const attention = Number(images.needs_attention ?? 0);
+
+      const summary =
+        `Image preparation complete: ${ready} ready from ` +
+        `${selected} selected; ${attention} need attention. ` +
+        "Records without a verified individual image remain unpublished.";
+
+      if (label) {
+        label.textContent = summary;
+      }
+
+      notice(summary, attention > 0);
+
+      await loadQueue(true);
+
+    } catch (e) {
+      notice(
+        e.message || "Unable to prepare opportunity images.",
+        true
+      );
+    } finally {
+      busy = false;
+
+      if (button) {
+        button.disabled = false;
+        button.textContent = "Prepare next 6 images";
+      }
 
       updatePublishButton();
     }
@@ -540,24 +740,10 @@
     if (label) {
       label.textContent = permission === "granted"
         ? `Active until ${dateLabel(result.expires_at)}`
-        : "Locked — publishing is disabled until you grant temporary permission.";
+        : "Locked — publishing is disabled until temporary permission is granted.";
     }
 
     updatePublishButton();
-  }
-
-  function updatePublishButton() {
-    const button = $("publishSelectedBtn");
-
-    if (!button) return;
-
-    button.disabled =
-      permission !== "granted" ||
-      selectedIds.size === 0 ||
-      busy;
-
-    button.textContent =
-      `Publish selected approved (${selectedIds.size})`;
   }
 
   async function grantPermission() {
@@ -572,13 +758,18 @@
     busy = true;
     updatePublishButton();
 
+    const button = $("grantPermissionBtn");
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Granting permission…";
+    }
+
     try {
       const result = await invoke("grant_permission", {
         expires_in_minutes: 15,
         note: "Temporary permission granted from NOH discovery review."
       });
-
-      permission = "granted";
 
       await loadPermission();
 
@@ -592,9 +783,14 @@
         e.message || "Unable to grant publishing permission.",
         true
       );
-
     } finally {
       busy = false;
+
+      if (button) {
+        button.disabled = false;
+        button.textContent = "Grant 15-minute permission";
+      }
+
       updatePublishButton();
     }
   }
@@ -611,27 +807,35 @@
     busy = true;
     updatePublishButton();
 
+    const button = $("revokePermissionBtn");
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Revoking…";
+    }
+
     try {
       await invoke("revoke_permission", {
         note: "Permission revoked from NOH discovery review."
       });
 
-      permission = "not_granted";
-
       await loadPermission();
 
-      notice(
-        "Publishing permission revoked. Publishing is locked."
-      );
+      notice("Publishing permission revoked. Publishing is locked.");
 
     } catch (e) {
       notice(
         e.message || "Unable to revoke publishing permission.",
         true
       );
-
     } finally {
       busy = false;
+
+      if (button) {
+        button.disabled = false;
+        button.textContent = "Revoke permission";
+      }
+
       updatePublishButton();
     }
   }
@@ -712,7 +916,7 @@
       (status === "all" || row.status === status) &&
       (
         !term ||
-        `${row.title} ${row.source_name} ${row.summary || ""}`
+        `${row.title} ${row.source_name} ${row.summary || ""} ${row.organization || ""}`
           .toLocaleLowerCase("en-GB")
           .includes(term)
       )
@@ -728,7 +932,7 @@
     if (!rows.length) {
       queue.innerHTML =
         '<div class="empty">No entries match this view. ' +
-        'New discoveries will appear here after the next discovery run.</div>';
+        'Change the search or status filter, or run discovery again.</div>';
 
       updatePublishButton();
       return;
@@ -737,6 +941,7 @@
     queue.innerHTML = rows.map(row => {
       const approved = row.status === "approved";
       const pending = row.status === "pending";
+      const imageReady = validIndividualImage(row);
 
       return `
         <article class="entry" data-id="${esc(row.id)}">
@@ -768,6 +973,14 @@
               Open original listing →
             </a>
 
+            <p class="entry-meta">
+              ${
+                imageReady
+                  ? "Individual image URL ready. The publishing backend will verify its Storage object."
+                  : "Image not ready. This record cannot be selected for publication."
+              }
+            </p>
+
             ${
               row.review_note
                 ? `<p class="entry-meta">Review note: ${esc(row.review_note)}</p>`
@@ -775,7 +988,7 @@
             }
 
             ${
-              approved
+              approved && imageReady
                 ? `
                   <label style="display:inline-flex;gap:8px;align-items:center;margin-top:12px;font-weight:650">
                     <input
@@ -786,7 +999,9 @@
                     Select for publication
                   </label>
                 `
-                : ""
+                : approved
+                  ? '<p class="entry-meta">Approved, awaiting its own individual image.</p>'
+                  : ""
             }
           </div>
 
@@ -829,12 +1044,16 @@
     try {
       const result = await invoke("review_list");
 
-      currentRows = result.records || [];
+      currentRows = Array.isArray(result.records)
+        ? result.records
+        : [];
 
       selectedIds = new Set(
         [...selectedIds].filter(id =>
           currentRows.some(row =>
-            row.id === id && row.status === "approved"
+            row.id === id &&
+            row.status === "approved" &&
+            validIndividualImage(row)
           )
         )
       );
@@ -858,7 +1077,6 @@
         e.message || "Unable to load the discovery queue.",
         true
       );
-
     } finally {
       busy = callerOwnsLock;
       updatePublishButton();
@@ -971,8 +1189,10 @@
     busy = true;
     updatePublishButton();
 
-    $("publishBtn").disabled = true;
-    $("publishBtn").textContent = "Saving approval…";
+    const button = $("publishBtn");
+
+    button.disabled = true;
+    button.textContent = "Saving approval…";
 
     try {
       await invoke("approve", {
@@ -986,8 +1206,7 @@
 
       notice(
         "Opportunity approved and saved in the queue. " +
-        "It has NOT been published yet. Select it and use " +
-        "Publish selected approved when ready."
+        "It has NOT been published yet. Select it after its individual image is ready."
       );
 
       await loadQueue(true);
@@ -997,12 +1216,11 @@
         e.message || "Unable to approve this discovery.",
         true
       );
-
     } finally {
       busy = false;
 
-      $("publishBtn").disabled = false;
-      $("publishBtn").textContent = "Approve for publishing";
+      button.disabled = false;
+      button.textContent = "Approve for publishing";
 
       updatePublishButton();
     }
@@ -1044,7 +1262,6 @@
         e.message || "Unable to reject this discovery.",
         true
       );
-
     } finally {
       busy = false;
       updatePublishButton();
@@ -1052,44 +1269,92 @@
   }
 
   async function publishSelected() {
-    if (
-      busy ||
-      permission !== "granted" ||
-      selectedIds.size === 0
-    ) {
-      if (busy) {
-        notice(
-          "Another dashboard operation is running. Please wait.",
-          true
-        );
-      } else if (permission !== "granted") {
-        notice(
-          "Grant temporary publishing permission first.",
-          true
-        );
-      } else {
-        notice(
-          "Select at least one approved opportunity to publish.",
-          true
-        );
-      }
+    if (busy) {
+      notice(
+        "Another dashboard operation is running. Please wait.",
+        true
+      );
+      return;
+    }
 
+    if (permission !== "granted") {
+      notice(
+        "Grant temporary publishing permission first.",
+        true
+      );
       return;
     }
 
     const ids = [...selectedIds];
 
-    if (
-      !window.confirm(
-        `Publish ${ids.length} approved opportunity record(s) ` +
-        "to the public NOH website now?"
-      )
-    ) {
+    if (ids.length < MIN_PUBLISH_BATCH) {
+      notice(
+        `Select at least ${MIN_PUBLISH_BATCH} approved, image-ready opportunities.`,
+        true
+      );
+      return;
+    }
+
+    const rows = currentRows.filter(row =>
+      selectedIds.has(row.id)
+    );
+
+    if (rows.length !== ids.length) {
+      notice(
+        "Some selected records are no longer in the current queue. Refresh and select again.",
+        true
+      );
+      return;
+    }
+
+    if (rows.some(row =>
+      row.status !== "approved" || !validIndividualImage(row)
+    )) {
+      notice(
+        "Every selected record must be approved and have its own image URL.",
+        true
+      );
+      return;
+    }
+
+    const categories = new Set(
+      rows
+        .map(row => String(row.category || "").trim())
+        .filter(Boolean)
+    );
+
+    if (categories.size < MIN_PUBLISH_CATEGORIES) {
+      notice(
+        `Choose opportunities from at least ${MIN_PUBLISH_CATEGORIES} categories.`,
+        true
+      );
+      return;
+    }
+
+    if (ids.length > 100) {
+      notice(
+        "The publishing workflow allows a maximum of 100 records per batch.",
+        true
+      );
+      return;
+    }
+
+    if (!window.confirm(
+      `Publish ${ids.length} approved opportunity records ` +
+      `across ${categories.size} categories to the public NOH website now?`
+    )) {
       return;
     }
 
     busy = true;
     updatePublishButton();
+
+    const button = $("publishSelectedBtn");
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Publishing…";
+    }
 
     try {
       const result = await invoke("publish_approved", { ids });
@@ -1097,11 +1362,12 @@
       selectedIds.clear();
 
       const inserted = Number(result.inserted || 0);
+      const skipped = Number(result.skipped || 0);
 
       notice(
         `Publication completed. ${inserted} opportunity record(s) ` +
-        `published to NOH. ${Number(result.skipped || 0)} duplicate(s) skipped. ` +
-        "Images were already checked by the publishing safeguards."
+        `published to NOH. ${skipped} duplicate(s) skipped. ` +
+        "The protected backend verified the records and their individual images."
       );
 
       await loadQueue(true);
@@ -1111,46 +1377,121 @@
         e.message || "Unable to publish the approved opportunities.",
         true
       );
-
     } finally {
       busy = false;
+
+      if (button) {
+        button.textContent =
+          `Publish ${selectedIds.size} approved · ${selectedCategoryCount()} categories`;
+      }
+
       updatePublishButton();
     }
   }
 
-  async function init() {
-    /*
-     * Preserve the existing header button.
-     * Give it a unique ID so the dynamically created dashboard
-     * discovery button can have its own unique ID.
-     */
-    const headerBtn = $("runDiscoveryBtn");
-
-    if (headerBtn) {
-      headerBtn.id = "runDiscoveryHeaderBtn";
-      headerBtn.disabled = false;
-      headerBtn.textContent = "Run discovery + prepare images";
+  async function refreshQueue() {
+    if (busy) {
+      notice(
+        "Please wait for the current operation to finish before refreshing.",
+        true
+      );
+      return;
     }
 
-    /*
-     * One delegated click handler supports both buttons,
-     * including buttons created after page initialisation.
-     */
-    document.addEventListener("click", ev => {
-      const target = ev.target;
+    const button = $("refreshBtn");
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Refreshing…";
+    }
+
+    try {
+      await loadQueue();
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = "Refresh queue";
+      }
+    }
+  }
+
+  function attachQueueHandlers() {
+    $("queue")?.addEventListener("click", e => {
+      const target = e.target;
 
       if (!(target instanceof Element)) return;
 
-      const button = target.closest(
-        "#runDiscoveryBtn, #runDiscoveryHeaderBtn"
-      );
+      const button = target.closest("button[data-action]");
 
       if (!button) return;
 
-      ev.preventDefault();
-      runDiscovery();
+      if (button.dataset.action === "approve") {
+        openApproval(button.dataset.id);
+      }
+
+      if (button.dataset.action === "reject") {
+        reject(button.dataset.id);
+      }
     });
 
+    $("queue")?.addEventListener("change", e => {
+      const target = e.target;
+
+      if (!(target instanceof Element)) return;
+
+      const input = target.closest("input[data-select]");
+
+      if (!input) return;
+
+      const id = input.dataset.select;
+      const row = currentRows.find(item => item.id === id);
+
+      if (!row || row.status !== "approved" || !validIndividualImage(row)) {
+        input.checked = false;
+        selectedIds.delete(id);
+
+        notice(
+          "Only approved records with their own image can be selected.",
+          true
+        );
+
+        updatePublishButton();
+        return;
+      }
+
+      if (input.checked) {
+        selectedIds.add(id);
+      } else {
+        selectedIds.delete(id);
+      }
+
+      updatePublishButton();
+    });
+  }
+
+  function attachStaticHandlers() {
+    $("refreshBtn")?.addEventListener("click", refreshQueue);
+
+    $("searchInput")?.addEventListener("input", render);
+    $("statusFilter")?.addEventListener("change", render);
+
+    $("approveForm")?.addEventListener("submit", approve);
+
+    $("closeDialog")?.addEventListener(
+      "click",
+      () => $("reviewDialog")?.close()
+    );
+
+    $("reviewDialog")?.addEventListener("click", event => {
+      if (event.target === $("reviewDialog")) {
+        $("reviewDialog").close();
+      }
+    });
+
+    attachQueueHandlers();
+  }
+
+  async function init() {
     try {
       if (!window.supabase?.createClient) {
         throw new Error(
@@ -1188,70 +1529,55 @@
         );
       }
 
+      attachStaticHandlers();
+
       await loadQueue();
+
+      const authResult = db.auth.onAuthStateChange(
+        (event, session) => {
+          if (event === "SIGNED_OUT" || !session) {
+            permission = "not_granted";
+            selectedIds.clear();
+
+            notice(
+              "You have been signed out. Sign in again to use administrator controls.",
+              true
+            );
+
+            updatePublishButton();
+            return;
+          }
+
+          if (event === "TOKEN_REFRESHED" && !busy) {
+            loadQueue();
+          }
+        }
+      );
+
+      authSubscription = authResult?.data?.subscription || null;
+
+      notice(
+        "Admin Discovery connected. Discovery, image preparation, review and publishing controls are ready."
+      );
 
     } catch (e) {
       notice(
         e.message || "Administrator access required.",
         true
       );
+
+      const controls = [
+        $("runDiscoveryBtn"),
+        $("prepareImagesBtn"),
+        $("grantPermissionBtn"),
+        $("revokePermissionBtn"),
+        $("publishSelectedBtn")
+      ];
+
+      controls.filter(Boolean).forEach(button => {
+        button.disabled = true;
+      });
     }
-
-    $("refreshBtn")?.addEventListener("click", () => {
-      loadQueue();
-    });
-
-    $("searchInput")?.addEventListener("input", render);
-    $("statusFilter")?.addEventListener("change", render);
-
-    $("queue")?.addEventListener("click", e => {
-      const target = e.target;
-
-      if (!(target instanceof Element)) return;
-
-      const button = target.closest("button[data-action]");
-
-      if (!button) return;
-
-      if (button.dataset.action === "approve") {
-        openApproval(button.dataset.id);
-      }
-
-      if (button.dataset.action === "reject") {
-        reject(button.dataset.id);
-      }
-    });
-
-    $("queue")?.addEventListener("change", e => {
-      const target = e.target;
-
-      if (!(target instanceof Element)) return;
-
-      const input = target.closest("input[data-select]");
-
-      if (!input) return;
-
-      if (input.checked) {
-        selectedIds.add(input.dataset.select);
-      } else {
-        selectedIds.delete(input.dataset.select);
-      }
-
-      updatePublishButton();
-    });
-
-    $("approveForm")?.addEventListener("submit", approve);
-
-    $("closeDialog")?.addEventListener(
-      "click",
-      () => $("reviewDialog")?.close()
-    );
-
-    db?.auth.onAuthStateChange(() => {
-      if (db && !busy) {
-        loadQueue();
-      }
-    });
   }
 
   if (document.readyState === "loading") {
