@@ -293,6 +293,10 @@
 
     discoveryButton.onclick = runDiscovery;
 
+    // FIX: enable the button after successful administrator verification.
+    discoveryButton.disabled = false;
+    discoveryButton.textContent = "Run discovery + prepare images";
+
     let prepareButton = $("prepareImagesBtn");
 
     if (!prepareButton) {
