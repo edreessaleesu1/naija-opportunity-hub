@@ -19,6 +19,7 @@
   let authSubscription = null;
 
   const MAX_IMAGE_BATCH = 6;
+  const MAX_PUBLISH_BATCH = 100;
 
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c =>
     ({
@@ -137,6 +138,20 @@
       : d.toLocaleString("en-GB", {
           dateStyle: "medium",
           timeStyle: "short"
+        });
+  }
+
+  function dateOnlyLabel(value) {
+    if (!value) return "Not supplied";
+
+    const d = new Date(String(value) + "T00:00:00");
+
+    return Number.isNaN(d.getTime())
+      ? "Not supplied"
+      : d.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric"
         });
   }
 
@@ -260,6 +275,7 @@
             Nothing is approved or published automatically.
           </div>
         </div>
+
         <div id="discoveryButtonGroup"
              style="display:flex;gap:8px;flex-wrap:wrap">
         </div>
@@ -319,11 +335,13 @@
       publishing.innerHTML = `
         <div style="flex:1;min-width:220px">
           <strong>Publishing control</strong>
+
           <div id="permissionLabel"
                class="entry-meta"
                style="margin-top:5px">
             Checking permission…
           </div>
+
           <div id="publishSelectionLabel"
                class="entry-meta"
                style="margin-top:5px">
@@ -387,8 +405,10 @@
   function updatePublishButton() {
     const button = $("publishSelectedBtn");
     const selectedCount = selectedIds.size;
+
     const canPublish =
       selectedCount > 0 &&
+      selectedCount <= MAX_PUBLISH_BATCH &&
       permission === "granted" &&
       !busy;
 
@@ -404,6 +424,9 @@
       if (!selectedCount) {
         label.textContent =
           "Select any number of approved opportunities with their own verified images.";
+      } else if (selectedCount > MAX_PUBLISH_BATCH) {
+        label.textContent =
+          "Maximum 100 records per publication batch.";
       } else if (permission !== "granted") {
         label.textContent =
           selectedCount +
@@ -560,7 +583,7 @@
       ) {
         if (label) {
           label.textContent =
-            "The enriched batch has no missing images. Checking other pending records…";
+            "Checking other pending records for image preparation…";
         }
 
         images = await prepareImageBatch(
@@ -598,6 +621,7 @@
 
       notice(summary, sourceErrors > 0 || attention > 0);
 
+      // Immediately retrieve and display the updated review queue.
       await loadQueue(true);
 
     } catch (e) {
@@ -880,6 +904,43 @@
     }
   }
 
+  function imageMarkup(row) {
+    const imageUrl = validIndividualImage(row)
+      ? safeHttps(row.image_url)
+      : "";
+
+    if (!imageUrl) {
+      return `
+        <div class="noh-image-placeholder">
+          <span>Image not ready</span>
+          <small>Prepare an individual image</small>
+        </div>
+      `;
+    }
+
+    return `
+      <a class="noh-image-link"
+         href="${esc(imageUrl)}"
+         target="_blank"
+         rel="noopener noreferrer"
+         title="Open full-size opportunity image">
+
+        <img
+          class="noh-opportunity-image"
+          src="${esc(imageUrl)}"
+          alt="Image for ${esc(row.title || "opportunity")}"
+          loading="lazy"
+          data-opportunity-image
+        >
+
+      </a>
+
+      <div class="noh-image-caption">
+        Individual image attached
+      </div>
+    `;
+  }
+
   function render() {
     const status = $("statusFilter")?.value || "all";
 
@@ -891,7 +952,7 @@
       (status === "all" || row.status === status) &&
       (
         !term ||
-        `${row.title} ${row.source_name} ${row.summary || ""} ${row.organization || ""}`
+        `${row.title} ${row.source_name} ${row.summary || ""} ${row.organization || ""} ${row.category || ""}`
           .toLocaleLowerCase("en-GB")
           .includes(term)
       )
@@ -913,99 +974,348 @@
       return;
     }
 
-    queue.innerHTML = rows.map(row => {
-      const approved = row.status === "approved";
-      const pending = row.status === "pending";
-      const imageReady = validIndividualImage(row);
+    queue.innerHTML = `
+      <style>
+        .noh-review-card {
+          display:grid;
+          grid-template-columns:160px minmax(0,1fr) auto;
+          gap:16px;
+          align-items:start;
+          background:#fff;
+          border:1px solid #e6e9e3;
+          border-radius:16px;
+          padding:16px;
+          margin-bottom:14px;
+          min-width:0;
+        }
 
-      return `
-        <article class="entry" data-id="${esc(row.id)}">
-          <div>
-            <div class="entry-meta">
-              <span class="pill">${esc(row.status)}</span>
-              · ${esc(row.source_name)}
-              · Discovered ${esc(dateLabel(row.discovered_at))}
+        .noh-image-column {
+          min-width:0;
+        }
+
+        .noh-image-link {
+          display:block;
+          width:100%;
+          overflow:hidden;
+          border-radius:11px;
+          background:#f0f3ee;
+        }
+
+        .noh-opportunity-image {
+          display:block;
+          width:100%;
+          height:125px;
+          object-fit:cover;
+          background:#f0f3ee;
+        }
+
+        .noh-image-placeholder {
+          width:100%;
+          height:125px;
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          justify-content:center;
+          gap:5px;
+          border:1px dashed #cbd6cb;
+          border-radius:11px;
+          background:#f8faf6;
+          color:#68766e;
+          text-align:center;
+          font-size:13px;
+          padding:8px;
+        }
+
+        .noh-image-placeholder small {
+          font-size:11px;
+        }
+
+        .noh-image-caption {
+          margin-top:6px;
+          font-size:11px;
+          color:#167044;
+          font-weight:650;
+        }
+
+        .noh-card-content {
+          min-width:0;
+          overflow-wrap:anywhere;
+        }
+
+        .noh-card-title {
+          margin:9px 0 7px;
+          font-size:1.08rem;
+          line-height:1.4;
+          color:#20332a;
+        }
+
+        .noh-card-meta {
+          display:flex;
+          flex-wrap:wrap;
+          gap:7px;
+          margin:7px 0;
+          color:#68766e;
+          font-size:12px;
+        }
+
+        .noh-card-links {
+          display:flex;
+          flex-wrap:wrap;
+          gap:12px;
+          margin-top:11px;
+          font-size:13px;
+        }
+
+        .noh-card-links a {
+          color:#086b45;
+          font-weight:650;
+          overflow-wrap:anywhere;
+        }
+
+        .noh-card-description {
+          color:#52635a;
+          line-height:1.55;
+          margin:9px 0;
+          font-size:14px;
+          white-space:pre-line;
+        }
+
+        .noh-card-actions {
+          display:flex;
+          flex-direction:column;
+          gap:8px;
+          min-width:125px;
+        }
+
+        .noh-card-actions button {
+          white-space:nowrap;
+        }
+
+        .noh-status {
+          display:inline-block;
+          padding:4px 9px;
+          border-radius:99px;
+          background:#fff5dc;
+          color:#77550d;
+          font-size:11px;
+          font-weight:750;
+          text-transform:uppercase;
+        }
+
+        .noh-status.approved {
+          background:#e6f4ea;
+          color:#14532d;
+        }
+
+        .noh-status.rejected {
+          background:#fff0ee;
+          color:#94392d;
+        }
+
+        .noh-image-error {
+          height:125px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding:10px;
+          text-align:center;
+          background:#fff0ee;
+          color:#94392d;
+          border-radius:11px;
+          font-size:12px;
+        }
+
+        @media(max-width:700px) {
+          .noh-review-card {
+            grid-template-columns:105px minmax(0,1fr);
+            gap:12px;
+            padding:12px;
+          }
+
+          .noh-opportunity-image,
+          .noh-image-placeholder,
+          .noh-image-error {
+            height:100px;
+          }
+
+          .noh-card-actions {
+            grid-column:1/-1;
+            flex-direction:row;
+            flex-wrap:wrap;
+            min-width:0;
+          }
+
+          .noh-card-actions button {
+            flex:1;
+          }
+        }
+
+        @media(max-width:390px) {
+          .noh-review-card {
+            grid-template-columns:1fr;
+          }
+
+          .noh-image-column {
+            max-width:100%;
+          }
+
+          .noh-opportunity-image,
+          .noh-image-placeholder,
+          .noh-image-error {
+            height:180px;
+          }
+        }
+      </style>
+
+      ${rows.map(row => {
+        const approved = row.status === "approved";
+        const pending = row.status === "pending";
+        const imageReady = validIndividualImage(row);
+
+        const sourceUrl = safeHttps(row.source_url);
+        const applicationUrl = safeHttps(row.application_url);
+
+        return `
+          <article class="noh-review-card"
+                   data-id="${esc(row.id)}">
+
+            <div class="noh-image-column">
+              ${imageMarkup(row)}
             </div>
 
-            <h3>${esc(row.title)}</h3>
+            <div class="noh-card-content">
 
-            <p>
-              ${esc(
-                row.summary ||
-                "No summary supplied by feed. Open the source and verify the details."
-              )}
-            </p>
+              <div class="noh-card-meta">
+                <span class="noh-status ${esc(row.status)}">
+                  ${esc(row.status)}
+                </span>
 
-            <p class="entry-meta">
-              Published by source: ${esc(dateLabel(row.published_at))}
-            </p>
+                <span>${esc(row.source_name || "Discovery source")}</span>
 
-            <a
-              href="${esc(safeHttps(row.source_url))}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open original listing →
-            </a>
+                <span>
+                  Discovered ${esc(dateLabel(row.discovered_at))}
+                </span>
+              </div>
 
-            <p class="entry-meta">
+              <h3 class="noh-card-title">
+                ${esc(row.title || "Untitled opportunity")}
+              </h3>
+
+              <div class="noh-card-meta">
+                <strong>
+                  ${esc(row.organization || "Organisation not yet verified")}
+                </strong>
+
+                ${row.category
+                  ? `<span>· ${esc(row.category)}</span>`
+                  : ""}
+
+                ${row.location
+                  ? `<span>· ${esc(row.location)}</span>`
+                  : ""}
+              </div>
+
+              <p class="noh-card-description">
+                ${esc(
+                  row.summary ||
+                  row.description ||
+                  "No description supplied. Open the original listing and verify its details."
+                )}
+              </p>
+
+              <div class="noh-card-meta">
+                <span>
+                  Deadline: ${esc(dateOnlyLabel(row.deadline))}
+                </span>
+
+                <span>
+                  Source publication: ${esc(dateLabel(row.published_at))}
+                </span>
+              </div>
+
+              <div class="noh-card-links">
+                ${
+                  sourceUrl
+                    ? `<a href="${esc(sourceUrl)}"
+                          target="_blank"
+                          rel="noopener noreferrer">
+                         Open original listing ↗
+                       </a>`
+                    : "<span>Source link unavailable</span>"
+                }
+
+                ${
+                  applicationUrl
+                    ? `<a href="${esc(applicationUrl)}"
+                          target="_blank"
+                          rel="noopener noreferrer">
+                         Open application page ↗
+                       </a>`
+                    : "<span>Application link not supplied</span>"
+                }
+              </div>
+
+              <div class="noh-card-meta" style="margin-top:10px">
+                ${
+                  imageReady
+                    ? '<span style="color:#167044;font-weight:700">Individual image URL attached</span>'
+                    : '<span style="color:#9a5b12;font-weight:700">Individual image not ready</span>'
+                }
+              </div>
+
               ${
-                imageReady
-                  ? "Individual image URL ready. The publishing backend will verify its Storage object."
-                  : "Image not ready. This record cannot be selected for publication."
-              }
-            </p>
-
-            ${
-              row.review_note
-                ? `<p class="entry-meta">Review note: ${esc(row.review_note)}</p>`
-                : ""
-            }
-
-            ${
-              approved && imageReady
-                ? `
-                  <label style="display:inline-flex;gap:8px;align-items:center;margin-top:12px;font-weight:650">
-                    <input
-                      type="checkbox"
-                      data-select="${esc(row.id)}"
-                      ${selectedIds.has(row.id) ? "checked" : ""}
-                    >
-                    Select for publication
-                  </label>
-                `
-                : approved
-                  ? '<p class="entry-meta">Approved, awaiting its own individual image.</p>'
+                row.review_note
+                  ? `<p class="entry-meta">Review note: ${esc(row.review_note)}</p>`
                   : ""
-            }
-          </div>
+              }
 
-          <div class="entry-actions">
-            ${
-              pending
-                ? `
-                  <button
-                    class="btn btn-primary"
-                    data-action="approve"
-                    data-id="${esc(row.id)}"
-                  >
-                    Review & approve
-                  </button>
+              ${
+                approved && imageReady
+                  ? `
+                    <label style="display:inline-flex;gap:8px;align-items:center;margin-top:12px;font-weight:650">
+                      <input
+                        type="checkbox"
+                        data-select="${esc(row.id)}"
+                        ${selectedIds.has(row.id) ? "checked" : ""}
+                      >
+                      Select for publication
+                    </label>
+                  `
+                  : approved
+                    ? '<p class="entry-meta">Approved, awaiting its own individual image.</p>'
+                    : ""
+              }
 
-                  <button
-                    class="btn btn-danger"
-                    data-action="reject"
-                    data-id="${esc(row.id)}"
-                  >
-                    Reject
-                  </button>
-                `
-                : ""
-            }
-          </div>
-        </article>
-      `;
-    }).join("");
+            </div>
+
+            <div class="noh-card-actions">
+              ${
+                pending
+                  ? `
+                    <button
+                      class="btn btn-primary"
+                      data-action="approve"
+                      data-id="${esc(row.id)}"
+                      type="button">
+                      Review & approve
+                    </button>
+
+                    <button
+                      class="btn btn-danger"
+                      data-action="reject"
+                      data-id="${esc(row.id)}"
+                      type="button">
+                      Reject
+                    </button>
+                  `
+                  : ""
+              }
+            </div>
+
+          </article>
+        `;
+      }).join("")}
+    `;
 
     updatePublishButton();
   }
@@ -1274,6 +1584,14 @@
       return;
     }
 
+    if (ids.length > MAX_PUBLISH_BATCH) {
+      notice(
+        "The publishing workflow allows a maximum of 100 records per batch.",
+        true
+      );
+      return;
+    }
+
     const rows = currentRows.filter(row =>
       selectedIds.has(row.id)
     );
@@ -1291,14 +1609,6 @@
     )) {
       notice(
         "Every selected record must be approved and have its own image URL.",
-        true
-      );
-      return;
-    }
-
-    if (ids.length > 100) {
-      notice(
-        "The publishing workflow allows a maximum of 100 records per batch.",
         true
       );
       return;
@@ -1383,7 +1693,11 @@
   }
 
   function attachQueueHandlers() {
-    $("queue")?.addEventListener("click", e => {
+    const queue = $("queue");
+
+    if (!queue) return;
+
+    queue.addEventListener("click", e => {
       const target = e.target;
 
       if (!(target instanceof Element)) return;
@@ -1401,7 +1715,7 @@
       }
     });
 
-    $("queue")?.addEventListener("change", e => {
+    queue.addEventListener("change", e => {
       const target = e.target;
 
       if (!(target instanceof Element)) return;
@@ -1434,6 +1748,28 @@
 
       updatePublishButton();
     });
+
+    // Handle broken image URLs without leaving broken-image icons.
+    queue.addEventListener("error", event => {
+      const image = event.target;
+
+      if (
+        !(image instanceof HTMLImageElement) ||
+        !image.matches("[data-opportunity-image]")
+      ) {
+        return;
+      }
+
+      const link = image.closest(".noh-image-link");
+
+      if (!link) return;
+
+      const fallback = document.createElement("div");
+      fallback.className = "noh-image-error";
+      fallback.textContent = "Image preview unavailable. Check the image file.";
+
+      link.replaceWith(fallback);
+    }, true);
   }
 
   function attachStaticHandlers() {
@@ -1459,8 +1795,6 @@
   }
 
   async function init() {
-    // Attach the click handler before authentication finishes.
-    // The operation itself still verifies admin access.
     const earlyDiscoveryButton = $("runDiscoveryBtn");
 
     if (earlyDiscoveryButton) {
@@ -1553,8 +1887,6 @@
         button.disabled = true;
       });
 
-      // Keep Run Discovery clickable so it can display the precise
-      // authentication or connection error when pressed.
       if (earlyDiscoveryButton) {
         earlyDiscoveryButton.disabled = false;
         earlyDiscoveryButton.onclick = runDiscovery;
