@@ -1,318 +1,75 @@
-
 <!doctype html>
 <html lang="en-GB">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#086b45">
-
   <title>Opportunity Review Queue | Naija Opportunity Hub</title>
-
   <link rel="stylesheet" href="/style.css">
 
   <style>
     :root {
-      --noh-green:#086b45;
-      --noh-gold:#c49a43;
-      --noh-ivory:#fffdf7;
-      --noh-ink:#20332a;
-      --noh-muted:#68766e;
-      --noh-border:#e6e9e3;
+      --noh-green:#086b45; --noh-gold:#c49a43; --noh-ivory:#fffdf7;
+      --noh-ink:#20332a; --noh-muted:#68766e; --noh-border:#e6e9e3;
     }
-
-    * {
-      box-sizing:border-box;
+    * { box-sizing:border-box; }
+    body { background:#f7f8f4; color:var(--noh-ink); }
+    .review-wrap { width:min(1120px,calc(100% - 32px)); margin:36px auto 72px; }
+    .review-head { display:flex; justify-content:space-between; gap:20px; align-items:center; margin-bottom:24px; }
+    .review-head h1 { margin:0; color:var(--noh-green); font-size:clamp(1.6rem,4vw,2.25rem); }
+    .review-head p { margin:7px 0 0; color:var(--noh-muted); }
+    .review-actions,.review-tools,.entry-actions,.noh-action-toolbar { display:flex; gap:10px; flex-wrap:wrap; }
+    .review-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:20px 0; }
+    .stat { background:white; border:1px solid var(--noh-border); border-radius:14px; padding:16px; }
+    .stat strong { display:block; font-size:1.7rem; color:var(--noh-green); }
+    .stat span { font-size:.88rem; color:var(--noh-muted); }
+    .review-tools { margin:18px 0; }
+    .review-tools input,.review-tools select,.field input,.field textarea,.field select {
+      width:100%; border:1px solid #d9dfd8; border-radius:10px; padding:11px 12px;
+      background:white; color:var(--noh-ink); font:inherit;
     }
-
-    body {
-      background:#f7f8f4;
-      color:var(--noh-ink);
-    }
-
-    .review-wrap {
-      width:min(1120px,calc(100% - 32px));
-      margin:36px auto 72px;
-    }
-
-    .review-head {
-      display:flex;
-      justify-content:space-between;
-      gap:20px;
-      align-items:center;
-      margin-bottom:24px;
-    }
-
-    .review-head h1 {
-      margin:0;
-      color:var(--noh-green);
-      font-size:clamp(1.6rem,4vw,2.25rem);
-    }
-
-    .review-head p {
-      margin:7px 0 0;
-      color:var(--noh-muted);
-    }
-
-    .review-actions {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .review-stats {
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:12px;
-      margin:20px 0;
-    }
-
-    .stat {
-      background:white;
-      border:1px solid var(--noh-border);
-      border-radius:14px;
-      padding:16px;
-    }
-
-    .stat strong {
-      display:block;
-      font-size:1.7rem;
-      color:var(--noh-green);
-    }
-
-    .stat span {
-      font-size:.88rem;
-      color:var(--noh-muted);
-    }
-
-    .review-tools {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin:18px 0;
-    }
-
-    .review-tools input,
-    .review-tools select,
-    .field input,
-    .field textarea,
-    .field select {
-      width:100%;
-      border:1px solid #d9dfd8;
-      border-radius:10px;
-      padding:11px 12px;
-      background:white;
-      color:var(--noh-ink);
-      font:inherit;
-    }
-
-    .review-tools input {
-      flex:1;
-      min-width:220px;
-    }
-
-    .queue {
-      display:grid;
-      gap:14px;
-    }
-
-    .entry {
-      background:white;
-      border:1px solid var(--noh-border);
-      border-radius:16px;
-      padding:18px;
-      display:grid;
-      grid-template-columns:1fr auto;
-      gap:14px;
-    }
-
-    .entry h3 {
-      margin:0 0 7px;
-      font-size:1.08rem;
-    }
-
-    .entry p {
-      margin:5px 0;
-      color:var(--noh-muted);
-      line-height:1.5;
-    }
-
-    .entry-meta {
-      font-size:.83rem;
-    }
-
-    .entry a {
-      color:var(--noh-green);
-      overflow-wrap:anywhere;
-    }
-
-    .entry-actions {
-      display:flex;
-      gap:8px;
-      align-items:flex-start;
-      flex-wrap:wrap;
-    }
-
+    .review-tools input { flex:1; min-width:220px; }
+    .queue { display:grid; gap:14px; }
+    .entry { background:white; border:1px solid var(--noh-border); border-radius:16px; padding:18px; display:grid; grid-template-columns:1fr auto; gap:14px; }
+    .entry h3 { margin:0 0 7px; font-size:1.08rem; }
+    .entry p { margin:5px 0; color:var(--noh-muted); line-height:1.5; }
+    .entry-meta { font-size:.83rem; }
+    .entry a { color:var(--noh-green); overflow-wrap:anywhere; }
     .btn {
-      border:0;
-      border-radius:9px;
-      padding:10px 14px;
-      font-weight:650;
-      cursor:pointer;
-      text-decoration:none;
-      display:inline-flex;
-      justify-content:center;
-      align-items:center;
+      border:0; border-radius:9px; padding:10px 14px; font-weight:650; cursor:pointer;
+      text-decoration:none; display:inline-flex; justify-content:center; align-items:center;
     }
-
-    .btn:disabled {
-      opacity:.55;
-      cursor:not-allowed;
-    }
-
-    .btn-primary {
-      background:var(--noh-green);
-      color:white;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      background:#075638;
-    }
-
-    .btn-outline {
-      background:#f3f6f1;
-      color:var(--noh-green);
-      border:1px solid #dce5dc;
-    }
-
-    .btn-danger {
-      background:#fff0ee;
-      color:#a33225;
-    }
-
-    .pill {
-      display:inline-block;
-      padding:4px 9px;
-      border-radius:99px;
-      background:#fff5dc;
-      color:#77550d;
-      font-size:.78rem;
-      font-weight:700;
-    }
-
-    .notice {
-      padding:13px 15px;
-      border-radius:10px;
-      background:#eef6ef;
-      color:#245c3c;
-      margin:14px 0;
-      line-height:1.55;
-      overflow-wrap:anywhere;
-    }
-
-    .notice.error {
-      background:#fff0ee;
-      color:#94392d;
-    }
-
-    .notice[hidden] {
-      display:none;
-    }
-
-    .notice p {
-      margin:7px 0;
-    }
-
-    .notice details {
-      margin-top:10px;
-    }
-
-    .notice summary {
-      cursor:pointer;
-      font-weight:650;
-    }
-
-    .discovery-panel {
-      border-left:4px solid var(--noh-gold);
-    }
-
-    .empty {
-      padding:34px;
-      text-align:center;
-      background:white;
-      border:1px dashed #cbd6cb;
-      border-radius:14px;
-      color:var(--noh-muted);
-    }
-
-    dialog {
-      border:0;
-      border-radius:16px;
-      width:min(680px,calc(100% - 24px));
-      padding:0;
-      box-shadow:0 20px 70px #10291e33;
-    }
-
-    dialog::backdrop {
-      background:#12241dbb;
-    }
-
-    .modal-head,
-    .modal-foot {
-      padding:16px 20px;
-      border-bottom:1px solid var(--noh-border);
-    }
-
-    .modal-head {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-
-    .modal-head h2 {
-      margin:0;
-      color:var(--noh-green);
-    }
-
-    .modal-body {
-      padding:18px 20px;
-      max-height:70vh;
-      overflow:auto;
-    }
-
-    .form-grid {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:13px;
-    }
-
-    .field {
-      display:grid;
-      gap:6px;
-    }
-
-    .field label {
-      font-weight:650;
-      font-size:.88rem;
-    }
-
-    .field.full {
-      grid-column:1/-1;
-    }
-
-    .modal-foot {
-      border-top:1px solid var(--noh-border);
-      border-bottom:0;
-      display:flex;
-      justify-content:flex-end;
-      gap:10px;
-    }
-
+    .btn:disabled { opacity:.55; cursor:not-allowed; }
+    .btn-primary { background:var(--noh-green); color:white; }
+    .btn-primary:hover:not(:disabled) { background:#075638; }
+    .btn-outline { background:#f3f6f1; color:var(--noh-green); border:1px solid #dce5dc; }
+    .btn-danger { background:#fff0ee; color:#a33225; }
+    .pill { display:inline-block; padding:4px 9px; border-radius:99px; background:#fff5dc; color:#77550d; font-size:.78rem; font-weight:700; }
+    .notice { padding:13px 15px; border-radius:10px; background:#eef6ef; color:#245c3c; margin:14px 0; line-height:1.55; overflow-wrap:anywhere; }
+    .notice.error { background:#fff0ee; color:#94392d; }
+    .notice[hidden] { display:none; }
+    .notice p { margin:7px 0; }
+    .notice details { margin-top:10px; }
+    .notice summary { cursor:pointer; font-weight:650; }
+    .discovery-panel { border-left:4px solid var(--noh-gold); }
+    .empty { padding:34px; text-align:center; background:white; border:1px dashed #cbd6cb; border-radius:14px; color:var(--noh-muted); }
+    dialog { border:0; border-radius:16px; width:min(680px,calc(100% - 24px)); padding:0; box-shadow:0 20px 70px #10291e33; }
+    dialog::backdrop { background:#12241dbb; }
+    .modal-head,.modal-foot { padding:16px 20px; border-bottom:1px solid var(--noh-border); }
+    .modal-head { display:flex; justify-content:space-between; align-items:center; }
+    .modal-head h2 { margin:0; color:var(--noh-green); }
+    .modal-body { padding:18px 20px; max-height:70vh; overflow:auto; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+    .field { display:grid; gap:6px; }
+    .field label { font-weight:650; font-size:.88rem; }
+    .field.full { grid-column:1/-1; }
+    .modal-foot { border-top:1px solid var(--noh-border); border-bottom:0; display:flex; justify-content:flex-end; gap:10px; }
     .muted { color:var(--noh-muted); }
     .noh-pipeline { background:#fff; border:1px solid var(--noh-border); border-radius:16px; padding:18px; margin:18px 0; }
     .noh-pipeline-stats { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin:12px 0; }
     .noh-pipeline-stats .stat { padding:12px; }
     .noh-pipeline-stats .stat strong { font-size:1.35rem; }
-    .noh-action-toolbar { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+    .noh-action-toolbar { margin:14px 0; }
     .noh-permission { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:12px; background:#f7f8f4; border-radius:10px; }
     .noh-permission span { flex:1; min-width:220px; color:var(--noh-muted); }
     .noh-review-card { display:grid; grid-template-columns:34px 150px minmax(0,1fr) auto; gap:14px; background:#fff; border:1px solid var(--noh-border); border-radius:16px; padding:16px; }
@@ -333,108 +90,43 @@
     .result-list .bad { color:#a33225; }
     .result-list .good { color:#17633a; }
     .result-list .warn { color:#8a5b12; }
-
     @media(max-width:650px) {
-      .review-head {
-        align-items:flex-start;
-        flex-direction:column;
-      }
-
-      .review-actions {
-        width:100%;
-      }
-
-      .review-actions .btn {
-        flex:1;
-      }
-
+      .review-head { align-items:flex-start; flex-direction:column; }
+      .review-actions { width:100%; }
+      .review-actions .btn { flex:1; }
       .review-stats { grid-template-columns:1fr; }
       .noh-pipeline-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .noh-review-card { grid-template-columns:28px minmax(0,1fr); }
       .noh-image-column,.noh-card-content,.noh-card-actions { grid-column:2; }
       .noh-card-actions { flex-direction:row; flex-wrap:wrap; }
-
-      .entry {
-        grid-template-columns:1fr;
-      }
-
-      .form-grid {
-        grid-template-columns:1fr;
-      }
-
-      .field.full {
-        grid-column:auto;
-      }
+      .entry { grid-template-columns:1fr; }
+      .form-grid { grid-template-columns:1fr; }
+      .field.full { grid-column:auto; }
     }
   </style>
 
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/admin-discovery.js?v=20261114-3" defer></script>
+  <script src="/admin-discovery.js?v=20261114-4" defer></script>
 </head>
-
 <body>
-
   <main class="review-wrap">
-
-    <!-- PAGE HEADER -->
     <header class="review-head">
-
       <div>
         <p class="entry-meta">NAIJA OPPORTUNITY HUB · ADMIN</p>
-
         <h1>Opportunity discovery queue</h1>
-
-        <p>
-          Discover, review and verify opportunities before they appear publicly on NOH.
-        </p>
+        <p>Discover, review and verify opportunities before they appear publicly on NOH.</p>
       </div>
-
       <div class="review-actions">
-
         <button class="btn btn-primary" id="startDiscoveryBtn" type="button" disabled>Start Discovery</button>
         <button class="btn btn-danger" id="stopDiscoveryBtn" type="button" disabled>Stop Discovery</button>
-
-        <a
-          class="btn btn-outline"
-          href="/admin-opportunities.html"
-        >
-          Main admin dashboard
-        </a>
-
-        <button
-          class="btn btn-outline"
-          id="refreshBtn"
-          type="button"
-        >
-          Refresh queue
-        </button>
-
+        <a class="btn btn-outline" href="/admin-opportunities.html">Main admin dashboard</a>
+        <button class="btn btn-outline" id="refreshBtn" type="button">Refresh queue</button>
       </div>
     </header>
 
+    <div id="notice" class="notice" role="status" aria-live="polite">Checking your administrator access…</div>
+    <section id="discoveryResult" class="notice discovery-panel" role="status" aria-live="polite" hidden></section>
 
-    <!-- ADMIN ACCESS STATUS -->
-    <div
-      id="notice"
-      class="notice"
-      role="status"
-      aria-live="polite"
-    >
-      Checking your administrator access…
-    </div>
-
-
-    <!-- DISCOVERY RESULTS -->
-    <section
-      id="discoveryResult"
-      class="notice discovery-panel"
-      role="status"
-      aria-live="polite"
-      hidden
-    ></section>
-
-
-    <!-- LIVE DISCOVERY AND PUBLISHING CONTROLS -->
     <section class="noh-pipeline" aria-label="Discovery workflow">
       <p id="discoveryRunLabel" class="muted">Ready. Discovery results will appear in the review queue below.</p>
       <div class="noh-pipeline-stats">
@@ -467,44 +159,15 @@
       <div id="publishResults" class="notice" hidden></div>
     </section>
 
-    <!-- DISCOVERY STATISTICS -->
-    <section
-      class="review-stats"
-      aria-label="Discovery statistics"
-    >
-
-      <div class="stat">
-        <strong id="pendingCount">—</strong>
-        <span>Pending review</span>
-      </div>
-
-      <div class="stat">
-        <strong id="importedCount">—</strong>
-        <span>Approved and imported</span>
-      </div>
-
-      <div class="stat">
-        <strong id="lastRun">—</strong>
-        <span>Last discovery run</span>
-      </div>
-
+    <section class="review-stats" aria-label="Discovery statistics">
+      <div class="stat"><strong id="pendingCount">—</strong><span>Pending review</span></div>
+      <div class="stat"><strong id="importedCount">—</strong><span>Approved and imported</span></div>
+      <div class="stat"><strong id="lastRun">—</strong><span>Last discovery run</span></div>
     </section>
 
-
-    <!-- SEARCH AND FILTER -->
     <div class="review-tools">
-
-      <input
-        id="searchInput"
-        type="search"
-        placeholder="Search titles or source names"
-        aria-label="Search discovery queue"
-      >
-
-      <select
-        id="statusFilter"
-        aria-label="Filter status"
-      >
+      <input id="searchInput" type="search" placeholder="Search titles or source names" aria-label="Search discovery queue">
+      <select id="statusFilter" aria-label="Filter status">
         <option value="active" selected>Pending and approved</option>
         <option value="pending">Pending review</option>
         <option value="approved">Approved, awaiting publication</option>
@@ -512,7 +175,6 @@
         <option value="rejected">Rejected</option>
         <option value="all">All statuses</option>
       </select>
-
       <select id="stageFilter" aria-label="Filter pipeline stage">
         <option value="all">All pipeline stages</option>
         <option value="DISCOVERED">Discovered</option>
@@ -527,76 +189,36 @@
       </select>
     </div>
 
-
-    <!-- DISCOVERY QUEUE -->
-    <section
-      id="queue"
-      class="queue"
-      aria-live="polite"
-    >
-      <div class="empty">
-        Loading discovered opportunities…
-      </div>
+    <section id="queue" class="queue" aria-live="polite">
+      <div class="empty">Loading discovered opportunities…</div>
     </section>
     <button class="btn btn-outline" id="loadMoreBtn" type="button" hidden>Load more</button>
-
   </main>
 
-
-  <!-- REVIEW AND APPROVAL DIALOG -->
   <dialog id="reviewDialog">
-
     <form id="approveForm">
-
       <div class="modal-head">
-
-        <h2>Review and publish</h2>
-
-        <button
-          class="btn btn-outline"
-          type="button"
-          id="closeDialog"
-        >
-          Close
-        </button>
-
+        <h2>Review and approve</h2>
+        <button class="btn btn-outline" type="button" id="closeDialog">Close</button>
       </div>
 
-
       <div class="modal-body">
-
         <p class="muted" id="sourceSummary"></p>
-
-        <input
-          type="hidden"
-          id="discoveryId"
-        >
+        <input type="hidden" id="discoveryId">
 
         <div class="form-grid">
-
           <div class="field full">
             <label for="title">Opportunity title</label>
-            <input
-              id="title"
-              required
-              maxlength="500"
-            >
+            <input id="title" required maxlength="500">
           </div>
-
 
           <div class="field">
             <label for="organization">Organisation</label>
-            <input
-              id="organization"
-              required
-              maxlength="300"
-            >
+            <input id="organization" required maxlength="300">
           </div>
-
 
           <div class="field">
             <label for="category">Category</label>
-
             <select id="category" required>
               <option>Scholarship</option>
               <option>Job</option>
@@ -604,134 +226,62 @@
               <option>Grant</option>
               <option>Fellowship</option>
               <option>Training</option>
+              <option>Volunteering</option>
               <option>Other</option>
             </select>
           </div>
 
-
           <div class="field">
             <label for="location">Location</label>
-            <input
-              id="location"
-              value="Nigeria"
-              maxlength="200"
-            >
+            <input id="location" value="Nigeria" maxlength="200">
           </div>
-
 
           <div class="field">
             <label for="deadline">Application deadline</label>
-            <input
-              id="deadline"
-              type="date"
-            >
+            <input id="deadline" type="date">
           </div>
-
 
           <div class="field full">
-            <label for="applicationUrl">
-              Official application URL (HTTPS)
-            </label>
-
-            <input
-              id="applicationUrl"
-              type="url"
-              required
-              placeholder="https://..."
-              autocomplete="url"
-            >
+            <label for="applicationUrl">Official application URL (HTTPS)</label>
+            <input id="applicationUrl" type="url" required placeholder="https://..." autocomplete="url">
           </div>
-
 
           <div class="field full">
-            <label for="sourceUrl">
-              Source / announcement URL
-            </label>
-
-            <input
-              id="sourceUrl"
-              type="url"
-              required
-              placeholder="https://..."
-            >
+            <label for="sourceUrl">Source / announcement URL</label>
+            <input id="sourceUrl" type="url" required placeholder="https://...">
           </div>
-
 
           <div class="field full">
-            <label for="description">
-              Opportunity description
-            </label>
-
-            <textarea
-              id="description"
-              rows="5"
-              required
-            ></textarea>
+            <label for="description">Opportunity description</label>
+            <textarea id="description" rows="5" required minlength="30"></textarea>
           </div>
-
 
           <div class="field full">
-            <label for="eligibility">
-              Eligibility requirements (confirm from official source)
-            </label>
-
-            <textarea
-              id="eligibility"
-              rows="3"
-            ></textarea>
+            <label for="eligibility">Eligibility requirements (must be verified from the official source)</label>
+            <textarea id="eligibility" rows="4" required minlength="20"
+              placeholder="Enter the actual eligibility requirements stated by the official organisation. Do not guess or invent them."></textarea>
+            <small class="muted">At least 20 characters. Records without source-backed eligibility cannot be approved.</small>
           </div>
-
         </div>
 
-
-        <!-- OFFICIAL SOURCE VERIFICATION -->
-        <label
-          class="field full"
-          style="display:flex;grid-template-columns:auto 1fr;align-items:start;gap:9px;margin-top:14px"
-        >
-
-          <input
-            id="officialVerified"
-            type="checkbox"
-            required
-            style="width:auto;margin-top:4px"
-          >
-
+        <label class="field full" style="display:flex;grid-template-columns:auto 1fr;align-items:start;gap:9px;margin-top:14px">
+          <input id="officialVerified" type="checkbox" required style="width:auto;margin-top:4px">
           <span>
-            I have checked the organisation's official website,
-            confirmed that this opportunity is genuine and open,
-            and verified its eligibility, deadline and official
-            application link.
+            I have checked the organisation's official website, confirmed that this opportunity is genuine and open,
+            and verified its eligibility, deadline and official application link.
           </span>
-
         </label>
 
-
         <p class="muted">
-          Approval does not replace image verification.
-          Each published opportunity must have its own relevant,
-          verified image. Listings without a suitable image must
-          not be published.
+          Approval does not publish the opportunity. Each published opportunity must have its own relevant,
+          verified image. Listings without a suitable image must not be published.
         </p>
-
       </div>
-
 
       <div class="modal-foot">
-
-        <button
-          class="btn btn-primary"
-          id="publishBtn"
-          type="submit"
-        >
-          Approve & publish
-        </button>
-
+        <button class="btn btn-primary" id="publishBtn" type="submit">Approve for publishing</button>
       </div>
-
     </form>
-
   </dialog>
-
 </body>
 </html>
