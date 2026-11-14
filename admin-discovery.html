@@ -307,9 +307,32 @@
       gap:10px;
     }
 
-    .muted {
-      color:var(--noh-muted);
-    }
+    .muted { color:var(--noh-muted); }
+    .noh-pipeline { background:#fff; border:1px solid var(--noh-border); border-radius:16px; padding:18px; margin:18px 0; }
+    .noh-pipeline-stats { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin:12px 0; }
+    .noh-pipeline-stats .stat { padding:12px; }
+    .noh-pipeline-stats .stat strong { font-size:1.35rem; }
+    .noh-action-toolbar { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+    .noh-permission { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:12px; background:#f7f8f4; border-radius:10px; }
+    .noh-permission span { flex:1; min-width:220px; color:var(--noh-muted); }
+    .noh-review-card { display:grid; grid-template-columns:34px 150px minmax(0,1fr) auto; gap:14px; background:#fff; border:1px solid var(--noh-border); border-radius:16px; padding:16px; }
+    .noh-review-card.is-selected { border-color:var(--noh-green); box-shadow:0 0 0 2px #086b4520; }
+    .noh-image-column { min-width:0; }
+    .noh-opportunity-image { display:block; width:100%; aspect-ratio:16/10; object-fit:cover; border-radius:10px; }
+    .noh-image-placeholder,.noh-image-error { min-height:100px; display:grid; place-content:center; text-align:center; border:1px dashed #cbd6cb; border-radius:10px; padding:10px; color:var(--noh-muted); }
+    .noh-image-caption,.noh-card-meta,.noh-card-links { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0; color:var(--noh-muted); font-size:.82rem; overflow-wrap:anywhere; }
+    .noh-card-title { margin:8px 0; font-size:1.1rem; }
+    .noh-card-description { color:var(--noh-muted); line-height:1.5; }
+    .noh-card-actions { display:flex; flex-direction:column; gap:8px; min-width:145px; }
+    .noh-state,.noh-flag { display:inline-block; padding:4px 8px; border-radius:8px; background:#f1f4ef; color:#4b5d51; font-size:.76rem; }
+    .noh-state.ready,.noh-state.approved,.noh-state.published,.noh-flag.ok { background:#e6f4ea; color:#14532d; }
+    .noh-state.failed,.noh-state.rejected { background:#fff0ee; color:#94392d; }
+    .noh-state.info { background:#eaf2ff; color:#244f88; }
+    .result-list { margin:8px 0 0; padding-left:20px; }
+    .result-list li { margin:5px 0; }
+    .result-list .bad { color:#a33225; }
+    .result-list .good { color:#17633a; }
+    .result-list .warn { color:#8a5b12; }
 
     @media(max-width:650px) {
       .review-head {
@@ -325,9 +348,11 @@
         flex:1;
       }
 
-      .review-stats {
-        grid-template-columns:1fr;
-      }
+      .review-stats { grid-template-columns:1fr; }
+      .noh-pipeline-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .noh-review-card { grid-template-columns:28px minmax(0,1fr); }
+      .noh-image-column,.noh-card-content,.noh-card-actions { grid-column:2; }
+      .noh-card-actions { flex-direction:row; flex-wrap:wrap; }
 
       .entry {
         grid-template-columns:1fr;
@@ -366,14 +391,8 @@
 
       <div class="review-actions">
 
-        <button
-          class="btn btn-primary"
-          id="runDiscoveryBtn"
-          type="button"
-          disabled
-        >
-          Run Discovery
-        </button>
+        <button class="btn btn-primary" id="startDiscoveryBtn" type="button" disabled>Start Discovery</button>
+        <button class="btn btn-danger" id="stopDiscoveryBtn" type="button" disabled>Stop Discovery</button>
 
         <a
           class="btn btn-outline"
@@ -415,6 +434,39 @@
     ></section>
 
 
+    <!-- LIVE DISCOVERY AND PUBLISHING CONTROLS -->
+    <section class="noh-pipeline" aria-label="Discovery workflow">
+      <p id="discoveryRunLabel" class="muted">Ready. Discovery results will appear in the review queue below.</p>
+      <div class="noh-pipeline-stats">
+        <div class="stat"><strong id="cntDiscovered">0</strong><span>Discovered / needs details</span></div>
+        <div class="stat"><strong id="cntImage">0</strong><span>Images pending / failed</span></div>
+        <div class="stat"><strong id="cntReady">0</strong><span>Ready for review</span></div>
+        <div class="stat"><strong id="cntApproved">0</strong><span>Approved</span></div>
+        <div class="stat"><strong id="cntPublished">0</strong><span>Published</span></div>
+        <div class="stat"><strong id="cntRejected">0</strong><span>Rejected</span></div>
+      </div>
+      <div class="noh-action-toolbar">
+        <button class="btn btn-outline" id="viewDiscoveredBtn" type="button">View Discovered Opportunities</button>
+        <button class="btn btn-outline" id="validateBtn" type="button">Validate &amp; Check Duplicates</button>
+        <button class="btn btn-outline" id="prepareImagesBtn" type="button">Prepare Images</button>
+        <button class="btn btn-outline" id="retryImagesBtn" type="button">Retry Failed Images</button>
+        <button class="btn btn-outline" id="selectAllBtn" type="button">Select All</button>
+        <button class="btn btn-outline" id="deselectAllBtn" type="button">Deselect All</button>
+        <button class="btn btn-primary" id="approveSelectedBtn" type="button">Approve selected (0)</button>
+        <button class="btn btn-danger" id="rejectSelectedBtn" type="button">Reject selected (0)</button>
+        <button class="btn btn-primary" id="publishSelectedBtn" type="button">Publish Approved (0)</button>
+        <button class="btn btn-outline" id="viewPublishLogBtn" type="button">View Publishing Results</button>
+      </div>
+      <p id="selectionLabel" class="muted">No records selected.</p>
+      <div class="noh-permission">
+        <strong>Publishing permission</strong>
+        <span id="permissionLabel">Checking publishing permission…</span>
+        <button class="btn btn-outline" id="grantPermissionBtn" type="button">Unlock Publishing (15 minutes)</button>
+        <button class="btn btn-outline" id="revokePermissionBtn" type="button">Lock Publishing</button>
+      </div>
+      <div id="publishResults" class="notice" hidden></div>
+    </section>
+
     <!-- DISCOVERY STATISTICS -->
     <section
       class="review-stats"
@@ -453,12 +505,26 @@
         id="statusFilter"
         aria-label="Filter status"
       >
+        <option value="active" selected>Pending and approved</option>
         <option value="pending">Pending review</option>
-        <option value="imported">Approved / imported</option>
+        <option value="approved">Approved, awaiting publication</option>
+        <option value="imported">Published</option>
         <option value="rejected">Rejected</option>
         <option value="all">All statuses</option>
       </select>
 
+      <select id="stageFilter" aria-label="Filter pipeline stage">
+        <option value="all">All pipeline stages</option>
+        <option value="DISCOVERED">Discovered</option>
+        <option value="IMAGE_PENDING">Image pending</option>
+        <option value="IMAGE_FAILED">Image failed</option>
+        <option value="NEEDS_DETAILS">Needs details</option>
+        <option value="READY_FOR_REVIEW">Ready for review</option>
+        <option value="APPROVED">Approved</option>
+        <option value="PUBLISH_FAILED">Publishing failed</option>
+        <option value="PUBLISHED">Published</option>
+        <option value="REJECTED">Rejected</option>
+      </select>
     </div>
 
 
@@ -472,6 +538,7 @@
         Loading discovered opportunities…
       </div>
     </section>
+    <button class="btn btn-outline" id="loadMoreBtn" type="button" hidden>Load more</button>
 
   </main>
 

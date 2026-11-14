@@ -516,6 +516,10 @@
   function openApproval(id) {
     const row = rows.find(x => x.id === id);
     if (!row) return;
+    if (!ownImage(row)) {
+      notice("Prepare and verify this opportunity's individual Storage image before approving it.", true);
+      return;
+    }
     $("discoveryId").value = row.id;
     $("title").value = row.title || "";
     $("organization").value = row.organization || "";
@@ -539,6 +543,11 @@
     if (op) { notice("Another operation is running. Please wait.", true); return; }
     if (!$("officialVerified").checked) { notice("Confirm the official-source checks first.", true); return; }
 
+    const sourceRow = rows.find(r => r.id === $("discoveryId").value);
+    if (!sourceRow || !ownImage(sourceRow)) {
+      notice("This record does not have a verified individual Storage image. Prepare its image before approval.", true);
+      return;
+    }
     const opportunity = {
       title: $("title").value.trim(), organization: $("organization").value.trim(),
       category: $("category").value, location: $("location").value.trim() || "Nigeria",
@@ -673,6 +682,7 @@
   function wire() {
     const on = (id, fn) => $(id)?.addEventListener("click", fn);
     on("startDiscoveryBtn", startDiscovery);
+    on("viewDiscoveredBtn", () => $("queue")?.scrollIntoView({ behavior: "smooth", block: "start" }));
     on("stopDiscoveryBtn", stopDiscovery);
     on("validateBtn", validateQueue);
     on("prepareImagesBtn", () => prepareImages(false));
