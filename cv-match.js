@@ -99,8 +99,9 @@
   }
 
   function init() {
-    var anchor = $("ai-extract-cv");
-    if (!anchor || $("ai-match-cv")) return;
+    var anchor = $("ai-extract-cv") || $("ai-review-cv") || $("ai-improve-cv");
+    if ($("ai-match-cv")) return true;
+    if (!anchor) return false;
     css();
     var btn = el("button", "button button-secondary", "Match Me to Opportunities");
     btn.type = "button"; btn.id = "ai-match-cv";
@@ -143,7 +144,14 @@
         panel.replaceChildren(el("p", "cvm-sub", "Network problem or timeout. Please try again."));
       }).then(function () { busy = false; btn.disabled = false; btn.textContent = label; });
     });
+    return true;
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+  function start() {
+    var tries = 0;
+    (function attempt() {
+      if (init() === false && ++tries < 40) setTimeout(attempt, 250);
+    })();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
