@@ -65,7 +65,7 @@
     panel.replaceChildren();
     panel.appendChild(el("h4", null, "Opportunities that fit your CV"));
     var p = data.profile || {};
-    var summary = [p.headline, p.level && ("Level: " + p.level)].filter(Boolean).join(" · ");
+    var summary = [p.headline, p.level && ("Level: " + p.level)].filter(Boolean).join(" \u00b7 ");
     if (summary) panel.appendChild(el("p", "cvm-sub", summary));
     if (p.skills && p.skills.length) {
       var chips = el("div", "cvm-chips");
@@ -83,7 +83,7 @@
       var a = el("a", null, m.title);
       a.href = "/opportunity-details.html?id=" + encodeURIComponent(m.id);
       li.appendChild(a);
-      var meta = [m.category, m.organization, m.deadline ? "Deadline " + fmtDate(m.deadline) : ""].filter(Boolean).join(" · ");
+      var meta = [m.category, m.organization, m.deadline ? "Deadline " + fmtDate(m.deadline) : ""].filter(Boolean).join(" \u00b7 ");
       if (meta) li.appendChild(el("p", "cvm-meta", meta));
       var cls = m.fit === "Strong match" ? "strong" : m.fit === "Good match" ? "good" : "possible";
       li.appendChild(el("span", "cvm-fit " + cls, m.fit));
