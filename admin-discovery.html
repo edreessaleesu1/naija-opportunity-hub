@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en-GB">
 <head>
@@ -106,7 +107,7 @@
   </style>
 
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/admin-discovery.js?v=20261114-4" defer></script>
+  <script src="/admin-discovery.js?v=20261115-1" defer></script>
 </head>
 <body>
   <main class="review-wrap">
@@ -137,6 +138,7 @@
         <div class="stat"><strong id="cntPublished">0</strong><span>Published</span></div>
         <div class="stat"><strong id="cntRejected">0</strong><span>Rejected</span></div>
       </div>
+
       <div class="noh-action-toolbar">
         <button class="btn btn-outline" id="viewDiscoveredBtn" type="button">View Discovered Opportunities</button>
         <button class="btn btn-outline" id="validateBtn" type="button">Validate &amp; Check Duplicates</button>
@@ -149,13 +151,16 @@
         <button class="btn btn-primary" id="publishSelectedBtn" type="button">Publish Approved (0)</button>
         <button class="btn btn-outline" id="viewPublishLogBtn" type="button">View Publishing Results</button>
       </div>
+
       <p id="selectionLabel" class="muted">No records selected.</p>
+
       <div class="noh-permission">
         <strong>Publishing permission</strong>
         <span id="permissionLabel">Checking publishing permission…</span>
         <button class="btn btn-outline" id="grantPermissionBtn" type="button">Unlock Publishing (15 minutes)</button>
         <button class="btn btn-outline" id="revokePermissionBtn" type="button">Lock Publishing</button>
       </div>
+
       <div id="publishResults" class="notice" hidden></div>
     </section>
 
@@ -167,14 +172,16 @@
 
     <div class="review-tools">
       <input id="searchInput" type="search" placeholder="Search titles or source names" aria-label="Search discovery queue">
+
       <select id="statusFilter" aria-label="Filter status">
-        <option value="active" selected>Pending and approved</option>
+        <option value="all" selected>All statuses (including published and rejected)</option>
+        <option value="active">Pending and approved</option>
         <option value="pending">Pending review</option>
         <option value="approved">Approved, awaiting publication</option>
         <option value="imported">Published</option>
         <option value="rejected">Rejected</option>
-        <option value="all">All statuses</option>
       </select>
+
       <select id="stageFilter" aria-label="Filter pipeline stage">
         <option value="all">All pipeline stages</option>
         <option value="DISCOVERED">Discovered</option>
@@ -192,6 +199,7 @@
     <section id="queue" class="queue" aria-live="polite">
       <div class="empty">Loading discovered opportunities…</div>
     </section>
+
     <button class="btn btn-outline" id="loadMoreBtn" type="button" hidden>Load more</button>
   </main>
 
