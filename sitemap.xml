@@ -2,44 +2,86 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://naijaopportunityhub.com.ng/</loc>
-    <lastmod>2026-11-07</lastmod>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://naijaopportunityhub.com.ng/how-we-verify.html</loc>
-    <lastmod>2026-11-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://naijaopportunityhub.com.ng/category.html</loc>
-    <lastmod>2026-11-07</lastmod>
+    <loc>https://naijaopportunityhub.com.ng/category</loc>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://naijaopportunityhub.com.ng/career-kit.html</loc>
-    <lastmod>2026-11-07</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://naijaopportunityhub.com.ng/category?c=Scholarship</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://naijaopportunityhub.com.ng/contact.html</loc>
-    <lastmod>2026-11-07</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://naijaopportunityhub.com.ng/category?c=Job</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://naijaopportunityhub.com.ng/privacy.html</loc>
-    <lastmod>2026-11-07</lastmod>
+    <loc>https://naijaopportunityhub.com.ng/category?c=Internship</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://naijaopportunityhub.com.ng/category?c=Fellowship</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://naijaopportunityhub.com.ng/category?c=Grant</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://naijaopportunityhub.com.ng/category?c=Training</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://naijaopportunityhub.com.ng/category?c=Volunteering</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://naijaopportunityhub.com.ng/career-kit</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://naijaopportunityhub.com.ng/how-we-verify</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://naijaopportunityhub.com.ng/contact</loc>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://naijaopportunityhub.com.ng/terms.html</loc>
-    <lastmod>2026-11-07</lastmod>
+    <loc>https://naijaopportunityhub.com.ng/privacy</loc>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://naijaopportunityhub.com.ng/terms</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
   </url>
 </urlset>
