@@ -8,6 +8,7 @@
 <meta name="description" content="Browse scholarships, jobs, internships, fellowships, grants, training and volunteering opportunities for Nigerians.">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/naija-opportunity-hub-logo.png">
+<link rel="stylesheet" href="/noh-cards.css?v=3">
 <style>
 :root{--bg:#f8eec9;--card:#fffdf6;--green:#075b3b;--green-d:#033c29;--gold:#c6a24a;--gold-d:#a9822d;--gold-l:#f6edcf;--gold-b:#e6d7a3;--text:#1c3026;--muted:#5d6b61}
 *{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}
@@ -62,19 +63,19 @@ footer a{display:inline-flex;align-items:center;min-height:40px;padding:0 8px;fo
     <select id="sort" aria-label="Sort"><option value="new">Newest first</option><option value="deadline">Closing soonest</option></select>
   </div>
   <p class="count" id="count" aria-live="polite"></p>
-  <div class="grid" id="grid"></div>
+  <div class="nlist" id="grid"></div>
   <button class="more hide" id="more" type="button">Show more</button>
 </main>
 
 <footer><div class="wrap">
-  <a href="/">Home</a><a href="/how-we-verify.html">How we check</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="#" data-noh-cookie-settings>Cookie settings</a>
+  <a href="/">Home</a><a href="/how-we-verify">How we check</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="#" data-noh-cookie-settings>Cookie settings</a>
 </div></footer>
 
 <script>
 (function(){
   var URL_="https://djxornmwvkauhkcuhgxc.supabase.co",KEY="sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
   var CATS=[["Scholarship","🎓","Scholarships"],["Job","💼","Jobs"],["Internship","💻","Internships"],["Fellowship","👥","Fellowships"],["Grant","💰","Grants"],["Training","🧑‍🏫","Training"],["Volunteering","💖","Volunteering"]];
-  var $=function(i){return document.getElementById(i)},all=[],list=[],shown=0,PAGE=12;
+  var $=function(i){return document.getElementById(i)},all=[],list=[],shown=0,PAGE=12,generic=new Set();
   function key(v){return String(v||"").toLowerCase().trim().replace(/s$/,"")}
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
   function safe(u){try{var x=new URL(u);return /^https?:$/.test(x.protocol)?x.href:""}catch(e){return ""}}
@@ -82,8 +83,8 @@ footer a{display:inline-flex;align-items:center;min-height:40px;padding:0 8px;fo
   var cur=CATS.find(function(c){return key(c[0])===key(want)||key(c[2])===key(want)})||null;
 
   function tabs(){
-    $("tabs").innerHTML='<a href="/category.html"'+(cur?'':' aria-current="page"')+'>All</a>'+CATS.map(function(c){
-      return'<a href="/category.html?c='+encodeURIComponent(c[0])+'"'+(cur&&cur[0]===c[0]?' aria-current="page"':'')+'><span aria-hidden="true">'+c[1]+'</span>'+esc(c[2])+'</a>'}).join("");
+    $("tabs").innerHTML='<a href="/category"'+(cur?'':' aria-current="page"')+'>All</a>'+CATS.map(function(c){
+      return'<a href="/category?c='+encodeURIComponent(c[0])+'"'+(cur&&cur[0]===c[0]?' aria-current="page"':'')+'><span aria-hidden="true">'+c[1]+'</span>'+esc(c[2])+'</a>'}).join("");
     var a=$("tabs").querySelector("[aria-current]");if(a&&a.scrollIntoView)a.scrollIntoView({inline:"center",block:"nearest"});
   }
   function title(){
@@ -91,15 +92,42 @@ footer a{display:inline-flex;align-items:center;min-height:40px;padding:0 8px;fo
     $("title").textContent=t;document.title=t+" | Naija Opportunity Hub";
     $("sub").textContent=cur?"Latest "+cur[2].toLowerCase()+" for Nigerians, with links to the official source.":"Every published opportunity, newest first.";
   }
-  function dl(d){if(!d)return"";var x=new Date(String(d).slice(0,10)+"T00:00:00");if(isNaN(x))return"";
-    var days=Math.ceil((x-new Date(new Date().toDateString()))/864e5);
-    if(days<0)return"Closed";if(days===0)return"Closes today";if(days<=14)return"Closes in "+days+" day"+(days>1?"s":"");
-    return"Closes "+x.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}
-  function card(o){
-    var img=safe(o.image_url),t=esc(o.title);
-    var im=img?'<img class="bd" src="'+esc(img)+'" alt="" aria-hidden="true" loading="lazy" onerror="this.remove()"><img class="mn" src="'+esc(img)+'" alt="" loading="lazy" onerror="this.remove()">':'<span class="ph" aria-hidden="true">'+esc((o.title||"?").charAt(0).toUpperCase())+'</span>';
-    return'<a class="card" href="/opportunity-details.html?id='+encodeURIComponent(o.id)+'"><div class="img">'+im+'</div><div class="body"><h2>'+t+'</h2><span class="org">'+esc(o.organization||"")+'</span>'+(o.verified_at?'<span class="vt">✓ Verified</span>':'')+'<span class="meta">'+esc(dl(o.deadline)||(o.location||""))+'</span></div></a>';
+  /* ---- Compact opportunity rows (shared helpers) ---- */
+  const NR_ICON = { scholarship: "🎓", job: "💼", internship: "💻", fellowship: "👥", grant: "💰", training: "🧑‍🏫", volunteering: "💖", other: "📋" };
+  function nrKey(c) { const k = String(c || "").toLowerCase().trim().replace(/s$/, ""); return NR_ICON[k] ? k : "other"; }
+  function nrEsc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function nrDeadline(d) {
+    if (!d) return { text: "Ongoing", cls: "" };
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d));
+    const x = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(d);
+    if (isNaN(x)) return { text: "Ongoing", cls: "" };
+    const t = new Date(); t.setHours(0, 0, 0, 0);
+    const n = Math.round((x - t) / 864e5);
+    if (n < 0) return { text: "Closed", cls: "is-closed" };
+    if (n === 0) return { text: "Closes today", cls: "is-soon" };
+    if (n === 1) return { text: "Closes tomorrow", cls: "is-soon" };
+    if (n <= 7) return { text: "Closes in " + n + " days", cls: "is-soon" };
+    return { text: "Closes " + x.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }), cls: "" };
   }
+  // An image used by more than two listings is a generic source photo, so it is not shown.
+  function nrGeneric(items) {
+    const c = {}; items.forEach(i => { if (i.image_url) c[i.image_url] = (c[i.image_url] || 0) + 1; });
+    const s = new Set(); Object.keys(c).forEach(u => { if (c[u] > 2) s.add(u); }); return s;
+  }
+  function nrRow(o, opt) {
+    opt = opt || {};
+    const k = nrKey(o.category), url = nrEsc(opt.href), id = nrEsc(o.id);
+    const img = o.image_url && !(opt.generic && opt.generic.has(o.image_url)) ? nrEsc(o.image_url) : "";
+    const imgs = img
+      ? `<img class="bd" src="${img}" alt="" loading="lazy" onerror="this.remove()"><img class="mn" src="${img}" alt="" loading="lazy" onerror="this.parentNode.classList.add('is-broken');this.remove()">`
+      : "";
+    const dl = nrDeadline(o.deadline);
+    const save = opt.save
+      ? `<button type="button" class="nsave${opt.saved ? " is-saved" : ""}" data-action="save" data-id="${id}" aria-pressed="${!!opt.saved}" aria-label="${opt.saved ? "Remove from saved" : "Save opportunity"}">${opt.saved ? "♥" : "♡"}</button>`
+      : "";
+    return `<article class="nrow" data-id="${id}"><a class="nthumb nt-${k}" href="${url}" tabindex="-1" aria-hidden="true">${imgs}<i class="nicon">${NR_ICON[k]}</i></a><div class="nbody${opt.save ? " has-save" : ""}"><h3 class="ntitle"><a href="${url}">${nrEsc(o.title)}</a></h3><div class="norg">${nrEsc(o.organization || "")}</div><div class="nmeta"><span class="nchip ${dl.cls}">${nrEsc(dl.text)}</span></div></div>${save}</article>`;
+  }
+  function card(o){return nrRow(o,{href:"/opportunity-details?id="+encodeURIComponent(o.id),generic:generic})}
   function apply(){
     var q=$("q").value.toLowerCase().trim();
     list=all.filter(function(o){return(!cur||key(o.category)===key(cur[0]))&&(!q||((o.title||"")+" "+(o.organization||"")).toLowerCase().indexOf(q)>-1)});
@@ -118,13 +146,13 @@ footer a{display:inline-flex;align-items:center;min-height:40px;padding:0 8px;fo
   $("sort").addEventListener("change",apply);
   tabs();title();
   fetch(URL_+"/rest/v1/opportunities?select=id,title,organization,category,location,deadline,image_url,verified_at,created_at&status=eq.published&order=created_at.desc&limit=1000",{headers:{apikey:KEY,Authorization:"Bearer "+KEY}})
-   .then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){all=Array.isArray(d)?d:[];apply()})
+   .then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){all=Array.isArray(d)?d:[];generic=nrGeneric(all);apply()})
    .catch(function(){$("sub").textContent="We could not load opportunities. Please check your connection and try again."});
 })();
 </script>
 <script defer src="/noh-extras.js?v=1"></script>
 <script defer src="/consent.js"></script>
-  <script defer src="/noh-scroll.js?v=1"></script>
+  <script defer src="/noh-scroll.js?v=2"></script>
   <script src="/noh-canonical.js"></script>
 </body>
 </html>
