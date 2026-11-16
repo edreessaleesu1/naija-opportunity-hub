@@ -17,7 +17,7 @@
   const TABLE_NAME = "opportunities";
 
   // Relative link, so it works on every domain the site is served from.
-  const DETAILS_PAGE = "opportunity-details.html";
+  const DETAILS_PAGE = "/opportunity-details";
 
   const PAGE_SIZE = 10;                 // latest list: items per numbered page
   const DEFAULT_VISIBLE_COUNT = 6;      // flat results (search / one category)
@@ -35,6 +35,42 @@
     { key: "volunteering", label: "Volunteering", icon: "💖", tint: "tint-pink" },
     { key: "other", label: "Other Opportunities", icon: "📋", tint: "tint-blue" }
   ];
+    /* ---- Compact opportunity rows (shared helpers) ---- */
+  const NR_ICON = { scholarship: "🎓", job: "💼", internship: "💻", fellowship: "👥", grant: "💰", training: "🧑‍🏫", volunteering: "💖", other: "📋" };
+  function nrKey(c) { const k = String(c || "").toLowerCase().trim().replace(/s$/, ""); return NR_ICON[k] ? k : "other"; }
+  function nrEsc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function nrDeadline(d) {
+    if (!d) return { text: "Ongoing", cls: "" };
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d));
+    const x = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(d);
+    if (isNaN(x)) return { text: "Ongoing", cls: "" };
+    const t = new Date(); t.setHours(0, 0, 0, 0);
+    const n = Math.round((x - t) / 864e5);
+    if (n < 0) return { text: "Closed", cls: "is-closed" };
+    if (n === 0) return { text: "Closes today", cls: "is-soon" };
+    if (n === 1) return { text: "Closes tomorrow", cls: "is-soon" };
+    if (n <= 7) return { text: "Closes in " + n + " days", cls: "is-soon" };
+    return { text: "Closes " + x.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }), cls: "" };
+  }
+  // An image used by more than two listings is a generic source photo, so it is not shown.
+  function nrGeneric(items) {
+    const c = {}; items.forEach(i => { if (i.image_url) c[i.image_url] = (c[i.image_url] || 0) + 1; });
+    const s = new Set(); Object.keys(c).forEach(u => { if (c[u] > 2) s.add(u); }); return s;
+  }
+  function nrRow(o, opt) {
+    opt = opt || {};
+    const k = nrKey(o.category), url = nrEsc(opt.href), id = nrEsc(o.id);
+    const img = o.image_url && !(opt.generic && opt.generic.has(o.image_url)) ? nrEsc(o.image_url) : "";
+    const imgs = img
+      ? `<img class="mn" src="${img}" alt="" width="88" height="88" loading="lazy" decoding="async" onerror="this.parentNode.classList.add('is-broken');this.remove()">`
+      : "";
+    const dl = nrDeadline(o.deadline);
+    const save = opt.save
+      ? `<button type="button" class="nsave${opt.saved ? " is-saved" : ""}" data-action="save" data-id="${id}" aria-pressed="${!!opt.saved}" aria-label="${opt.saved ? "Remove from saved" : "Save opportunity"}">${opt.saved ? "♥" : "♡"}</button>`
+      : "";
+    return `<article class="nrow" data-id="${id}"><a class="nthumb nt-${k}" href="${url}" tabindex="-1" aria-hidden="true">${imgs}<i class="nicon">${NR_ICON[k]}</i></a><div class="nbody${opt.save ? " has-save" : ""}"><h3 class="ntitle"><a href="${url}">${nrEsc(o.title)}</a></h3><div class="norg">${nrEsc(o.organization || "")}</div><div class="nmeta"><span class="nchip ${dl.cls}">${nrEsc(dl.text)}</span></div></div>${save}</article>`;
+  }
+
   const FALLBACK_IMAGE =
     "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&auto=format&fit=crop&q=80";
   const DEBUG = new URLSearchParams(location.search).get("debug") === "1";
@@ -68,6 +104,7 @@
   let showAll = false;
   let currentPage = 1;
   let isLoading = false;
+  let genericImages = new Set();
   let toastTimer = null;
   const expandedSections = new Set();
 
@@ -302,6 +339,7 @@
       }
 
       allOpportunities = data.map(normaliseOpportunity).filter(item => item.id);
+      genericImages = nrGeneric(allOpportunities);
       debugLog("Loaded opportunities:", allOpportunities.length);
 
       populateCategorySelect();
@@ -443,65 +481,11 @@
      Card = clickable image + clickable title + Save button.
      ------------------------------------------------------------------ */
   function createOpportunityCard(item) {
-    const id = escapeHTML(item.id);
-    const title = escapeHTML(item.title);
-    const url = escapeHTML(detailsURL(item.id));
-    const image = escapeHTML(item.image_url || FALLBACK_IMAGE);
-    const saved = isSaved(item.id);
-
-    return `
-      <article class="opportunity-card" data-id="${id}">
-        <div class="opportunity-image">
-          <a class="opportunity-image-link" href="${url}" aria-label="View ${title}">
-            <img class="banner-backdrop" src="${image}" alt="" aria-hidden="true" loading="lazy" onerror="this.remove()">
-            <img
-              class="banner-main"
-              src="${image}"
-              alt="${title}"
-              loading="lazy"
-              onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'"
-            >
-          </a>
-        </div>
-
-        <div class="opportunity-content">
-          <h3 class="opportunity-title">
-            <a class="opportunity-title-link" href="${url}">${title}</a>
-          </h3>
-
-          <button
-            type="button"
-            class="save-btn ${saved ? "is-saved" : ""}"
-            data-action="save"
-            data-id="${id}"
-            aria-pressed="${saved}"
-          >${saved ? "✓ Saved" : "Save Opportunity"}</button>
-        </div>
-      </article>`;
+    return nrRow(item, { href: detailsURL(item.id), save: true, saved: isSaved(item.id), generic: genericImages });
   }
 
-  // List row (used by the Internships section): small image, title, Save link.
   function createOpportunityRow(item, withSave = true) {
-    const id = escapeHTML(item.id);
-    const title = escapeHTML(item.title);
-    const url = escapeHTML(detailsURL(item.id));
-    const image = escapeHTML(item.image_url || FALLBACK_IMAGE);
-    const saved = isSaved(item.id);
-
-    return `
-      <article class="opportunity-row" data-id="${id}">
-        <a class="opportunity-row-image" href="${url}" aria-label="View ${title}">
-          <img class="banner-backdrop" src="${image}" alt="" aria-hidden="true" loading="lazy" onerror="this.remove()">
-          <img class="banner-main" src="${image}" alt="${title}" loading="lazy"
-            onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'">
-        </a>
-        <div class="opportunity-row-body">
-          <h4 class="opportunity-row-title"><a href="${url}">${title}</a></h4>
-          ${withSave ? `<button type="button" class="save-link ${saved ? "is-saved" : ""}"
-            data-action="save" data-id="${id}" aria-pressed="${saved}"
-          >${saved ? "✓ Saved" : "+ Save"}</button>` : ""}
-        </div>
-      </article>`;
+    return nrRow(item, { href: detailsURL(item.id), save: withSave, saved: isSaved(item.id), generic: genericImages });
   }
 
   // Sections show when nothing is searched or filtered.
@@ -558,19 +542,8 @@
           data-section-toggle="${key}"
           aria-expanded="${expanded}"
           aria-controls="category-${slug}"
-        >${expanded ? "View Less" : `View More (${extra} more)`}</button>
+        >${expanded ? "Show less" : `Show ${extra} more`}</button>
       </div>` : "";
-
-    if (LIST_CATEGORIES.has(group.key)) {
-      return `
-        <section class="category-section category-section--list" id="category-${slug}" aria-labelledby="category-${slug}-title">
-          <h3 class="list-section-title" id="category-${slug}-title">${escapeHTML(label)}</h3>
-          <div class="opportunity-list">
-            ${visible.map(i => createOpportunityRow(i)).join("")}
-          </div>
-          ${toggle}
-        </section>`;
-    }
 
     return `
       <section class="category-section" id="category-${slug}" aria-labelledby="category-${slug}-title">
@@ -582,7 +555,7 @@
           </div>
         </div>
 
-        <div class="opportunity-grid category-grid">
+        <div class="nlist">
           ${visible.map(createOpportunityCard).join("")}
         </div>
         ${toggle}
@@ -638,8 +611,8 @@
     el.grid.innerHTML = hasResults ? `
       <section class="category-section category-section--list latest-panel" aria-label="Latest opportunities">
         ${browse ? `<h3 class="list-section-title latest-title" id="latestTitle">Latest opportunities</h3>` : ""}
-        <div class="opportunity-list">
-          ${visible.map(i => createOpportunityRow(i, false)).join("")}
+        <div class="nlist">
+          ${visible.map(i => createOpportunityRow(i, true)).join("")}
         </div>
       </section>` : "";
 
@@ -680,10 +653,10 @@
       el.grid.insertAdjacentElement("afterend", nav);
       nav.addEventListener("click", event => {
         if (!event.target.closest("[data-more]")) return;
-        const before = el.grid.querySelectorAll(".opportunity-row").length;
+        const before = el.grid.querySelectorAll(".nrow").length;
         currentPage += 1;
         renderOpportunities();
-        el.grid.querySelectorAll(".opportunity-row")[before]
+        el.grid.querySelectorAll(".nrow")[before]
           ?.querySelector("a")?.focus({ preventScroll: false });
       });
     }
@@ -691,7 +664,7 @@
     if (left <= 0) { nav.innerHTML = ""; nav.hidden = true; return; }
     nav.hidden = false;
     const next = Math.min(PAGE_SIZE, left);
-    nav.innerHTML = `<button type="button" class="button button-outline" data-more>Load more (${left} left)</button>`;
+    nav.innerHTML = `<button type="button" class="button button-outline" data-more>Show more (${left} left)</button>`;
   }
 
   function syncCategoryButtons() {
