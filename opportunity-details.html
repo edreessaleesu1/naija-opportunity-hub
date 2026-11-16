@@ -13,6 +13,7 @@
 
   <title>Opportunity Details | Naija Opportunity Hub</title>
 
+  <link rel="stylesheet" href="/noh-cards.css?v=3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -737,6 +738,56 @@
         scroll-behavior: auto !important;
       }
     }
+    /* ===== v9 redesign ===== */
+    .header-inner{min-height:60px}
+    .brand-name{white-space:nowrap}
+    .back-link{white-space:nowrap;padding:8px 14px;border:1px solid var(--border);border-radius:99px;background:#fff}
+    .hero-image{height:260px}
+    .hero-content{padding:26px 28px}
+    .opportunity-title{font-size:clamp(1.5rem,3.2vw,2.1rem)}
+    .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .verified,.unverified{margin:0;padding:4px 12px;border-radius:99px;font-size:.76rem;font-weight:700;line-height:1.5;border-style:solid;border-width:1px;display:none}
+    .verified.visible{display:inline-flex}
+    .unverified{display:inline-block;border:1px dashed #c6a24a;background:#fffdf6;color:#5d4a17}
+    .unverified[hidden]{display:none}
+    .closed-notice{margin-top:14px}
+    .facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin-top:20px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .fact{padding:12px 14px;background:#fffdf6;min-width:0}
+    .fact span{display:block;color:var(--muted);font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+    .fact strong{display:block;margin-top:2px;color:var(--green-deep);font-size:.88rem;line-height:1.35;overflow-wrap:anywhere}
+    .fact em{display:block;font-style:normal;font-size:.75rem;font-weight:800;color:var(--gold-dark)}
+    .fact.soon em{color:#9b2c2c}.fact.closed em{color:var(--danger)}
+    .info-card{margin-top:18px}
+    .info-card .plain p{margin:0 0 14px;color:#3d4c43;font-size:.95rem;line-height:1.8;white-space:pre-line}
+    .info-card .plain p:last-child{margin-bottom:0}
+    .info-card .plain p b{display:block;margin-bottom:2px;color:var(--green-dark);font-size:.82rem;letter-spacing:.05em;text-transform:uppercase}
+    .more-like{margin-top:26px}
+    .more-like h2{margin-bottom:12px;color:var(--green-deep);font-size:1.12rem;font-weight:800}
+    .more-all{display:inline-block;margin-top:14px;color:var(--green);font-weight:800;font-size:.88rem}
+    .apply-bar{display:none}
+    .noh-wa{bottom:86px !important}
+    @media(max-width:900px){
+      .facts{grid-template-columns:1fr 1fr}
+      .sidebar .deadline-box,.sidebar .action-card .apply-button,.sidebar .quick-info{display:none}
+      .action-card{padding:16px;box-shadow:none}
+      .action-card h2{display:none}
+      .action-card .secondary-button{margin-top:8px}
+      .apply-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(12,48,33,.1)}
+      .apply-bar small{display:block;color:var(--muted);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+      .apply-bar strong{display:block;color:var(--green-deep);font-size:.86rem;line-height:1.3}
+      .apply-bar .apply-button{width:auto;min-width:150px;flex:none}
+      body{padding-bottom:78px}
+    }
+    @media(max-width:600px){
+      .header-inner{min-height:56px}
+      .brand-tagline{display:none}
+      .brand-name{font-size:.86rem}
+      .breadcrumb{display:none}
+      .hero-image{height:170px}
+      .hero-content{padding:18px}
+      .details-layout{padding-top:14px}
+      .back-link{max-width:none;font-size:.78rem}
+    }
   </style>
 
   <!-- Supabase library must load before auth.js -->
@@ -750,9 +801,9 @@
   <header class="details-header">
     <div class="wrap header-inner">
 
-      <a href="index.html" class="brand">
+      <a href="/" class="brand">
         <img
-          src="naija-opportunity-hub-logo.png"
+          src="/naija-opportunity-hub-logo.png"
           alt="Naija Opportunity Hub logo"
           onerror="this.style.display='none'"
         >
@@ -763,9 +814,7 @@
         </span>
       </a>
 
-      <a href="index.html#opportunities" class="back-link">
-        ← Back to Opportunities
-      </a>
+      <a href="/category" class="back-link" id="backLink">← All opportunities</a>
 
     </div>
   </header>
@@ -775,9 +824,9 @@
     <!-- BREADCRUMB -->
 
     <nav class="breadcrumb" aria-label="Breadcrumb">
-      <a href="index.html">Home</a>
+      <a href="/">Home</a>
       /
-      <a href="/category.html">Opportunities</a>
+      <a href="/category">Opportunities</a>
       /
       <span>Details</span>
     </nav>
@@ -796,7 +845,7 @@
       <h2 id="errorTitle">Opportunity unavailable</h2>
       <p id="errorMessage">We could not retrieve this opportunity.</p>
 
-      <a href="index.html#opportunities" class="apply-button">
+      <a href="/#opportunities" class="apply-button">
         Return to Opportunities
       </a>
     </section>
@@ -829,15 +878,12 @@
 
             <p id="opportunityOrganisation" class="organisation"></p>
 
-            <p id="verifiedLabel" class="verified">
-              <span>✓ Verified <span id="verifiedDateText"></span></span>
-              <a href="/how-we-verify.html">How we check</a>
-            </p>
-
-            <p id="unverifiedNote" class="unverified" hidden>
-              Not verified yet. Please confirm the details on the official
-              website before you apply. <a href="/how-we-verify.html">How we check</a>
-            </p>
+            <div class="chip-row">
+              <span id="verifiedLabel" class="verified">
+                <span>✓ Verified <span id="verifiedDateText"></span></span>
+              </span>
+              <span id="unverifiedNote" class="unverified" hidden>Not verified yet. Confirm details on the official site. <a href="/how-we-verify">How we check</a></span>
+            </div>
 
             <p id="closedNotice" class="closed-notice" role="status" hidden>
               This opportunity is now closed and is kept here for reference.
@@ -846,53 +892,34 @@
               <a id="closedMore" href="/category">See open opportunities</a>
             </p>
 
+            <div class="facts" id="facts">
+              <div class="fact" id="factDeadline"><span>Deadline</span><strong id="factDeadlineVal">Not specified</strong><em id="factCountdown"></em></div>
+              <div class="fact" id="factLocation"><span>Location</span><strong id="factLocationVal">Not specified</strong></div>
+              <div class="fact"><span>Category</span><strong id="factCategoryVal">—</strong></div>
+              <div class="fact" id="factPosted"><span>Posted</span><strong id="factPostedVal">—</strong></div>
+            </div>
+
           </div>
 
         </article>
 
-        <!-- DESCRIPTION -->
+        <!-- DESCRIPTION (one plain-text block) -->
 
         <section class="info-card">
-          <h2>About This Opportunity</h2>
-          <p id="opportunityDescription">
-            Opportunity description will appear here.
-          </p>
-        </section>
-
-        <!-- ELIGIBILITY -->
-
-        <section class="info-card" id="eligibilitySection" hidden>
-          <h2>Eligibility Requirements</h2>
-          <p id="opportunityEligibility"></p>
+          <h2>About this opportunity</h2>
+          <div class="plain" id="opportunityDescription">
+            <p>Opportunity description will appear here.</p>
+          </div>
         </section>
 
         <div class="noh-ad" data-ad-slot="" hidden></div>
 
-        <!-- ADDITIONAL INFORMATION -->
+        <!-- MORE LIKE THIS -->
 
-        <section class="info-card">
-          <h2>Opportunity Information</h2>
-
-          <div class="detail-row" id="locationRow" hidden>
-            <span class="detail-label">Location</span>
-            <span class="detail-value" id="opportunityLocation"></span>
-          </div>
-
-          <div class="detail-row" id="deadlineRow" hidden>
-            <span class="detail-label">Application deadline</span>
-            <span class="detail-value" id="opportunityDeadline"></span>
-          </div>
-
-          <div class="detail-row" id="createdRow" hidden>
-            <span class="detail-label">Published</span>
-            <span class="detail-value" id="opportunityCreated"></span>
-          </div>
-
-          <div class="detail-row" id="verifiedRow" hidden>
-            <span class="detail-label">Last verified</span>
-            <span class="detail-value" id="opportunityVerified"></span>
-          </div>
-
+        <section class="more-like" id="moreLike" hidden>
+          <h2>More like this</h2>
+          <div class="nlist" id="moreList"></div>
+          <a class="more-all" id="moreAll" href="/category">See all →</a>
         </section>
 
       </div>
@@ -912,7 +939,7 @@
 
           <a
             id="applyButton"
-            class="apply-button"
+            class="apply-button js-apply"
             href="#"
             target="_blank"
             rel="noopener noreferrer"
@@ -940,16 +967,9 @@
           </button>
 
           <a
-            href="index.html#opportunities"
-            class="secondary-button"
-          >
-            ← Browse More Opportunities
-          </a>
-
-          <a
             id="reportLink"
             class="source-link"
-            href="/contact.html?subject=report"
+            href="/contact?subject=report"
           >
             Report a problem with this listing
           </a>
@@ -967,37 +987,16 @@
 
         </section>
 
-        <section class="quick-info">
-
-          <h3>Quick Overview</h3>
-
-          <p>
-            <strong>Category</strong>
-            <span id="quickCategory">—</span>
-          </p>
-
-          <p>
-            <strong>Organisation</strong>
-            <span id="quickOrganisation">—</span>
-          </p>
-
-          <p>
-            <strong>Location</strong>
-            <span id="quickLocation">—</span>
-          </p>
-
-          <p>
-            <strong>Status</strong>
-            <span id="quickStatus">Published</span>
-          </p>
-
-        </section>
-
       </aside>
 
     </div>
 
   </main>
+
+  <div class="apply-bar" id="applyBar">
+    <div><small>Deadline</small><strong id="barDeadline">Not specified</strong></div>
+    <a id="applyButtonBar" class="apply-button js-apply" href="#" target="_blank" rel="noopener noreferrer">Apply Now →</a>
+  </div>
 
   <!-- FOOTER -->
 
@@ -1053,6 +1052,43 @@
     const bookmarkButton = $("bookmarkButton");
 
     let currentOpportunityId = null;
+
+    /* ---- Compact opportunity rows (shared helpers) ---- */
+    const NR_ICON = { scholarship: "🎓", job: "💼", internship: "💻", fellowship: "👥", grant: "💰", training: "🧑‍🏫", volunteering: "💖", other: "📋" };
+    function nrKey(c) { const k = String(c || "").toLowerCase().trim().replace(/s$/, ""); return NR_ICON[k] ? k : "other"; }
+    function nrEsc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+    function nrDeadline(d) {
+      if (!d) return { text: "Ongoing", cls: "" };
+      const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d));
+      const x = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(d);
+      if (isNaN(x)) return { text: "Ongoing", cls: "" };
+      const t = new Date(); t.setHours(0, 0, 0, 0);
+      const n = Math.round((x - t) / 864e5);
+      if (n < 0) return { text: "Closed", cls: "is-closed" };
+      if (n === 0) return { text: "Closes today", cls: "is-soon" };
+      if (n === 1) return { text: "Closes tomorrow", cls: "is-soon" };
+      if (n <= 7) return { text: "Closes in " + n + " days", cls: "is-soon" };
+      return { text: "Closes " + x.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }), cls: "" };
+    }
+    // An image used by more than two listings is a generic source photo, so it is not shown.
+    function nrGeneric(items) {
+      const c = {}; items.forEach(i => { if (i.image_url) c[i.image_url] = (c[i.image_url] || 0) + 1; });
+      const s = new Set(); Object.keys(c).forEach(u => { if (c[u] > 2) s.add(u); }); return s;
+    }
+    function nrRow(o, opt) {
+      opt = opt || {};
+      const k = nrKey(o.category), url = nrEsc(opt.href), id = nrEsc(o.id);
+      const img = o.image_url && !(opt.generic && opt.generic.has(o.image_url)) ? nrEsc(o.image_url) : "";
+      const imgs = img
+        ? `<img class="bd" src="${img}" alt="" loading="lazy" onerror="this.remove()"><img class="mn" src="${img}" alt="" loading="lazy" onerror="this.parentNode.classList.add('is-broken');this.remove()">`
+        : "";
+      const dl = nrDeadline(o.deadline);
+      const save = opt.save
+        ? `<button type="button" class="nsave${opt.saved ? " is-saved" : ""}" data-action="save" data-id="${id}" aria-pressed="${!!opt.saved}" aria-label="${opt.saved ? "Remove from saved" : "Save opportunity"}">${opt.saved ? "♥" : "♡"}</button>`
+        : "";
+      return `<article class="nrow" data-id="${id}"><a class="nthumb nt-${k}" href="${url}" tabindex="-1" aria-hidden="true">${imgs}<i class="nicon">${NR_ICON[k]}</i></a><div class="nbody${opt.save ? " has-save" : ""}"><h3 class="ntitle"><a href="${url}">${nrEsc(o.title)}</a></h3><div class="norg">${nrEsc(o.organization || "")}</div><div class="nmeta"><span class="nchip ${dl.cls}">${nrEsc(dl.text)}</span></div></div>${save}</article>`;
+    }
+
 
     const setText = (id, value) => {
       const element = $(id);
@@ -1381,56 +1417,119 @@
 
     /* DISPLAY OPPORTUNITY */
 
+    function setApply(el, url, closed) {
+      if (!el) return;
+      if (url && !closed) {
+        el.href = url;
+        el.classList.remove("disabled");
+        el.removeAttribute("aria-disabled");
+        el.textContent = "Apply Now →";
+      } else {
+        el.removeAttribute("href");
+        el.classList.add("disabled");
+        el.setAttribute("aria-disabled", "true");
+        el.textContent = closed ? "Applications Closed" : "Application Link Unavailable";
+      }
+    }
+
+    // One plain-text block: description, then eligibility, as paragraphs.
+    function buildDescription(data) {
+      const box = $("opportunityDescription");
+      box.textContent = "";
+      const add = (label, text) => {
+        text = String(text || "").trim();
+        if (!text) return;
+        text.split(/\n{2,}/).forEach((part, i) => {
+          const p = document.createElement("p");
+          if (label && i === 0) {
+            const b = document.createElement("b");
+            b.textContent = label;
+            p.appendChild(b);
+          }
+          p.appendChild(document.createTextNode(part.trim()));
+          box.appendChild(p);
+        });
+      };
+      const desc = String(data.description || "").trim();
+      const elig = String(data.eligibility || "").trim();
+      add("", desc || "No description has been provided yet.");
+      const probe = elig.replace(/\s+/g, " ").slice(0, 40).toLowerCase();
+      if (elig && !desc.replace(/\s+/g, " ").toLowerCase().includes(probe)) add("Who can apply", elig);
+    }
+
+    async function loadMoreLike(data) {
+      try {
+        const q = new URLSearchParams({
+          select: "id,title,organization,category,deadline,image_url",
+          status: "eq.published",
+          id: "neq." + data.id,
+          category: "eq." + (data.category || "Other"),
+          order: "created_at.desc",
+          limit: "12"
+        });
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE_NAME}?${q}`, {
+          headers: { apikey: SUPABASE_PUBLISHABLE_KEY, Accept: "application/json" }
+        });
+        const rows = r.ok ? await r.json() : [];
+        const t = new Date(); t.setHours(0, 0, 0, 0);
+        const open = rows.filter(o => !o.deadline || (parseDate(o.deadline) || t) >= t).slice(0, 4);
+        if (!open.length) return;
+        const generic = nrGeneric(rows);
+        $("moreList").innerHTML = open.map(o =>
+          nrRow(o, { href: "/opportunity-details?id=" + encodeURIComponent(o.id), generic })
+        ).join("");
+        const cat = data.category || "";
+        $("moreAll").href = "/category" + (cat ? "?c=" + encodeURIComponent(cat) : "");
+        $("moreAll").textContent = "See all " + (cat ? cat.toLowerCase() + " opportunities" : "opportunities") + " →";
+        $("moreLike").hidden = false;
+      } catch (e) { /* the list is optional */ }
+    }
+
+    async function hideGenericHero(url, heroBox) {
+      try {
+        const r = await fetch(
+          `${SUPABASE_URL}/rest/v1/${TABLE_NAME}?select=id&image_url=eq.${encodeURIComponent(url)}&limit=3`,
+          { headers: { apikey: SUPABASE_PUBLISHABLE_KEY, Accept: "application/json" } }
+        );
+        const rows = r.ok ? await r.json() : [];
+        if (rows.length > 2) heroBox.classList.add("no-image");
+      } catch (e) { /* keep the image */ }
+    }
+
     function displayOpportunity(data) {
       initialiseBookmarkButton(data.id);
 
       const reportLink = $("reportLink");
-
       if (reportLink) {
-        reportLink.href =
-          "/contact.html?subject=report&ref=" + encodeURIComponent(data.id);
+        reportLink.href = "/contact?subject=report&ref=" + encodeURIComponent(data.id);
       }
 
-      setText(
-        "opportunityTitle",
-        data.title || "Untitled opportunity"
-      );
+      const isClosed = data.status === "closed";
+      const dl = nrDeadline(data.deadline);
 
-      setText(
-        "opportunityCategory",
-        data.category || "Opportunity"
-      );
+      setText("opportunityTitle", data.title || "Untitled opportunity");
+      setText("opportunityCategory", data.category || "Opportunity");
+      setText("opportunityOrganisation", data.organization || "Organisation not specified");
+      buildDescription(data);
 
-      setText(
-        "opportunityOrganisation",
-        data.organization || "Organisation not specified"
-      );
+      /* FACTS */
 
-      setText(
-        "opportunityDescription",
-        data.description || "No description has been provided yet."
-      );
+      const deadline = formatDate(data.deadline);
+      setText("factDeadlineVal", deadline || "Not specified");
+      setText("factCountdown", deadline ? dl.text : "");
+      $("factDeadline").classList.toggle("soon", dl.cls === "is-soon");
+      $("factDeadline").classList.toggle("closed", dl.cls === "is-closed" || isClosed);
+      setText("factLocationVal", data.location || "Not specified");
+      setText("factCategoryVal", data.category || "Not specified");
+      setText("factPostedVal", formatDate(data.created_at) || "—");
 
-      setText(
-        "quickCategory",
-        data.category || "Not specified"
-      );
-
-      setText(
-        "quickOrganisation",
-        data.organization || "Not specified"
-      );
-
-      setText(
-        "quickLocation",
-        data.location || "Not specified"
-      );
+      const barText = deadline ? `${deadline}${dl.cls === "is-closed" || isClosed ? " (closed)" : ""}` : "No deadline listed";
+      setText("barDeadline", barText);
 
       /* IMAGE */
 
       const imageURL = safeURL(data.image_url);
       const image = $("opportunityImage");
-
       const backdrop = $("opportunityBackdrop");
       const heroBox = image.parentElement;
       heroBox.classList.toggle("no-image", !imageURL);
@@ -1442,125 +1541,48 @@
 
       if (imageURL) {
         image.alt = data.title || "Opportunity image";
-
         backdrop.onload = () => backdrop.classList.add("loaded");
         backdrop.onerror = () => backdrop.classList.remove("loaded");
         backdrop.src = imageURL;
-
         image.onload = () => image.classList.add("loaded");
         image.onerror = () => {
           image.classList.remove("loaded");
           backdrop.classList.remove("loaded");
           heroBox.classList.add("no-image");
         };
-
         image.src = imageURL;
+        hideGenericHero(imageURL, heroBox);
       }
 
-      /* ELIGIBILITY */
-
-      if (data.eligibility) {
-        setText("opportunityEligibility", data.eligibility);
-        $("eligibilitySection").hidden = false;
-      } else {
-        $("eligibilitySection").hidden = true;
-      }
-
-      /* LOCATION */
-
-      if (data.location) {
-        setText("opportunityLocation", data.location);
-        $("locationRow").hidden = false;
-      } else {
-        $("locationRow").hidden = true;
-      }
-
-      /* DEADLINE */
-
-      const deadline = formatDate(data.deadline);
+      /* SIDEBAR DEADLINE */
 
       $("deadlineBox").classList.remove("expired");
-
-      if (deadline) {
-        setText("opportunityDeadline", deadline);
-        setText("sidebarDeadline", deadline);
-
-        $("deadlineRow").hidden = false;
-
-        const deadlineDate = parseDate(data.deadline);
-        const today = new Date();
-
-        today.setHours(0, 0, 0, 0);
-
-        if (deadlineDate) {
-          deadlineDate.setHours(0, 0, 0, 0);
-
-          if (deadlineDate < today) {
-            $("deadlineBox").classList.add("expired");
-
-            setText(
-              "sidebarDeadline",
-              `${deadline} — Deadline passed`
-            );
-          }
-        }
-
-      } else {
-        $("deadlineRow").hidden = true;
-        setText("sidebarDeadline", "Not specified");
+      setText("sidebarDeadline", deadline || "Not specified");
+      if (isClosed || dl.cls === "is-closed") {
+        $("deadlineBox").classList.add("expired");
+        if (deadline) setText("sidebarDeadline", `${deadline} — Closed`);
       }
 
-      /* PUBLISHED DATE */
-
-      const publishedDate = formatDate(data.created_at);
-
-      if (publishedDate) {
-        setText("opportunityCreated", publishedDate);
-        $("createdRow").hidden = false;
-      } else {
-        $("createdRow").hidden = true;
-      }
-
-      /* VERIFICATION DATE */
+      /* VERIFICATION */
 
       const verifiedDate = formatDate(data.verified_at);
-
       if (verifiedDate) {
-        setText("opportunityVerified", verifiedDate);
-        $("verifiedRow").hidden = false;
         $("verifiedLabel").classList.add("visible");
         setText("verifiedDateText", "on " + verifiedDate);
         $("unverifiedNote").hidden = true;
       } else {
-        $("verifiedRow").hidden = true;
         $("verifiedLabel").classList.remove("visible");
         $("unverifiedNote").hidden = false;
       }
 
-      /* APPLICATION URL */
+      /* APPLICATION LINKS */
 
-      const applicationURL =
-        safeURL(data.application_url) ||
-        safeURL(data.source_url);
-
-      const applyButton = $("applyButton");
-
-      if (applicationURL) {
-        applyButton.href = applicationURL;
-        applyButton.classList.remove("disabled");
-        applyButton.removeAttribute("aria-disabled");
-        applyButton.textContent = "Apply Now →";
-      } else {
-        applyButton.removeAttribute("href");
-        applyButton.classList.add("disabled");
-        applyButton.textContent = "Application Link Unavailable";
-        applyButton.setAttribute("aria-disabled", "true");
-      }
-
-      /* ORIGINAL SOURCE URL */
+      const applicationURL = safeURL(data.application_url) || safeURL(data.source_url);
+      const closedNow = isClosed;
+      setApply($("applyButton"), applicationURL, closedNow);
+      setApply($("applyButtonBar"), applicationURL, closedNow);
 
       const sourceURL = safeURL(data.source_url);
-
       if (sourceURL && sourceURL !== applicationURL) {
         $("sourceLink").href = sourceURL;
         $("sourceLink").hidden = false;
@@ -1571,23 +1593,8 @@
 
       /* CLOSED OPPORTUNITIES (kept as an archive) */
 
-      const isClosed = data.status === "closed";
-
       $("closedNotice").hidden = !isClosed;
-      setText("quickStatus", isClosed ? "Closed" : "Published");
-
       if (isClosed) {
-        $("deadlineBox").classList.add("expired");
-
-        if (deadline && !/Deadline passed/.test($("sidebarDeadline").textContent)) {
-          setText("sidebarDeadline", `${deadline} — Closed`);
-        }
-
-        applyButton.removeAttribute("href");
-        applyButton.classList.add("disabled");
-        applyButton.setAttribute("aria-disabled", "true");
-        applyButton.textContent = "Applications Closed";
-
         const more = $("closedMore");
         if (more && data.category) {
           more.href = "/category?c=" + encodeURIComponent(data.category);
@@ -1595,25 +1602,22 @@
         }
       }
 
+      const back = $("backLink");
+      if (back && data.category) back.href = "/category?c=" + encodeURIComponent(data.category);
+
       /* BROWSER TITLE AND SEARCH SNIPPET */
 
       document.title =
         `${data.title || "Opportunity Details"}${isClosed ? " (Closed)" : ""} | Naija Opportunity Hub`;
 
-      const snippet = String(data.description || "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, 155);
-
+      const snippet = String(data.description || "").replace(/\s+/g, " ").trim().slice(0, 155);
       if (snippet) {
         let meta = document.querySelector('meta[name="description"]');
-
         if (!meta) {
           meta = document.createElement("meta");
           meta.name = "description";
           document.head.appendChild(meta);
         }
-
         meta.content = (isClosed ? "Closed. " : "") + snippet;
       }
 
@@ -1622,11 +1626,9 @@
       loadingState.hidden = true;
       errorState.hidden = true;
       detailsContent.hidden = false;
-
-      // Confirm the correct saved state once the opportunity is displayed.
       updateBookmarkButton();
+      loadMoreLike(data);
 
-      // Analytics page view (title is now known) and ad refresh.
       window.NOH_PAGE_READY = true;
       if (window.NOH_PAGEVIEW) window.NOH_PAGEVIEW();
       if (window.NOH_ADS_REFRESH) window.NOH_ADS_REFRESH();
@@ -1634,14 +1636,14 @@
 
     /* ANALYTICS: Apply Now clicks (only counted if the visitor accepted analytics) */
 
-    $("applyButton").addEventListener("click", () => {
+    document.querySelectorAll(".js-apply").forEach(btn => btn.addEventListener("click", () => {
       if (window.NOH_TRACK && currentOpportunityId) {
         window.NOH_TRACK("apply_click", {
           opportunity_id: currentOpportunityId,
           opportunity_title: $("opportunityTitle").textContent
         });
       }
-    });
+    }));
 
     /* SHARE OPPORTUNITY */
 
