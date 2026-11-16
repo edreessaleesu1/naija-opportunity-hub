@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>: <script src="/noh-canonical.js"></script>
 <head>
+  <script src="/noh-canonical.js"></script>
   <meta charset="UTF-8">
   <meta name="google-adsense-account" content="ca-pub-6140977755982286">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -314,6 +314,26 @@
       background: #fffdf6;
       color: #5d4a17;
       font-size: .85rem;
+    }
+
+    .closed-notice {
+      margin-top: 17px;
+      padding: 12px 15px;
+      color: #7a2b2b;
+      background: #fff3f1;
+      border: 1px solid #efcccc;
+      border-left: 4px solid var(--danger);
+      border-radius: 12px;
+      font-size: .88rem;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    .closed-notice a {
+      color: var(--green-dark);
+      font-weight: 800;
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
 
     /* INFORMATION CARDS */
@@ -819,6 +839,13 @@
               website before you apply. <a href="/how-we-verify.html">How we check</a>
             </p>
 
+            <p id="closedNotice" class="closed-notice" role="status" hidden>
+              This opportunity is now closed and is kept here for reference.
+              Programmes like this often open again, so check the official
+              website for the next intake.
+              <a id="closedMore" href="/category">See open opportunities</a>
+            </p>
+
           </div>
 
         </article>
@@ -961,7 +988,7 @@
 
           <p>
             <strong>Status</strong>
-            <span>Published</span>
+            <span id="quickStatus">Published</span>
           </p>
 
         </section>
@@ -1279,7 +1306,7 @@
         const query = new URLSearchParams({
           select: "*",
           id: `eq.${opportunityId}`,
-          status: "eq.published",
+          status: "in.(published,closed)",
           limit: "1"
         });
 
@@ -1542,10 +1569,53 @@
         $("sourceLink").removeAttribute("href");
       }
 
-      /* BROWSER TITLE */
+      /* CLOSED OPPORTUNITIES (kept as an archive) */
+
+      const isClosed = data.status === "closed";
+
+      $("closedNotice").hidden = !isClosed;
+      setText("quickStatus", isClosed ? "Closed" : "Published");
+
+      if (isClosed) {
+        $("deadlineBox").classList.add("expired");
+
+        if (deadline && !/Deadline passed/.test($("sidebarDeadline").textContent)) {
+          setText("sidebarDeadline", `${deadline} — Closed`);
+        }
+
+        applyButton.removeAttribute("href");
+        applyButton.classList.add("disabled");
+        applyButton.setAttribute("aria-disabled", "true");
+        applyButton.textContent = "Applications Closed";
+
+        const more = $("closedMore");
+        if (more && data.category) {
+          more.href = "/category?c=" + encodeURIComponent(data.category);
+          more.textContent = "See open " + data.category.toLowerCase() + " opportunities";
+        }
+      }
+
+      /* BROWSER TITLE AND SEARCH SNIPPET */
 
       document.title =
-        `${data.title || "Opportunity Details"} | Naija Opportunity Hub`;
+        `${data.title || "Opportunity Details"}${isClosed ? " (Closed)" : ""} | Naija Opportunity Hub`;
+
+      const snippet = String(data.description || "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 155);
+
+      if (snippet) {
+        let meta = document.querySelector('meta[name="description"]');
+
+        if (!meta) {
+          meta = document.createElement("meta");
+          meta.name = "description";
+          document.head.appendChild(meta);
+        }
+
+        meta.content = (isClosed ? "Closed. " : "") + snippet;
+      }
 
       /* SHOW PAGE */
 
