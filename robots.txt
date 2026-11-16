@@ -1,10 +1,13 @@
 User-agent: *
 Allow: /
-Disallow: /auth.html
-Disallow: /account.html
-Disallow: /career-workspace.html
-Disallow: /application-assistance.html
-Disallow: /delete-account.html
+Disallow: /auth$
+Disallow: /auth?
+Disallow: /account$
+Disallow: /account?
+Disallow: /career-workspace$
+Disallow: /career-workspace?
+Disallow: /application-assistance$
+Disallow: /delete-account$
 
 Sitemap: https://naijaopportunityhub.com.ng/sitemap.xml
 Sitemap: https://naijaopportunityhub.com.ng/sitemap-opportunities.xml
