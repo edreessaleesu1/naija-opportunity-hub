@@ -779,13 +779,27 @@
       font-size: 11pt;
       line-height: 1.15;
       padding: 36px 44px;
-      overflow-wrap: anywhere;
+      overflow-wrap: break-word;
+      word-break: normal;
+      hyphens: manual;
+    }
+
+    .cv-document {
+      --cv-font: "Times New Roman", Times, serif;
     }
 
     .cv-document,
     .cv-document * {
       box-sizing: border-box;
-      font-family: "Times New Roman", Times, serif !important;
+      font-family: var(--cv-font) !important;
+    }
+
+    .cv-modern, .cv-graduate, .cv-sidebar {
+      --cv-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    .cv-ats { --cv-font: Arial, Helvetica, sans-serif; }
+    .cv-executive, .cv-academic {
+      --cv-font: Georgia, "Times New Roman", serif;
     }
 
     .cv-document h1 {
@@ -906,7 +920,11 @@
       color: #444444;
     }
 
+    .cv-modern .modern-head > div:first-child { min-width: 0; }
+    .cv-modern .cv-role { margin-top: 6px !important; font-size: 12pt; }
     .modern-contact {
+      flex: none;
+      max-width: 46%;
       text-align: right;
       font-size: 10pt;
       color: #444444;
@@ -919,7 +937,7 @@
 
     .cv-modern .cv-section {
       display: grid;
-      grid-template-columns: 128px 1fr;
+      grid-template-columns: 112px minmax(0, 1fr);
       column-gap: 20px;
     }
 
@@ -929,9 +947,10 @@
 
     .cv-modern h2 {
       color: #075b3b;
-      font-size: 12pt;
+      font-size: 10.5pt;
       padding-top: 2px;
     }
+    .cv-modern .cv-entry-title { font-size: 11pt; }
 
     /* EXECUTIVE UK */
 
@@ -957,7 +976,7 @@
 
     .executive-body {
       display: grid;
-      grid-template-columns: 1.85fr 1fr;
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
       gap: 26px;
       padding-top: 20px;
     }
@@ -981,6 +1000,17 @@
       background: #f4f1ea;
       padding: 16px 16px 4px;
       align-self: start;
+      font-size: 10pt;
+    }
+    .executive-side h2 {
+      font-size: 10.5pt;
+      letter-spacing: 0.02em;
+    }
+    .executive-side,
+    .executive-side * {
+      overflow-wrap: break-word;
+      word-break: normal;
+      hyphens: manual;
     }
 
     /* GRADUATE UK */
@@ -990,14 +1020,16 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 24px;
-      padding-bottom: 14px;
-      margin-bottom: 18px;
-      border-bottom: 1px solid #cfd8dc;
+      padding: 4px 0 4px 18px;
+      margin-bottom: 20px;
+      border-left: 7px solid var(--cv-accent, #0b4f6c);
     }
 
+    .cv-graduate .graduate-head > div:first-child { min-width: 0; }
+
     .cv-graduate h1 {
-      font-size: 23pt;
-      color: #0b4f6c;
+      font-size: 24pt;
+      color: var(--cv-accent, #0b4f6c);
     }
 
     .cv-graduate .cv-role {
@@ -1005,8 +1037,10 @@
     }
 
     .graduate-contact {
+      flex: none;
+      max-width: 42%;
       text-align: right;
-      font-size: 10pt;
+      font-size: 9.5pt;
       color: #455a64;
       line-height: 1.5;
     }
@@ -1016,9 +1050,11 @@
     }
 
     .cv-graduate h2 {
-      color: #0b4f6c;
-      padding-bottom: 4px;
-      border-bottom: 1px solid #cfd8dc;
+      color: var(--cv-accent, #0b4f6c);
+      font-size: 10.5pt;
+      padding: 4px 10px;
+      background: rgba(11, 79, 108, 0.08);
+      border-left: 3px solid var(--cv-accent, #0b4f6c);
     }
 
     /* UK COVER LETTER */
@@ -1164,34 +1200,6 @@
       text-align: center;
     }
 
-    .cv-modern .modern-head,
-    .cv-graduate .graduate-head {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      text-align: center;
-    }
-
-    .cv-modern .modern-head > div,
-    .cv-modern .modern-contact,
-    .cv-graduate .graduate-head > div,
-    .cv-graduate .graduate-contact {
-      width: 100%;
-      text-align: center;
-    }
-
-    .cv-modern .modern-head h1,
-    .cv-modern .modern-head .cv-role,
-    .cv-modern .modern-contact p,
-    .cv-graduate .graduate-head h1,
-    .cv-graduate .graduate-head .cv-role,
-    .cv-graduate .graduate-contact p {
-      width: 100%;
-      text-align: center;
-    }
-
     /* THEME COLOURS */
 
     .cv-classic[style*="--cv-accent"] h1,
@@ -1221,11 +1229,6 @@
       color: var(--cv-accent);
     }
 
-    .cv-graduate[style*="--cv-accent"] h1,
-    .cv-graduate[style*="--cv-accent"] h2 {
-      color: var(--cv-accent);
-    }
-
     .letter-document[style*="--cv-accent"] .letter-sender h1 {
       color: var(--cv-accent);
     }
@@ -1238,14 +1241,14 @@
 
     .sidebar-layout {
       display: grid;
-      grid-template-columns: 228px minmax(0, 1fr);
+      grid-template-columns: 32% minmax(0, 1fr);
       min-height: 1040px;
+      background: linear-gradient(to right, var(--cv-accent, #075b3b) 32%, #ffffff 32%);
     }
 
     .sidebar-col {
       min-width: 0;
-      padding: 34px 20px;
-      background: var(--cv-accent, #075b3b);
+      padding: 34px 18px;
     }
 
     .sidebar-col,
@@ -1276,7 +1279,7 @@
 
     .cv-sidebar .sidebar-head h1 {
       color: var(--cv-accent, #075b3b);
-      font-size: 25pt;
+      font-size: 22pt;
     }
 
     .cv-sidebar .sidebar-main h2 {
@@ -1369,17 +1372,6 @@
         padding: 24px 20px;
       }
 
-      .modern-head,
-      .graduate-head {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .modern-contact,
-      .graduate-contact {
-        text-align: center;
-      }
-
       .cv-modern .cv-section,
       .executive-body,
       .sidebar-layout {
@@ -1387,8 +1379,25 @@
         min-height: 0;
       }
 
+      .sidebar-layout {
+        background: none;
+      }
+
       .sidebar-col {
         padding: 22px 18px;
+        background: var(--cv-accent, #075b3b);
+      }
+
+      .modern-head,
+      .graduate-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .modern-contact,
+      .graduate-contact {
+        max-width: 100%;
+        text-align: left;
       }
 
       .sidebar-main {
@@ -1985,8 +1994,6 @@
   // --------------------------------------------------
 
   const AI_BUTTON_IDS = [
-    "ai-review-cv",
-    "ai-extract-cv",
     "ai-improve-cv",
     "ai-improve-summary",
     "ai-write-letter"
@@ -2100,365 +2107,6 @@
   }
 
   // --------------------------------------------------
-  // CV UPLOAD (read on the device; only text is sent to the AI)
-  // --------------------------------------------------
-
-  const MAX_CV_CHARS = 9000;
-  const MAX_CV_FILE_BYTES = 5 * 1024 * 1024;
-
-  function setUploadStatus(message, isError) {
-    const box = $("cv-upload-status");
-
-    if (!box) return;
-
-    box.textContent = message || "";
-    box.classList.toggle("is-error", Boolean(isError));
-  }
-
-  async function extractPDFText(file) {
-    await loadScript(
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
-      () => Boolean(window.pdfjsLib),
-      "The PDF reader could not be loaded."
-    );
-
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-    const pdf = await window.pdfjsLib.getDocument({
-      data: await file.arrayBuffer()
-    }).promise;
-
-    const pages = [];
-
-    for (let number = 1; number <= Math.min(pdf.numPages, 6); number += 1) {
-      const page = await pdf.getPage(number);
-      const content = await page.getTextContent();
-
-      let text = "";
-      let lastY = null;
-
-      content.items.forEach((item) => {
-        const y = item.transform ? item.transform[5] : null;
-
-        if (lastY !== null && y !== null && Math.abs(y - lastY) > 2) {
-          text += "\n";
-        } else if (text && !text.endsWith(" ") && !text.endsWith("\n")) {
-          text += " ";
-        }
-
-        text += item.str;
-        lastY = y;
-      });
-
-      pages.push(text);
-    }
-
-    return pages.join("\n\n");
-  }
-
-  async function extractDOCXText(file) {
-    await loadScript(
-      "https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js",
-      () => Boolean(window.mammoth),
-      "The Word reader could not be loaded."
-    );
-
-    const result = await window.mammoth.extractRawText({
-      arrayBuffer: await file.arrayBuffer()
-    });
-
-    return result.value || "";
-  }
-
-  async function handleCVFile(event) {
-    const input = event.target;
-    const file = input.files && input.files[0];
-
-    if (!file) return;
-
-    const name = file.name.toLowerCase();
-
-    if (file.size > MAX_CV_FILE_BYTES) {
-      setUploadStatus("That file is larger than 5 MB. Please use a smaller file.", true);
-      input.value = "";
-      return;
-    }
-
-    setUploadStatus("Reading your CV...");
-
-    try {
-      let text = "";
-
-      if (name.endsWith(".pdf") || file.type === "application/pdf") {
-        text = await extractPDFText(file);
-      } else if (name.endsWith(".docx")) {
-        text = await extractDOCXText(file);
-      } else if (name.endsWith(".txt") || file.type === "text/plain") {
-        text = await file.text();
-      } else if (name.endsWith(".doc")) {
-        setUploadStatus("Old .doc files are not supported. Save it as .docx or PDF, or paste the text below.", true);
-        return;
-      } else {
-        setUploadStatus("Please upload a PDF, .docx or .txt file.", true);
-        return;
-      }
-
-      text = text.replace(/\r/g, "").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-
-      if (text.length < 40) {
-        setUploadStatus("No readable text was found. A scanned or image-only PDF cannot be read. Paste your CV text below instead.", true);
-        return;
-      }
-
-      const textarea = $("cv-upload-text");
-
-      if (textarea) textarea.value = text;
-
-      setUploadStatus(
-        text.length > MAX_CV_CHARS
-          ? `CV loaded. Only the first ${MAX_CV_CHARS.toLocaleString()} characters will be sent to the AI.`
-          : "CV loaded. Now choose Review My CV or Fill the Form."
-      );
-
-    } catch (error) {
-      console.error("CV upload error:", error);
-      setUploadStatus(
-        (error && error.message) || "We could not read that file. Paste your CV text below instead.",
-        true
-      );
-    }
-  }
-
-  function parseCVJSON(raw) {
-    let text = String(raw || "").trim();
-
-    text = text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
-
-    const start = text.indexOf("{");
-    const end = text.lastIndexOf("}");
-
-    if (start === -1 || end <= start) return null;
-
-    try {
-      const parsed = JSON.parse(text.slice(start, end + 1));
-
-      return parsed && typeof parsed === "object" ? parsed : null;
-    } catch {
-      return null;
-    }
-  }
-
-  function applyImprovedCV(raw) {
-    const data = parseCVJSON(raw);
-
-    if (!data) return null;
-
-    const always = {
-      summary: "summary",
-      education: "education",
-      experience: "experience",
-      skills: "skills",
-      certificates: "certificates"
-    };
-
-    const onlyIfEmpty = {
-      fullName: "full-name",
-      jobTitle: "job-title",
-      email: "email",
-      phone: "phone",
-      location: "location",
-      country: "country",
-      linkedin: "linkedin"
-    };
-
-    const snapshot = {};
-    let count = 0;
-
-    const apply = (key, id, overwrite) => {
-      const field = $(id);
-      const text = typeof data[key] === "string" ? data[key].trim() : "";
-
-      if (!field || !text) return;
-      if (!overwrite && field.value.trim()) return;
-
-      snapshot[id] = field.value;
-      field.value = text;
-      count += 1;
-    };
-
-    Object.entries(always).forEach(([key, id]) => apply(key, id, true));
-    Object.entries(onlyIfEmpty).forEach(([key, id]) => apply(key, id, false));
-
-    if (!count) return null;
-
-    updatePreview();
-
-    return {
-      snapshot,
-      improvements: typeof data.improvements === "string" ? data.improvements.trim() : "",
-      missing: typeof data.missing === "string" ? data.missing.trim() : ""
-    };
-  }
-
-  function fillFormFromCV(raw) {
-    const data = parseCVJSON(raw);
-
-    if (!data) return false;
-
-    const map = {
-      fullName: "full-name",
-      jobTitle: "job-title",
-      email: "email",
-      phone: "phone",
-      location: "location",
-      country: "country",
-      linkedin: "linkedin",
-      summary: "summary",
-      education: "education",
-      experience: "experience",
-      skills: "skills",
-      certificates: "certificates"
-    };
-
-    let count = 0;
-
-    Object.entries(map).forEach(([key, id]) => {
-      const field = $(id);
-      const text = typeof data[key] === "string" ? data[key].trim() : "";
-
-      if (field && text) {
-        field.value = text;
-        count += 1;
-      }
-    });
-
-    updatePreview();
-
-    return count > 0;
-  }
-
-  // --------------------------------------------------
-  // TIDY AI TEXT (the AI sometimes adds markdown symbols)
-  // --------------------------------------------------
-
-  function stripMarkdown(text) {
-    return String(text || "")
-      .replace(/\r/g, "")
-      .split("\n")
-      .filter((line) => !/^\s*-{3,}\s*$/.test(line))
-      .map((line) => line
-        .replace(/^\s{0,}#{1,6}\s*/, "")
-        .replace(/^(\s*)[*•]\s+/, "$1- ")
-        .replace(/\*\*/g, "")
-        .replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,;:]|$)/g, "$1$2")
-        .replace(/`/g, ""))
-      .join("\n")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim();
-  }
-
-  function addInline(parent, text) {
-    String(text).split(/(\*\*[^*]+\*\*|\*[^*\n]+\*)/).forEach((part) => {
-      if (!part) return;
-
-      let node;
-
-      if (/^\*\*[^*]+\*\*$/.test(part)) {
-        node = document.createElement("strong");
-        node.textContent = part.slice(2, -2);
-      } else if (/^\*[^*\n]+\*$/.test(part)) {
-        node = document.createElement("em");
-        node.textContent = part.slice(1, -1);
-      } else {
-        node = document.createTextNode(part.replace(/`/g, ""));
-      }
-
-      parent.appendChild(node);
-    });
-  }
-
-  function renderRichText(text) {
-    const box = document.createElement("div");
-
-    box.style.lineHeight = "1.65";
-    box.style.overflowWrap = "anywhere";
-
-    let list = null;
-
-    String(text || "").replace(/\r/g, "").split("\n").forEach((raw) => {
-      const line = raw.trim();
-
-      if (!line || /^-{3,}$/.test(line)) {
-        list = null;
-        return;
-      }
-
-      const headingMatch = line.match(/^#{1,6}\s*(.+)$/);
-      const plainHeading = !headingMatch &&
-        /^[A-Z][A-Z &/,'()-]{3,}$/.test(line);
-
-      if (headingMatch || plainHeading) {
-        list = null;
-
-        const heading = document.createElement("h5");
-
-        heading.style.margin = "16px 0 6px";
-        heading.style.fontSize = "1rem";
-        heading.style.color = "#075b3b";
-        heading.textContent = (headingMatch ? headingMatch[1] : line)
-          .replace(/\*\*/g, "");
-
-        box.appendChild(heading);
-        return;
-      }
-
-      const bullet = line.match(/^[*•-]\s+(.+)$/);
-
-      if (bullet) {
-        if (!list) {
-          list = document.createElement("ul");
-          list.style.margin = "4px 0 8px";
-          list.style.paddingLeft = "20px";
-          box.appendChild(list);
-        }
-
-        const item = document.createElement("li");
-
-        item.style.margin = "0 0 5px";
-        addInline(item, bullet[1]);
-        list.appendChild(item);
-        return;
-      }
-
-      list = null;
-
-      const paragraph = document.createElement("p");
-
-      paragraph.style.margin = "0 0 8px";
-      addInline(paragraph, line);
-      box.appendChild(paragraph);
-    });
-
-    return box;
-  }
-
-  function extractReviewSummary(text) {
-    const match = String(text || "").match(
-      /REWRITTEN\s+PROFESSIONAL\s+SUMMARY[^\n]*\n([\s\S]*)$/i
-    );
-
-    if (!match) return "";
-
-    return stripMarkdown(match[1])
-      .split("\n")
-      .filter((line) => line.trim() && !/^\(?\s*word count/i.test(line.trim()))
-      .join(" ")
-      .replace(/^\(.*?\)\s*/, "")
-      .trim();
-  }
-
-  // --------------------------------------------------
   // AI ERROR MESSAGES
   // --------------------------------------------------
 
@@ -2556,18 +2204,6 @@
         apiAction: "write-letter",
         button: $("ai-write-letter"),
         title: "AI Cover Letter"
-      },
-
-      review: {
-        apiAction: "review-cv",
-        button: $("ai-review-cv"),
-        title: "CV Review"
-      },
-
-      extract: {
-        apiAction: "extract-cv",
-        button: $("ai-extract-cv"),
-        title: "Fill the Form from My CV"
       }
     };
 
@@ -2580,28 +2216,8 @@
       return;
     }
 
-    const isUploadAction = action === "review" || action === "extract";
-
-    if (isUploadAction && value("cv-upload-text").length < 80) {
-      window.alert(
-        "Upload your CV or paste its text first (at least a few lines)."
-      );
-      return;
-    }
-
-    if (
-      action === "extract" &&
-      (value("full-name") || value("experience") || value("education")) &&
-      !window.confirm(
-        "This will replace the details already in the form with details from your CV. Continue?"
-      )
-    ) {
-      return;
-    }
-
     if (
       action === "cv" &&
-      value("cv-upload-text").length < 80 &&
       !value("full-name") &&
       !value("education") &&
       !value("experience") &&
@@ -2638,15 +2254,11 @@
       return;
     }
 
-    const candidateData = isUploadAction ? {
-      cvText: value("cv-upload-text").slice(0, MAX_CV_CHARS)
-    } : {
+    const candidateData = {
       fullName: value("full-name"),
       email: value("email"),
       phone: value("phone"),
       location: value("location"),
-      country: value("country"),
-      linkedin: value("linkedin"),
 
       applicantAddress: value("applicant-address"),
       applicationDate: value("application-date"),
@@ -2665,16 +2277,6 @@
       jobDescription: value("job-description"),
       letterBody: value("letter-body")
     };
-
-    if (
-      action === "cv" &&
-      value("cv-upload-text").length >= 80 &&
-      !value("experience") &&
-      !value("education") &&
-      !value("summary")
-    ) {
-      candidateData.cvText = value("cv-upload-text").slice(0, MAX_CV_CHARS);
-    }
 
     const originalText = selected.button.textContent;
 
@@ -2767,107 +2369,18 @@
         );
       }
 
-      if (action === "cv") {
-        const applied = applyImprovedCV(data.result);
-
-        if (applied) {
-          resultBox.replaceChildren();
-
-          const h = document.createElement("h4");
-          h.textContent = "Your CV has been improved";
-
-          const p = document.createElement("p");
-          p.textContent =
-            "The improved CV is now in your document preview. Anything in [square brackets] is a detail we could not find, so replace it with your real information before downloading.";
-
-          resultBox.append(h, p);
-
-          [["What I improved", applied.improvements],
-           ["Add these to make it stronger", applied.missing]].forEach(([title, text]) => {
-            if (!text) return;
-
-            const sub = document.createElement("strong");
-            sub.textContent = title;
-
-            const body = document.createElement("div");
-            body.textContent = text;
-            body.style.whiteSpace = "pre-wrap";
-            body.style.margin = "4px 0 12px";
-
-            resultBox.append(sub, body);
-          });
-
-          const view = document.createElement("a");
-          view.className = "button button-primary";
-          view.href = "#document-preview";
-          view.textContent = "View my document";
-
-          const undo = document.createElement("button");
-          undo.type = "button";
-          undo.className = "button button-secondary";
-          undo.textContent = "Undo changes";
-          undo.style.marginLeft = "8px";
-          undo.addEventListener("click", () => {
-            Object.entries(applied.snapshot).forEach(([id, text]) => {
-              const field = $(id);
-              if (field) field.value = text;
-            });
-            updatePreview();
-            undo.disabled = true;
-            undo.textContent = "Changes undone";
-          });
-
-          resultBox.append(view, undo);
-
-          return;
-        }
-      }
-
-      if (action === "extract") {
-        const filled = fillFormFromCV(data.result);
-
-        resultBox.replaceChildren();
-
-        const doneHeading = document.createElement("h4");
-        doneHeading.textContent = selected.title;
-
-        const doneText = document.createElement("p");
-        doneText.textContent = filled
-          ? "Done. Your form has been filled from your CV. Check each section, add any missing dates or achievements, choose a template, then download your updated CV."
-          : "The AI could not read your CV into the form. Please try again, or paste the CV text and retry.";
-
-        resultBox.append(doneHeading, doneText);
-
-        if (filled) {
-          const toForm = document.createElement("a");
-          toForm.className = "button button-secondary";
-          toForm.href = "#career-form";
-          toForm.textContent = "Go to the form";
-          resultBox.append(toForm);
-        }
-
-        return;
-      }
-
       resultBox.replaceChildren();
 
       const resultHeading = document.createElement("h4");
 
       resultHeading.textContent = selected.title;
 
-      const cleanResult = stripMarkdown(data.result);
+      const resultText = document.createElement("div");
 
-      let resultText;
-
-      if (action === "review") {
-        resultText = renderRichText(data.result);
-      } else {
-        resultText = document.createElement("div");
-        resultText.textContent = cleanResult;
-        resultText.style.whiteSpace = "pre-wrap";
-        resultText.style.overflowWrap = "anywhere";
-        resultText.style.lineHeight = "1.7";
-      }
+      resultText.textContent = data.result;
+      resultText.style.whiteSpace = "pre-wrap";
+      resultText.style.overflowWrap = "anywhere";
+      resultText.style.lineHeight = "1.7";
 
       const copyButton = document.createElement("button");
 
@@ -2877,7 +2390,7 @@
 
       copyButton.addEventListener("click", async () => {
         try {
-          await navigator.clipboard.writeText(cleanResult);
+          await navigator.clipboard.writeText(data.result);
 
           copyButton.textContent = "Copied Successfully!";
 
@@ -2893,33 +2406,6 @@
         resultText,
         copyButton
       );
-
-      if (action === "review") {
-        const newSummary = extractReviewSummary(data.result);
-
-        if (newSummary) {
-          const useSummary = document.createElement("button");
-
-          useSummary.type = "button";
-          useSummary.className = "button button-primary";
-          useSummary.textContent = "Use this summary in my CV";
-          useSummary.style.marginLeft = "8px";
-
-          useSummary.addEventListener("click", () => {
-            const field = $("summary");
-
-            if (!field) return;
-
-            field.value = newSummary;
-            updatePreview();
-
-            useSummary.disabled = true;
-            useSummary.textContent = "Added to your CV";
-          });
-
-          resultBox.append(useSummary);
-        }
-      }
 
       resultBox.scrollIntoView({
         behavior: "smooth",
@@ -3021,7 +2507,6 @@
       if (!confirmed) return;
 
       form.reset();
-      setUploadStatus("");
       configureTemplates();
       updatePreview();
 
@@ -3040,14 +2525,6 @@
   form.addEventListener("reset", () => {
     window.setTimeout(updatePreview, 0);
   });
-
-  const cvFileInput = $("cv-file");
-  const aiReviewButton = $("ai-review-cv");
-  const aiExtractButton = $("ai-extract-cv");
-
-  if (cvFileInput) cvFileInput.addEventListener("change", handleCVFile);
-  if (aiReviewButton) aiReviewButton.addEventListener("click", () => handleAI("review"));
-  if (aiExtractButton) aiExtractButton.addEventListener("click", () => handleAI("extract"));
 
   const aiCVButton = $("ai-improve-cv");
   const aiLetterButton = $("ai-write-letter");
@@ -3081,7 +2558,7 @@
   initAIAccess();
 
   console.info(
-    "[NOH Career Kit] v6 (CV upload, apply, tidy review) loaded."
+    "[NOH Career Kit] Updated UK-standard version loaded."
   );
 
 })();
