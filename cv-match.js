@@ -156,7 +156,7 @@
 
       var a = el("a", null, m.title);
       a.href =
-        "/opportunity-details.html?id=" +
+        "/opportunity-details?id=" +
         encodeURIComponent(m.id);
 
       li.appendChild(a);
