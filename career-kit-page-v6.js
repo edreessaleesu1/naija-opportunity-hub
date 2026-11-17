@@ -36,8 +36,18 @@
     { value: "graduate", label: "Graduate UK — Early Career" },
     { value: "sidebar", label: "Sidebar Two-Column — Modern" },
     { value: "ats", label: "ATS-Friendly — Plain and Safe" },
-    { value: "academic", label: "Academic — Scholarships and Research" }
+    { value: "academic", label: "Academic — Scholarships and Research" },
+    { value: "scholarship", label: "Scholarship CV — Chevening and Commonwealth" },
+    { value: "nigerian", label: "Nigerian Graduate — NYSC Ready" },
+    { value: "europass", label: "Europass-Style — Europe and EU Jobs" },
+    { value: "onepage", label: "One-Page Resume — US Style" },
+    { value: "creative", label: "Tech and Creative — Bold" },
+    { value: "signature", label: "Gold and Emerald — Signature" }
   ];
+
+  // Optional profile photo (kept in the browser only; used by the Nigerian Graduate template)
+  let photoData = "";
+
 
   const themes = {
     default: "",
@@ -317,7 +327,19 @@
       },
       {
         label: "Executive CV",
-        values: ["executive"]
+        values: ["executive", "signature"]
+      },
+      {
+        label: "Scholarship and Study",
+        values: ["scholarship", "europass"]
+      },
+      {
+        label: "Nigeria and Graduate",
+        values: ["nigerian", "onepage"]
+      },
+      {
+        label: "Tech and Creative",
+        values: ["creative"]
       }
     ];
 
@@ -632,6 +654,158 @@
     `;
   }
 
+  function skillChips(text) {
+    const items = [];
+
+    getLines(text).forEach((line) => {
+      const m = line.match(/^([^:]{2,32}):\s*(.+)$/);
+      const body = (m ? m[2] : line.replace(BULLET, ""));
+
+      body.split(/[,;]+/).forEach((part) => {
+        const t = part.trim();
+        if (t) items.push(t);
+      });
+    });
+
+    if (!items.length) return "";
+
+    return `<div class="chip-row">${items.map((item) =>
+      `<span class="chip">${escapeHTML(item)}</span>`).join("")}</div>`;
+  }
+
+  function scholarshipCV(data) {
+    return `
+      <article ${docAttrs("cv-scholarship")}>
+        <header class="sch-head">
+          <h1>${escapeHTML(data.name)}</h1>
+          ${roleHTML(data)}
+          ${contactHTML(data)}
+        </header>
+
+        ${sectionHTML("Personal Statement", data.summary, "plain")}
+        ${sectionHTML("Education", data.education)}
+        ${sectionHTML("Experience and Leadership", data.experience)}
+        ${sectionHTML("Awards, Scholarships and Certifications", data.certificates, "plain")}
+        ${sectionHTML("Skills", data.skills, "skills")}
+        ${data.name ? `<p class="sch-ref">Referees available on request.</p>` : ""}
+      </article>
+    `;
+  }
+
+  function nigerianCV(data) {
+    const photo = photoData
+      ? `<img class="ng-photo" src="${photoData}" alt="">`
+      : "";
+
+    return `
+      <article ${docAttrs("cv-nigerian")}>
+        <header class="ng-head${photo ? " has-photo" : ""}">
+          <div class="ng-id">
+            <h1>${escapeHTML(data.name)}</h1>
+            ${roleHTML(data)}
+            ${contactHTML(data)}
+          </div>
+          ${photo}
+        </header>
+
+        ${sectionHTML("Personal Profile", data.summary, "plain")}
+        ${sectionHTML("Education", data.education)}
+        ${sectionHTML("Work Experience and NYSC Service", data.experience)}
+        ${sectionHTML("Skills", data.skills, "skills")}
+        ${sectionHTML("Certifications and Training", data.certificates, "plain")}
+        <p class="ng-ref">Referees available on request.</p>
+      </article>
+    `;
+  }
+
+  function europassCV(data) {
+    return `
+      <article ${docAttrs("cv-europass")}>
+        <header class="eu-head">
+          <h1>${escapeHTML(data.name)}</h1>
+          ${roleHTML(data)}
+        </header>
+        ${data.contactItems.length
+          ? `<div class="eu-contact">${data.contactItems.map((i) =>
+              `<span>${escapeHTML(i)}</span>`).join("")}</div>`
+          : ""}
+
+        ${sectionHTML("About me", data.summary, "plain")}
+        ${sectionHTML("Work experience", data.experience)}
+        ${sectionHTML("Education and training", data.education)}
+        ${sectionHTML("Skills", data.skills, "skills")}
+        ${sectionHTML("Certificates and other information", data.certificates, "plain")}
+      </article>
+    `;
+  }
+
+  function onePageCV(data) {
+    return `
+      <article ${docAttrs("cv-onepage")}>
+        <header class="op-head">
+          <h1>${escapeHTML(data.name)}</h1>
+          ${data.job ? `<span class="op-role">${escapeHTML(data.job)}</span>` : ""}
+          ${data.contactItems.length
+            ? `<p class="op-contact">${escapeHTML(data.contactItems.join("  •  "))}</p>`
+            : ""}
+        </header>
+
+        ${sectionHTML("Summary", data.summary, "plain")}
+        ${sectionHTML("Experience", data.experience)}
+        ${sectionHTML("Education", data.education)}
+        ${sectionHTML("Skills", data.skills, "skills")}
+        ${sectionHTML("Certifications", data.certificates, "plain")}
+      </article>
+    `;
+  }
+
+  function creativeCV(data) {
+    const chips = skillChips(data.skills);
+
+    return `
+      <article ${docAttrs("cv-creative")}>
+        <header class="cr-head">
+          <h1>${escapeHTML(data.name)}</h1>
+          ${roleHTML(data)}
+          ${data.contactItems.length
+            ? `<p class="cr-contact">${data.contactItems.map((i) =>
+                `<span>${escapeHTML(i)}</span>`).join("")}</p>`
+            : ""}
+        </header>
+
+        <div class="cr-body">
+          ${sectionHTML("Profile", data.summary, "plain")}
+          ${chips ? `<section class="cv-section"><h2>Skills</h2><div class="cv-section-content">${chips}</div></section>` : ""}
+          ${sectionHTML("Experience and Projects", data.experience)}
+          ${sectionHTML("Education", data.education)}
+          ${sectionHTML("Certifications", data.certificates, "plain")}
+        </div>
+      </article>
+    `;
+  }
+
+  function signatureCV(data) {
+    return `
+      <article ${docAttrs("cv-signature")}>
+        <header class="sg-head">
+          <h1>${escapeHTML(data.name)}</h1>
+          ${roleHTML(data)}
+        </header>
+        ${data.contact
+          ? `<p class="sg-contact">${escapeHTML(data.contact)}</p>`
+          : ""}
+
+        <div class="sg-body">
+          ${sectionHTML("Profile", data.summary, "plain")}
+          ${sectionHTML("Experience", data.experience)}
+          ${sectionHTML("Education", data.education)}
+          ${sectionHTML("Skills", data.skills, "skills")}
+          ${sectionHTML("Training and Certifications", data.certificates, "plain")}
+        </div>
+      </article>
+    `;
+  }
+
   function buildCVHTML() {
     const data = getCVData();
 
@@ -653,6 +827,24 @@
 
       case "academic":
         return academicCV(data);
+
+      case "scholarship":
+        return scholarshipCV(data);
+
+      case "nigerian":
+        return nigerianCV(data);
+
+      case "europass":
+        return europassCV(data);
+
+      case "onepage":
+        return onePageCV(data);
+
+      case "creative":
+        return creativeCV(data);
+
+      case "signature":
+        return signatureCV(data);
 
       case "classic":
       default:
@@ -1382,6 +1574,74 @@
       font-variant: small-caps;
     }
 
+    /* SCHOLARSHIP CV */
+
+    .cv-scholarship { --cv-font: Georgia, "Times New Roman", serif; border-top: 8px solid var(--cv-accent, #7a1f3d); }
+    .cv-scholarship .sch-head { margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #bdbdbd; }
+    .cv-scholarship h1 { font-size: 26pt; color: var(--cv-accent, #7a1f3d); }
+    .cv-scholarship .cv-role { font-style: italic; color: #444444; }
+    .cv-scholarship .cv-contact { color: #444444; }
+    .cv-scholarship h2 { font-size: 11pt; color: var(--cv-accent, #7a1f3d); letter-spacing: 0.08em; padding-left: 10px; border-left: 4px solid #b08d3c; }
+    .cv-scholarship .cv-section-content { padding-left: 14px; }
+    .cv-scholarship .sch-ref { margin: 14px 0 0; font-style: italic; color: #555555; }
+
+    /* NIGERIAN GRADUATE */
+
+    .cv-nigerian .ng-head { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 18px 22px; margin-bottom: 20px; background: #eef5f0; border-bottom: 4px solid var(--cv-accent, #075b3b); }
+    .cv-nigerian .ng-id { min-width: 0; flex: 1; }
+    .cv-nigerian h1 { font-size: 24pt; color: var(--cv-accent, #075b3b); }
+    .cv-nigerian .cv-role { font-weight: 700; color: #333333; }
+    .cv-nigerian .cv-contact { color: #444444; }
+    .cv-nigerian .ng-photo { flex: none; width: 104px; height: 104px; object-fit: cover; border-radius: 50%; border: 3px solid var(--cv-accent, #075b3b); }
+    .cv-nigerian h2 { display: inline-block; font-size: 10.5pt; padding: 3px 12px; margin-bottom: 8px; color: #ffffff; background: var(--cv-accent, #075b3b); }
+    .cv-nigerian .ng-ref { margin: 12px 0 0; font-style: italic; color: #555555; }
+
+    /* EUROPASS-STYLE */
+
+    .cv-europass .eu-head { padding-bottom: 10px; margin-bottom: 0; border-bottom: 3px solid var(--cv-accent, #0b5fa5); }
+    .cv-europass h1 { font-size: 24pt; color: var(--cv-accent, #0b5fa5); }
+    .cv-europass .cv-role { color: #333333; }
+    .cv-europass .eu-contact { display: flex; flex-wrap: wrap; gap: 4px 20px; padding: 9px 12px; margin-bottom: 18px; background: #eef3f8; font-size: 9.5pt; color: #333333; }
+    .cv-europass .cv-section { display: grid; grid-template-columns: 128px minmax(0, 1fr); column-gap: 0; }
+    .cv-europass h2 { padding: 2px 14px 0 0; text-align: right; font-size: 10pt; text-transform: none; letter-spacing: 0; color: var(--cv-accent, #0b5fa5); }
+    .cv-europass .cv-section-content { min-width: 0; padding-left: 16px; border-left: 2px solid #c9d6e3; }
+
+    /* ONE-PAGE RESUME */
+
+    .cv-onepage { --cv-font: Arial, Helvetica, sans-serif; font-size: 10pt; line-height: 1.2; padding: 28px 38px; }
+    .cv-onepage .op-head { margin-bottom: 10px; }
+    .cv-onepage h1 { display: inline; font-size: 21pt; color: #111111; }
+    .cv-onepage .op-role { margin-left: 12px; font-size: 11pt; color: var(--cv-accent, #1b2a41); font-weight: 700; }
+    .cv-onepage .op-contact { margin: 3px 0 0; font-size: 9pt; color: #444444; }
+    .cv-onepage h2 { margin-bottom: 4px; padding-bottom: 1px; font-size: 9.5pt; color: var(--cv-accent, #1b2a41); border-bottom: 1.5px solid var(--cv-accent, #1b2a41); }
+    .cv-onepage .cv-section { margin-bottom: 9px; }
+    .cv-onepage .cv-entry { margin-bottom: 6px; }
+    .cv-onepage .cv-entry-sub { font-size: 9pt; }
+    .cv-onepage .cv-list li { margin-bottom: 1px; }
+
+    /* TECH AND CREATIVE */
+
+    .cv-document.cv-creative { --cv-font: "Helvetica Neue", Helvetica, Arial, sans-serif; padding: 0; }
+    .cv-creative .cr-head { padding: 30px 40px 22px; background: #1d2430; border-bottom: 5px solid var(--cv-accent, #00a389); }
+    .cv-creative h1 { color: #ffffff; font-size: 27pt; letter-spacing: 0.01em; }
+    .cv-creative .cv-role { color: var(--cv-accent, #00a389); font-size: 13pt; font-weight: 700; }
+    .cv-creative .cr-contact { margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 9.5pt; color: #cfd6e0; }
+    .cv-creative .cr-body { padding: 22px 40px 30px; }
+    .cv-creative h2 { display: inline-block; padding: 2px 10px; font-size: 10pt; color: #ffffff; background: var(--cv-accent, #00a389); border-radius: 3px; margin-bottom: 9px; }
+    .cv-creative .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .cv-creative .chip { padding: 3px 10px; font-size: 9.5pt; color: #1d2430; background: #e3f6f2; border: 1px solid var(--cv-accent, #00a389); border-radius: 999px; }
+
+    /* GOLD AND EMERALD SIGNATURE */
+
+    .cv-document.cv-signature { padding: 0; }
+    .cv-signature .sg-head { padding: 30px 44px 18px; text-align: center; background: var(--cv-accent, #075b3b); border-bottom: 5px solid #c6a24a; }
+    .cv-signature h1 { color: #ffffff; font-size: 26pt; letter-spacing: 0.03em; }
+    .cv-signature .cv-role { color: #e8cf8a; font-style: italic; font-size: 12.5pt; }
+    .cv-signature .sg-contact { margin: 0; padding: 9px 44px; text-align: center; font-size: 9.5pt; color: #4a4a4a; background: #faf5e4; border-bottom: 1px solid #c6a24a; }
+    .cv-signature .sg-body { padding: 20px 44px 30px; }
+    .cv-signature h2 { display: flex; align-items: center; gap: 12px; font-size: 11pt; color: var(--cv-accent, #075b3b); }
+    .cv-signature h2::after { content: ""; flex: 1; height: 1.5px; background: #c6a24a; }
+
     /* SPACING */
 
     .cv-document.space-compact {
@@ -1414,6 +1674,15 @@
       margin-bottom: 5px;
     }
 
+    .cv-document.cv-creative.space-compact,
+    .cv-document.cv-creative.space-relaxed,
+    .cv-document.cv-signature.space-compact,
+    .cv-document.cv-signature.space-relaxed,
+    .cv-document.cv-sidebar.space-compact,
+    .cv-document.cv-sidebar.space-relaxed {
+      padding: 0;
+    }
+
     .cv-document.cv-sidebar.space-compact .sidebar-main {
       padding: 24px 26px;
     }
@@ -1434,6 +1703,7 @@
       }
 
       .cv-modern .cv-section,
+      .cv-europass .cv-section,
       .executive-body,
       .sidebar-layout {
         grid-template-columns: 1fr;
@@ -1468,8 +1738,17 @@
       .cv-executive .executive-head {
         padding: 20px;
       }
+
+      .cv-europass h2 { text-align: left; padding-right: 0; }
+      .cv-europass .cv-section-content { padding-left: 0; border-left: 0; }
+      .cv-nigerian .ng-head { padding: 14px; }
+      .cv-nigerian .ng-photo { width: 76px; height: 76px; }
+      .cv-creative .cr-head, .cv-creative .cr-body,
+      .cv-signature .sg-head, .cv-signature .sg-body,
+      .cv-signature .sg-contact { padding-left: 18px; padding-right: 18px; }
     }
-  
+  `;
+
   function installDesignStyles() {
     if ($("noh-cv-design-styles")) return;
 
@@ -1480,6 +1759,63 @@
 
     document.head.appendChild(style);
   }
+
+  function setupPhoto() {
+    const input = $("cv-photo");
+
+    if (!input) return;
+
+    input.addEventListener("change", () => {
+      const file = input.files && input.files[0];
+
+      photoData = "";
+
+      if (!file || !/^image\//.test(file.type)) {
+        updatePreview();
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const img = new Image();
+
+        img.onload = () => {
+          const size = 240;
+          const canvas = document.createElement("canvas");
+          const side = Math.min(img.width, img.height);
+
+          canvas.width = size;
+          canvas.height = size;
+
+          canvas.getContext("2d").drawImage(
+            img,
+            (img.width - side) / 2,
+            (img.height - side) / 2,
+            side,
+            side,
+            0,
+            0,
+            size,
+            size
+          );
+
+          photoData = canvas.toDataURL("image/jpeg", 0.85);
+          updatePreview();
+        };
+
+        img.src = reader.result;
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    form.addEventListener("reset", () => {
+      photoData = "";
+      window.setTimeout(updatePreview, 0);
+    });
+  }
+
 
   // --------------------------------------------------
   // LIVE PREVIEW
@@ -2614,6 +2950,7 @@
 
   configureTool();
   installDesignStyles();
+  setupPhoto();
   updatePreview();
   initAIAccess();
 
