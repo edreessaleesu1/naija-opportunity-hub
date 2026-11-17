@@ -43,9 +43,7 @@
   let supabaseClient = null;
   let processing = false;
 
-  /* ----------------------------------------------------------
-     SUPABASE AUTHENTICATION
-  ---------------------------------------------------------- */
+  /* SUPABASE AUTHENTICATION */
 
   function getClient() {
     if (window.NOH_SUPABASE_CLIENT) {
@@ -82,9 +80,7 @@
     return data?.session?.access_token || null;
   }
 
-  /* ----------------------------------------------------------
-     FORM HELPERS
-  ---------------------------------------------------------- */
+  /* FORM HELPERS */
 
   function getValue(id) {
     const field = $(id);
@@ -161,9 +157,7 @@
     };
   }
 
-  /* ----------------------------------------------------------
-     CV FIELD MAPPING
-  ---------------------------------------------------------- */
+  /* CV FIELD MAPPING */
 
   function applyCV(data) {
     if (!data || typeof data !== "object") {
@@ -204,9 +198,7 @@
     return applied;
   }
 
-  /* ----------------------------------------------------------
-     AI RESPONSE PARSING
-  ---------------------------------------------------------- */
+  /* AI RESPONSE PARSING */
 
   function parseJSON(raw) {
     if (raw && typeof raw === "object") {
@@ -233,9 +225,7 @@
     );
   }
 
-  /* ----------------------------------------------------------
-     LOCAL CV FILE EXTRACTION
-  ---------------------------------------------------------- */
+  /* LOCAL CV FILE EXTRACTION */
 
   function loadScript(url, ready) {
     if (ready()) return Promise.resolve();
@@ -388,9 +378,7 @@
     return text;
   }
 
-  /* ----------------------------------------------------------
-     RESULT DISPLAY
-  ---------------------------------------------------------- */
+  /* RESULT DISPLAY */
 
   function showResult(title, message) {
     const box = $("ai-result");
@@ -436,9 +424,7 @@
     });
   }
 
-  /* ----------------------------------------------------------
-     AI REQUEST
-  ---------------------------------------------------------- */
+  /* AI REQUEST */
 
   async function requestAI(action, extra = {}) {
     if (processing) return;
@@ -535,9 +521,7 @@
     }
   }
 
-  /* ----------------------------------------------------------
-     AI ACTIONS
-  ---------------------------------------------------------- */
+  /* AI ACTIONS */
 
   async function improveCV() {
     const result = await requestAI("improve-cv");
@@ -655,9 +639,7 @@
     );
   }
 
-  /* ----------------------------------------------------------
-     BUTTON HANDLERS
-  ---------------------------------------------------------- */
+  /* BUTTON HANDLERS */
 
   function run(action) {
     action().catch((error) => {
@@ -691,34 +673,13 @@
     );
   }
 
-  interceptButton(
-    "ai-improve-cv",
-    improveCV
-  );
+  interceptButton("ai-improve-cv", improveCV);
+  interceptButton("ai-improve-summary", improveSummary);
+  interceptButton("ai-write-letter", writeLetter);
+  interceptButton("ai-review-cv", reviewCV);
+  interceptButton("ai-extract-cv", extractCV);
 
-  interceptButton(
-    "ai-improve-summary",
-    improveSummary
-  );
-
-  interceptButton(
-    "ai-write-letter",
-    writeLetter
-  );
-
-  interceptButton(
-    "ai-review-cv",
-    reviewCV
-  );
-
-  interceptButton(
-    "ai-extract-cv",
-    extractCV
-  );
-
-  /* ----------------------------------------------------------
-     CV UPLOAD BUTTON
-  ---------------------------------------------------------- */
+  /* CV UPLOAD BUTTON */
 
   const fileInput = $("cv-file");
 
@@ -745,9 +706,7 @@
     );
   }
 
-  /* ----------------------------------------------------------
-     CAREER BUNDLE BUTTON
-  ---------------------------------------------------------- */
+  /* CAREER BUNDLE BUTTON */
 
   function installBundleButton() {
     const params = new URLSearchParams(
