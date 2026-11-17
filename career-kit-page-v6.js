@@ -374,12 +374,12 @@
     },
     nigerian: {
       best: "Best for Nigerian graduates and NYSC members. Optional photo and referees line.",
-      sec: SEC("Personal Profile", "Education", "Work Experience and NYSC Service", "Skills"),
-      label: { summary: "Personal profile", education: "Education (include class of degree)", experience: "Work experience and NYSC service", skills: "Skills", certificates: "Certifications and training" },
+      sec: SEC("Personal Profile", "Education", "Work Experience", "Skills"),
+      label: { summary: "Personal profile", education: "Education (include class of degree)", experience: "Work experience", skills: "Skills", certificates: "Certifications and training" },
       ph: {
         summary: "Two or three lines about your degree, NYSC year and the job you want.",
         education: "Ahmadu Bello University\nB.Sc. Geography, Second Class Upper, 2013 - 2017",
-        experience: "NYSC Corps Member\nMinistry of Environment, Abuja | 2018 - 2019\n- Your duties and results\nSales Assistant\nCompany, Lagos | 2019 - 2021\n- Duties",
+        experience: "Sales Assistant\nCompany, Lagos | 2019 - 2021\n- Your duties and results",
         skills: "e.g. Microsoft Office, customer service, data entry",
         certificates: "Certificates, training and professional memberships."
       }
@@ -638,6 +638,8 @@
 
     const profile = templateProfiles[current];
 
+    installExtraFields();
+
     if (!profile) return;
 
     Object.entries(fieldMap).forEach(([key, [inputId, fieldId]]) => {
@@ -657,6 +659,14 @@
     setText("template-hint", profile.best);
 
     setHidden("photo-field", current !== "nigerian" || tool === "cover-letter");
+
+    installExtraFields();
+
+    const allowed = extraFor[current] || [];
+
+    Object.keys(extraDefs).forEach((key) => {
+      setHidden("x-" + key + "-field", !allowed.includes(key) || tool === "cover-letter");
+    });
   }
 
   // --------------------------------------------------
@@ -749,17 +759,164 @@
   // CV DATA
   // --------------------------------------------------
 
+  // Extra, template-specific fields. They appear in the form only for the
+  // templates that print them.
+  const extraDefs = {
+    nysc: {
+      title: "National Youth Service Corps (NYSC)",
+      label: "NYSC service",
+      kind: "entries",
+      rows: 3,
+      ph: "NYSC Corps Member\nMinistry of Environment, Abuja | 2018 - 2019\n- Your duties during service"
+    },
+    achievements: {
+      title: "Key Achievements",
+      label: "Key achievements (3 to 5 lines)",
+      kind: "plain",
+      rows: 4,
+      ph: "- Grew revenue by 35% in two years\n- Led a team of 40 across 3 states"
+    },
+    publications: {
+      title: "Publications and Conferences",
+      label: "Publications, research outputs and conferences",
+      kind: "plain",
+      rows: 4,
+      ph: "- Bello, A. (2022). Title. Journal Name, 12(3), 45-60.\n- Presented at the International Climate Conference, 2021"
+    },
+    languages: {
+      title: "Languages",
+      label: "Languages",
+      kind: "skills",
+      rows: 2,
+      ph: "English: Fluent\nHausa: Native\nFrench: B1"
+    },
+    interests: {
+      title: "Interests",
+      label: "Interests (optional)",
+      kind: "plain",
+      rows: 2,
+      ph: "Football, community volunteering, reading"
+    },
+    referees: {
+      title: "Referees",
+      label: "Referees (optional)",
+      kind: "plain",
+      rows: 3,
+      ph: "Prof. A. Danjuma, University of Ibadan, a.danjuma@example.com, +234...\nMrs B. Okoro, Green Africa Initiative"
+    },
+    portfolio: {
+      title: "",
+      label: "Portfolio, GitHub or website (optional)",
+      kind: "plain",
+      rows: 1,
+      single: true,
+      ph: "yourname.com or github.com/yourname"
+    }
+  };
+
+  const extraFor = {
+    classic: ["interests"],
+    graduate: ["interests", "referees"],
+    nigerian: ["nysc", "interests", "referees"],
+    ats: [],
+    onepage: ["portfolio"],
+    modern: ["languages", "portfolio"],
+    sidebar: ["languages", "portfolio"],
+    executive: ["achievements", "languages"],
+    signature: ["achievements", "languages", "portfolio"],
+    creative: ["portfolio", "interests"],
+    scholarship: ["publications", "languages", "referees"],
+    academic: ["publications", "languages", "referees"],
+    europass: ["languages", "interests"]
+  };
+
+  function installExtraFields() {
+    if ($("x-fields-installed")) return;
+
+    const anchor = $("certificates-field");
+
+    if (!anchor) return;
+
+    const marker = document.createElement("span");
+
+    marker.id = "x-fields-installed";
+    marker.hidden = true;
+
+    let after = anchor;
+
+    Object.entries(extraDefs).forEach(([key, def]) => {
+      const wrap = document.createElement("div");
+
+      wrap.className = "field";
+      wrap.id = "x-" + key + "-field";
+      wrap.hidden = true;
+
+      const label = document.createElement("label");
+
+      label.setAttribute("for", "x-" + key);
+      label.textContent = def.label;
+
+      let input;
+
+      if (def.single) {
+        input = document.createElement("input");
+        input.type = "text";
+      } else {
+        input = document.createElement("textarea");
+        input.rows = def.rows;
+      }
+
+      input.id = "x-" + key;
+      input.name = "x_" + key;
+      input.placeholder = def.ph;
+
+      wrap.append(label, input);
+      after.insertAdjacentElement("afterend", wrap);
+      after = wrap;
+    });
+
+    anchor.appendChild(marker);
+  }
+
+  function currentExtras() {
+    const allowed = extraFor[getTemplate()] || [];
+    const out = {};
+
+    Object.keys(extraDefs).forEach((key) => {
+      out[key] = allowed.includes(key) && tool !== "cover-letter"
+        ? value("x-" + key)
+        : "";
+    });
+
+    return out;
+  }
+
+  // Sections for the extra fields, in the order given.
+  function xs(data, keys) {
+    return keys.map((key) =>
+      data.x[key]
+        ? sectionHTML(extraDefs[key].title, data.x[key], extraDefs[key].kind)
+        : ""
+    ).join("");
+  }
+
   function getCVData() {
+    const x = currentExtras();
+    const items = contactItems();
+
+    if (x.portfolio) items.push(cleanLink(x.portfolio));
+
     return {
       name: value("full-name", "Your Full Name"),
       job: value("job-title"),
-      contact: contactDetails(),
-      contactItems: contactItems(),
+      contact: items.join("  |  "),
+      contactItems: items,
       summary: value("summary"),
       education: value("education"),
       experience: value("experience"),
       skills: value("skills"),
-      certificates: value("certificates")
+      certificates: value("certificates"),
+      x
     };
   }
 
@@ -799,6 +956,7 @@
         ${sectionHTML("Education", data.education)}
         ${sectionHTML("Skills", data.skills, "skills")}
         ${sectionHTML("Certifications & Training", data.certificates, "plain")}
+        ${xs(data, ["interests"])}
       </article>
     `;
   }
@@ -821,6 +979,7 @@
         ${sectionHTML("Experience", data.experience)}
         ${sectionHTML("Education", data.education)}
         ${sectionHTML("Skills", data.skills, "skills")}
+        ${xs(data, ["languages"])}
         ${sectionHTML("Training", data.certificates, "plain")}
       </article>
     `;
@@ -829,6 +988,7 @@
   function executiveUK(data) {
     const sideHTML =
       sectionHTML("Core Skills", data.skills, "skills") +
+      xs(data, ["languages"]) +
       sectionHTML("Training & Certifications", data.certificates, "plain");
 
     return `
@@ -842,6 +1002,7 @@
         <div class="executive-body${sideHTML.trim() ? "" : " no-side"}">
           <div class="executive-main">
             ${sectionHTML("Profile", data.summary, "plain")}
+            ${xs(data, ["achievements"])}
             ${sectionHTML("Career History", data.experience)}
             ${sectionHTML("Education", data.education)}
           </div>
@@ -873,6 +1034,7 @@
         ${sectionHTML("Experience & Projects", data.experience)}
         ${sectionHTML("Skills", data.skills, "skills")}
         ${sectionHTML("Certifications & Activities", data.certificates, "plain")}
+        ${xs(data, ["interests", "referees"])}
       </article>
     `;
   }
@@ -888,6 +1050,7 @@
           <aside class="sidebar-col">
             ${contactBlock}
             ${sectionHTML("Skills", data.skills, "skills")}
+            ${xs(data, ["languages"])}
             ${sectionHTML("Training and Certifications", data.certificates, "plain")}
           </aside>
 
@@ -936,8 +1099,10 @@
         ${sectionHTML("Research Profile", data.summary, "plain")}
         ${sectionHTML("Education", data.education)}
         ${sectionHTML("Research and Professional Experience", data.experience)}
+        ${xs(data, ["publications"])}
         ${sectionHTML("Awards, Grants and Training", data.certificates, "plain")}
         ${sectionHTML("Skills", data.skills, "skills")}
+        ${xs(data, ["languages", "referees"])}
       </article>
     `;
   }
@@ -973,9 +1138,11 @@
         ${sectionHTML("Personal Statement", data.summary, "plain")}
         ${sectionHTML("Education", data.education)}
         ${sectionHTML("Experience and Leadership", data.experience)}
+        ${xs(data, ["publications"])}
         ${sectionHTML("Awards, Scholarships and Certifications", data.certificates, "plain")}
         ${sectionHTML("Skills", data.skills, "skills")}
-        ${data.name ? `<p class="sch-ref">Referees available on request.</p>` : ""}
+        ${xs(data, ["languages", "referees"])}
+        ${data.x.referees ? "" : `<p class="sch-ref">Referees available on request.</p>`}
       </article>
     `;
   }
@@ -998,10 +1165,12 @@
 
         ${sectionHTML("Personal Profile", data.summary, "plain")}
         ${sectionHTML("Education", data.education)}
-        ${sectionHTML("Work Experience and NYSC Service", data.experience)}
+        ${xs(data, ["nysc"])}
+        ${sectionHTML("Work Experience", data.experience)}
         ${sectionHTML("Skills", data.skills, "skills")}
         ${sectionHTML("Certifications and Training", data.certificates, "plain")}
-        <p class="ng-ref">Referees available on request.</p>
+        ${xs(data, ["interests", "referees"])}
+        ${data.x.referees ? "" : `<p class="ng-ref">Referees available on request.</p>`}
       </article>
     `;
   }
@@ -1022,7 +1191,9 @@
         ${sectionHTML("Work experience", data.experience)}
         ${sectionHTML("Education and training", data.education)}
         ${sectionHTML("Skills", data.skills, "skills")}
+        ${data.x.languages ? sectionHTML("Language skills", data.x.languages, "skills") : ""}
         ${sectionHTML("Certificates and other information", data.certificates, "plain")}
+        ${xs(data, ["interests"])}
       </article>
     `;
   }
@@ -1067,6 +1238,7 @@
           ${sectionHTML("Experience and Projects", data.experience)}
           ${sectionHTML("Education", data.education)}
           ${sectionHTML("Certifications", data.certificates, "plain")}
+          ${xs(data, ["interests"])}
         </div>
       </article>
     `;
@@ -1085,9 +1257,11 @@
 
         <div class="sg-body">
           ${sectionHTML("Profile", data.summary, "plain")}
+          ${xs(data, ["achievements"])}
           ${sectionHTML("Experience", data.experience)}
           ${sectionHTML("Education", data.education)}
           ${sectionHTML("Skills", data.skills, "skills")}
+          ${xs(data, ["languages"])}
           ${sectionHTML("Training and Certifications", data.certificates, "plain")}
         </div>
       </article>
@@ -2134,6 +2308,10 @@
   }
 
 
+  // Side by side is handled by the page stylesheet on desktop and tablets
+  // wider than 800px. Phones keep the stacked layout.
+  function fitPreview() {}
+
   // --------------------------------------------------
   // LIVE PREVIEW
   // --------------------------------------------------
@@ -2161,6 +2339,8 @@
       preview.innerHTML = buildCVHTML();
     }
 
+    preview.innerHTML = `<div class="noh-scale">${preview.innerHTML}</div>`;
+
     let status = tool === "bundle"
       ? "CV and cover letter preview"
       : "Preview updated";
@@ -2178,6 +2358,8 @@
     }
 
     setText("preview-status", status);
+
+    fitPreview();
   }
 
   function previewDocument() {
