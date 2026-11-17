@@ -55,8 +55,19 @@
     navy: "#1b2a41",
     burgundy: "#7a1f3d",
     teal: "#0b4f6c",
-    charcoal: "#2b2f36"
+    charcoal: "#2b2f36",
+    gold: "#8a6a1c"
   };
+
+  // Light tint of an accent colour (mixed with white), used for soft backgrounds.
+  function tintOf(hex, amount = 0.9) {
+    const n = parseInt(hex.slice(1), 16);
+    const mix = (c) => Math.round(c + (255 - c) * amount);
+
+    return "#" + [n >> 16, (n >> 8) & 255, n & 255]
+      .map((c) => mix(c).toString(16).padStart(2, "0"))
+      .join("");
+  }
 
   const titles = {
     cv: "Professional CV Builder",
@@ -169,7 +180,9 @@
 
   function docAttrs(extraClass = "") {
     const colour = themes[value("theme", "default")] || "";
-    const style = colour ? ` style="--cv-accent:${colour}"` : "";
+    const style = colour
+      ? ` style="--cv-accent:${colour};--cv-tint:${tintOf(colour)}"`
+      : "";
 
     return `class="cv-document ${extraClass} space-${getSpacing()}"${style}`;
   }
@@ -309,66 +322,341 @@
   // TEMPLATE SELECTOR — GROUPED CATEGORIES
   // --------------------------------------------------
 
+  const categories = [
+    {
+      id: "everyday",
+      label: "Everyday",
+      title: "Everyday and Graduate",
+      values: ["classic", "graduate", "nigerian", "ats", "onepage"]
+    },
+    {
+      id: "professional",
+      label: "Professional",
+      title: "Professional and Creative",
+      values: ["modern", "sidebar", "executive", "signature", "creative"]
+    },
+    {
+      id: "study",
+      label: "Study and Research",
+      title: "Scholarship and Research",
+      values: ["scholarship", "academic", "europass"]
+    }
+  ];
+
+  // What each template needs from the form, matching its own headings.
+  const SEC = (profile, education, experience, skills) =>
+    ({ profile, education, experience, skills });
+
+  const templateProfiles = {
+    classic: {
+      best: "Best for most jobs in Nigeria and the UK. Clean, centred and traditional.",
+      sec: SEC("Professional Profile", "Education", "Work Experience", "Skills"),
+      label: { summary: "Professional profile", education: "Education", experience: "Work experience", skills: "Skills", certificates: "Certifications and training" },
+      ph: {
+        summary: "Two to four lines: who you are, your strongest skills and the role you want.",
+        education: "Institution, qualification and year.\nUniversity of Lagos\nBSc Accounting, 2018 - 2022",
+        experience: "Job title\nOrganisation, City | 2022 - Present\n- Achievement with a number",
+        skills: "e.g. Excel, communication, research, teamwork",
+        certificates: "Certifications, short courses and training."
+      }
+    },
+    graduate: {
+      best: "Best for students and recent graduates. Education comes first, then projects.",
+      sec: SEC("Profile", "Education", "Experience and Projects", "Skills"),
+      label: { summary: "Profile", education: "Education (put your best result)", experience: "Experience, internships and projects", skills: "Skills", certificates: "Certifications and activities" },
+      ph: {
+        summary: "Recent graduate in ... seeking a role in ... Mention your degree and strongest skill.",
+        education: "University of Ibadan\nBSc Economics, Second Class Upper, 2019 - 2023\n- Relevant modules or final-year project",
+        experience: "Internship or project title\nOrganisation | 2023\n- What you did and what it achieved",
+        skills: "e.g. Excel, SPSS, report writing, teamwork",
+        certificates: "Leadership roles, volunteering, clubs, short courses."
+      }
+    },
+    nigerian: {
+      best: "Best for Nigerian graduates and NYSC members. Optional photo and referees line.",
+      sec: SEC("Personal Profile", "Education", "Work Experience and NYSC Service", "Skills"),
+      label: { summary: "Personal profile", education: "Education (include class of degree)", experience: "Work experience and NYSC service", skills: "Skills", certificates: "Certifications and training" },
+      ph: {
+        summary: "Two or three lines about your degree, NYSC year and the job you want.",
+        education: "Ahmadu Bello University\nB.Sc. Geography, Second Class Upper, 2013 - 2017",
+        experience: "NYSC Corps Member\nMinistry of Environment, Abuja | 2018 - 2019\n- Your duties and results\nSales Assistant\nCompany, Lagos | 2019 - 2021\n- Duties",
+        skills: "e.g. Microsoft Office, customer service, data entry",
+        certificates: "Certificates, training and professional memberships."
+      }
+    },
+    ats: {
+      best: "Best for online applications and recruiter software. No colours needed, plain structure.",
+      sec: SEC("Professional Summary", "Education", "Work Experience", "Skills"),
+      label: { summary: "Professional summary", education: "Education", experience: "Work experience", skills: "Skills (keywords from the job advert)", certificates: "Certifications" },
+      ph: {
+        summary: "Use the job title and key words from the advert.",
+        education: "Institution, qualification, year.",
+        experience: "Job title\nOrganisation, City | 2021 - Present\n- Start each bullet with an action word",
+        skills: "Plain keywords separated by commas, e.g. Project management, SQL, Excel",
+        certificates: "Name of certification, issuer, year."
+      }
+    },
+    onepage: {
+      best: "Best for a tight single page. We tell you if your content runs over.",
+      sec: SEC("Summary", "Education", "Experience", "Skills"),
+      label: { summary: "Summary (two lines)", education: "Education", experience: "Experience (3 to 4 bullets per job)", skills: "Skills", certificates: "Certifications" },
+      ph: {
+        summary: "One or two lines only.",
+        education: "School, degree, year.",
+        experience: "Job title\nCompany | 2021 - Present\n- Short, results-focused bullet",
+        skills: "Python, Excel, SQL, Tableau",
+        certificates: "Short list only."
+      }
+    },
+    modern: {
+      best: "Best for corporate, NGO and office roles. Sans-serif with a section label column.",
+      sec: SEC("Profile", "Education", "Experience", "Skills"),
+      label: { summary: "Profile", education: "Education", experience: "Experience", skills: "Skills", certificates: "Training" },
+      ph: {
+        summary: "A short profile of your experience and what you offer.",
+        education: "Institution, qualification and year.",
+        experience: "Job title\nOrganisation, City | 2021 - Present\n- Achievement with a number",
+        skills: "Technical: Python, Excel\nLanguages: English, French",
+        certificates: "Training courses and certificates."
+      }
+    },
+    sidebar: {
+      best: "Best for a bold look. Contact, skills and training sit in the side panel, so keep them short.",
+      sec: SEC("Profile", "Education", "Experience", "Skills (side panel)"),
+      label: { summary: "Profile", education: "Education", experience: "Experience", skills: "Skills (short lines for the side panel)", certificates: "Training and certifications (short lines)" },
+      ph: {
+        summary: "A short profile of your experience.",
+        education: "Institution, qualification and year.",
+        experience: "Job title\nOrganisation, City | 2021 - Present\n- Achievement with a number",
+        skills: "Excel\nProject planning\nPublic speaking",
+        certificates: "PMP, 2023\nGIS Certificate"
+      }
+    },
+    executive: {
+      best: "Best for managers and senior roles. Leads with scope, budgets and results.",
+      sec: SEC("Profile", "Education", "Career History", "Core Skills (side column)"),
+      label: { summary: "Executive profile", education: "Education", experience: "Career history", skills: "Core skills (side column)", certificates: "Training and certifications (side column)" },
+      ph: {
+        summary: "Senior leader with X years in ... Mention scale: team size, budget, markets.",
+        education: "Institution, qualification and year.",
+        experience: "Director of Operations\nCompany, Lagos | 2019 - Present\n- Led 40 staff and a N2bn budget\n- Cut costs by 18%",
+        skills: "Strategy\nP&L management\nStakeholder engagement",
+        certificates: "MBA, 2018\nChartered membership"
+      }
+    },
+    signature: {
+      best: "Best for a refined, memorable CV. Emerald and gold, suited to consulting and leadership.",
+      sec: SEC("Profile", "Education", "Experience", "Skills"),
+      label: { summary: "Profile", education: "Education", experience: "Experience", skills: "Skills", certificates: "Training and certifications" },
+      ph: {
+        summary: "A confident two to four line profile.",
+        education: "Institution, qualification and year.",
+        experience: "Job title\nOrganisation, City | 2021 - Present\n- Achievement with a number",
+        skills: "Technical: Excel, SQL\nLanguages: English, Yoruba",
+        certificates: "Training and certifications."
+      }
+    },
+    creative: {
+      best: "Best for tech, design and digital roles. Skills appear as chips, so separate them with commas.",
+      sec: SEC("Profile", "Education", "Experience and Projects", "Skills (shown as chips)"),
+      label: { summary: "Profile", education: "Education", experience: "Experience and projects", skills: "Skills (separate with commas)", certificates: "Certifications" },
+      ph: {
+        summary: "One punchy paragraph about what you build or design.",
+        education: "Institution, qualification and year.",
+        experience: "Frontend Developer\nStartup, Lagos | 2022 - Present\n- Built X used by Y people\nProject: Portfolio site (yoursite.com)\n- What it does",
+        skills: "React, JavaScript, Figma, SQL, Git",
+        certificates: "Certifications and courses."
+      }
+    },
+    scholarship: {
+      best: "Best for Chevening, Commonwealth, DAAD and similar. Leads with your statement and leadership.",
+      sec: SEC("Personal Statement", "Education", "Experience and Leadership", "Skills"),
+      label: { summary: "Personal statement (goals and impact)", education: "Education", experience: "Experience and leadership", skills: "Skills", certificates: "Awards, scholarships and certifications" },
+      ph: {
+        summary: "Your career goal, leadership record and how you will use the award back home.",
+        education: "University, degree, class and year.\nInclude your dissertation topic if relevant.",
+        experience: "Role\nOrganisation | 2020 - Present\n- Leadership or community impact with numbers",
+        skills: "Research: Stata, NVivo\nLanguages: English, French",
+        certificates: "Awards, scholarships, publications and volunteering."
+      }
+    },
+    academic: {
+      best: "Best for research, PhD and lecturing roles. Lists research, teaching and grants.",
+      sec: SEC("Research Profile", "Education", "Research and Professional Experience", "Skills"),
+      label: { summary: "Research profile", education: "Education (add thesis title)", experience: "Research, teaching and professional experience", skills: "Methods, software and languages", certificates: "Awards, grants, publications and training" },
+      ph: {
+        summary: "Your research area, methods and what you want to study next.",
+        education: "University of Ibadan\nMSc Environmental Management, 2019 - 2021\n- Thesis: title",
+        experience: "Research Assistant\nInstitute, City | 2019 - 2021\n- Research done, data used and outputs\nTeaching Assistant\nDepartment | 2020\n- Courses taught",
+        skills: "Methods: Regression, GIS\nSoftware: R, Stata\nLanguages: English",
+        certificates: "Publications, conferences, grants and awards."
+      }
+    },
+    europass: {
+      best: "Best for Europe and EU institutions. Left label column, with languages in your skills.",
+      sec: SEC("About me", "Education and training", "Work experience", "Skills"),
+      label: { summary: "About me", education: "Education and training", experience: "Work experience", skills: "Skills (add languages with levels)", certificates: "Certificates and other information" },
+      ph: {
+        summary: "A short personal introduction.",
+        education: "Institution, qualification and year.",
+        experience: "Job title\nOrganisation, City, Country | 2021 - Present\n- Main activities",
+        skills: "Mother tongue: Hausa\nEnglish: C2\nFrench: B1\nDigital: Excel, Word",
+        certificates: "Driving licence, volunteering, memberships, courses."
+      }
+    }
+  };
+
+  const fieldMap = {
+    summary: ["summary", "summary-field"],
+    education: ["education", "education-field"],
+    experience: ["experience", "experience-field"],
+    skills: ["skills", "skills-field"],
+    certificates: ["certificates", "certificates-field"]
+  };
+
+  let activeCategory = "everyday";
+  let appliedProfile = "";
+
+  function categoryOf(templateValue) {
+    const found = categories.find((c) => c.values.includes(templateValue));
+    return found ? found.id : "everyday";
+  }
+
+  function installTemplateTabsStyle() {
+    if ($("noh-template-tabs-style")) return;
+
+    const style = document.createElement("style");
+
+    style.id = "noh-template-tabs-style";
+    style.textContent = `
+      .template-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+      .template-tabs button { flex: 1 1 0; min-width: 0; min-height: 40px; padding: 6px 6px; border: 1.5px solid #c6a24a; border-radius: 999px; background: #fffdf6; color: #1d2a20; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+      .template-tabs button[aria-selected="true"] { background: #c6a24a; color: #1d2a20; }
+      .template-hint { margin: 8px 0 0; font-size: 13px; line-height: 1.45; color: #4a5d53; }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  function buildTemplateOptions(select, selectedValue) {
+    const category = categories.find((c) => c.id === activeCategory) || categories[0];
+
+    select.replaceChildren();
+
+    category.values.forEach((templateValue) => {
+      const template = templates.find((item) => item.value === templateValue);
+
+      if (!template) return;
+
+      const option = document.createElement("option");
+
+      option.value = template.value;
+      option.textContent = template.label;
+
+      select.appendChild(option);
+    });
+
+    select.value = category.values.includes(selectedValue)
+      ? selectedValue
+      : category.values[0];
+  }
+
   function configureTemplates() {
     const select = $("template");
 
     if (!select) return;
 
-    const previousValue = select.value;
+    installTemplateTabsStyle();
 
-    const templateGroups = [
-      {
-        label: "Essential CV",
-        values: ["classic", "graduate", "ats"]
-      },
-      {
-        label: "Professional CV",
-        values: ["modern", "sidebar", "academic"]
-      },
-      {
-        label: "Executive CV",
-        values: ["executive", "signature"]
-      },
-      {
-        label: "Scholarship and Study",
-        values: ["scholarship", "europass"]
-      },
-      {
-        label: "Nigeria and Graduate",
-        values: ["nigerian", "onepage"]
-      },
-      {
-        label: "Tech and Creative",
-        values: ["creative"]
-      }
-    ];
+    const field = $("template-field");
+    let tabs = $("template-tabs");
 
-    select.replaceChildren();
+    if (!tabs && field) {
+      tabs = document.createElement("div");
 
-    templateGroups.forEach((group) => {
-      const optgroup = document.createElement("optgroup");
-      optgroup.label = group.label;
+      tabs.id = "template-tabs";
+      tabs.className = "template-tabs";
+      tabs.setAttribute("role", "tablist");
+      tabs.setAttribute("aria-label", "Document style categories");
 
-      group.values.forEach((templateValue) => {
-        const template = templates.find(
-          (item) => item.value === templateValue
-        );
+      categories.forEach((category) => {
+        const button = document.createElement("button");
 
-        if (!template) return;
+        button.type = "button";
+        button.dataset.category = category.id;
+        button.setAttribute("role", "tab");
+        button.textContent = category.label;
+        button.title = category.title;
 
-        const option = document.createElement("option");
-        option.value = template.value;
-        option.textContent = template.label;
+        button.addEventListener("click", () => {
+          activeCategory = category.id;
+          buildTemplateOptions(select, category.values[0]);
+          syncTemplateTabs();
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+        });
 
-        optgroup.appendChild(option);
+        tabs.appendChild(button);
       });
 
-      select.appendChild(optgroup);
+      field.insertBefore(tabs, select);
+
+      const hint = document.createElement("p");
+
+      hint.id = "template-hint";
+      hint.className = "template-hint";
+      field.appendChild(hint);
+    }
+
+    const previous = select.value || "classic";
+
+    activeCategory = categoryOf(
+      templates.some((t) => t.value === previous) ? previous : "classic"
+    );
+
+    buildTemplateOptions(select, previous);
+    syncTemplateTabs();
+    appliedProfile = "";
+    applyTemplateProfile();
+  }
+
+  function syncTemplateTabs() {
+    document.querySelectorAll("#template-tabs button").forEach((button) => {
+      button.setAttribute(
+        "aria-selected",
+        String(button.dataset.category === activeCategory)
+      );
+    });
+  }
+
+  // Re-label the form so every field matches the chosen template.
+  function applyTemplateProfile() {
+    const current = getTemplate();
+
+    if (current === appliedProfile) return;
+
+    appliedProfile = current;
+
+    const profile = templateProfiles[current];
+
+    if (!profile) return;
+
+    Object.entries(fieldMap).forEach(([key, [inputId, fieldId]]) => {
+      const input = $(inputId);
+      const wrapper = $(fieldId);
+      const label = wrapper && wrapper.querySelector("label");
+
+      if (label && profile.label[key]) label.textContent = profile.label[key];
+      if (input && profile.ph[key]) input.placeholder = profile.ph[key];
     });
 
-    select.value = templates.some(
-      (template) => template.value === previousValue
-    ) ? previousValue : "classic";
+    setText("sec-profile-title", "Professional Profile");
+    setText("sec-education-title", profile.sec.education);
+    setText("sec-experience-title", profile.sec.experience);
+    setText("sec-skills-title", profile.sec.skills);
+
+    setText("template-hint", profile.best);
+
+    setHidden("photo-field", current !== "nigerian" || tool === "cover-letter");
   }
 
   // --------------------------------------------------
@@ -1289,7 +1577,7 @@
       color: var(--cv-accent, #0b4f6c);
       font-size: 10.5pt;
       padding: 4px 10px;
-      background: rgba(11, 79, 108, 0.08);
+      background: var(--cv-tint, #e7f0f4);
       border-left: 3px solid var(--cv-accent, #0b4f6c);
     }
 
@@ -1587,7 +1875,7 @@
 
     /* NIGERIAN GRADUATE */
 
-    .cv-nigerian .ng-head { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 18px 22px; margin-bottom: 20px; background: #eef5f0; border-bottom: 4px solid var(--cv-accent, #075b3b); }
+    .cv-nigerian .ng-head { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 18px 22px; margin-bottom: 20px; background: var(--cv-tint, #eef5f0); border-bottom: 4px solid var(--cv-accent, #075b3b); }
     .cv-nigerian .ng-id { min-width: 0; flex: 1; }
     .cv-nigerian h1 { font-size: 24pt; color: var(--cv-accent, #075b3b); }
     .cv-nigerian .cv-role { font-weight: 700; color: #333333; }
@@ -1601,7 +1889,7 @@
     .cv-europass .eu-head { padding-bottom: 10px; margin-bottom: 0; border-bottom: 3px solid var(--cv-accent, #0b5fa5); }
     .cv-europass h1 { font-size: 24pt; color: var(--cv-accent, #0b5fa5); }
     .cv-europass .cv-role { color: #333333; }
-    .cv-europass .eu-contact { display: flex; flex-wrap: wrap; gap: 4px 20px; padding: 9px 12px; margin-bottom: 18px; background: #eef3f8; font-size: 9.5pt; color: #333333; }
+    .cv-europass .eu-contact { display: flex; flex-wrap: wrap; gap: 4px 20px; padding: 9px 12px; margin-bottom: 18px; background: var(--cv-tint, #eef3f8); font-size: 9.5pt; color: #333333; }
     .cv-europass .cv-section { display: grid; grid-template-columns: 128px minmax(0, 1fr); column-gap: 0; }
     .cv-europass h2 { padding: 2px 14px 0 0; text-align: right; font-size: 10pt; text-transform: none; letter-spacing: 0; color: var(--cv-accent, #0b5fa5); }
     .cv-europass .cv-section-content { min-width: 0; padding-left: 16px; border-left: 2px solid #c9d6e3; }
@@ -1629,7 +1917,7 @@
     .cv-creative .cr-body { padding: 22px 40px 30px; }
     .cv-creative h2 { display: inline-block; padding: 2px 10px; font-size: 10pt; color: #ffffff; background: var(--cv-accent, #00a389); border-radius: 3px; margin-bottom: 9px; }
     .cv-creative .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
-    .cv-creative .chip { padding: 3px 10px; font-size: 9.5pt; color: #1d2430; background: #e3f6f2; border: 1px solid var(--cv-accent, #00a389); border-radius: 999px; }
+    .cv-creative .chip { padding: 3px 10px; font-size: 9.5pt; color: #1d2430; background: var(--cv-tint, #e3f6f2); border: 1px solid var(--cv-accent, #00a389); border-radius: 999px; }
 
     /* GOLD AND EMERALD SIGNATURE */
 
@@ -1641,6 +1929,35 @@
     .cv-signature .sg-body { padding: 20px 44px 30px; }
     .cv-signature h2 { display: flex; align-items: center; gap: 12px; font-size: 11pt; color: var(--cv-accent, #075b3b); }
     .cv-signature h2::after { content: ""; flex: 1; height: 1.5px; background: #c6a24a; }
+
+    /* COLOUR THEME ON EVERY TEMPLATE */
+
+    .cv-ats[style*="--cv-accent"] h1,
+    .cv-ats[style*="--cv-accent"] h2 {
+      color: var(--cv-accent);
+    }
+
+    .cv-ats[style*="--cv-accent"] h2,
+    .cv-ats[style*="--cv-accent"] .ats-head {
+      border-bottom-color: var(--cv-accent);
+    }
+
+    .cv-creative[style*="--cv-accent"] .cr-head {
+      background: var(--cv-accent);
+      border-bottom-color: rgba(255, 255, 255, 0.55);
+    }
+
+    .cv-creative[style*="--cv-accent"] .cr-head .cv-role {
+      color: #ffffff;
+    }
+
+    .cv-creative[style*="--cv-accent"] .cr-contact {
+      color: #ffffff;
+    }
+
+    .cv-signature[style*="--cv-accent"] .sg-head {
+      background: var(--cv-accent);
+    }
 
     /* SPACING */
 
@@ -1826,6 +2143,8 @@
 
     if (!preview) return;
 
+    applyTemplateProfile();
+
     installDesignStyles();
 
     if (tool === "cover-letter") {
@@ -1842,12 +2161,23 @@
       preview.innerHTML = buildCVHTML();
     }
 
-    setText(
-      "preview-status",
-      tool === "bundle"
-        ? "CV and cover letter preview"
-        : "Preview updated"
-    );
+    let status = tool === "bundle"
+      ? "CV and cover letter preview"
+      : "Preview updated";
+
+    if (tool === "cv" && getTemplate() === "onepage") {
+      const doc = preview.querySelector(".cv-document");
+
+      if (doc && doc.clientWidth > 0) {
+        const pageHeight = doc.clientWidth * (1123 / 794);
+
+        status = doc.scrollHeight <= pageHeight
+          ? "Fits on one page"
+          : "Longer than one page: shorten some bullets";
+      }
+    }
+
+    setText("preview-status", status);
   }
 
   function previewDocument() {
