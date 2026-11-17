@@ -14,7 +14,7 @@
 
   <link rel="stylesheet" href="/career-kit-page.css?v=3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="/career-kit-page-v6.js?v=3" defer></script>
+  <script src="/career-kit-page-v6.js?v=4" defer></script>
   <script src="/cv-match.js?v=1" defer></script>
   <style>
     .cv-upload{margin:0 0 18px;padding:16px;border:1px dashed #c6a24a;border-radius:14px;background:#fffaf0}
@@ -201,7 +201,7 @@
             <div class="form-section-heading">
               <span class="form-section-number">02</span>
               <div>
-                <h3>Professional Profile</h3>
+                <h3 id="sec-profile-title">Professional Profile</h3>
                 <p>Introduce your professional identity and career goals.</p>
               </div>
             </div>
@@ -231,7 +231,7 @@
             <div class="form-section-heading">
               <span class="form-section-number">03</span>
               <div>
-                <h3>Education</h3>
+                <h3 id="sec-education-title">Education</h3>
                 <p>Showcase your academic background and qualifications.</p>
               </div>
             </div>
@@ -251,7 +251,7 @@
             <div class="form-section-heading">
               <span class="form-section-number">04</span>
               <div>
-                <h3>Professional Experience</h3>
+                <h3 id="sec-experience-title">Professional Experience</h3>
                 <p>Highlight your experience and measurable achievements.</p>
               </div>
             </div>
@@ -271,7 +271,7 @@
             <div class="form-section-heading">
               <span class="form-section-number">05</span>
               <div>
-                <h3>Skills &amp; Competencies</h3>
+                <h3 id="sec-skills-title">Skills &amp; Competencies</h3>
                 <p>Identify the skills that make you a strong candidate.</p>
               </div>
             </div>
@@ -446,6 +446,7 @@
                   <option value="burgundy">Burgundy</option>
                   <option value="teal">Teal</option>
                   <option value="charcoal">Charcoal</option>
+                  <option value="gold">Gold</option>
                 </select>
               </div>
 
