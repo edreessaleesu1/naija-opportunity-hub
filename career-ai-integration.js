@@ -39,7 +39,7 @@
 
   let client = null;
   let processing = false;
-  let scriptPromises = {};
+  const scriptPromises = {};
 
   /* =========================================
      SUPABASE AUTHENTICATION
@@ -62,7 +62,6 @@
       );
 
       window.NOH_SUPABASE_CLIENT = client;
-
       return client;
     }
 
@@ -77,9 +76,6 @@
     let timeoutId;
 
     try {
-      const sessionPromise =
-        supabaseClient.auth.getSession();
-
       const timeoutPromise = new Promise((_, reject) => {
         timeoutId = window.setTimeout(() => {
           reject(
@@ -91,7 +87,7 @@
       });
 
       const result = await Promise.race([
-        sessionPromise,
+        supabaseClient.auth.getSession(),
         timeoutPromise
       ]);
 
@@ -126,12 +122,12 @@
   }
 
   /*
-   * The original Career Kit script also controls
-   * disabled states. This observer prevents its
-   * sign-in check from permanently locking the
-   * new AI controls. Authentication is checked
-   * when the user actually requests an AI action.
+   * Keep the AI controls available when the
+   * older Career Kit script changes their state.
+   * Authentication is checked when an AI action
+   * is actually requested.
    */
+
   if (window.MutationObserver) {
     const observer = new MutationObserver(() => {
       if (processing) return;
@@ -186,6 +182,10 @@
   function refreshPreview() {
     form.dispatchEvent(
       new Event("input", { bubbles: true })
+    );
+
+    form.dispatchEvent(
+      new Event("change", { bubbles: true })
     );
 
     const preview = $("document-preview");
@@ -270,7 +270,8 @@
     box.replaceChildren();
 
     const heading = document.createElement("h4");
-    heading.textContent = "Sign in to use the AI Career Assistant";
+    heading.textContent =
+      "Sign in to use the AI Career Assistant";
 
     const message = document.createElement("p");
 
@@ -349,7 +350,7 @@
     });
   }
 
-  function showWorking(title) {
+  function showWorking(title, message) {
     const box = $("ai-result");
 
     if (!box) return;
@@ -360,12 +361,13 @@
     const heading = document.createElement("h4");
     heading.textContent = title;
 
-    const message = document.createElement("p");
+    const content = document.createElement("p");
 
-    message.textContent =
+    content.textContent =
+      message ||
       "Your request is being processed. Please keep this page open. This may take a little while on a slow connection.";
 
-    box.append(heading, message);
+    box.append(heading, content);
   }
 
   /* =========================================
@@ -546,7 +548,7 @@
   }
 
   /* =========================================
-     DOCUMENT READER
+     EXTERNAL SCRIPT LOADER
   ========================================= */
 
   function loadScript(url, ready) {
@@ -603,6 +605,120 @@
     return scriptPromises[url];
   }
 
+  /* =========================================
+     OCR ENGINE
+  ========================================= */
+
+  async function loadTesseract() {
+    await loadScript(
+      "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js",
+      () => Boolean(window.Tesseract)
+    );
+
+    return window.Tesseract;
+  }
+
+  async function extractPDFWithOCR(file) {
+    await loadScript(
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+      () => Boolean(window.pdfjsLib)
+    );
+
+    const pdfjs = window.pdfjsLib;
+
+    pdfjs.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+    const pdf = await pdfjs.getDocument({
+      data: await file.arrayBuffer()
+    }).promise;
+
+    const pages = [];
+
+    /*
+     * First attempt: extract selectable PDF text.
+     */
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+
+      const pageText = content.items
+        .map(item => item.str || "")
+        .join(" ");
+
+      pages.push(pageText);
+    }
+
+    let extracted = pages.join("\n\n").trim();
+
+    if (
+      extracted.replace(/\s/g, "").length >=
+      MIN_CV_CHARACTERS
+    ) {
+      return extracted;
+    }
+
+    /*
+     * Second attempt: OCR scanned/image PDFs.
+     */
+
+    const Tesseract = await loadTesseract();
+
+    let worker;
+
+    try {
+      worker = await Tesseract.createWorker("eng");
+
+      const ocrPages = [];
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+
+        const viewport = page.getViewport({
+          scale: 2
+        });
+
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          throw new Error(
+            "Your browser could not prepare the scanned PDF for OCR."
+          );
+        }
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({
+          canvasContext: context,
+          viewport
+        }).promise;
+
+        const result = await worker.recognize(canvas);
+
+        ocrPages.push(result.data.text || "");
+
+        canvas.width = 0;
+        canvas.height = 0;
+      }
+
+      extracted = ocrPages.join("\n\n").trim();
+
+    } finally {
+      if (worker) {
+        await worker.terminate();
+      }
+    }
+
+    return extracted;
+  }
+
+  /* =========================================
+     CV FILE EXTRACTION
+  ========================================= */
+
   async function extractCVFile(file) {
     if (!file) {
       throw new Error("Please select a CV file.");
@@ -614,8 +730,10 @@
       );
     }
 
-    const extension =
-      file.name.split(".").pop().toLowerCase();
+    const extension = file.name
+      .split(".")
+      .pop()
+      .toLowerCase();
 
     let text = "";
 
@@ -628,61 +746,33 @@
         () => Boolean(window.mammoth)
       );
 
-      const result =
-        await window.mammoth.extractRawText({
-          arrayBuffer: await file.arrayBuffer()
-        });
+      const result = await window.mammoth.extractRawText({
+        arrayBuffer: await file.arrayBuffer()
+      });
 
       text = result.value || "";
 
     } else if (extension === "pdf") {
-      await loadScript(
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
-        () => Boolean(window.pdfjsLib)
-      );
-
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-      const pdf = await window.pdfjsLib
-        .getDocument({
-          data: await file.arrayBuffer()
-        })
-        .promise;
-
-      const pages = [];
-
-      for (
-        let pageNumber = 1;
-        pageNumber <= pdf.numPages;
-        pageNumber++
-      ) {
-        const page = await pdf.getPage(pageNumber);
-        const content = await page.getTextContent();
-
-        pages.push(
-          content.items
-            .map((item) => item.str || "")
-            .join(" ")
-        );
-      }
-
-      text = pages.join("\n\n");
+      text = await extractPDFWithOCR(file);
 
     } else {
       throw new Error(
-        "Unsupported file. Please upload a PDF, DOCX or TXT file."
+        "Unsupported file. Upload a PDF, DOCX or TXT CV."
       );
     }
 
     text = String(text)
       .replace(/\u0000/g, "")
+      .replace(/[ \t]+/g, " ")
       .trim()
       .slice(0, MAX_CV_CHARACTERS);
 
-    if (text.length < MIN_CV_CHARACTERS) {
+    if (
+      text.replace(/\s/g, "").length <
+      MIN_CV_CHARACTERS
+    ) {
       throw new Error(
-        "Not enough readable CV text was found. Try another file or paste your CV text."
+        "We could not recognise enough text in this document. Try a clearer PDF, DOCX file, or paste your CV text manually."
       );
     }
 
@@ -694,6 +784,10 @@
       textarea.dispatchEvent(
         new Event("input", { bubbles: true })
       );
+
+      textarea.dispatchEvent(
+        new Event("change", { bubbles: true })
+      );
     }
 
     const status = $("cv-upload-status");
@@ -702,7 +796,7 @@
       status.classList.remove("is-error");
 
       status.textContent =
-        "CV extracted successfully. You can now review it or fill your form.";
+        "CV read successfully. Your information is ready for AI review and extraction.";
     }
 
     return text;
@@ -1000,7 +1094,8 @@
 
       if (status) {
         status.classList.remove("is-error");
-        status.textContent = "Reading your CV...";
+        status.textContent =
+          "Reading your CV. Scanned PDFs may take a little longer...";
       }
 
       try {
