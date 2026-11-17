@@ -57,12 +57,14 @@
     const c = {}; items.forEach(i => { if (i.image_url) c[i.image_url] = (c[i.image_url] || 0) + 1; });
     const s = new Set(); Object.keys(c).forEach(u => { if (c[u] > 2) s.add(u); }); return s;
   }
+var nrIO = "IntersectionObserver" in window ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { var i = e.target; nrIO.unobserve(i); i.src = i.dataset.src; } }); }, { rootMargin: "200px 0px" }) : null;
+  function nrLazy(root) { (root || document).querySelectorAll("img[data-src]:not([src])").forEach(function (i) { if (nrIO) nrIO.observe(i); else i.src = i.dataset.src; }); }
   function nrRow(o, opt) {
     opt = opt || {};
     const k = nrKey(o.category), url = nrEsc(opt.href), id = nrEsc(o.id);
     const img = o.image_url && !(opt.generic && opt.generic.has(o.image_url)) ? nrEsc(o.image_url) : "";
     const imgs = img
-      ? `<img class="mn" src="${img}" alt="" width="88" height="88" loading="lazy" decoding="async" onerror="this.parentNode.classList.add('is-broken');this.remove()">`
+      ? `<img class="mn" data-src="${img}" alt="" width="88" height="88" decoding="async" fetchpriority="low" onerror="this.parentNode.classList.add('is-broken');this.remove()">`
       : "";
     const dl = nrDeadline(o.deadline);
     const save = opt.save
@@ -617,6 +619,7 @@
       </section>` : "";
 
     renderPager(total, visible.length);
+    nrLazy(el.grid.parentNode);
 
     if (el.empty) {
       el.empty.textContent = "No opportunities found. Try another search or category.";
