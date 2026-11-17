@@ -297,7 +297,7 @@
   }
 
   // --------------------------------------------------
-  // TEMPLATE SELECTOR
+  // TEMPLATE SELECTOR — GROUPED CATEGORIES
   // --------------------------------------------------
 
   function configureTemplates() {
@@ -307,15 +307,42 @@
 
     const previousValue = select.value;
 
+    const templateGroups = [
+      {
+        label: "Essential CV",
+        values: ["classic", "graduate", "ats"]
+      },
+      {
+        label: "Professional CV",
+        values: ["modern", "sidebar", "academic"]
+      },
+      {
+        label: "Executive CV",
+        values: ["executive"]
+      }
+    ];
+
     select.replaceChildren();
 
-    templates.forEach((template) => {
-      const option = document.createElement("option");
+    templateGroups.forEach((group) => {
+      const optgroup = document.createElement("optgroup");
+      optgroup.label = group.label;
 
-      option.value = template.value;
-      option.textContent = template.label;
+      group.values.forEach((templateValue) => {
+        const template = templates.find(
+          (item) => item.value === templateValue
+        );
 
-      select.appendChild(option);
+        if (!template) return;
+
+        const option = document.createElement("option");
+        option.value = template.value;
+        option.textContent = template.label;
+
+        optgroup.appendChild(option);
+      });
+
+      select.appendChild(optgroup);
     });
 
     select.value = templates.some(
