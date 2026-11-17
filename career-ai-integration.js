@@ -1,24 +1,17 @@
 
-/* ============================================================
-   NAIJA OPPORTUNITY HUB
-   CAREER KIT — AI INTEGRATION
-   ------------------------------------------------------------
-   Supports:
-   1. Improve My CV
-   2. Improve My Professional Summary
-   3. Write My Cover Letter
-   4. Review Uploaded CV
-   5. Extract Uploaded CV into Form
-   6. Generate Career Bundle
-
-   Existing templates, PDF generator and CV matching are
-   intentionally left untouched.
-   ============================================================ */
-
 (() => {
   "use strict";
 
   if (window.NOH_CAREER_AI_INTEGRATION) return;
+
+  const $ = (id) => document.getElementById(id);
+  const form = $("career-form");
+
+  if (!form) {
+    console.error("[NOH Career AI] Career form was not found.");
+    return;
+  }
+
   window.NOH_CAREER_AI_INTEGRATION = true;
 
   const SUPABASE_URL =
@@ -30,57 +23,137 @@
   const AI_ENDPOINT =
     SUPABASE_URL + "/functions/v1/career-assistant";
 
-  const MAX_CV_CHARACTERS = 12000;
   const MIN_CV_CHARACTERS = 80;
-  const REQUEST_TIMEOUT = 105000;
+  const MAX_CV_CHARACTERS = 12000;
+  const REQUEST_TIMEOUT = 75000;
+  const AUTH_TIMEOUT = 10000;
 
-  const $ = (id) => document.getElementById(id);
+  const AI_SELECTOR = [
+    "#ai-improve-cv",
+    "#ai-improve-summary",
+    "#ai-write-letter",
+    "#ai-review-cv",
+    "#ai-extract-cv",
+    "#ai-write-bundle"
+  ].join(",");
 
-  const form = $("career-form");
-
-  if (!form) return;
-
-  let supabaseClient = null;
+  let client = null;
   let processing = false;
+  let scriptPromises = {};
 
-  /* SUPABASE AUTHENTICATION */
+  /* =========================================
+     SUPABASE AUTHENTICATION
+  ========================================= */
 
   function getClient() {
     if (window.NOH_SUPABASE_CLIENT) {
       return window.NOH_SUPABASE_CLIENT;
     }
 
-    if (supabaseClient) return supabaseClient;
+    if (client) return client;
 
     if (
       window.supabase &&
       typeof window.supabase.createClient === "function"
     ) {
-      supabaseClient = window.supabase.createClient(
+      client = window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_KEY
       );
 
-      return supabaseClient;
+      window.NOH_SUPABASE_CLIENT = client;
+
+      return client;
     }
 
     throw new Error(
-      "Authentication service is unavailable. Please refresh the page."
+      "Authentication could not be loaded. Refresh the page and try again."
     );
   }
 
   async function getToken() {
-    const client = getClient();
+    const supabaseClient = getClient();
 
-    const { data, error } =
-      await client.auth.getSession();
+    let timeoutId;
 
-    if (error) throw error;
+    try {
+      const sessionPromise =
+        supabaseClient.auth.getSession();
 
-    return data?.session?.access_token || null;
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = window.setTimeout(() => {
+          reject(
+            new Error(
+              "Checking your sign-in session took too long. Please refresh and try again."
+            )
+          );
+        }, AUTH_TIMEOUT);
+      });
+
+      const result = await Promise.race([
+        sessionPromise,
+        timeoutPromise
+      ]);
+
+      if (result.error) throw result.error;
+
+      return result.data?.session?.access_token || null;
+
+    } finally {
+      if (timeoutId) window.clearTimeout(timeoutId);
+    }
   }
 
-  /* FORM HELPERS */
+  /* =========================================
+     BUTTON STATE
+  ========================================= */
+
+  function getButtons() {
+    return Array.from(
+      document.querySelectorAll(AI_SELECTOR)
+    );
+  }
+
+  function setButtonsBusy(busy) {
+    getButtons().forEach((button) => {
+      button.disabled = Boolean(busy);
+
+      button.setAttribute(
+        "aria-disabled",
+        String(Boolean(busy))
+      );
+    });
+  }
+
+  /*
+   * The original Career Kit script also controls
+   * disabled states. This observer prevents its
+   * sign-in check from permanently locking the
+   * new AI controls. Authentication is checked
+   * when the user actually requests an AI action.
+   */
+  if (window.MutationObserver) {
+    const observer = new MutationObserver(() => {
+      if (processing) return;
+
+      getButtons().forEach((button) => {
+        if (button.disabled) {
+          button.disabled = false;
+          button.setAttribute("aria-disabled", "false");
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["disabled"]
+    });
+  }
+
+  /* =========================================
+     FORM HELPERS
+  ========================================= */
 
   function getValue(id) {
     const field = $(id);
@@ -111,13 +184,9 @@
   }
 
   function refreshPreview() {
-    const formElement = $("career-form");
-
-    if (formElement) {
-      formElement.dispatchEvent(
-        new Event("input", { bubbles: true })
-      );
-    }
+    form.dispatchEvent(
+      new Event("input", { bubbles: true })
+    );
 
     const preview = $("document-preview");
 
@@ -157,7 +226,285 @@
     };
   }
 
-  /* CV FIELD MAPPING */
+  function getCVText() {
+    const uploaded = getValue("cv-upload-text");
+
+    if (uploaded.length >= MIN_CV_CHARACTERS) {
+      return uploaded.slice(0, MAX_CV_CHARACTERS);
+    }
+
+    const data = getCandidateData();
+
+    const parts = [
+      data.fullName,
+      data.jobTitle,
+      data.summary,
+      "Education:\n" + data.education,
+      "Experience:\n" + data.experience,
+      "Skills:\n" + data.skills,
+      "Certificates:\n" + data.certificates
+    ];
+
+    return parts
+      .filter(Boolean)
+      .join("\n\n")
+      .slice(0, MAX_CV_CHARACTERS);
+  }
+
+  /* =========================================
+     SIGN-IN MESSAGE
+  ========================================= */
+
+  function showSignInMessage() {
+    const box = $("ai-result");
+
+    if (!box) return;
+
+    const returnTo = encodeURIComponent(
+      window.location.pathname +
+      window.location.search +
+      "#ai-assistant"
+    );
+
+    box.hidden = false;
+    box.replaceChildren();
+
+    const heading = document.createElement("h4");
+    heading.textContent = "Sign in to use the AI Career Assistant";
+
+    const message = document.createElement("p");
+
+    message.textContent =
+      "Please sign in to your Naija Opportunity Hub account before using the AI tools.";
+
+    const link = document.createElement("a");
+
+    link.href =
+      "/auth.html?mode=login&redirect=" + returnTo;
+
+    link.className = "button button-primary";
+    link.textContent = "Sign in or create an account";
+
+    box.append(heading, message, link);
+  }
+
+  /* =========================================
+     RESULT DISPLAY
+  ========================================= */
+
+  function showResult(title, message) {
+    let box = $("ai-result");
+
+    if (!box) {
+      const section = $("ai-assistant");
+
+      if (!section) return;
+
+      box = document.createElement("div");
+      box.id = "ai-result";
+      box.className = "ai-result";
+
+      section.appendChild(box);
+    }
+
+    box.hidden = false;
+    box.replaceChildren();
+
+    const heading = document.createElement("h4");
+    heading.textContent = title;
+
+    const content = document.createElement("div");
+
+    content.textContent = String(message || "");
+    content.style.whiteSpace = "pre-wrap";
+    content.style.lineHeight = "1.7";
+    content.style.overflowWrap = "anywhere";
+
+    const copy = document.createElement("button");
+
+    copy.type = "button";
+    copy.className = "button button-secondary";
+    copy.textContent = "Copy Result";
+
+    copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(
+          String(message || "")
+        );
+
+        copy.textContent = "Copied Successfully!";
+
+      } catch {
+        window.alert(
+          "Please select and copy the result manually."
+        );
+      }
+    });
+
+    box.append(heading, content, copy);
+
+    box.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+  }
+
+  function showWorking(title) {
+    const box = $("ai-result");
+
+    if (!box) return;
+
+    box.hidden = false;
+    box.replaceChildren();
+
+    const heading = document.createElement("h4");
+    heading.textContent = title;
+
+    const message = document.createElement("p");
+
+    message.textContent =
+      "Your request is being processed. Please keep this page open. This may take a little while on a slow connection.";
+
+    box.append(heading, message);
+  }
+
+  /* =========================================
+     AI REQUEST
+  ========================================= */
+
+  async function requestAI(action, extra = {}) {
+    const accessToken = await getToken();
+
+    if (!accessToken) {
+      const error = new Error(
+        "Please sign in to use the AI Career Assistant."
+      );
+
+      error.name = "AuthenticationRequired";
+      throw error;
+    }
+
+    const controller = new AbortController();
+
+    const timeoutId = window.setTimeout(() => {
+      controller.abort();
+    }, REQUEST_TIMEOUT);
+
+    try {
+      const response = await fetch(AI_ENDPOINT, {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_KEY,
+          "Authorization": "Bearer " + accessToken
+        },
+
+        body: JSON.stringify({
+          action,
+          ...getCandidateData(),
+          ...extra
+        }),
+
+        signal: controller.signal
+      });
+
+      const raw = await response.text();
+
+      let data;
+
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        throw new Error(
+          "The AI server returned an invalid response. Please try again."
+        );
+      }
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        const error = new Error(
+          "Your sign-in session has expired. Please sign in again."
+        );
+
+        error.name = "AuthenticationRequired";
+        throw error;
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+          data.message ||
+          "The AI request could not be completed. Please try again."
+        );
+      }
+
+      if (
+        typeof data.result !== "string" ||
+        !data.result.trim()
+      ) {
+        throw new Error(
+          "The AI returned an empty result. Please try again."
+        );
+      }
+
+      return data.result;
+
+    } catch (error) {
+      if (error.name === "AbortError") {
+        throw new Error(
+          "The AI request timed out. Please try again."
+        );
+      }
+
+      if (
+        error instanceof TypeError ||
+        /failed to fetch|networkerror|network request failed/i.test(
+          error.message || ""
+        )
+      ) {
+        throw new Error(
+          "We could not connect to the AI service. Check your internet connection and try again."
+        );
+      }
+
+      throw error;
+
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+  }
+
+  /* =========================================
+     AI RESPONSE PARSING
+  ========================================= */
+
+  function parseJSON(raw) {
+    if (raw && typeof raw === "object") {
+      return raw;
+    }
+
+    let text = String(raw || "").trim();
+
+    text = text
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/i, "");
+
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+
+    if (start === -1 || end <= start) {
+      throw new Error(
+        "The AI returned an invalid structured result. Please try again."
+      );
+    }
+
+    return JSON.parse(
+      text.substring(start, end + 1)
+    );
+  }
 
   function applyCV(data) {
     if (!data || typeof data !== "object") {
@@ -181,7 +528,7 @@
       certificates: "certificates"
     };
 
-    let applied = 0;
+    let count = 0;
 
     Object.entries(mapping).forEach(([key, id]) => {
       if (
@@ -189,84 +536,71 @@
         data[key].trim()
       ) {
         setValue(id, data[key]);
-        applied++;
+        count++;
       }
     });
 
     refreshPreview();
 
-    return applied;
+    return count;
   }
 
-  /* AI RESPONSE PARSING */
-
-  function parseJSON(raw) {
-    if (raw && typeof raw === "object") {
-      return raw;
-    }
-
-    let text = String(raw || "").trim();
-
-    text = text
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/\s*```$/i, "");
-
-    const start = text.indexOf("{");
-    const end = text.lastIndexOf("}");
-
-    if (start === -1 || end <= start) {
-      throw new Error(
-        "The AI returned an invalid structured response. Please try again."
-      );
-    }
-
-    return JSON.parse(
-      text.substring(start, end + 1)
-    );
-  }
-
-  /* LOCAL CV FILE EXTRACTION */
+  /* =========================================
+     DOCUMENT READER
+  ========================================= */
 
   function loadScript(url, ready) {
     if (ready()) return Promise.resolve();
 
-    return new Promise((resolve, reject) => {
-      const existing = Array.from(
-        document.scripts
-      ).find((script) => script.src === url);
+    if (scriptPromises[url]) {
+      return scriptPromises[url];
+    }
 
-      if (existing) {
-        existing.addEventListener(
-          "load",
-          resolve,
-          { once: true }
-        );
-
-        existing.addEventListener(
-          "error",
-          () => reject(
-            new Error("Unable to load the document reader.")
-          ),
-          { once: true }
-        );
-
-        return;
-      }
-
+    scriptPromises[url] = new Promise((resolve, reject) => {
       const script = document.createElement("script");
 
       script.src = url;
+      script.async = true;
 
-      script.onload = resolve;
+      const timeout = window.setTimeout(() => {
+        reject(
+          new Error(
+            "The document reader took too long to load. Please try again."
+          )
+        );
+      }, 20000);
 
-      script.onerror = () => reject(
-        new Error(
-          "Unable to load the document reader. Check your connection."
-        )
-      );
+      script.onload = () => {
+        window.clearTimeout(timeout);
+
+        if (ready()) {
+          resolve();
+        } else {
+          reject(
+            new Error(
+              "The document reader could not initialise."
+            )
+          );
+        }
+      };
+
+      script.onerror = () => {
+        window.clearTimeout(timeout);
+
+        reject(
+          new Error(
+            "Unable to load the document reader. Check your internet connection."
+          )
+        );
+      };
 
       document.head.appendChild(script);
+    }).catch((error) => {
+      delete scriptPromises[url];
+      throw error;
     });
+
+    return scriptPromises[url];
   }
 
   async function extractCVFile(file) {
@@ -287,9 +621,8 @@
 
     if (extension === "txt") {
       text = await file.text();
-    }
 
-    else if (extension === "docx") {
+    } else if (extension === "docx") {
       await loadScript(
         "https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js",
         () => Boolean(window.mammoth)
@@ -301,9 +634,8 @@
         });
 
       text = result.value || "";
-    }
 
-    else if (extension === "pdf") {
+    } else if (extension === "pdf") {
       await loadScript(
         "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
         () => Boolean(window.pdfjsLib)
@@ -326,7 +658,6 @@
         pageNumber++
       ) {
         const page = await pdf.getPage(pageNumber);
-
         const content = await page.getTextContent();
 
         pages.push(
@@ -337,11 +668,10 @@
       }
 
       text = pages.join("\n\n");
-    }
 
-    else {
+    } else {
       throw new Error(
-        "Unsupported file. Upload PDF, DOCX or TXT."
+        "Unsupported file. Please upload a PDF, DOCX or TXT file."
       );
     }
 
@@ -352,7 +682,7 @@
 
     if (text.length < MIN_CV_CHARACTERS) {
       throw new Error(
-        "Not enough readable CV text was found. Try another file or paste the CV text."
+        "Not enough readable CV text was found. Try another file or paste your CV text."
       );
     }
 
@@ -378,156 +708,25 @@
     return text;
   }
 
-  /* RESULT DISPLAY */
-
-  function showResult(title, message) {
-    const box = $("ai-result");
-
-    if (!box) return;
-
-    box.hidden = false;
-    box.replaceChildren();
-
-    const heading = document.createElement("h4");
-
-    heading.textContent = title;
-
-    const content = document.createElement("div");
-
-    content.textContent = message;
-    content.style.whiteSpace = "pre-wrap";
-    content.style.lineHeight = "1.7";
-    content.style.overflowWrap = "anywhere";
-
-    const copy = document.createElement("button");
-
-    copy.type = "button";
-    copy.className = "button button-secondary";
-    copy.textContent = "Copy Result";
-
-    copy.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(message);
-        copy.textContent = "Copied Successfully!";
-      } catch {
-        window.alert(
-          "Please select and copy the result manually."
-        );
-      }
-    });
-
-    box.append(heading, content, copy);
-
-    box.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest"
-    });
-  }
-
-  /* AI REQUEST */
-
-  async function requestAI(action, extra = {}) {
-    if (processing) return;
-
-    const box = $("ai-result");
-
-    try {
-      processing = true;
-
-      const token = await getToken();
-
-      if (!token) {
-        throw new Error(
-          "Please sign in before using the AI Career Assistant."
-        );
-      }
-
-      if (box) {
-        box.hidden = false;
-        box.textContent = "Preparing your AI result. Please wait…";
-      }
-
-      const controller = new AbortController();
-
-      const timeout = setTimeout(
-        () => controller.abort(),
-        REQUEST_TIMEOUT
-      );
-
-      let response;
-
-      try {
-        response = await fetch(AI_ENDPOINT, {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_KEY,
-            "Authorization": "Bearer " + token
-          },
-
-          body: JSON.stringify({
-            action,
-            ...getCandidateData(),
-            ...extra
-          }),
-
-          signal: controller.signal
-        });
-      } finally {
-        clearTimeout(timeout);
-      }
-
-      let data;
-
-      try {
-        data = await response.json();
-      } catch {
-        throw new Error(
-          "The AI server returned an invalid response."
-        );
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          data.error ||
-          data.message ||
-          "The AI request failed. Please try again."
-        );
-      }
-
-      if (
-        typeof data.result !== "string" ||
-        !data.result.trim()
-      ) {
-        throw new Error(
-          "The AI returned an empty result."
-        );
-      }
-
-      return data.result;
-
-    } catch (error) {
-      if (error.name === "AbortError") {
-        throw new Error(
-          "The AI request took too long. Please try again."
-        );
-      }
-
-      throw error;
-
-    } finally {
-      processing = false;
-    }
-  }
-
-  /* AI ACTIONS */
+  /* =========================================
+     AI ACTIONS
+  ========================================= */
 
   async function improveCV() {
-    const result = await requestAI("improve-cv");
+    const cvText = getCVText();
+
+    if (cvText.length < MIN_CV_CHARACTERS) {
+      throw new Error(
+        "Enter your CV information or upload an existing CV first."
+      );
+    }
+
+    const result = await requestAI(
+      "improve-cv",
+      { cvText }
+    );
 
     const data = parseJSON(result);
-
     const count = applyCV(data);
 
     showResult(
@@ -543,10 +742,22 @@
   }
 
   async function improveSummary() {
+    const data = getCandidateData();
+
+    if (
+      !data.jobTitle &&
+      !data.education &&
+      !data.experience &&
+      !data.skills
+    ) {
+      throw new Error(
+        "Enter your target role, education, experience or skills first."
+      );
+    }
+
     const result = await requestAI("write-summary");
 
     setValue("summary", result);
-
     refreshPreview();
 
     showResult(
@@ -557,10 +768,17 @@
   }
 
   async function writeLetter() {
+    const data = getCandidateData();
+
+    if (!data.jobTitle && !data.jobDescription) {
+      throw new Error(
+        "Enter the job title or job description before writing your cover letter."
+      );
+    }
+
     const result = await requestAI("write-letter");
 
     setValue("letter-body", result);
-
     refreshPreview();
 
     showResult(
@@ -575,7 +793,7 @@
 
     if (cvText.length < MIN_CV_CHARACTERS) {
       throw new Error(
-        "Upload your CV or paste its text first."
+        "Upload your CV or paste at least 80 characters of CV text first."
       );
     }
 
@@ -584,7 +802,7 @@
       { cvText }
     );
 
-    showResult("CV Review", result);
+    showResult("AI CV Review", result);
   }
 
   async function extractCV() {
@@ -592,7 +810,7 @@
 
     if (cvText.length < MIN_CV_CHARACTERS) {
       throw new Error(
-        "Upload your CV or paste its text first."
+        "Upload your CV or paste at least 80 characters of CV text first."
       );
     }
 
@@ -602,19 +820,34 @@
     );
 
     const data = parseJSON(result);
-
     const count = applyCV(data);
 
     showResult(
-      "CV Extraction",
-      "Your CV information has been extracted into " +
+      "CV Information Extracted",
+      "Your CV information has been added to " +
       count +
-      " form fields.\n\nPlease review the information before downloading."
+      " form fields.\n\nReview the information carefully before downloading."
     );
   }
 
   async function writeBundle() {
-    const result = await requestAI("write-bundle");
+    const data = getCandidateData();
+
+    if (
+      !data.jobTitle &&
+      !data.jobDescription &&
+      !data.experience &&
+      !data.education
+    ) {
+      throw new Error(
+        "Add your career details and target role before generating your Career Bundle."
+      );
+    }
+
+    const result = await requestAI(
+      "write-bundle",
+      { cvText: getCVText() }
+    );
 
     const bundle = parseJSON(result);
 
@@ -630,36 +863,83 @@
     refreshPreview();
 
     showResult(
-      "Career Bundle",
-      "Your CV and cover letter have been generated and added to the form.\n\n" +
+      "Career Bundle Generated",
+      "Your CV and cover letter have been added to the form.\n\n" +
       (bundle.notes || "") +
       "\n\nCV fields updated: " +
       count +
-      "\n\nReview both documents before downloading."
+      "\n\nPlease review both documents before downloading."
     );
   }
 
-  /* BUTTON HANDLERS */
+  /* =========================================
+     REQUEST CONTROLLER
+  ========================================= */
 
-  function run(action) {
-    action().catch((error) => {
-      console.error(
-        "[NOH Career AI]",
-        error
-      );
-
+  async function runAction(action, title, button) {
+    if (processing) {
       showResult(
         "AI Career Assistant",
-        error.message ||
-        "Something went wrong. Please try again."
+        "Another AI request is already running. Please wait for it to finish."
       );
-    });
+
+      return;
+    }
+
+    processing = true;
+
+    const originalText = button
+      ? button.textContent
+      : "";
+
+    setButtonsBusy(true);
+
+    if (button) {
+      button.textContent = "Working...";
+    }
+
+    showWorking(title);
+
+    try {
+      await action();
+
+    } catch (error) {
+      console.error("[NOH Career AI]", error);
+
+      if (error.name === "AuthenticationRequired") {
+        showSignInMessage();
+
+      } else {
+        showResult(
+          "AI Career Assistant",
+          error.message ||
+          "Something went wrong. Please try again."
+        );
+      }
+
+    } finally {
+      processing = false;
+
+      if (button) {
+        button.textContent = originalText;
+      }
+
+      setButtonsBusy(false);
+    }
   }
 
-  function interceptButton(id, callback) {
+  /* =========================================
+     BUTTON REGISTRATION
+  ========================================= */
+
+  function bindButton(id, action, title) {
     const button = $(id);
 
-    if (!button) return;
+    if (!button || button.dataset.nohAiBound === "true") {
+      return;
+    }
+
+    button.dataset.nohAiBound = "true";
 
     button.addEventListener(
       "click",
@@ -667,46 +947,79 @@
         event.preventDefault();
         event.stopImmediatePropagation();
 
-        run(callback);
+        runAction(action, title, button);
       },
       true
     );
   }
 
-  interceptButton("ai-improve-cv", improveCV);
-  interceptButton("ai-improve-summary", improveSummary);
-  interceptButton("ai-write-letter", writeLetter);
-  interceptButton("ai-review-cv", reviewCV);
-  interceptButton("ai-extract-cv", extractCV);
+  bindButton(
+    "ai-improve-cv",
+    improveCV,
+    "Improving Your CV"
+  );
 
-  /* CV UPLOAD BUTTON */
+  bindButton(
+    "ai-improve-summary",
+    improveSummary,
+    "Writing Your Professional Summary"
+  );
+
+  bindButton(
+    "ai-write-letter",
+    writeLetter,
+    "Preparing Your Cover Letter"
+  );
+
+  bindButton(
+    "ai-review-cv",
+    reviewCV,
+    "Reviewing Your CV"
+  );
+
+  bindButton(
+    "ai-extract-cv",
+    extractCV,
+    "Extracting Your CV Information"
+  );
+
+  /* =========================================
+     CV UPLOAD
+  ========================================= */
 
   const fileInput = $("cv-file");
 
   if (fileInput) {
-    fileInput.addEventListener(
-      "change",
-      async () => {
-        const file =
-          fileInput.files && fileInput.files[0];
+    fileInput.addEventListener("change", async () => {
+      const file =
+        fileInput.files && fileInput.files[0];
 
-        if (!file) return;
+      if (!file) return;
 
-        const status = $("cv-upload-status");
+      const status = $("cv-upload-status");
 
-        try {
-          await extractCVFile(file);
-        } catch (error) {
-          if (status) {
-            status.classList.add("is-error");
-            status.textContent = error.message;
-          }
+      if (status) {
+        status.classList.remove("is-error");
+        status.textContent = "Reading your CV...";
+      }
+
+      try {
+        await extractCVFile(file);
+
+      } catch (error) {
+        console.error("[NOH CV Upload]", error);
+
+        if (status) {
+          status.classList.add("is-error");
+          status.textContent = error.message;
         }
       }
-    );
+    });
   }
 
-  /* CAREER BUNDLE BUTTON */
+  /* =========================================
+     CAREER BUNDLE BUTTON
+  ========================================= */
 
   function installBundleButton() {
     const params = new URLSearchParams(
@@ -728,17 +1041,25 @@
     button.className = "button button-primary";
     button.textContent = "Write My Career Bundle with AI";
 
-    button.addEventListener("click", () => {
-      run(writeBundle);
-    });
-
     actions.appendChild(button);
+
+    bindButton(
+      "ai-write-bundle",
+      writeBundle,
+      "Preparing Your Career Bundle"
+    );
   }
 
   installBundleButton();
 
+  /* =========================================
+     INITIALISE
+  ========================================= */
+
+  setButtonsBusy(false);
+
   console.info(
-    "[NOH Career Kit] AI integration loaded."
+    "[NOH Career AI] Unified AI controls loaded successfully."
   );
 
 })();
