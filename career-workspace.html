@@ -87,6 +87,7 @@
     /* COMPACT AI CAREER ASSISTANT */
 
     .ai-assistant-accordion {
+      grid-column: 1 / -1;
       margin: 24px 0 8px;
       border: 1px solid #e6d7ad;
       border-radius: 16px;
@@ -724,7 +725,139 @@
           </form>
         </section>
 
-        <!-- LIVE PREVIEW -->
+        <!-- AI CAREER ASSISTANT: DIRECTLY BELOW THE FORM AND ABOVE THE REVIEW -->
+
+        <details class="ai-assistant-accordion" id="ai-assistant-accordion">
+
+          <summary>
+            <span>✦ AI Career Assistant</span>
+            <small>Six AI tools · CV upload · Application support</small>
+          </summary>
+
+          <section class="ai-assistant" id="ai-assistant">
+
+            <div class="ai-assistant-heading">
+              <span class="step-label">INTELLIGENT CAREER SUPPORT</span>
+              <h3 id="ai-assistant-title">AI Career Assistant</h3>
+              <p id="ai-assistant-description">
+                Improve your CV, review an existing document and prepare
+                stronger job applications with AI assistance.
+              </p>
+            </div>
+
+            <!-- CV UPLOAD AND EXTRACTION -->
+
+            <div class="cv-upload" id="cv-upload">
+
+              <h4>Already have a CV? Upload it for review</h4>
+
+              <p>
+                Upload a PDF, Word (.docx) or text file. The AI can review
+                your CV or extract its information into the document editor.
+                Your file is read on your device; only its text is sent to
+                the AI when you request a service.
+              </p>
+
+              <input
+                type="file"
+                id="cv-file"
+                accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+              >
+
+              <div
+                id="cv-upload-status"
+                class="cv-upload-status"
+                role="status"
+                aria-live="polite"
+              ></div>
+
+              <textarea
+                id="cv-upload-text"
+                placeholder="Or paste the text of your CV here"
+                aria-label="CV text"
+              ></textarea>
+
+              <div class="cv-upload-actions">
+
+                <button
+                  class="button button-primary"
+                  type="button"
+                  id="ai-review-cv"
+                >
+                  Review My CV with AI
+                </button>
+
+                <button
+                  class="button button-secondary"
+                  type="button"
+                  id="ai-extract-cv"
+                >
+                  Fill the Form from My CV
+                </button>
+
+              </div>
+            </div>
+
+            <!-- AI WRITING FUNCTIONS -->
+
+            <div class="ai-actions">
+
+              <button
+                class="button button-primary"
+                type="button"
+                id="ai-improve-cv"
+              >
+                ✦ Improve My CV
+              </button>
+
+              <button
+                class="button button-secondary"
+                type="button"
+                id="ai-improve-summary"
+              >
+                Improve My Professional Summary
+              </button>
+
+              <button
+                class="button button-secondary"
+                type="button"
+                id="ai-write-letter"
+              >
+                Write My Cover Letter
+              </button>
+
+              <button
+                class="button button-secondary"
+                type="button"
+                id="ai-write-bundle"
+              >
+                Write My Career Bundle
+              </button>
+
+            </div>
+
+            <!-- AI RESULTS -->
+
+            <div
+              id="ai-result"
+              class="ai-result"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></div>
+
+            <p class="privacy-note ai-assistant-privacy">
+              Your CV details stay on this page unless you use the AI
+              Career Assistant, which sends the text you submit for
+              processing. Do not include passwords, bank details,
+              identification numbers or other sensitive personal information.
+            </p>
+
+          </section>
+
+        </details>
+
+        <!-- LIVE PREVIEW / DOCUMENT REVIEW -->
 
         <section class="preview-card">
 
@@ -803,130 +936,6 @@
         </section>
 
       </div>
-
-      <!-- COMPACT AI CAREER ASSISTANT: BELOW THE DOCUMENT WORKSPACE -->
-
-      <details class="ai-assistant-accordion" id="ai-assistant-accordion">
-
-        <summary>
-          <span>✦ AI Career Assistant</span>
-          <small>Six AI tools · CV upload · Application support</small>
-        </summary>
-
-        <section class="ai-assistant" id="ai-assistant">
-
-          <div class="ai-assistant-heading">
-            <span class="step-label">INTELLIGENT CAREER SUPPORT</span>
-            <h3 id="ai-assistant-title">AI Career Assistant</h3>
-            <p id="ai-assistant-description">
-              Improve your CV, review an existing document and prepare
-              stronger job applications with AI assistance.
-            </p>
-          </div>
-
-          <!-- CV UPLOAD AND EXTRACTION -->
-
-          <div class="cv-upload" id="cv-upload">
-
-            <h4>Already have a CV? Upload it for review</h4>
-
-            <p>
-              Upload a PDF, Word (.docx) or text file. The AI can review
-              your CV or extract its information into the document editor.
-              Your file is read on your device; only its text is sent to
-              the AI when you request a service.
-            </p>
-
-            <input
-              type="file"
-              id="cv-file"
-              accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
-            >
-
-            <div
-              id="cv-upload-status"
-              class="cv-upload-status"
-              role="status"
-              aria-live="polite"
-            ></div>
-
-            <textarea
-              id="cv-upload-text"
-              placeholder="Or paste the text of your CV here"
-              aria-label="CV text"
-            ></textarea>
-
-            <div class="cv-upload-actions">
-
-              <button
-                class="button button-primary"
-                type="button"
-                id="ai-review-cv"
-              >
-                Review My CV with AI
-              </button>
-
-              <button
-                class="button button-secondary"
-                type="button"
-                id="ai-extract-cv"
-              >
-                Fill the Form from My CV
-              </button>
-
-            </div>
-          </div>
-
-          <!-- AI WRITING FUNCTIONS -->
-
-          <div class="ai-actions">
-
-            <button
-              class="button button-primary"
-              type="button"
-              id="ai-improve-cv"
-            >
-              ✦ Improve My CV
-            </button>
-
-            <button
-              class="button button-secondary"
-              type="button"
-              id="ai-improve-summary"
-            >
-              Improve My Professional Summary
-            </button>
-
-            <button
-              class="button button-secondary"
-              type="button"
-              id="ai-write-letter"
-            >
-              Write My Cover Letter
-            </button>
-
-          </div>
-
-          <!-- AI RESULTS -->
-
-          <div
-            id="ai-result"
-            class="ai-result"
-            role="status"
-            aria-live="polite"
-            hidden
-          ></div>
-
-          <p class="privacy-note ai-assistant-privacy">
-            Your CV details stay on this page unless you use the AI
-            Career Assistant, which sends the text you submit for
-            processing. Do not include passwords, bank details,
-            identification numbers or other sensitive personal information.
-          </p>
-
-        </section>
-
-      </details>
 
     </section>
 
