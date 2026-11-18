@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <script src="/kit-guard.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#f8eec9">
+  <meta name="theme-color" content="#FAF8F1">
   <meta name="description" content="Create and edit professional UK-standard CVs and cover letters with Naija Opportunity Hub.">
   <title>Career Workspace | Naija Opportunity Hub</title>
 
@@ -17,37 +18,40 @@
   <script src="/career-kit-page.js?v=1" defer></script>
   <script src="/career-ai-integration.js?v=3" defer></script>
   <script src="/cv-match.js?v=1" defer></script>
+
   <style>
-    .cv-upload{margin:0 0 18px;padding:16px;border:1px dashed #c6a24a;border-radius:14px;background:#fffaf0}
+    .cv-upload{margin:0 0 18px;padding:16px;border:1px dashed #D6B46A;border-radius:14px;background:#FAF8F1}
     .cv-upload h4{margin:0 0 6px;font-size:1.05rem}
     .cv-upload p{margin:0 0 10px;font-size:.92rem;line-height:1.5}
     .cv-upload input[type=file]{width:100%;margin:0 0 8px;padding:10px;border:1px solid #e5e7df;border-radius:10px;background:#fff;font:inherit;box-sizing:border-box}
     .cv-upload textarea{width:100%;min-height:150px;margin:8px 0;padding:10px;border:1px solid #e5e7df;border-radius:10px;font:inherit;box-sizing:border-box}
-    .cv-upload-status{font-size:.9rem;font-weight:600;color:#075b3b}
+    .cv-upload-status{font-size:.9rem;font-weight:600;color:#087568}
     .cv-upload-status.is-error{color:#9a1c1c}
     .cv-upload-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
     .cv-upload-actions button:disabled{opacity:.55;cursor:not-allowed}
   </style>
-  
+
   <noscript><style>html.noh-lock body{visibility:visible}</style><p style="padding:16px">Please turn on JavaScript and <a href="/auth.html?mode=login">sign in</a> to use the Career Kit.</p></noscript>
 
   <style id="noh-mobile">
-    @media (max-width:640px){
-      .tool-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:6px}
+    @media(max-width:640px){
+      .tool-tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:5px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
       .tool-tabs::-webkit-scrollbar{display:none}
-      .tool-tabs a{flex:none;white-space:nowrap;min-height:44px;display:inline-flex;align-items:center;font-size:13px;padding:0 16px}
-      h1{line-height:1.2}
-      .back-link,.workspace-back-link,.button,.privacy-note,.tool-card-label,.tool-card-action,.kicker,.eyebrow,.form-section-number,.form-card p,.ai-assistant p,.ai-assistant strong,.preview-heading p,.tool-card p,.step-card p,footer a,footer p,.footer a,.footer p{font-size:13px}
-      .brand small,.brand-text small{font-size:10px}
-      .form-card label,.form-card small,.preview-status,.step-label,.section-kicker{font-size:13px}
-      .form-card input,.form-card select,.form-card textarea{font-size:16px;min-height:44px}
-      .form-card button,.workspace-back-link,.footer a,footer a{min-height:44px}
-      footer a{display:inline-flex;align-items:center;padding:0 6px}
-      .mob-jump{position:fixed;right:14px;bottom:14px;z-index:60;display:flex;gap:0;border-radius:999px;overflow:hidden;box-shadow:0 6px 20px rgba(28,48,38,.25);border:1.5px solid #c6a24a}
-      .mob-jump a{min-height:46px;padding:0 18px;display:inline-flex;align-items:center;background:#fffdf6;color:#075b3b;font-weight:800;font-size:14px;text-decoration:none}
-      .mob-jump a+a{background:#c6a24a;color:#1d2a20}
+      .tool-tabs a{flex:0 0 auto;white-space:nowrap;min-height:40px;padding:0 12px;font-size:11px;display:inline-flex;align-items:center}
+      .workspace-heading h1{line-height:1.2}
+      .workspace-heading p{font-size:12px;line-height:1.5}
+      .form-card,.preview-card{min-width:0}
+      .form-card label{font-size:12px}
+      .form-card small,.privacy-note{font-size:11px;line-height:1.5}
+      .form-card input,.form-card select,.form-card textarea{font-size:16px;min-height:42px}
+      .form-card textarea{min-height:90px}
+      .form-card button,.workspace-back-link{min-height:42px}
+      .footer-links a{min-height:36px;display:inline-flex;align-items:center;padding:0 5px}
+      .mob-jump{position:fixed;right:10px;bottom:10px;z-index:60;display:flex;gap:0;border-radius:999px;overflow:hidden;box-shadow:0 4px 14px rgba(5,46,43,.18);border:1px solid #D6B46A}
+      .mob-jump a{min-height:38px;padding:0 13px;display:inline-flex;align-items:center;background:#FAF8F1;color:#052E2B;font-weight:700;font-size:12px;text-decoration:none}
+      .mob-jump a+a{background:#D6B46A;color:#202B29}
     }
-    @media (min-width:641px){.mob-jump{display:none}}
+    @media(min-width:641px){.mob-jump{display:none}}
   </style>
 </head>
 
@@ -74,7 +78,6 @@
   </header>
 
   <main class="workspace">
-
     <section class="document-workspace" id="workspace-grid">
 
       <div class="workspace-heading">
@@ -102,7 +105,6 @@
       <div class="workspace-grid">
 
         <!-- DOCUMENT EDITOR -->
-
         <section class="form-card">
 
           <div class="card-heading">
@@ -117,7 +119,6 @@
           <form id="career-form">
 
             <!-- 01 PERSONAL INFORMATION -->
-
             <div class="form-section-heading">
               <span class="form-section-number">01</span>
               <div>
@@ -128,77 +129,39 @@
 
             <div class="field">
               <label for="full-name">Full name</label>
-              <input
-                id="full-name"
-                name="fullName"
-                type="text"
-                placeholder="Enter your full name"
-                autocomplete="name"
-                required
-              >
+              <input id="full-name" name="fullName" type="text" placeholder="Enter your full name" autocomplete="name" required>
             </div>
 
             <div class="field-row">
               <div class="field">
                 <label for="email">Email address</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  autocomplete="email"
-                >
+                <input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email">
               </div>
 
               <div class="field">
                 <label for="phone">Phone number</label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder="+234..."
-                  autocomplete="tel"
-                >
+                <input id="phone" name="phone" type="tel" placeholder="+234..." autocomplete="tel">
               </div>
             </div>
 
             <div class="field-row">
               <div class="field">
                 <label for="location">City / State</label>
-                <input
-                  id="location"
-                  name="location"
-                  type="text"
-                  placeholder="e.g. Lagos"
-                  autocomplete="address-level2"
-                >
+                <input id="location" name="location" type="text" placeholder="e.g. Lagos" autocomplete="address-level2">
               </div>
 
               <div class="field">
                 <label for="country">Country</label>
-                <input
-                  id="country"
-                  name="country"
-                  type="text"
-                  placeholder="e.g. Nigeria"
-                  autocomplete="country-name"
-                >
+                <input id="country" name="country" type="text" placeholder="e.g. Nigeria" autocomplete="country-name">
               </div>
             </div>
 
             <div class="field">
               <label for="linkedin">LinkedIn profile (optional)</label>
-              <input
-                id="linkedin"
-                name="linkedin"
-                type="text"
-                placeholder="linkedin.com/in/yourname"
-                autocomplete="url"
-              >
+              <input id="linkedin" name="linkedin" type="text" placeholder="linkedin.com/in/yourname" autocomplete="url">
             </div>
 
             <!-- 02 PROFESSIONAL PROFILE -->
-
             <div class="form-section-heading">
               <span class="form-section-number">02</span>
               <div>
@@ -209,26 +172,15 @@
 
             <div class="field" id="job-title-field">
               <label for="job-title">Professional title / Target role</label>
-              <input
-                id="job-title"
-                name="jobTitle"
-                type="text"
-                placeholder="e.g. Graduate Trainee or Data Analyst"
-              >
+              <input id="job-title" name="jobTitle" type="text" placeholder="e.g. Graduate Trainee or Data Analyst">
             </div>
 
             <div class="field" id="summary-field">
               <label for="summary">Professional summary</label>
-              <textarea
-                id="summary"
-                name="summary"
-                rows="4"
-                placeholder="Briefly introduce your qualifications, strengths and career goals."
-              ></textarea>
+              <textarea id="summary" name="summary" rows="4" placeholder="Briefly introduce your qualifications, strengths and career goals."></textarea>
             </div>
 
             <!-- 03 EDUCATION -->
-
             <div class="form-section-heading">
               <span class="form-section-number">03</span>
               <div>
@@ -239,16 +191,10 @@
 
             <div class="field" id="education-field">
               <label for="education">Education</label>
-              <textarea
-                id="education"
-                name="education"
-                rows="4"
-                placeholder="Institution, qualification, course and graduation year."
-              ></textarea>
+              <textarea id="education" name="education" rows="4" placeholder="Institution, qualification, course and graduation year."></textarea>
             </div>
 
             <!-- 04 EXPERIENCE -->
-
             <div class="form-section-heading">
               <span class="form-section-number">04</span>
               <div>
@@ -259,16 +205,10 @@
 
             <div class="field" id="experience-field">
               <label for="experience">Work experience</label>
-              <textarea
-                id="experience"
-                name="experience"
-                rows="5"
-                placeholder="Job title, organisation, dates and key responsibilities or achievements."
-              ></textarea>
+              <textarea id="experience" name="experience" rows="5" placeholder="Job title, organisation, dates and key responsibilities or achievements."></textarea>
             </div>
 
             <!-- 05 SKILLS -->
-
             <div class="form-section-heading">
               <span class="form-section-number">05</span>
               <div>
@@ -279,26 +219,15 @@
 
             <div class="field" id="skills-field">
               <label for="skills">Skills</label>
-              <textarea
-                id="skills"
-                name="skills"
-                rows="3"
-                placeholder="e.g. Excel, communication, research, teamwork"
-              ></textarea>
+              <textarea id="skills" name="skills" rows="3" placeholder="e.g. Excel, communication, research, teamwork"></textarea>
             </div>
 
             <div class="field" id="certificates-field">
               <label for="certificates">Certifications / Additional Information</label>
-              <textarea
-                id="certificates"
-                name="certificates"
-                rows="3"
-                placeholder="Relevant certifications, training, projects or awards."
-              ></textarea>
+              <textarea id="certificates" name="certificates" rows="3" placeholder="Relevant certifications, training, projects or awards."></textarea>
             </div>
 
             <!-- 06 COVER LETTER DETAILS -->
-
             <div class="conditional-fields">
 
               <div class="form-section-heading" id="letter-details-heading" hidden>
@@ -314,42 +243,23 @@
 
               <div class="field" id="applicant-address-field" hidden>
                 <label for="applicant-address">Your postal address (optional)</label>
-                <textarea
-                  id="applicant-address"
-                  name="applicantAddress"
-                  rows="2"
-                  placeholder="Street address, city, postcode and country"
-                ></textarea>
+                <textarea id="applicant-address" name="applicantAddress" rows="2" placeholder="Street address, city, postcode and country"></textarea>
                 <small>Include only the address details you want displayed on your letter.</small>
               </div>
 
               <div class="field" id="application-date-field" hidden>
                 <label for="application-date">Application date</label>
-                <input
-                  id="application-date"
-                  name="applicationDate"
-                  type="date"
-                >
+                <input id="application-date" name="applicationDate" type="date">
               </div>
 
               <div class="field" id="employer-field" hidden>
                 <label for="employer">Employer / Organisation</label>
-                <input
-                  id="employer"
-                  name="employer"
-                  type="text"
-                  placeholder="Organisation you are applying to"
-                >
+                <input id="employer" name="employer" type="text" placeholder="Organisation you are applying to">
               </div>
 
               <div class="field" id="recipient-field" hidden>
                 <label for="recipient">Recipient's name (optional)</label>
-                <input
-                  id="recipient"
-                  name="recipient"
-                  type="text"
-                  placeholder="e.g. Ms Sarah Smith, Hiring Manager"
-                >
+                <input id="recipient" name="recipient" type="text" placeholder="e.g. Ms Sarah Smith, Hiring Manager">
                 <small>
                   Enter a named recipient if known. Otherwise, the letter
                   will use an appropriate general greeting.
@@ -358,42 +268,22 @@
 
               <div class="field" id="employer-address-field" hidden>
                 <label for="employer-address">Employer's postal address (optional)</label>
-                <textarea
-                  id="employer-address"
-                  name="employerAddress"
-                  rows="3"
-                  placeholder="Organisation, department, street, city and postcode"
-                ></textarea>
+                <textarea id="employer-address" name="employerAddress" rows="3" placeholder="Organisation, department, street, city and postcode"></textarea>
               </div>
 
               <div class="field" id="vacancy-source-field" hidden>
                 <label for="vacancy-source">Where did you find this vacancy? (optional)</label>
-                <input
-                  id="vacancy-source"
-                  name="vacancySource"
-                  type="text"
-                  placeholder="e.g. Company website, LinkedIn or job advert"
-                >
+                <input id="vacancy-source" name="vacancySource" type="text" placeholder="e.g. Company website, LinkedIn or job advert">
               </div>
 
               <div class="field" id="job-description-field" hidden>
                 <label for="job-description">Job description / Requirements</label>
-                <textarea
-                  id="job-description"
-                  name="jobDescription"
-                  rows="5"
-                  placeholder="Paste the job advertisement or list the key requirements."
-                ></textarea>
+                <textarea id="job-description" name="jobDescription" rows="5" placeholder="Paste the job advertisement or list the key requirements."></textarea>
               </div>
 
               <div class="field" id="letter-body-field" hidden>
                 <label for="letter-body">Your application letter content</label>
-                <textarea
-                  id="letter-body"
-                  name="letterBody"
-                  rows="7"
-                  placeholder="Explain why you are interested in the role, the relevant skills and experience you bring, and the value you could contribute."
-                ></textarea>
+                <textarea id="letter-body" name="letterBody" rows="7" placeholder="Explain why you are interested in the role, the relevant skills and experience you bring, and the value you could contribute."></textarea>
                 <small>
                   Use specific examples from your real experience. Avoid
                   including information that you cannot support.
@@ -403,7 +293,6 @@
             </div>
 
             <!-- DOCUMENT DESIGN -->
-
             <div class="form-section-heading">
               <span class="form-section-number" id="design-section-number">06</span>
               <div>
@@ -462,25 +351,16 @@
             </div>
 
             <div class="form-actions">
-              <button
-                class="button button-primary"
-                type="button"
-                id="preview-button"
-              >
+              <button class="button button-primary" type="button" id="preview-button">
                 Update Preview →
               </button>
 
-              <button
-                class="button button-secondary"
-                type="reset"
-                id="reset-button"
-              >
+              <button class="button button-secondary" type="reset" id="reset-button">
                 Clear Form
               </button>
             </div>
 
             <!-- AI ASSISTANT -->
-
             <section class="ai-assistant" id="ai-assistant">
               <div class="ai-assistant-heading">
                 <span class="step-label">INTELLIGENT CAREER SUPPORT</span>
@@ -503,38 +383,20 @@
               </div>
 
               <div class="ai-actions">
-                <button
-                  class="button button-primary"
-                  type="button"
-                  id="ai-improve-cv"
-                >
+                <button class="button button-primary" type="button" id="ai-improve-cv">
                   ✦ Improve My CV
                 </button>
 
-                <button
-                  class="button button-secondary"
-                  type="button"
-                  id="ai-improve-summary"
-                >
+                <button class="button button-secondary" type="button" id="ai-improve-summary">
                   Improve Professional Summary
                 </button>
 
-                <button
-                  class="button button-secondary"
-                  type="button"
-                  id="ai-write-letter"
-                >
+                <button class="button button-secondary" type="button" id="ai-write-letter">
                   Write My Cover Letter
                 </button>
               </div>
 
-              <div
-                id="ai-result"
-                class="ai-result"
-                role="status"
-                aria-live="polite"
-                hidden
-              ></div>
+              <div id="ai-result" class="ai-result" role="status" aria-live="polite" hidden></div>
             </section>
 
             <p class="privacy-note">
@@ -547,7 +409,6 @@
         </section>
 
         <!-- LIVE PREVIEW -->
-
         <section class="preview-card">
 
           <div class="preview-heading">
@@ -570,49 +431,35 @@
 
             <section class="document-section" id="preview-summary-section">
               <h3 id="preview-summary-heading">Professional Summary</h3>
-              <p id="preview-summary">
-                Your professional summary will appear here.
-              </p>
+              <p id="preview-summary">Your professional summary will appear here.</p>
             </section>
 
             <section class="document-section" id="preview-education-section">
               <h3 id="preview-education-heading">Education</h3>
-              <p id="preview-education">
-                Your educational background will appear here.
-              </p>
+              <p id="preview-education">Your educational background will appear here.</p>
             </section>
 
             <section class="document-section" id="preview-experience-section">
               <h3 id="preview-experience-heading">Experience</h3>
-              <p id="preview-experience">
-                Your work experience will appear here.
-              </p>
+              <p id="preview-experience">Your work experience will appear here.</p>
             </section>
 
             <section class="document-section" id="preview-skills-section">
               <h3 id="preview-skills-heading">Skills</h3>
-              <p id="preview-skills">
-                Your skills will appear here.
-              </p>
+              <p id="preview-skills">Your skills will appear here.</p>
             </section>
 
             <section class="document-section" id="preview-certificates-section">
               <h3 id="preview-certificates-heading">
                 Certifications &amp; Additional Information
               </h3>
-              <p id="preview-certificates">
-                Your additional information will appear here.
-              </p>
+              <p id="preview-certificates">Your additional information will appear here.</p>
             </section>
 
           </article>
 
           <div class="download-actions">
-            <button
-              class="button button-primary download-button"
-              type="button"
-              id="download-button"
-            >
+            <button class="button button-primary download-button" type="button" id="download-button">
               <span aria-hidden="true">↓</span>
               <span>Download PDF</span>
             </button>
@@ -625,7 +472,6 @@
         </section>
       </div>
     </section>
-
   </main>
 
   <footer class="footer">
@@ -644,7 +490,11 @@
     </div>
   </footer>
 
-  <div class="mob-jump" aria-label="Jump between editor and preview"><a href="#workspace-grid">Edit</a><a href="#document-preview">Preview</a></div>
+  <div class="mob-jump" aria-label="Jump between editor and preview">
+    <a href="#workspace-grid">Edit</a>
+    <a href="#document-preview">Preview</a>
+  </div>
+
   <script defer src="/consent.js"></script>
 </body>
 </html>
