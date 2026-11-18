@@ -27,13 +27,8 @@
       --ck-gold:#D6B46A;
     }
 
-    .ck-section {
-      margin:0 0 22px;
-    }
-
-    .ck-head {
-      margin:0 0 12px;
-    }
+    .ck-section { margin:0 0 22px; }
+    .ck-head { margin:0 0 12px; }
 
     .ck-head .kicker {
       display:block;
@@ -130,8 +125,7 @@
       background:var(--c);
     }
 
-    .tp u,
-    .tp s {
+    .tp u,.tp s {
       display:block;
       border-radius:2px;
       text-decoration:none;
@@ -144,33 +138,13 @@
       background:var(--c);
     }
 
-    .tp s {
-      height:2.8%;
-      background:#dadada;
-    }
+    .tp s { height:2.8%; background:#dadada; }
+    .tp s.sh { width:70%; }
 
-    .tp s.sh {
-      width:70%;
-    }
-
-    .tp-classic {
-      --c:#202B29;
-      border-top:3px solid #202B29;
-    }
-
-    .tp-classic b {
-      margin:0 auto;
-    }
-
-    .tp-modern {
-      --c:#087568;
-      border-top:4px solid #087568;
-    }
-
-    .tp-exec {
-      --c:#052E2B;
-      padding-top:30%;
-    }
+    .tp-classic { --c:#202B29; border-top:3px solid #202B29; }
+    .tp-classic b { margin:0 auto; }
+    .tp-modern { --c:#087568; border-top:4px solid #087568; }
+    .tp-exec { --c:#052E2B; padding-top:30%; }
 
     .tp-exec::before {
       position:absolute;
@@ -183,16 +157,8 @@
       content:"";
     }
 
-    .tp-grad {
-      --c:#087568;
-      border-top:3px solid #087568;
-    }
-
-    .tp-side {
-      --c:#087568;
-      display:block;
-      padding:0;
-    }
+    .tp-grad { --c:#087568; border-top:3px solid #087568; }
+    .tp-side { --c:#087568; display:block; padding:0; }
 
     .tp-side::before {
       position:absolute;
@@ -214,39 +180,19 @@
       gap:5px;
     }
 
-    .tp-ats {
-      --c:#202B29;
-    }
-
-    .tp-ats b,
-    .tp-ats u {
-      background:#202B29;
-    }
-
-    .tp-acad {
-      --c:#052E2B;
-      border-top:3px double #052E2B;
-    }
-
-    .tp-acad b {
-      width:46%;
-      margin:0 auto;
-    }
+    .tp-ats { --c:#202B29; }
+    .tp-ats b,.tp-ats u { background:#202B29; }
+    .tp-acad { --c:#052E2B; border-top:3px double #052E2B; }
+    .tp-acad b { width:46%; margin:0 auto; }
 
     .tp-scholarship {
       --c:#98752D;
       border-top:4px solid #D6B46A;
     }
 
-    .tp-scholarship b {
-      width:62%;
-      margin:0 auto;
-    }
+    .tp-scholarship b { width:62%; margin:0 auto; }
 
-    .tp-nigerian {
-      --c:#087568;
-      padding-left:27%;
-    }
+    .tp-nigerian { --c:#087568; padding-left:27%; }
 
     .tp-nigerian::before {
       position:absolute;
@@ -258,21 +204,9 @@
       content:"";
     }
 
-    .tp-europass {
-      --c:#174A83;
-      border-left:4px solid #174A83;
-    }
-
-    .tp-onepage {
-      --c:#202B29;
-      gap:4%;
-      padding:7% 9%;
-    }
-
-    .tp-onepage b {
-      width:42%;
-      height:6%;
-    }
+    .tp-europass { --c:#174A83; border-left:4px solid #174A83; }
+    .tp-onepage { --c:#202B29; gap:4%; padding:7% 9%; }
+    .tp-onepage b { width:42%; height:6%; }
 
     .tp-creative {
       --c:#087568;
@@ -280,10 +214,7 @@
       background:#FAF8F1;
     }
 
-    .tp-creative b {
-      width:65%;
-      height:9%;
-    }
+    .tp-creative b { width:65%; height:9%; }
 
     .tp-signature {
       --c:#98752D;
@@ -297,9 +228,7 @@
       background:#052E2B;
     }
 
-    .tp-signature u {
-      background:#D6B46A;
-    }
+    .tp-signature u { background:#D6B46A; }
 
     .ck-steps {
       display:grid;
@@ -354,51 +283,29 @@
     }
 
     @media(max-width:1050px) {
-      .ck-tpl-grid {
-        grid-template-columns:repeat(4,minmax(0,1fr));
-      }
+      .ck-tpl-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
     }
 
     @media(max-width:600px) {
-      .ck-section {
-        margin-bottom:19px;
-      }
-
-      .ck-head {
-        margin-bottom:10px;
-      }
-
-      .ck-head h2 {
-        font-size:19px;
-      }
-
-      .ck-head p {
-        font-size:11px;
-        line-height:1.5;
-      }
+      .ck-section { margin-bottom:19px; }
+      .ck-head { margin-bottom:10px; }
+      .ck-head h2 { font-size:19px; }
+      .ck-head p { font-size:11px; line-height:1.5; }
 
       .ck-tpl-grid {
         grid-template-columns:repeat(2,minmax(0,1fr));
         gap:9px;
       }
 
-      .ck-tpl {
-        padding:8px;
-        border-radius:11px;
-      }
+      .ck-tpl { padding:8px; border-radius:11px; }
 
       .tp {
         aspect-ratio:3/2.65;
         min-height:88px;
       }
 
-      .ck-tpl strong {
-        font-size:11px;
-      }
-
-      .ck-tpl small {
-        font-size:9px;
-      }
+      .ck-tpl strong { font-size:11px; }
+      .ck-tpl small { font-size:9px; }
 
       .ck-steps {
         grid-template-columns:repeat(3,minmax(0,1fr));
@@ -419,9 +326,7 @@
         box-shadow:none;
       }
 
-      .ck-steps strong {
-        font-size:10px;
-      }
+      .ck-steps strong { font-size:10px; }
 
       .ck-steps span {
         display:block;
@@ -431,9 +336,7 @@
     }
 
     @media(prefers-reduced-motion:reduce) {
-      .ck-tpl {
-        transition:none;
-      }
+      .ck-tpl { transition:none; }
     }
   </style>
 </head>
@@ -582,36 +485,36 @@
         <div class="ck-head">
           <span class="kicker">13 professional designs</span>
           <h2 id="ck-tpl-title">Explore our CV templates</h2>
-          <p>Explore the available layouts, then choose your preferred template in the workspace. Customise the colour and spacing to suit your application.</p>
+          <p>Choose a design to open the workspace with that template selected. Customise the colour and spacing to suit your application.</p>
         </div>
 
         <div class="ck-tpl-grid">
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=classic">
             <div class="tp tp-classic" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
             <strong>British Professional</strong>
             <small>The classic UK standard</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=modern">
             <div class="tp tp-modern" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
             <strong>Modern UK</strong>
             <small>Contemporary and clean</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=executive">
             <div class="tp tp-exec" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
             <strong>Executive UK</strong>
             <small>For leadership roles</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=graduate">
             <div class="tp tp-grad" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
             <strong>Graduate UK</strong>
             <small>Ideal for early careers</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=sidebar">
             <div class="tp tp-side" aria-hidden="true">
               <div class="in"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
             </div>
@@ -619,49 +522,49 @@
             <small>Modern with a side panel</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=ats">
             <div class="tp tp-ats" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
             <strong>ATS-Friendly</strong>
             <small>Plain and safe for screening software</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=academic">
             <div class="tp tp-acad" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
             <strong>Academic</strong>
             <small>For scholarships and research</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=scholarship">
             <div class="tp tp-scholarship" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
             <strong>Scholarship CV</strong>
             <small>For academic and funded applications</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=nigerian">
             <div class="tp tp-nigerian" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
             <strong>Nigerian Graduate</strong>
             <small>Designed for Nigerian graduates</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=europass">
             <div class="tp tp-europass" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
             <strong>Europass-Style</strong>
             <small>For international applications</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=onepage">
             <div class="tp tp-onepage" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
             <strong>One-Page Resume</strong>
             <small>Concise and focused</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=creative">
             <div class="tp tp-creative" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
             <strong>Tech and Creative</strong>
             <small>For digital and creative roles</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=signature">
             <div class="tp tp-signature" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
             <strong>Gold and Emerald Signature</strong>
             <small>A distinctive premium layout</small>
