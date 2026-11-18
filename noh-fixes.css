@@ -1,0 +1,35 @@
+/* Naija Opportunity Hub - card fixes (images fill the thumbnail, titles never collapse) */
+
+/* 1. Thumbnails: the picture always fills the whole square, no gold strips. */
+.nthumb { background-color: #e8dfc0; }
+.nthumb .bd { display: none !important; }
+.nthumb img.mn {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  z-index: 1;
+}
+
+/* 2. Titles: keep two lines with an ellipsis, but never shrink to one letter. */
+.ntitle {
+  display: -webkit-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Firefox: use a plain block with a two-line limit instead of the clamp. */
+@supports (-moz-appearance: none) {
+  .ntitle {
+    display: block !important;
+    max-height: 2.6em;
+  }
+}
