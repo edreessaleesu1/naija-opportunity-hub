@@ -9,7 +9,6 @@
   <title>Career Kit | CV Builder and Cover Letters | Naija Opportunity Hub</title>
 
   <link rel="canonical" href="https://naijaopportunityhub.com.ng/career-kit">
-
   <meta property="og:title" content="Career Kit | Naija Opportunity Hub">
   <meta property="og:description" content="13 professional CV templates, cover letters and an AI career assistant for Nigerian students and graduates.">
   <meta property="og:type" content="website">
@@ -63,7 +62,7 @@
 
     .ck-tpl-grid {
       display:grid;
-      grid-template-columns:repeat(7,minmax(0,1fr));
+      grid-template-columns:repeat(6,minmax(0,1fr));
       gap:10px;
     }
 
@@ -78,12 +77,18 @@
       color:inherit;
       text-decoration:none;
       box-shadow:0 4px 14px rgba(5,46,43,.045);
-      transition:transform .2s ease,border-color .2s ease;
+      transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
     }
 
     .ck-tpl:hover {
       transform:translateY(-3px);
       border-color:#D6B46A;
+      box-shadow:0 8px 20px rgba(5,46,43,.09);
+    }
+
+    .ck-tpl:focus-visible {
+      outline:3px solid #D6B46A;
+      outline-offset:3px;
     }
 
     .ck-tpl strong {
@@ -226,6 +231,74 @@
     .tp-acad b {
       width:46%;
       margin:0 auto;
+    }
+
+    .tp-scholarship {
+      --c:#98752D;
+      border-top:4px solid #D6B46A;
+    }
+
+    .tp-scholarship b {
+      width:62%;
+      margin:0 auto;
+    }
+
+    .tp-nigerian {
+      --c:#087568;
+      padding-left:27%;
+    }
+
+    .tp-nigerian::before {
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:0;
+      width:19%;
+      background:#087568;
+      content:"";
+    }
+
+    .tp-europass {
+      --c:#174A83;
+      border-left:4px solid #174A83;
+    }
+
+    .tp-onepage {
+      --c:#202B29;
+      gap:4%;
+      padding:7% 9%;
+    }
+
+    .tp-onepage b {
+      width:42%;
+      height:6%;
+    }
+
+    .tp-creative {
+      --c:#087568;
+      border-top:5px solid #087568;
+      background:#FAF8F1;
+    }
+
+    .tp-creative b {
+      width:65%;
+      height:9%;
+    }
+
+    .tp-signature {
+      --c:#98752D;
+      border:2px solid #D6B46A;
+      background:#FAF8F1;
+    }
+
+    .tp-signature b {
+      width:60%;
+      margin:0 auto;
+      background:#052E2B;
+    }
+
+    .tp-signature u {
+      background:#D6B46A;
     }
 
     .ck-steps {
@@ -466,10 +539,7 @@
           </div>
           <span class="tool-card-label">BUILD YOUR PROFILE</span>
           <h3>Professional CV Builder</h3>
-          <p>
-            Create a polished, structured CV that highlights your
-            qualifications, skills and achievements.
-          </p>
+          <p>Create a polished, structured CV that highlights your qualifications, skills and achievements.</p>
           <span class="tool-card-action">Create your CV →</span>
         </a>
 
@@ -480,10 +550,7 @@
           </div>
           <span class="tool-card-label">MAKE A STRONG IMPRESSION</span>
           <h3>Cover Letter Studio</h3>
-          <p>
-            Prepare professional cover letters tailored to specific
-            employers and job opportunities.
-          </p>
+          <p>Prepare professional cover letters tailored to specific employers and job opportunities.</p>
           <span class="tool-card-action">Write a cover letter →</span>
         </a>
 
@@ -494,10 +561,7 @@
           </div>
           <span class="tool-card-label">COMPLETE APPLICATION PACKAGE</span>
           <h3>Career Bundle</h3>
-          <p>
-            Prepare your CV and cover letter together for a more
-            coordinated job application.
-          </p>
+          <p>Prepare your CV and cover letter together for a more coordinated job application.</p>
           <span class="tool-card-action">Build your bundle →</span>
         </a>
 
@@ -508,10 +572,7 @@
           </div>
           <span class="tool-card-label">PERSONAL CAREER SUPPORT</span>
           <h3>Application Assistance</h3>
-          <p>
-            Get professional support with CV reviews, cover letters,
-            LinkedIn profiles and job applications.
-          </p>
+          <p>Get professional support with CV reviews, cover letters, LinkedIn profiles and job applications.</p>
           <span class="tool-card-action">Explore services →</span>
         </a>
 
@@ -519,12 +580,13 @@
 
       <section class="ck-section" aria-labelledby="ck-tpl-title">
         <div class="ck-head">
-          <span class="kicker">Choose a look</span>
+          <span class="kicker">13 professional designs</span>
           <h2 id="ck-tpl-title">Explore our CV templates</h2>
-          <p>Choose a layout, then customise the colour and spacing in your workspace.</p>
+          <p>Explore the available layouts, then choose your preferred template in the workspace. Customise the colour and spacing to suit your application.</p>
         </div>
 
         <div class="ck-tpl-grid">
+
           <a class="ck-tpl" href="career-workspace.html?tool=cv">
             <div class="tp tp-classic" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
             <strong>British Professional</strong>
@@ -568,6 +630,43 @@
             <strong>Academic</strong>
             <small>For scholarships and research</small>
           </a>
+
+          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+            <div class="tp tp-scholarship" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
+            <strong>Scholarship CV</strong>
+            <small>For academic and funded applications</small>
+          </a>
+
+          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+            <div class="tp tp-nigerian" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
+            <strong>Nigerian Graduate</strong>
+            <small>Designed for Nigerian graduates</small>
+          </a>
+
+          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+            <div class="tp tp-europass" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
+            <strong>Europass-Style</strong>
+            <small>For international applications</small>
+          </a>
+
+          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+            <div class="tp tp-onepage" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
+            <strong>One-Page Resume</strong>
+            <small>Concise and focused</small>
+          </a>
+
+          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+            <div class="tp tp-creative" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
+            <strong>Tech and Creative</strong>
+            <small>For digital and creative roles</small>
+          </a>
+
+          <a class="ck-tpl" href="career-workspace.html?tool=cv">
+            <div class="tp tp-signature" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
+            <strong>Gold and Emerald Signature</strong>
+            <small>A distinctive premium layout</small>
+          </a>
+
         </div>
       </section>
 
