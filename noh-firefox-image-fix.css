@@ -1,0 +1,87 @@
+/* Naija Opportunity Hub — Firefox/mobile opportunity-card correction
+   Load this stylesheet AFTER the existing category-page styles. */
+
+.nrow {
+  min-width: 0;
+  position: relative;
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: center;
+}
+
+.nthumb {
+  flex: none;
+  width: 88px;
+  height: 88px;
+  min-width: 88px;
+  overflow: hidden;
+  position: relative;
+}
+
+.nthumb img,
+.nthumb img.mn {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center;
+}
+
+.nthumb .nicon {
+  position: relative;
+  z-index: 0;
+}
+
+.nthumb img.mn ~ .nicon {
+  visibility: hidden;
+}
+
+.nthumb.is-broken .nicon {
+  visibility: visible;
+}
+
+.nbody {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-right: 2px;
+}
+
+.nbody.has-save {
+  padding-right: 42px;
+}
+
+.ntitle {
+  display: -webkit-box;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  font-size: .98rem;
+  line-height: 1.3;
+  font-weight: 700;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+@media (max-width: 360px) {
+  .nrow {
+    grid-template-columns: 76px minmax(0, 1fr);
+    column-gap: 10px;
+  }
+  .nthumb {
+    width: 76px;
+    height: 76px;
+    min-width: 76px;
+  }
+}
