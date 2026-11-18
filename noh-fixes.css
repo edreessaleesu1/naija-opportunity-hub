@@ -58,3 +58,7 @@
   .nav-auth { padding-left: 10px; gap: 6px !important; }
   .nav-auth .status-active { font-size: 0 !important; width: 28px; padding: 0 !important; justify-content: center; }
 }
+
+/* Remove the avatar icon from the account button */
+.nav-auth .account-menu-trigger .account-avatar { display: none !important; }
+@media (min-width: 721px) { .nav-auth .account-menu-trigger { padding: 0 11px !important; } }
