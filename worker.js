@@ -44,6 +44,14 @@ function paragraphs(o) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    // Old ".html" addresses -> clean address (permanent 301), so Google keeps one version of each page.
+    if (url.pathname.endsWith(".html")) {
+      if (url.pathname === "/google907913ab728befca.html") return env.ASSETS.fetch(request); // Google ownership file
+      const clean = url.pathname === "/index.html" ? "/" : url.pathname.slice(0, -5);
+      return Response.redirect(SITE + clean + url.search, 301);
+    }
+
     const page = await getPage(env, url);
     const id = (url.searchParams.get("id") || "").toLowerCase();
     if (!page.ok || !UUID.test(id)) return page;
