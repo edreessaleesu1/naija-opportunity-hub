@@ -1,3 +1,4 @@
+
 /*
  * NOH Admin — Opportunity discovery, review and publishing dashboard
  *
@@ -256,11 +257,28 @@
       .map(([, label]) => label);
   }
 
-  // An image must belong to this opportunity's own Storage object.
+  /*
+   * IMAGE VALIDATION
+   *
+   * A URL is not proof that an image passed quality validation.
+   * An image is accepted only when:
+   *   1. It belongs to this opportunity's own Storage object.
+   *   2. image_status is ready.
+   *   3. image_quality_status is passed.
+   *   4. It has no duplicate-image reference.
+   *
+   * This prevents a stale image URL from being shown as approved.
+   */
   function ownImage(row) {
     const url = safeHttps(row.image_url);
 
     if (!url || !row.id) return false;
+
+    if (row.image_status !== "ready") return false;
+
+    if (row.image_quality_status !== "passed") return false;
+
+    if (row.image_duplicate_of) return false;
 
     const id = String(row.id).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -273,6 +291,43 @@
     return new RegExp(pattern, "i").test(url);
   }
 
+  function imageValidationMessage(row) {
+    if (row.image_status === "failed") {
+      return "Image preparation failed. Retry image preparation.";
+    }
+
+    if (row.image_duplicate_of) {
+      return "This image is linked to another image record. A unique image is required.";
+    }
+
+    if (row.image_quality_status === "failed") {
+      return "This image has not passed unique-image quality validation. Re-prepare it.";
+    }
+
+    if (row.image_quality_status !== "passed") {
+      return "Unique-image quality validation is not confirmed yet.";
+    }
+
+    if (row.image_status !== "ready") {
+      return "Image preparation is not marked as ready.";
+    }
+
+    if (!safeHttps(row.image_url)) {
+      return "No valid HTTPS image URL is attached.";
+    }
+
+    return "The image must belong to this opportunity's own Storage object.";
+  }
+
+  function imageNeedsRetry(row) {
+    return (
+      row.image_status === "failed" ||
+      row.image_quality_status === "failed" ||
+      Boolean(row.image_duplicate_of) ||
+      (Boolean(row.image_url) && !ownImage(row))
+    );
+  }
+
   // DISCOVERED → IMAGE_PENDING → READY_FOR_REVIEW
   // → APPROVED → PUBLISHED
   function stageOf(row) {
@@ -283,9 +338,19 @@
       return row.publish_error ? "PUBLISH_FAILED" : "APPROVED";
     }
 
-    if (row.image_status === "failed") return "IMAGE_FAILED";
+    if (
+      row.image_status === "failed" ||
+      row.image_quality_status === "failed" ||
+      row.image_duplicate_of
+    ) {
+      return "IMAGE_FAILED";
+    }
 
     if (!ownImage(row)) {
+      if (row.image_url && row.image_quality_status !== "passed") {
+        return "IMAGE_FAILED";
+      }
+
       return row.validation_status === "unchecked" &&
         !(row.enrich_attempts > 0)
         ? "DISCOVERED"
@@ -442,13 +507,7 @@
       return `
         <div class="noh-image-placeholder">
           <span>Image not ready</span>
-          <small>
-            ${
-              row.image_status === "failed"
-                ? "Failed — use Retry Failed Images"
-                : "Use Prepare Images"
-            }
-          </small>
+          <small>${esc(imageValidationMessage(row))}</small>
         </div>
       `;
     }
@@ -493,6 +552,10 @@
       flags.push(row.validation_notes);
     }
 
+    if (!ownImage(row) && row.image_url) {
+      flags.push(imageValidationMessage(row));
+    }
+
     if (row.image_error && stage === "IMAGE_FAILED") {
       flags.push("Image: " + row.image_error.slice(0, 240));
     }
@@ -513,6 +576,12 @@
     const applicationUrl = safeHttps(row.application_url);
 
     const canPick = selectable(row);
+
+    const imageFlagClass = ownImage(row) ? "ok" : "failed";
+
+    const imageFlagText =
+      `Image: ${row.image_status || "none"} · ` +
+      `Unique check: ${row.image_quality_status || "unchecked"}`;
 
     return `
       <article
@@ -576,9 +645,11 @@
             <span class="noh-flag ${row.validation_status === "valid" ? "ok" : ""}">
               Check: ${esc(row.validation_status || "unchecked")}
             </span>
-            <span class="noh-flag ${row.image_status === "ready" ? "ok" : ""}">
-              Image: ${esc(row.image_status || "none")}
+
+            <span class="noh-flag ${imageFlagClass}">
+              ${esc(imageFlagText)}
             </span>
+
             <span class="noh-flag ${
               row.status === "approved" || row.status === "imported" ? "ok" : ""
             }">
@@ -1071,13 +1142,13 @@
       if (retry) {
         ids = (selectedIds.length ? selectedRows() : rows)
           .filter(row =>
-            row.image_status === "failed" &&
+            imageNeedsRetry(row) &&
             (row.status === "pending" || row.status === "approved")
           )
           .map(row => row.id);
 
         if (!ids.length) {
-          notice("No records have a failed image.");
+          notice("No records currently need image retry.");
           return;
         }
       } else if (selectedIds.length) {
@@ -1086,7 +1157,7 @@
           .map(row => row.id);
 
         if (!ids.length) {
-          notice("The selected records already have images.");
+          notice("The selected records already have validated individual images.");
           return;
         }
       }
@@ -1117,7 +1188,7 @@
 
       const result = await imageLoop({
         rounds: 1,
-        retry: row?.image_status === "failed",
+        retry: row ? imageNeedsRetry(row) : false,
         ids: [id]
       });
 
@@ -1141,7 +1212,8 @@
 
     if (!ownImage(row)) {
       notice(
-        "Prepare and verify this opportunity's individual Storage image before approving it.",
+        "Prepare and verify this opportunity's individual image before approving it. " +
+        imageValidationMessage(row),
         true
       );
       return;
@@ -1463,7 +1535,7 @@
 
     if (list.some(row => !ownImage(row))) {
       notice(
-        "Every record must have its own image before publishing.",
+        "Every record must have its own image and must pass unique-image quality validation before publishing.",
         true
       );
       return;
