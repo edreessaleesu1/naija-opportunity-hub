@@ -1,8 +1,8 @@
 
 /*
- * NOH Admin — Opportunity discovery, review and publishing dashboard
+ * Naija Opportunity Hub — Admin Discovery Dashboard
  *
- * Backend functions:
+ * Existing backend functions:
  *   noh-discover-opportunities
  *   noh-publish-opportunities
  *   noh-prepare-discovery-images
@@ -11,12 +11,19 @@
  *   Discover → Enrich → Validate → Prepare images → Review
  *   → Approve → Grant publishing permission → Publish
  *
- * Approval never automatically publishes a record.
+ * Important:
+ *   - Discovery never automatically approves or publishes.
+ *   - An image URL alone does not mean an image has passed validation.
+ *   - Retry explicitly requests a rebuild for existing image records.
+ *   - Publishing requires approval and temporary permission.
  */
+
 (() => {
   "use strict";
 
-  const SUPABASE_URL = "https://djxornmwvkauhkcuhgxc.supabase.co";
+  const SUPABASE_URL =
+    "https://djxornmwvkauhkcuhgxc.supabase.co";
+
   const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
 
@@ -42,20 +49,26 @@
   let op = null;
   let stopRequested = false;
 
-  /* --------------------------------------------------------------- helpers */
+  /* ================================================================
+     HELPERS
+  ================================================================= */
 
-  const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
+  const esc = value =>
+    String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
 
   function safeHttps(value) {
     try {
       const url = new URL(String(value));
-      return url.protocol === "https:" ? url.href : "";
+
+      return url.protocol === "https:"
+        ? url.href
+        : "";
     } catch {
       return "";
     }
@@ -73,7 +86,9 @@
   }
 
   function dateOnly(value) {
-    const date = value ? new Date(String(value) + "T00:00:00") : null;
+    const date = value
+      ? new Date(String(value) + "T00:00:00")
+      : null;
 
     return date && !Number.isNaN(date.getTime())
       ? date.toLocaleDateString("en-GB", {
@@ -100,8 +115,8 @@
       bar.setAttribute("role", "status");
 
       bar.style.cssText =
-        "position:fixed;left:10px;right:10px;bottom:10px;z-index:99999;" +
-        "padding:12px 14px;border-radius:12px;" +
+        "position:fixed;left:10px;right:10px;bottom:10px;" +
+        "z-index:99999;padding:12px 14px;border-radius:12px;" +
         "font:600 14px/1.4 system-ui,sans-serif;" +
         "box-shadow:0 6px 24px rgba(0,0,0,.25);" +
         "max-height:40vh;overflow:auto";
@@ -112,7 +127,9 @@
     bar.textContent = message;
     bar.style.background = error ? "#fde8e8" : "#e6f4ea";
     bar.style.color = error ? "#8a1c1c" : "#14532d";
-    bar.style.border = "1px solid " + (error ? "#f5b5b5" : "#b7dfc2");
+    bar.style.border =
+      "1px solid " + (error ? "#f5b5b5" : "#b7dfc2");
+
     bar.hidden = false;
 
     clearTimeout(bar._t);
@@ -125,7 +142,10 @@
   }
 
   window.addEventListener("error", event => {
-    notice("Page error: " + (event.message || "unknown"), true);
+    notice(
+      "Page error: " + (event.message || "unknown"),
+      true
+    );
   });
 
   window.addEventListener("unhandledrejection", event => {
@@ -167,13 +187,24 @@
     const { data, error } = result;
 
     if (error) {
-      let message = error.message || description + " failed.";
+      let message =
+        error.message || description + " failed.";
 
-      if (error.context && typeof error.context.json === "function") {
-        const detail = await error.context.json().catch(() => null);
+      if (
+        error.context &&
+        typeof error.context.json === "function"
+      ) {
+        const detail = await error.context
+          .json()
+          .catch(() => null);
 
-        if (detail?.error) message = detail.error;
-        if (detail?.detail) message += " — " + detail.detail;
+        if (detail?.error) {
+          message = detail.error;
+        }
+
+        if (detail?.detail) {
+          message += " — " + detail.detail;
+        }
       }
 
       throw new Error(message);
@@ -189,7 +220,10 @@
   const publisher = async (action, extra = {}) => {
     return unwrap(
       await db.functions.invoke(PUBLISHER, {
-        body: { action, ...extra }
+        body: {
+          action,
+          ...extra
+        }
       }),
       "The publisher request"
     );
@@ -203,7 +237,8 @@
 
     if (error || !session?.user) {
       throw new Error(
-        "Sign in to your NOH administrator account first, then reopen this page."
+        "Sign in to your NOH administrator account first, " +
+        "then reopen this page."
       );
     }
 
@@ -222,10 +257,10 @@
     return session.user;
   }
 
-  /* ---------------------------------------------------------- record checks */
+  /* ================================================================
+     OPPORTUNITY VALIDATION
+  ================================================================= */
 
-  // Every field below must be present before a record is review-ready.
-  // Eligibility is source-backed and must contain at least 20 characters.
   const REQUIRED = [
     ["title", "title"],
     ["organization", "organisation"],
@@ -244,11 +279,17 @@
 
         if (!value) return true;
 
-        if (key === "eligibility" && value.length < 20) {
+        if (
+          key === "eligibility" &&
+          value.length < 20
+        ) {
           return true;
         }
 
-        if (key === "description" && value.length < 30) {
+        if (
+          key === "description" &&
+          value.length < 30
+        ) {
           return true;
         }
 
@@ -257,55 +298,66 @@
       .map(([, label]) => label);
   }
 
+  /* ================================================================
+     IMAGE VALIDATION
+  ================================================================= */
+
   /*
-   * IMAGE VALIDATION
+   * A valid image must:
+   *   1. Have a valid HTTPS URL.
+   *   2. Be marked ready by the backend.
+   *   3. Have passed unique-image quality validation.
+   *   4. Have no duplicate-image reference.
    *
-   * A URL is not proof that an image passed quality validation.
-   * An image is accepted only when:
-   *   1. It belongs to this opportunity's own Storage object.
-   *   2. image_status is ready.
-   *   3. image_quality_status is passed.
-   *   4. It has no duplicate-image reference.
-   *
-   * This prevents a stale image URL from being shown as approved.
+   * The URL is not required to follow a particular filename pattern.
+   * The backend remains responsible for verifying ownership and
+   * Storage integrity. This avoids rejecting valid backend-generated
+   * image filenames merely because they do not match an assumed ID.
    */
+
   function ownImage(row) {
+    if (!row) return false;
+
     const url = safeHttps(row.image_url);
 
-    if (!url || !row.id) return false;
+    if (!url) return false;
 
     if (row.image_status !== "ready") return false;
 
-    if (row.image_quality_status !== "passed") return false;
+    if (row.image_quality_status !== "passed") {
+      return false;
+    }
 
     if (row.image_duplicate_of) return false;
 
-    const id = String(row.id).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-    const pattern =
-      "^https://djxornmwvkauhkcuhgxc\\.supabase\\.co/" +
-      "storage/v1/object/public/opportunity-images/" +
-      id +
-      "\\.(jpg|png|webp|gif|avif|svg)$";
-
-    return new RegExp(pattern, "i").test(url);
+    return true;
   }
 
   function imageValidationMessage(row) {
-    if (row.image_status === "failed") {
-      return "Image preparation failed. Retry image preparation.";
+    if (row.image_duplicate_of) {
+      return (
+        "This image is linked to another image record. " +
+        "A unique image is required."
+      );
     }
 
-    if (row.image_duplicate_of) {
-      return "This image is linked to another image record. A unique image is required.";
+    if (row.image_status === "failed") {
+      return (
+        "Image preparation failed. Retry image preparation."
+      );
     }
 
     if (row.image_quality_status === "failed") {
-      return "This image has not passed unique-image quality validation. Re-prepare it.";
+      return (
+        "This image did not pass unique-image validation. " +
+        "Rebuild the image."
+      );
     }
 
     if (row.image_quality_status !== "passed") {
-      return "Unique-image quality validation is not confirmed yet.";
+      return (
+        "Unique-image quality validation is not confirmed yet."
+      );
     }
 
     if (row.image_status !== "ready") {
@@ -316,50 +368,88 @@
       return "No valid HTTPS image URL is attached.";
     }
 
-    return "The image must belong to this opportunity's own Storage object.";
+    return "The image is not ready for approval.";
   }
 
   function imageNeedsRetry(row) {
+    if (!row) return false;
+
     return (
       row.image_status === "failed" ||
       row.image_quality_status === "failed" ||
       Boolean(row.image_duplicate_of) ||
-      (Boolean(row.image_url) && !ownImage(row))
+      (
+        Boolean(row.image_url) &&
+        !ownImage(row)
+      )
     );
   }
 
-  // DISCOVERED → IMAGE_PENDING → READY_FOR_REVIEW
-  // → APPROVED → PUBLISHED
-  function stageOf(row) {
-    if (row.status === "rejected") return "REJECTED";
-    if (row.status === "imported") return "PUBLISHED";
-
-    if (row.status === "approved") {
-      return row.publish_error ? "PUBLISH_FAILED" : "APPROVED";
-    }
+  function imageState(row) {
+    if (ownImage(row)) return "READY";
 
     if (
       row.image_status === "failed" ||
       row.image_quality_status === "failed" ||
       row.image_duplicate_of
     ) {
+      return "FAILED";
+    }
+
+    if (row.image_url) {
+      return "CHECKING";
+    }
+
+    return "MISSING";
+  }
+
+  function imageStateLabel(row) {
+    const state = imageState(row);
+
+    if (state === "READY") return "Image ready · Unique check passed";
+    if (state === "FAILED") return "Image failed — retry";
+    if (state === "CHECKING") return "Image uploaded · Validation pending";
+
+    return "Image not prepared";
+  }
+
+  /* ================================================================
+     WORKFLOW STATES
+  ================================================================= */
+
+  function stageOf(row) {
+    if (row.status === "rejected") {
+      return "REJECTED";
+    }
+
+    if (row.status === "imported") {
+      return "PUBLISHED";
+    }
+
+    if (row.status === "approved") {
+      return row.publish_error
+        ? "PUBLISH_FAILED"
+        : "APPROVED";
+    }
+
+    if (imageState(row) === "FAILED") {
       return "IMAGE_FAILED";
     }
 
     if (!ownImage(row)) {
-      if (row.image_url && row.image_quality_status !== "passed") {
-        return "IMAGE_FAILED";
+      if (row.validation_status === "unchecked" &&
+          !(row.enrich_attempts > 0)) {
+        return "DISCOVERED";
       }
 
-      return row.validation_status === "unchecked" &&
-        !(row.enrich_attempts > 0)
-        ? "DISCOVERED"
-        : "IMAGE_PENDING";
+      return "IMAGE_PENDING";
     }
 
     const gaps = missingFields(row);
 
-    return gaps.length ? "NEEDS_DETAILS" : "READY_FOR_REVIEW";
+    return gaps.length
+      ? "NEEDS_DETAILS"
+      : "READY_FOR_REVIEW";
   }
 
   const STAGE_LABEL = {
@@ -374,7 +464,24 @@
     REJECTED: ["Rejected", "rejected"]
   };
 
-  /* --------------------------------------------------------------- loading */
+  function reviewReady(row) {
+    return (
+      row.status === "pending" &&
+      stageOf(row) === "READY_FOR_REVIEW" &&
+      ownImage(row) &&
+      Boolean(row.title?.trim()) &&
+      Boolean(row.organization?.trim()) &&
+      Boolean(row.category?.trim()) &&
+      String(row.description || "").trim().length >= 30 &&
+      String(row.eligibility || "").trim().length >= 20 &&
+      Boolean(safeHttps(row.application_url)) &&
+      Boolean(safeHttps(row.source_url))
+    );
+  }
+
+  /* ================================================================
+     QUEUE LOADING
+  ================================================================= */
 
   function statusesForFilter() {
     const filter = $("statusFilter")?.value || "active";
@@ -384,7 +491,12 @@
     }
 
     if (filter === "all") {
-      return ["pending", "approved", "imported", "rejected"];
+      return [
+        "pending",
+        "approved",
+        "imported",
+        "rejected"
+      ];
     }
 
     return [filter];
@@ -395,7 +507,10 @@
       statuses: statusesForFilter()
     });
 
-    rows = Array.isArray(result.records) ? result.records : [];
+    rows = Array.isArray(result.records)
+      ? result.records
+      : [];
+
     counts = result.counts || {};
 
     const ids = new Set(rows.map(row => row.id));
@@ -428,31 +543,63 @@
         .order("id", { ascending: false })
         .limit(1);
 
-      $("lastRun").textContent = data?.[0]?.finished_at
-        ? dateTime(data[0].finished_at)
-        : "Not run yet";
+      if ($("lastRun")) {
+        $("lastRun").textContent = data?.[0]?.finished_at
+          ? dateTime(data[0].finished_at)
+          : "Not run yet";
+      }
     } catch {
       // Optional statistics.
     }
   }
 
   function renderStats() {
-    const pending = rows.filter(row => row.status === "pending");
-    const by = stage => pending.filter(row => stageOf(row) === stage).length;
+    const pending = rows.filter(
+      row => row.status === "pending"
+    );
 
-    $("cntDiscovered").textContent =
-      by("DISCOVERED") + by("NEEDS_DETAILS");
+    const by = stage =>
+      pending.filter(row => stageOf(row) === stage).length;
 
-    $("cntImage").textContent =
-      by("IMAGE_PENDING") + by("IMAGE_FAILED");
+    if ($("cntDiscovered")) {
+      $("cntDiscovered").textContent =
+        by("DISCOVERED") + by("NEEDS_DETAILS");
+    }
 
-    $("cntReady").textContent = by("READY_FOR_REVIEW");
-    $("cntApproved").textContent = counts.approved ?? "—";
-    $("cntPublished").textContent = counts.imported ?? "—";
-    $("cntRejected").textContent = counts.rejected ?? "—";
+    if ($("cntImage")) {
+      $("cntImage").textContent =
+        by("IMAGE_PENDING") + by("IMAGE_FAILED");
+    }
 
-    $("pendingCount").textContent = counts.pending ?? 0;
-    $("importedCount").textContent = counts.imported ?? 0;
+    if ($("cntReady")) {
+      $("cntReady").textContent =
+        by("READY_FOR_REVIEW");
+    }
+
+    if ($("cntApproved")) {
+      $("cntApproved").textContent =
+        counts.approved ?? "—";
+    }
+
+    if ($("cntPublished")) {
+      $("cntPublished").textContent =
+        counts.imported ?? "—";
+    }
+
+    if ($("cntRejected")) {
+      $("cntRejected").textContent =
+        counts.rejected ?? "—";
+    }
+
+    if ($("pendingCount")) {
+      $("pendingCount").textContent =
+        counts.pending ?? 0;
+    }
+
+    if ($("importedCount")) {
+      $("importedCount").textContent =
+        counts.imported ?? 0;
+    }
   }
 
   async function loadPermission() {
@@ -460,15 +607,19 @@
 
     permission = result.permission || "not_granted";
 
-    $("permissionLabel").textContent =
-      permission === "granted"
-        ? `Publishing unlocked until ${dateTime(result.expires_at)}.`
-        : "Publishing is locked. Grant temporary permission to publish approved records.";
+    if ($("permissionLabel")) {
+      $("permissionLabel").textContent =
+        permission === "granted"
+          ? `Publishing unlocked until ${dateTime(result.expires_at)}.`
+          : "Publishing is locked. Grant temporary permission to publish approved records.";
+    }
 
     syncButtons();
   }
 
-  /* -------------------------------------------------------------- rendering */
+  /* ================================================================
+     QUEUE RENDERING
+  ================================================================= */
 
   function filteredRows() {
     const term = ($("searchInput")?.value || "")
@@ -486,19 +637,18 @@
         `${row.organization || ""} ${row.category || ""}`;
 
       const searchMatches =
-        !term || searchText.toLocaleLowerCase("en-GB").includes(term);
+        !term ||
+        searchText.toLocaleLowerCase("en-GB").includes(term);
 
       return stageMatches && searchMatches;
     });
   }
 
   function selectable(row) {
-    const stage = stageOf(row);
-
     return (
-      stage === "READY_FOR_REVIEW" ||
-      stage === "APPROVED" ||
-      stage === "PUBLISH_FAILED"
+      reviewReady(row) ||
+      row.status === "approved" ||
+      stageOf(row) === "PUBLISH_FAILED"
     );
   }
 
@@ -521,7 +671,8 @@
     };
 
     const source =
-      sourceLabels[row.image_source] || "Individual image attached";
+      sourceLabels[row.image_source] ||
+      "Individual image attached";
 
     return `
       <a class="noh-image-link"
@@ -536,13 +687,16 @@
           data-opportunity-image
         >
       </a>
-      <div class="noh-image-caption">${esc(source)}</div>
+      <div class="noh-image-caption">
+        ${esc(source)}
+      </div>
     `;
   }
 
   function cardHTML(row) {
     const stage = stageOf(row);
-    const [label, tone] = STAGE_LABEL[stage] || [stage, ""];
+    const [label, tone] =
+      STAGE_LABEL[stage] || [stage, ""];
 
     const pending = row.status === "pending";
     const gaps = missingFields(row);
@@ -557,7 +711,9 @@
     }
 
     if (row.image_error && stage === "IMAGE_FAILED") {
-      flags.push("Image: " + row.image_error.slice(0, 240));
+      flags.push(
+        "Image: " + String(row.image_error).slice(0, 240)
+      );
     }
 
     if (row.publish_error) {
@@ -576,12 +732,9 @@
     const applicationUrl = safeHttps(row.application_url);
 
     const canPick = selectable(row);
-
     const imageFlagClass = ownImage(row) ? "ok" : "failed";
 
-    const imageFlagText =
-      `Image: ${row.image_status || "none"} · ` +
-      `Unique check: ${row.image_quality_status || "unchecked"}`;
+    const approveDisabled = !reviewReady(row);
 
     return `
       <article
@@ -610,12 +763,16 @@
 
         <div class="noh-card-content">
           <div class="noh-card-meta">
-            <span class="noh-state ${tone}">${esc(label)}</span>
+            <span class="noh-state ${tone}">
+              ${esc(label)}
+            </span>
+
             ${
               newIds.has(row.id)
                 ? '<span class="noh-state info">New this run</span>'
                 : ""
             }
+
             <span>${esc(row.source_name || "Source")}</span>
             <span>Discovered ${esc(dateTime(row.discovered_at))}</span>
           </div>
@@ -628,8 +785,11 @@
             <strong>
               ${esc(row.organization || "Organisation not yet verified")}
             </strong>
+
             ${row.category ? `<span>· ${esc(row.category)}</span>` : ""}
+
             <span>· ${esc(row.location || "Location not supplied")}</span>
+
             <span>· Deadline: ${esc(dateOnly(row.deadline))}</span>
           </div>
 
@@ -642,16 +802,21 @@
           </p>
 
           <div class="noh-card-meta">
-            <span class="noh-flag ${row.validation_status === "valid" ? "ok" : ""}">
+            <span class="noh-flag ${
+              row.validation_status === "valid" ? "ok" : ""
+            }">
               Check: ${esc(row.validation_status || "unchecked")}
             </span>
 
             <span class="noh-flag ${imageFlagClass}">
-              ${esc(imageFlagText)}
+              ${esc(imageStateLabel(row))}
             </span>
 
             <span class="noh-flag ${
-              row.status === "approved" || row.status === "imported" ? "ok" : ""
+              row.status === "approved" ||
+              row.status === "imported"
+                ? "ok"
+                : ""
             }">
               Review: ${esc(row.status)}
             </span>
@@ -663,20 +828,36 @@
 
           ${
             row.review_note
-              ? `<div class="entry-meta">Review note: ${esc(row.review_note)}</div>`
+              ? `
+                <div class="entry-meta">
+                  Review note: ${esc(row.review_note)}
+                </div>
+              `
               : ""
           }
 
           <div class="noh-card-links">
             ${
               sourceUrl
-                ? `<a href="${esc(sourceUrl)}" target="_blank" rel="noopener noreferrer">Source listing ↗</a>`
+                ? `
+                  <a href="${esc(sourceUrl)}"
+                     target="_blank"
+                     rel="noopener noreferrer">
+                    Source listing ↗
+                  </a>
+                `
                 : "<span>Source link unavailable</span>"
             }
 
             ${
               applicationUrl
-                ? `<a href="${esc(applicationUrl)}" target="_blank" rel="noopener noreferrer">Application page ↗</a>`
+                ? `
+                  <a href="${esc(applicationUrl)}"
+                     target="_blank"
+                     rel="noopener noreferrer">
+                    Application page ↗
+                  </a>
+                `
                 : "<span>Application link not found</span>"
             }
           </div>
@@ -686,16 +867,27 @@
           ${
             pending
               ? `
-                <button class="btn btn-primary"
-                        data-action="approve"
-                        data-id="${esc(row.id)}"
-                        type="button">
+                <button
+                  class="btn btn-primary"
+                  data-action="approve"
+                  data-id="${esc(row.id)}"
+                  type="button"
+                  ${approveDisabled ? "disabled" : ""}
+                  title="${
+                    approveDisabled
+                      ? "Complete the required details and image validation first."
+                      : "Review and approve this opportunity."
+                  }"
+                >
                   Review &amp; approve
                 </button>
-                <button class="btn btn-danger"
-                        data-action="reject"
-                        data-id="${esc(row.id)}"
-                        type="button">
+
+                <button
+                  class="btn btn-danger"
+                  data-action="reject"
+                  data-id="${esc(row.id)}"
+                  type="button"
+                >
                   Reject
                 </button>
               `
@@ -705,10 +897,12 @@
           ${
             row.status === "approved"
               ? `
-                <button class="btn btn-danger"
-                        data-action="reject"
-                        data-id="${esc(row.id)}"
-                        type="button">
+                <button
+                  class="btn btn-danger"
+                  data-action="reject"
+                  data-id="${esc(row.id)}"
+                  type="button"
+                >
                   Reject
                 </button>
               `
@@ -720,11 +914,17 @@
             stage === "IMAGE_PENDING" ||
             stage === "DISCOVERED"
               ? `
-                <button class="btn btn-outline"
-                        data-action="image"
-                        data-id="${esc(row.id)}"
-                        type="button">
-                  ${stage === "IMAGE_FAILED" ? "Retry image" : "Prepare image"}
+                <button
+                  class="btn btn-outline"
+                  data-action="image"
+                  data-id="${esc(row.id)}"
+                  type="button"
+                >
+                  ${
+                    stage === "IMAGE_FAILED"
+                      ? "Retry image"
+                      : "Prepare image"
+                  }
                 </button>
               `
               : ""
@@ -736,19 +936,26 @@
 
   function render() {
     const queue = $("queue");
+
+    if (!queue) return;
+
     const list = filteredRows();
 
     if (!list.length) {
       queue.innerHTML =
         '<div class="empty">No records match this view. Change the filters, or press Start Discovery.</div>';
 
-      $("loadMoreBtn").hidden = true;
+      if ($("loadMoreBtn")) {
+        $("loadMoreBtn").hidden = true;
+      }
+
       syncButtons();
       return;
     }
 
     const ordered = [...list].sort((a, b) =>
-      (newIds.has(b.id) ? 1 : 0) - (newIds.has(a.id) ? 1 : 0)
+      (newIds.has(b.id) ? 1 : 0) -
+      (newIds.has(a.id) ? 1 : 0)
     );
 
     queue.innerHTML = ordered
@@ -758,31 +965,42 @@
 
     const left = ordered.length - shown;
 
-    $("loadMoreBtn").hidden = left <= 0;
-    $("loadMoreBtn").textContent = `Load more (${left} left)`;
+    if ($("loadMoreBtn")) {
+      $("loadMoreBtn").hidden = left <= 0;
+      $("loadMoreBtn").textContent =
+        `Load more (${left} left)`;
+    }
 
     syncButtons();
   }
 
-  /* --------------------------------------------------------- button states */
+  /* ================================================================
+     BUTTON STATES
+  ================================================================= */
 
-  const selectedRows = () => rows.filter(row => selected.has(row.id));
+  const selectedRows = () =>
+    rows.filter(row => selected.has(row.id));
 
   function syncButtons() {
     const idle = !op;
 
     const set = (id, disabled) => {
       const button = $(id);
-      if (button) button.disabled = disabled;
+
+      if (button) {
+        button.disabled = disabled;
+      }
     };
 
     const selection = selectedRows();
 
-    const pendingSelected =
-      selection.filter(row => row.status === "pending");
+    const pendingSelected = selection.filter(
+      row => row.status === "pending"
+    );
 
-    const approvedSelected =
-      selection.filter(row => row.status === "approved");
+    const approvedSelected = selection.filter(
+      row => row.status === "approved"
+    );
 
     set("startDiscoveryBtn", !db || !idle);
 
@@ -798,14 +1016,17 @@
 
     set(
       "approveSelectedBtn",
-      !db || !idle ||
+      !db ||
+      !idle ||
       !pendingSelected.length ||
-      pendingSelected.length > MAX_BATCH
+      pendingSelected.length > MAX_BATCH ||
+      pendingSelected.some(row => !reviewReady(row))
     );
 
     set(
       "rejectSelectedBtn",
-      !db || !idle ||
+      !db ||
+      !idle ||
       !selection.length ||
       selection.length > MAX_BATCH
     );
@@ -816,43 +1037,63 @@
 
     set(
       "publishSelectedBtn",
-      !db || !idle ||
+      !db ||
+      !idle ||
       permission !== "granted" ||
       !approvedSelected.length ||
-      approvedSelected.length > MAX_BATCH
+      approvedSelected.length > MAX_BATCH ||
+      approvedSelected.some(row => !ownImage(row))
     );
 
-    $("approveSelectedBtn").textContent =
-      `Approve selected (${pendingSelected.length})`;
+    if ($("approveSelectedBtn")) {
+      $("approveSelectedBtn").textContent =
+        `Approve selected (${pendingSelected.length})`;
+    }
 
-    $("rejectSelectedBtn").textContent =
-      `Reject selected (${selection.length})`;
+    if ($("rejectSelectedBtn")) {
+      $("rejectSelectedBtn").textContent =
+        `Reject selected (${selection.length})`;
+    }
 
-    $("publishSelectedBtn").textContent =
-      `Publish Approved (${approvedSelected.length})`;
+    if ($("publishSelectedBtn")) {
+      $("publishSelectedBtn").textContent =
+        `Publish Approved (${approvedSelected.length})`;
+    }
 
-    $("selectionLabel").textContent = !selection.length
-      ? "No records selected. Tick records, or use Select All."
-      : `${selection.length} selected: ${pendingSelected.length} awaiting approval, ` +
-        `${approvedSelected.length} approved.` +
-        (
-          approvedSelected.length && permission !== "granted"
-            ? " Grant permission to publish."
-            : ""
-        );
+    if ($("selectionLabel")) {
+      $("selectionLabel").textContent = !selection.length
+        ? "No records selected. Tick records, or use Select All."
+        : `${selection.length} selected: ${pendingSelected.length} awaiting approval, ` +
+          `${approvedSelected.length} approved.` +
+          (
+            approvedSelected.length &&
+            permission !== "granted"
+              ? " Grant permission to publish."
+              : ""
+          );
+    }
 
-    $("stopDiscoveryBtn").textContent =
-      op === "images" ? "Stop Image Preparation" : "Stop Discovery";
+    if ($("stopDiscoveryBtn")) {
+      $("stopDiscoveryBtn").textContent =
+        op === "images"
+          ? "Stop Image Preparation"
+          : "Stop Discovery";
+    }
   }
 
   async function runOp(name, callback) {
     if (op) {
-      notice("Another operation is running. Please wait or press Stop.", true);
+      notice(
+        "Another operation is running. Please wait or press Stop.",
+        true
+      );
+
       return;
     }
 
     op = name;
     stopRequested = false;
+
     syncButtons();
 
     try {
@@ -860,7 +1101,10 @@
     } catch (error) {
       showResult(
         "Something went wrong",
-        [{ t: error.message || String(error), c: "bad" }],
+        [{
+          t: error.message || String(error),
+          c: "bad"
+        }],
         true
       );
 
@@ -874,6 +1118,8 @@
 
   function showResult(title, items, error = false) {
     const box = $("discoveryResult");
+
+    if (!box) return;
 
     box.hidden = false;
     box.classList.toggle("error", !!error);
@@ -892,18 +1138,26 @@
     });
   }
 
-  /* --------------------------------------------------------------- discovery */
+  /* ================================================================
+     DISCOVERY
+  ================================================================= */
 
   async function startDiscovery() {
     await runOp("discovery", async () => {
-      $("discoveryRunLabel").textContent =
-        "Checking sources, extracting details and validating…";
+      if ($("discoveryRunLabel")) {
+        $("discoveryRunLabel").textContent =
+          "Checking sources, extracting details and validating…";
+      }
 
-      notice("Discovery started. Please keep this page open.");
+      notice(
+        "Discovery started. Please keep this page open."
+      );
 
       const result = await unwrap(
         await patient(
-          db.functions.invoke(DISCOVERY_FUNCTION, { body: {} }),
+          db.functions.invoke(DISCOVERY_FUNCTION, {
+            body: {}
+          }),
           90000,
           "Discovery"
         ),
@@ -918,15 +1172,18 @@
 
       const items = [
         {
-          t: `${result.sources_checked ?? 0} sources checked, ` +
+          t:
+            `${result.sources_checked ?? 0} sources checked, ` +
             `${result.entries_seen ?? 0} listings seen.`
         },
         {
-          t: `${result.new_pending_entries ?? 0} new record(s) added to the queue.`,
+          t:
+            `${result.new_pending_entries ?? 0} new record(s) added to the queue.`,
           c: result.new_pending_entries ? "good" : ""
         },
         {
-          t: `${result.enrichment_attempted ?? 0} record(s) enriched from their source pages.`
+          t:
+            `${result.enrichment_attempted ?? 0} record(s) enriched from their source pages.`
         },
         {
           t:
@@ -937,7 +1194,8 @@
             `${validation.rejected_expired ?? 0} expired rejected.`
         },
         {
-          t: `${validation.valid ?? 0} record(s) have all required details; ` +
+          t:
+            `${validation.valid ?? 0} record(s) have all required details; ` +
             `${validation.incomplete ?? 0} still need details or an image.`
         }
       ];
@@ -946,7 +1204,8 @@
         .filter(item => item.status === "needs_attention")
         .forEach(item => {
           items.push({
-            t: `Could not read "${item.title || item.id}": ${item.reason}`,
+            t:
+              `Could not read "${item.title || item.id}": ${item.reason}`,
             c: "warn"
           });
         });
@@ -955,7 +1214,8 @@
         .filter(item => item.link_warning)
         .forEach(item => {
           items.push({
-            t: `Application link problem for "${item.title}": ${item.link_warning}`,
+            t:
+              `Application link problem for "${item.title}": ${item.link_warning}`,
             c: "warn"
           });
         });
@@ -975,7 +1235,9 @@
       }
 
       showResult(
-        result.stopped ? "Discovery stopped" : "Discovery finished",
+        result.stopped
+          ? "Discovery stopped"
+          : "Discovery finished",
         items,
         (result.errors || []).length > 0
       );
@@ -1001,8 +1263,10 @@
 
       await loadQueue(true);
 
-      $("discoveryRunLabel").textContent =
-        "Last run complete. Nothing was approved or published.";
+      if ($("discoveryRunLabel")) {
+        $("discoveryRunLabel").textContent =
+          "Last run complete. Nothing was approved or published.";
+      }
 
       notice(
         "Discovery finished. Review the records below.",
@@ -1035,38 +1299,61 @@
     await runOp("validate", async () => {
       const result = await publisher("validate");
 
-      showResult("Duplicate and deadline check finished", [
-        {
-          t: `${result.rejected_duplicate_live ?? 0} duplicate(s) of live listings rejected.`
-        },
-        {
-          t: `${result.rejected_duplicate_queue ?? 0} duplicate(s) within the queue rejected.`
-        },
-        {
-          t: `${result.rejected_expired ?? 0} expired record(s) rejected.`
-        },
-        {
-          t: `${result.valid ?? 0} record(s) complete; ` +
-            `${result.incomplete ?? 0} incomplete.`
-        }
-      ]);
+      showResult(
+        "Duplicate and deadline check finished",
+        [
+          {
+            t:
+              `${result.rejected_duplicate_live ?? 0} duplicate(s) of live listings rejected.`
+          },
+          {
+            t:
+              `${result.rejected_duplicate_queue ?? 0} duplicate(s) within the queue rejected.`
+          },
+          {
+            t:
+              `${result.rejected_expired ?? 0} expired record(s) rejected.`
+          },
+          {
+            t:
+              `${result.valid ?? 0} record(s) complete; ` +
+              `${result.incomplete ?? 0} incomplete.`
+          }
+        ]
+      );
 
       await loadQueue(true);
     });
   }
 
-  /* --------------------------------------------------------------- images */
+  /* ================================================================
+     IMAGE PREPARATION AND RETRY
+  ================================================================= */
 
   async function imageCall(body) {
     return unwrap(
       await patient(
-        db.functions.invoke(IMAGE_FUNCTION, { body }),
+        db.functions.invoke(IMAGE_FUNCTION, {
+          body
+        }),
         90000,
         "Image preparation"
       ),
       "Image preparation"
     );
   }
+
+  /*
+   * IMPORTANT RETRY FIX:
+   *
+   * When IDs are explicitly supplied for a retry, the request includes:
+   *
+   *   rebuild: true
+   *   retry_failed: true
+   *
+   * This asks the backend to rebuild an existing image instead of
+   * skipping the record merely because image_url is already populated.
+   */
 
   async function imageLoop({ rounds, retry, ids }) {
     const total = {
@@ -1091,26 +1378,47 @@
             t:
               `Image failed for "${item.title || item.id}": ` +
               `${item.reason || "unknown reason"}` +
-              (item.retryable ? " (you can retry)" : ""),
+              (
+                item.retryable
+                  ? " (you can retry)"
+                  : ""
+              ),
             c: "bad"
           });
         });
     };
 
-    if (ids) {
-      for (let i = 0; i < ids.length && !stopRequested; i += IMAGE_BATCH) {
-        $("discoveryRunLabel").textContent =
-          `Preparing images (${Math.min(i + IMAGE_BATCH, ids.length)} of ${ids.length})…`;
+    if (Array.isArray(ids) && ids.length) {
+      for (
+        let i = 0;
+        i < ids.length && !stopRequested;
+        i += IMAGE_BATCH
+      ) {
+        const batch = ids.slice(i, i + IMAGE_BATCH);
 
-        take(await imageCall({
-          ids: ids.slice(i, i + IMAGE_BATCH),
-          retry_failed: retry
-        }));
+        if ($("discoveryRunLabel")) {
+          $("discoveryRunLabel").textContent =
+            `Preparing images (${Math.min(i + IMAGE_BATCH, ids.length)} of ${ids.length})…`;
+        }
+
+        const request = {
+          ids: batch,
+          rebuild: retry === true,
+          retry_failed: retry === true
+        };
+
+        take(await imageCall(request));
       }
     } else {
-      for (let round = 0; round < rounds && !stopRequested; round++) {
-        $("discoveryRunLabel").textContent =
-          `Preparing images, batch ${round + 1}…`;
+      for (
+        let round = 0;
+        round < rounds && !stopRequested;
+        round++
+      ) {
+        if ($("discoveryRunLabel")) {
+          $("discoveryRunLabel").textContent =
+            `Preparing images, batch ${round + 1}…`;
+        }
 
         const result = await imageCall({
           limit: IMAGE_BATCH
@@ -1118,37 +1426,61 @@
 
         take(result);
 
-        if (!Number(result.selected || 0)) break;
+        if (!Number(result.selected || 0)) {
+          break;
+        }
       }
     }
 
     items.unshift({
       t:
-        `Images: ${total.ready} ready (${total.generated} generated), ` +
-        `${total.failed} failed, from ${total.selected} record(s).` +
-        (stopRequested ? " Stopped early." : ""),
+        `Images: ${total.ready} ready, ` +
+        `${total.generated} generated, ` +
+        `${total.failed} failed, ` +
+        `${total.selected} processed.` +
+        (
+          stopRequested
+            ? " Stopped early."
+            : ""
+        ),
       c: total.failed ? "warn" : "good"
     });
 
-    return { ...total, items };
+    return {
+      ...total,
+      items
+    };
   }
 
   async function prepareImages(retry) {
     await runOp("images", async () => {
       let ids = null;
 
-      const selectedIds = selectedRows().map(row => row.id);
+      const selectedIds = selectedRows().map(
+        row => row.id
+      );
 
       if (retry) {
-        ids = (selectedIds.length ? selectedRows() : rows)
+        const candidates =
+          selectedIds.length
+            ? selectedRows()
+            : rows;
+
+        ids = candidates
           .filter(row =>
             imageNeedsRetry(row) &&
-            (row.status === "pending" || row.status === "approved")
+            (
+              row.status === "pending" ||
+              row.status === "approved"
+            )
           )
           .map(row => row.id);
 
         if (!ids.length) {
-          notice("No records currently need image retry.");
+          notice(
+            "No records currently need image retry."
+          );
+
           return;
         }
       } else if (selectedIds.length) {
@@ -1157,19 +1489,24 @@
           .map(row => row.id);
 
         if (!ids.length) {
-          notice("The selected records already have validated individual images.");
+          notice(
+            "The selected records already have validated individual images."
+          );
+
           return;
         }
       }
 
       const result = await imageLoop({
         rounds: IMAGE_ROUND_CAP,
-        retry: retry || !!ids,
+        retry: retry === true || Boolean(ids),
         ids
       });
 
       showResult(
-        retry ? "Retry finished" : "Image preparation finished",
+        retry
+          ? "Image retry finished"
+          : "Image preparation finished",
         result.items,
         result.failed > 0
       );
@@ -1177,8 +1514,10 @@
       await publisher("validate").catch(() => {});
       await loadQueue(true);
 
-      $("discoveryRunLabel").textContent =
-        "Image preparation finished.";
+      if ($("discoveryRunLabel")) {
+        $("discoveryRunLabel").textContent =
+          "Image preparation finished.";
+      }
     });
   }
 
@@ -1186,36 +1525,63 @@
     await runOp("images", async () => {
       const row = rows.find(item => item.id === id);
 
+      if (!row) {
+        throw new Error(
+          "Opportunity record was not found."
+        );
+      }
+
+      if (
+        row.status !== "pending" &&
+        row.status !== "approved"
+      ) {
+        throw new Error(
+          "This record cannot be rebuilt in its current status."
+        );
+      }
+
       const result = await imageLoop({
         rounds: 1,
-        retry: row ? imageNeedsRetry(row) : false,
+        retry: true,
         ids: [id]
       });
 
       showResult(
-        "Image preparation finished",
+        "Image rebuild finished",
         result.items,
         result.failed > 0
       );
 
       await publisher("validate").catch(() => {});
       await loadQueue(true);
+
+      if ($("discoveryRunLabel")) {
+        $("discoveryRunLabel").textContent =
+          "Image rebuild finished. Check the updated validation state.";
+      }
     });
   }
 
-  /* --------------------------------------------------------------- approval */
+  /* ================================================================
+     REVIEW AND APPROVAL
+  ================================================================= */
 
   function openApproval(id) {
     const row = rows.find(item => item.id === id);
 
     if (!row) return;
 
-    if (!ownImage(row)) {
+    if (!reviewReady(row)) {
       notice(
-        "Prepare and verify this opportunity's individual image before approving it. " +
-        imageValidationMessage(row),
+        "This opportunity is not ready for approval. " +
+        (
+          !ownImage(row)
+            ? imageValidationMessage(row)
+            : "Complete all required details and checks first."
+        ),
         true
       );
+
       return;
     }
 
@@ -1227,7 +1593,8 @@
     $("deadline").value = row.deadline || "";
     $("applicationUrl").value = row.application_url || "";
     $("sourceUrl").value = safeHttps(row.source_url);
-    $("description").value = row.description || row.summary || "";
+    $("description").value =
+      row.description || row.summary || "";
     $("eligibility").value = row.eligibility || "";
     $("officialVerified").checked = false;
 
@@ -1249,12 +1616,20 @@
     event.preventDefault();
 
     if (op) {
-      notice("Another operation is running. Please wait.", true);
+      notice(
+        "Another operation is running. Please wait.",
+        true
+      );
+
       return;
     }
 
     if (!$("officialVerified").checked) {
-      notice("Confirm the official-source checks first.", true);
+      notice(
+        "Confirm the official-source checks first.",
+        true
+      );
+
       return;
     }
 
@@ -1264,9 +1639,11 @@
 
     if (!sourceRow || !ownImage(sourceRow)) {
       notice(
-        "This record does not have a verified individual Storage image. Prepare its image before approval.",
+        "This record does not have a verified individual image. " +
+        "Prepare its image before approval.",
         true
       );
+
       return;
     }
 
@@ -1276,14 +1653,25 @@
       category: $("category").value,
       location: $("location").value.trim() || "Nigeria",
       deadline: $("deadline").value || null,
-      application_url: safeHttps($("applicationUrl").value.trim()),
-      source_url: safeHttps($("sourceUrl").value.trim()),
+      application_url: safeHttps(
+        $("applicationUrl").value.trim()
+      ),
+      source_url: safeHttps(
+        $("sourceUrl").value.trim()
+      ),
       description: $("description").value.trim(),
       eligibility: $("eligibility").value.trim()
     };
 
-    if (!opportunity.application_url || !opportunity.source_url) {
-      notice("Both links must be valid HTTPS links.", true);
+    if (
+      !opportunity.application_url ||
+      !opportunity.source_url
+    ) {
+      notice(
+        "Both links must be valid HTTPS links.",
+        true
+      );
+
       return;
     }
 
@@ -1296,6 +1684,7 @@
         "Complete the title, organisation and description.",
         true
       );
+
       return;
     }
 
@@ -1304,27 +1693,31 @@
         "The description must contain at least 30 characters.",
         true
       );
+
       $("description").focus();
       return;
     }
 
-    if (!opportunity.eligibility || opportunity.eligibility.length < 20) {
+    if (opportunity.eligibility.length < 20) {
       notice(
-        "Approval blocked: enter the actual eligibility requirements from the official source (minimum 20 characters).",
+        "Approval blocked: enter the actual eligibility requirements from the official source.",
         true
       );
+
       $("eligibility").focus();
       return;
     }
 
     if (
       opportunity.deadline &&
-      opportunity.deadline < new Date().toISOString().slice(0, 10)
+      opportunity.deadline <
+        new Date().toISOString().slice(0, 10)
     ) {
       notice(
         "This deadline has passed. Do not approve it as an open opportunity.",
         true
       );
+
       return;
     }
 
@@ -1344,14 +1737,15 @@
 
         $("reviewDialog").close();
 
-        showResult("Approved", [
-          {
+        showResult(
+          "Approved",
+          [{
             t:
               "The record is approved but NOT published. " +
               "Select it, grant permission and press Publish Approved.",
             c: "good"
-          }
-        ]);
+          }]
+        );
 
         await loadQueue(true);
       } finally {
@@ -1362,31 +1756,24 @@
   }
 
   async function approveSelected() {
-    const list = selectedRows()
-      .filter(row => row.status === "pending");
+    const list = selectedRows().filter(
+      row => row.status === "pending"
+    );
 
     if (!list.length) return;
 
-    const notReady = list.filter(row => {
-      return (
-        stageOf(row) !== "READY_FOR_REVIEW" ||
-        !row.eligibility ||
-        String(row.eligibility).trim().length < 20 ||
-        !row.organization ||
-        !row.description ||
-        String(row.description).trim().length < 30 ||
-        !row.application_url ||
-        !row.source_url ||
-        !ownImage(row)
-      );
-    });
+    const notReady = list.filter(
+      row => !reviewReady(row)
+    );
 
     if (notReady.length) {
       notice(
         `${notReady.length} selected record(s) are not ready. ` +
-        "Each needs verified eligibility, organisation, description, links and its own image.",
+        "Each needs verified eligibility, organisation, description, " +
+        "links and its own validated image.",
         true
       );
+
       return;
     }
 
@@ -1435,7 +1822,11 @@
 
   async function rejectIds(ids) {
     if (!ids.length) {
-      notice("Select at least one record to reject.", true);
+      notice(
+        "Select at least one record to reject.",
+        true
+      );
+
       return;
     }
 
@@ -1450,7 +1841,8 @@
       const result = await publisher("bulk_reject", {
         ids,
         review_note:
-          note.trim() || "Rejected by administrator."
+          note.trim() ||
+          "Rejected by administrator."
       });
 
       const items = (result.results || []).map(item => ({
@@ -1476,13 +1868,16 @@
     });
   }
 
-  /* ------------------------------------------------------------ permissions */
+  /* ================================================================
+     PUBLISHING PERMISSIONS
+  ================================================================= */
 
   async function grantPermission() {
     await runOp("permission", async () => {
       const result = await publisher("grant_permission", {
         expires_in_minutes: 15,
-        note: "Temporary permission granted from NOH discovery dashboard."
+        note:
+          "Temporary permission granted from NOH discovery dashboard."
       });
 
       await loadPermission();
@@ -1496,7 +1891,8 @@
   async function revokePermission() {
     await runOp("permission", async () => {
       await publisher("revoke_permission", {
-        note: "Permission revoked from NOH discovery dashboard."
+        note:
+          "Permission revoked from NOH discovery dashboard."
       });
 
       await loadPermission();
@@ -1505,7 +1901,9 @@
     });
   }
 
-  /* --------------------------------------------------------------- publishing */
+  /* ================================================================
+     PUBLISHING
+  ================================================================= */
 
   function publishItems(results) {
     return (results || []).map(item => ({
@@ -1523,13 +1921,18 @@
   }
 
   async function publishApproved() {
-    const list = selectedRows()
-      .filter(row => row.status === "approved");
+    const list = selectedRows().filter(
+      row => row.status === "approved"
+    );
 
     if (!list.length) return;
 
     if (list.length > MAX_BATCH) {
-      notice(`Maximum ${MAX_BATCH} records can be published per batch.`, true);
+      notice(
+        `Maximum ${MAX_BATCH} records can be published per batch.`,
+        true
+      );
+
       return;
     }
 
@@ -1538,6 +1941,7 @@
         "Every record must have its own image and must pass unique-image quality validation before publishing.",
         true
       );
+
       return;
     }
 
@@ -1546,6 +1950,7 @@
         "Publishing is locked. Grant temporary publishing permission first.",
         true
       );
+
       return;
     }
 
@@ -1602,6 +2007,7 @@
                 ${esc(log.failed)} failed
                 (of ${esc(log.requested)})
               </summary>
+
               <ul class="result-list">
                 ${publishItems(log.results).map(item => `
                   <li class="${item.c}">${esc(item.t)}</li>
@@ -1612,7 +2018,9 @@
     });
   }
 
-  /* --------------------------------------------------------------- selection */
+  /* ================================================================
+     SELECTION
+  ================================================================= */
 
   function selectAll() {
     const available = filteredRows().filter(selectable);
@@ -1632,7 +2040,9 @@
     );
   }
 
-  /* ------------------------------------------------------------------- wiring */
+  /* ================================================================
+     EVENT HANDLERS
+  ================================================================= */
 
   function wire() {
     const on = (id, callback) => {
@@ -1651,8 +2061,13 @@
     on("stopDiscoveryBtn", stopDiscovery);
     on("validateBtn", validateQueue);
 
-    on("prepareImagesBtn", () => prepareImages(false));
-    on("retryImagesBtn", () => prepareImages(true));
+    on("prepareImagesBtn", () => {
+      prepareImages(false);
+    });
+
+    on("retryImagesBtn", () => {
+      prepareImages(true);
+    });
 
     on("refreshBtn", () => {
       runOp("refresh", async () => {
@@ -1670,7 +2085,9 @@
     on("approveSelectedBtn", approveSelected);
 
     on("rejectSelectedBtn", () => {
-      rejectIds(selectedRows().map(row => row.id));
+      rejectIds(
+        selectedRows().map(row => row.id)
+      );
     });
 
     on("grantPermissionBtn", grantPermission);
@@ -1701,7 +2118,10 @@
       });
     });
 
-    $("approveForm")?.addEventListener("submit", approveOne);
+    $("approveForm")?.addEventListener(
+      "submit",
+      approveOne
+    );
 
     $("closeDialog")?.addEventListener("click", () => {
       $("reviewDialog")?.close();
@@ -1714,13 +2134,24 @@
     });
 
     $("queue").addEventListener("click", event => {
-      const button = event.target.closest("button[data-action]");
+      const button = event.target.closest(
+        "button[data-action]"
+      );
 
       if (!button) return;
 
       const id = button.dataset.id;
 
       if (button.dataset.action === "approve") {
+        if (button.disabled) {
+          notice(
+            "Complete the required details and image validation first.",
+            true
+          );
+
+          return;
+        }
+
         openApproval(id);
       }
 
@@ -1734,7 +2165,9 @@
     });
 
     $("queue").addEventListener("change", event => {
-      const input = event.target.closest("input[data-select]");
+      const input = event.target.closest(
+        "input[data-select]"
+      );
 
       if (!input) return;
 
@@ -1745,12 +2178,15 @@
       }
 
       input.closest(".noh-review-card")
-        ?.classList.toggle("is-selected", input.checked);
+        ?.classList.toggle(
+          "is-selected",
+          input.checked
+        );
 
       syncButtons();
     });
 
-    // A failed preview is displayed as a clear image problem.
+    // Display a failed preview without changing database validation.
     $("queue").addEventListener("error", event => {
       const image = event.target;
 
@@ -1767,11 +2203,14 @@
       box.textContent =
         "Image file did not load. Use Retry image.";
 
-      image.closest(".noh-image-link")?.replaceWith(box);
+      image.closest(".noh-image-link")
+        ?.replaceWith(box);
     }, true);
   }
 
-  /* -------------------------------------------------------------------- init */
+  /* ================================================================
+     INITIALISATION
+  ================================================================= */
 
   async function init() {
     wire();
@@ -1817,10 +2256,12 @@
         true
       );
 
-      $("queue").innerHTML =
-        `<div class="empty">${esc(
-          error.message || "Administrator access required."
-        )}</div>`;
+      if ($("queue")) {
+        $("queue").innerHTML =
+          `<div class="empty">${esc(
+            error.message || "Administrator access required."
+          )}</div>`;
+      }
     }
   }
 
