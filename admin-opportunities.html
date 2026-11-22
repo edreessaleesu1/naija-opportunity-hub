@@ -1,9 +1,11 @@
+
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#075b3b">
 <title>Admin – Opportunities | Naija Opportunity Hub</title>
 
 <style>
@@ -15,7 +17,8 @@
   --gold-b:#e6d7a3;
   --text:#1c3026;
   --muted:#5d6b61;
-  --danger:#a32d2d
+  --danger:#a32d2d;
+  --success:#17633a;
 }
 
 *{box-sizing:border-box}
@@ -66,6 +69,10 @@ input,select,textarea{
   color:var(--text)
 }
 
+input[type="checkbox"]{
+  width:auto;
+}
+
 textarea{min-height:90px;resize:vertical}
 
 label{
@@ -105,13 +112,60 @@ button:disabled{opacity:.6;cursor:not-allowed}
   gap:12px;
   align-items:flex-start;
   justify-content:space-between;
-  padding:12px 0;
+  padding:14px 0;
   border-top:1px solid var(--gold-b)
 }
 
 .item:first-child{border-top:0}
-.item h3{margin:0;font-size:1rem}
+.item h3{margin:0 0 5px;font-size:1rem}
 .item small{color:var(--muted)}
+
+.item-main{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  min-width:0;
+  flex:1
+}
+
+.item-info{min-width:0}
+
+.item-thumb{
+  width:112px;
+  height:78px;
+  object-fit:cover;
+  border-radius:9px;
+  border:1px solid var(--gold-b);
+  flex:none;
+  background:#f3e7bd
+}
+
+.image-empty{
+  width:112px;
+  height:78px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  border:1px dashed var(--gold);
+  border-radius:9px;
+  color:var(--muted);
+  font-size:.75rem;
+  flex:none;
+  padding:6px
+}
+
+.image-upload-hint{
+  font-size:.78rem;
+  color:var(--muted);
+  margin-top:5px
+}
+
+.acts{
+  display:flex;
+  gap:8px;
+  flex:none;
+  flex-wrap:wrap
+}
 
 .tag{
   display:inline-block;
@@ -123,27 +177,52 @@ button:disabled{opacity:.6;cursor:not-allowed}
   margin-right:6px
 }
 
-.acts{display:flex;gap:8px;flex:none}
-
 .msg{
   padding:10px 14px;
   border-radius:10px;
   margin:0 0 12px;
-  font-weight:600
+  font-weight:600;
+  overflow-wrap:anywhere
 }
 
 .msg.ok{background:#e4f1e8;color:var(--green)}
 .msg.err{background:#f6e3e3;color:var(--danger)}
 
-.hide{display:none}
+.hide{display:none!important}
 
 .prev{
-  max-width:160px;
-  max-height:90px;
+  max-width:220px;
+  max-height:130px;
   border-radius:8px;
   margin:0 0 12px;
   display:block;
   object-fit:cover
+}
+
+.image-preview-link{
+  display:inline-block;
+  margin-bottom:10px;
+  color:var(--green);
+  font-size:.82rem;
+  font-weight:700
+}
+
+.upload-progress{
+  margin:10px 0;
+  padding:12px;
+  border:1px solid var(--gold-b);
+  background:#fffaf0;
+  border-radius:10px
+}
+
+.upload-progress strong{
+  color:var(--green)
+}
+
+.upload-help{
+  color:var(--muted);
+  font-size:.82rem;
+  margin:5px 0 12px
 }
 
 /* Opportunity image preparation */
@@ -189,8 +268,33 @@ button:disabled{opacity:.6;cursor:not-allowed}
   color:var(--green)
 }
 
-@media(max-width:500px){
+.empty-state{
+  padding:18px;
+  text-align:center;
+  color:var(--muted)
+}
+
+@media(max-width:650px){
+  .item{
+    flex-direction:column
+  }
+
+  .item-main{width:100%}
+
+  .acts{width:100%}
+
+  .acts button{flex:1}
+
   .prep-stats{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:400px){
+  .item-thumb,.image-empty{
+    width:90px;
+    height:68px
+  }
+
+  .card{padding:14px}
 }
 </style>
 </head>
@@ -225,12 +329,15 @@ button:disabled{opacity:.6;cursor:not-allowed}
 
         <form id="pwForm" autocomplete="off">
           <label for="pw1">New password (at least 8 characters)</label>
-          <input id="pw1" type="password" minlength="8" autocomplete="new-password" required>
+          <input id="pw1" type="password" minlength="8"
+            autocomplete="new-password" required>
 
           <label for="pw2">Confirm new password</label>
-          <input id="pw2" type="password" minlength="8" autocomplete="new-password" required>
+          <input id="pw2" type="password" minlength="8"
+            autocomplete="new-password" required>
 
           <button id="pwSave" type="submit">Change password</button>
+
           <button id="pwMail" type="button" class="alt">
             Email me a reset link instead
           </button>
@@ -348,7 +455,12 @@ button:disabled{opacity:.6;cursor:not-allowed}
         <label for="image_url">Image link</label>
         <input id="image_url" type="url" placeholder="https://">
 
-        <img id="prev" class="prev hide" alt="">
+        <img id="prev" class="prev hide" alt="Opportunity image preview">
+
+        <a id="previewLink" class="image-preview-link hide"
+          target="_blank" rel="noopener noreferrer">
+          Open current image
+        </a>
 
         <label for="status">Status *</label>
         <input id="status" list="stats" required maxlength="40">
@@ -368,6 +480,16 @@ button:disabled{opacity:.6;cursor:not-allowed}
 
     <!-- Existing opportunities -->
     <div class="card">
+
+      <h2 style="margin-top:0;color:var(--green);font-size:1.15rem">
+        Existing opportunities
+      </h2>
+
+      <p class="upload-help">
+        Upload a unique image to any opportunity that does not already
+        have an image URL. Images are saved directly to the protected
+        Supabase upload function.
+      </p>
 
       <div class="row">
         <div>
@@ -393,13 +515,21 @@ button:disabled{opacity:.6;cursor:not-allowed}
 <script>
 (function(){
 
+  "use strict";
+
   var URL_="https://djxornmwvkauhkcuhgxc.supabase.co";
   var KEY="sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
 
-  var sb=window.NOH_SUPABASE_CLIENT||window.supabase.createClient(URL_,KEY);
+  var sb=window.NOH_SUPABASE_CLIENT||
+    window.supabase.createClient(URL_,KEY);
 
-  var $=function(i){return document.getElementById(i)};
-  var rows=[],editId=null;
+  var $=function(i){
+    return document.getElementById(i);
+  };
+
+  var rows=[];
+  var editId=null;
+  var uploadInProgress=false;
 
   var F=[
     "title",
@@ -415,6 +545,17 @@ button:disabled{opacity:.6;cursor:not-allowed}
     "status"
   ];
 
+  var ALLOWED_IMAGE_TYPES=[
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "image/avif"
+  ];
+
+  var MAX_IMAGE_BYTES=6*1024*1024;
+  var MIN_IMAGE_BYTES=4096;
+
   function esc(s){
     return String(s==null?"":s).replace(/[&<>"']/g,function(c){
       return {
@@ -423,8 +564,8 @@ button:disabled{opacity:.6;cursor:not-allowed}
         ">":"&gt;",
         '"':"&quot;",
         "'":"&#39;"
-      }[c]
-    })
+      }[c];
+    });
   }
 
   function note(t,k){
@@ -437,6 +578,30 @@ button:disabled{opacity:.6;cursor:not-allowed}
     $("gate").innerHTML=h;
     $("gate").classList.remove("hide");
     $("app").classList.add("hide");
+  }
+
+  function safeHttps(value){
+    try{
+      var url=new URL(value);
+      return url.protocol==="https:"?url.href:null;
+    }catch(_){
+      return null;
+    }
+  }
+
+  function getSession(){
+    return sb.auth.getSession().then(function(result){
+
+      var session=result.data&&result.data.session;
+
+      if(result.error||!session||!session.access_token){
+        throw new Error(
+          "Your admin session has expired. Please sign in again."
+        );
+      }
+
+      return session;
+    });
   }
 
   // Admin authentication and access verification
@@ -472,11 +637,13 @@ button:disabled{opacity:.6;cursor:not-allowed}
     $("gate").classList.add("hide");
     $("app").classList.remove("hide");
 
-    load();
+    await load();
   }
 
-  // Load existing published opportunities
+  // Load existing opportunities
   async function load(){
+
+    $("list").textContent="Loading opportunities…";
 
     var r=await sb.from("opportunities")
       .select("*")
@@ -484,7 +651,8 @@ button:disabled{opacity:.6;cursor:not-allowed}
       .limit(500);
 
     if(r.error){
-      $("list").innerHTML='<p class="msg err">'+esc(r.error.message)+'</p>';
+      $("list").innerHTML=
+        '<p class="msg err">'+esc(r.error.message)+'</p>';
       return;
     }
 
@@ -498,11 +666,11 @@ button:disabled{opacity:.6;cursor:not-allowed}
     });
 
     $("cats").innerHTML=Object.keys(cats).map(function(c){
-      return '<option value="'+esc(c)+'">';
+      return '<option value="'+esc(c)+'"></option>';
     }).join("");
 
     $("stats").innerHTML=Object.keys(stats).map(function(c){
-      return '<option value="'+esc(c)+'">';
+      return '<option value="'+esc(c)+'"></option>';
     }).join("");
 
     var cur=$("fstat").value;
@@ -510,7 +678,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
     $("fstat").innerHTML=
       '<option value="">All statuses</option>'+
       Object.keys(stats).map(function(c){
-        return '<option>'+esc(c)+'</option>';
+        return '<option value="'+esc(c)+'">'+esc(c)+'</option>';
       }).join("");
 
     $("fstat").value=cur;
@@ -518,38 +686,86 @@ button:disabled{opacity:.6;cursor:not-allowed}
     render();
   }
 
+  // Render opportunity list and individual image controls
   function render(){
 
-    var q=$("q").value.toLowerCase();
+    var q=$("q").value.toLowerCase().trim();
     var st=$("fstat").value;
 
     var list=rows.filter(function(o){
+
+      var text=((o.title||"")+" "+(o.organization||""))
+        .toLowerCase();
+
       return (!st||o.status===st)&&
-        (!q||((o.title||"")+" "+(o.organization||""))
-        .toLowerCase().indexOf(q)>-1);
+        (!q||text.indexOf(q)>-1);
     });
 
     $("list").innerHTML=list.length
       ?list.map(function(o){
 
+        var imageUrl=safeHttps(o.image_url);
+        var hasImage=!!imageUrl;
+
+        var imageMarkup=hasImage
+          ?'<a href="'+esc(imageUrl)+'" target="_blank" rel="noopener noreferrer">'+
+            '<img class="item-thumb" src="'+esc(imageUrl)+
+            '" alt="Image for '+esc(o.title)+'" loading="lazy">'+
+            '</a>'
+          :'<div class="image-empty">No image uploaded</div>';
+
+        var imageStatus=hasImage
+          ?(
+            o.image_quality_status==="passed"
+              ?"Image URL attached · Quality passed"
+              :"Image URL attached · Quality status not confirmed"
+          )
+          :"An individual image is required.";
+
         return '<div class="item">'+
-          '<div>'+
-            '<h3>'+esc(o.title)+'</h3>'+
-            '<small>'+
-              '<span class="tag">'+esc(o.status||"—")+'</span>'+
-              esc(o.organization)+' · '+
-              esc(o.category)+
-              (o.deadline?' · closes '+esc(o.deadline):'')+
-            '</small>'+
+
+          '<div class="item-main">'+
+
+            imageMarkup+
+
+            '<div class="item-info">'+
+
+              '<h3>'+esc(o.title)+'</h3>'+
+
+              '<small>'+
+                '<span class="tag">'+esc(o.status||"—")+'</span>'+
+                esc(o.organization)+' · '+
+                esc(o.category)+
+                (o.deadline?' · closes '+esc(o.deadline):'')+
+              '</small>'+
+
+              '<div class="image-upload-hint">'+
+                esc(imageStatus)+
+              '</div>'+
+
+            '</div>'+
+
           '</div>'+
+
           '<div class="acts">'+
-            '<button class="alt" data-e="'+esc(o.id)+'">Edit</button>'+
-            '<button class="del" data-d="'+esc(o.id)+'">Delete</button>'+
+
+            (!hasImage
+              ?'<button class="alt" data-upload="'+esc(o.id)+
+                '" type="button">Upload image</button>'
+              :'')+
+
+            '<button class="alt" data-e="'+esc(o.id)+
+              '" type="button">Edit</button>'+
+
+            '<button class="del" data-d="'+esc(o.id)+
+              '" type="button">Delete</button>'+
+
           '</div>'+
+
         '</div>';
 
       }).join("")
-      :"<p>No opportunities found.</p>";
+      :'<div class="empty-state">No opportunities found.</div>';
   }
 
   function reset(){
@@ -559,18 +775,23 @@ button:disabled{opacity:.6;cursor:not-allowed}
     $("formTitle").textContent="Add opportunity";
     $("cancel").classList.add("hide");
     $("prev").classList.add("hide");
+    $("previewLink").classList.add("hide");
 
     note("");
   }
 
   function edit(id){
 
-    var o=rows.find(function(x){return x.id===id});
+    var o=rows.find(function(x){
+      return x.id===id;
+    });
+
     if(!o)return;
 
     editId=id;
 
     F.forEach(function(f){
+
       $(f).value=
         f==="deadline"&&o[f]
           ?String(o[f]).slice(0,10)
@@ -583,16 +804,26 @@ button:disabled{opacity:.6;cursor:not-allowed}
     preview();
     note("");
 
-    window.scrollTo({top:0,behavior:"smooth"});
+    window.scrollTo({
+      top:0,
+      behavior:"smooth"
+    });
   }
 
   function preview(){
 
-    var v=$("image_url").value.trim();
+    var v=safeHttps($("image_url").value.trim());
 
     $("prev").classList.toggle("hide",!v);
+    $("previewLink").classList.toggle("hide",!v);
 
-    if(v)$("prev").src=v;
+    if(v){
+      $("prev").src=v;
+      $("previewLink").href=v;
+    }else{
+      $("prev").removeAttribute("src");
+      $("previewLink").removeAttribute("href");
+    }
   }
 
   $("image_url").addEventListener("input",preview);
@@ -605,13 +836,224 @@ button:disabled{opacity:.6;cursor:not-allowed}
   $("fstat").addEventListener("change",render);
   $("cancel").addEventListener("click",reset);
 
-  // Existing opportunity edit and delete actions
+  // --------------------------------------------------
+  // Secure individual opportunity image upload
+  // --------------------------------------------------
+
+  function validateImage(file){
+
+    if(!file){
+      throw new Error("Please select an image.");
+    }
+
+    if(!ALLOWED_IMAGE_TYPES.includes(file.type)){
+      throw new Error(
+        "Supported formats are JPG, PNG, WebP, GIF and AVIF."
+      );
+    }
+
+    if(file.size<MIN_IMAGE_BYTES){
+      throw new Error("The image is too small. Minimum size is 4 KB.");
+    }
+
+    if(file.size>MAX_IMAGE_BYTES){
+      throw new Error("Image exceeds the 6 MB upload limit.");
+    }
+  }
+
+  async function uploadOpportunityImage(id,file){
+
+    validateImage(file);
+
+    var opportunity=rows.find(function(o){
+      return o.id===id;
+    });
+
+    if(!opportunity){
+      throw new Error("Opportunity record not found.");
+    }
+
+    if(opportunity.image_url){
+      throw new Error(
+        "This opportunity already has an image URL. Existing artwork will not be overwritten."
+      );
+    }
+
+    var session=await getSession();
+
+    var formData=new FormData();
+
+    formData.append("id",id);
+    formData.append("record_type","opportunity");
+
+    formData.append(
+      "source_page_url",
+      opportunity.source_url||""
+    );
+
+    formData.append("file",file,file.name);
+
+    /*
+      The Edge Function performs:
+      - Admin session validation
+      - Admin table permission check
+      - Image MIME and signature validation
+      - SHA-256 duplicate checking
+      - Storage upload
+      - Public URL generation
+      - Database image_url update
+
+      Do not add the service-role key here.
+      Supabase client handles the project API key.
+    */
+
+    var result=await sb.functions.invoke(
+      "noh-upload-opportunity-image",
+      {
+        body:formData,
+        headers:{
+          Authorization:"Bearer "+session.access_token
+        }
+      }
+    );
+
+    if(result.error){
+
+      var message=
+        result.error.message||
+        "Image upload failed.";
+
+      try{
+
+        var context=result.error.context;
+
+        if(context&&typeof context.clone==="function"){
+
+          var body=await context.clone().json();
+
+          message=
+            body.error||
+            body.message||
+            message;
+        }
+
+      }catch(_){}
+
+      throw new Error(message);
+    }
+
+    var data=result.data||{};
+
+    if(!data.success||!data.image_url){
+      throw new Error(
+        data.error||
+        "The image upload did not return a valid public URL."
+      );
+    }
+
+    opportunity.image_url=data.image_url;
+    opportunity.image_quality_status="passed";
+    opportunity.image_sha256=
+      data.image_sha256||opportunity.image_sha256;
+
+    return data;
+  }
+
+  function chooseOpportunityImage(id,button){
+
+    var opportunity=rows.find(function(o){
+      return o.id===id;
+    });
+
+    if(!opportunity)return;
+
+    if(opportunity.image_url){
+      alert(
+        "This opportunity already has an image URL. The uploader will not overwrite it."
+      );
+      return;
+    }
+
+    var picker=document.createElement("input");
+
+    picker.type="file";
+    picker.accept="image/jpeg,image/png,image/webp,image/gif,image/avif";
+    picker.style.display="none";
+
+    document.body.appendChild(picker);
+
+    picker.addEventListener("change",async function(){
+
+      var file=picker.files&&picker.files[0];
+
+      picker.remove();
+
+      if(!file)return;
+
+      if(uploadInProgress)return;
+
+      var original=button.textContent;
+
+      uploadInProgress=true;
+      button.disabled=true;
+      button.textContent="Uploading…";
+
+      note(
+        "Uploading and validating the individual opportunity image…",
+        "ok"
+      );
+
+      try{
+
+        var uploaded=await uploadOpportunityImage(id,file);
+
+        note(
+          "Image uploaded successfully for "+
+          uploaded.title+
+          ". The public URL and image quality status have been saved.",
+          "ok"
+        );
+
+        await load();
+
+      }catch(error){
+
+        note(
+          error&&error.message
+            ?error.message
+            :"Image upload failed.",
+          "err"
+        );
+
+        button.disabled=false;
+        button.textContent=original;
+
+      }finally{
+
+        uploadInProgress=false;
+      }
+
+    },{once:true});
+
+    document.body.appendChild(picker);
+    picker.click();
+  }
+
+  // Opportunity actions
   $("list").addEventListener("click",async function(e){
 
     var b=e.target.closest("button");
+
     if(!b)return;
 
-    if(b.dataset.e)return edit(b.dataset.e);
+    if(b.dataset.upload){
+      chooseOpportunityImage(b.dataset.upload,b);
+      return;
+    }
+
+    if(b.dataset.e){
+      return edit(b.dataset.e);
+    }
 
     if(b.dataset.d){
 
@@ -619,7 +1061,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
         return x.id===b.dataset.d;
       });
 
-      if(!confirm('Delete "'+(o&&o.title)+'" permanently?'))return;
+      if(!confirm('Delete "'+(o&&o.title)+'" permanently?')){
+        return;
+      }
 
       var r=await sb.from("opportunities")
         .delete()
@@ -629,7 +1073,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
         alert(r.error.message);
       }else{
         if(editId===b.dataset.d)reset();
-        load();
+        await load();
       }
     }
   });
@@ -642,7 +1086,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
     var p={};
 
     F.forEach(function(f){
+
       var v=$(f).value.trim();
+
       p[f]=v===""?null:v;
     });
 
@@ -655,35 +1101,49 @@ button:disabled{opacity:.6;cursor:not-allowed}
     $("save").disabled=true;
     note("");
 
-    var r=editId
-      ?await sb.from("opportunities").update(p).eq("id",editId).select()
-      :await sb.from("opportunities").insert(p).select();
+    try{
 
-    $("save").disabled=false;
+      var r=editId
+        ?await sb.from("opportunities")
+          .update(p)
+          .eq("id",editId)
+          .select()
+        :await sb.from("opportunities")
+          .insert(p)
+          .select();
 
-    if(r.error){
-      note(r.error.message,"err");
-      return;
-    }
+      if(r.error){
+        note(r.error.message,"err");
+        return;
+      }
 
-    if(!r.data||!r.data.length){
+      if(!r.data||!r.data.length){
+        note(
+          "Nothing was saved. Check administrator permissions and database policies.",
+          "err"
+        );
+        return;
+      }
+
+      var wasEdit=!!editId;
+
+      reset();
+
       note(
-        "Nothing was saved. Check that the admin SQL has been run for this account.",
-        "err"
+        wasEdit?"Changes saved.":"Opportunity added.",
+        "ok"
       );
-      return;
+
+      await load();
+
+    }catch(error){
+
+      note(error.message||"Unable to save opportunity.","err");
+
+    }finally{
+
+      $("save").disabled=false;
     }
-
-    var wasEdit=!!editId;
-
-    reset();
-
-    note(
-      wasEdit?"Changes saved.":"Opportunity added.",
-      "ok"
-    );
-
-    load();
   });
 
   // Sign out
@@ -721,25 +1181,31 @@ button:disabled{opacity:.6;cursor:not-allowed}
 
     $("pwSave").disabled=true;
 
-    var r=await sb.auth.updateUser({password:a});
+    try{
 
-    $("pwSave").disabled=false;
+      var r=await sb.auth.updateUser({password:a});
 
-    if(r.error){
-      return pwNote(r.error.message,"err");
+      if(r.error){
+        return pwNote(r.error.message,"err");
+      }
+
+      $("pwForm").reset();
+
+      pwNote(
+        "Password changed. Use it next time you sign in.",
+        "ok"
+      );
+
+    }finally{
+
+      $("pwSave").disabled=false;
     }
-
-    $("pwForm").reset();
-
-    pwNote(
-      "Password changed. Use it next time you sign in.",
-      "ok"
-    );
   });
 
   $("pwMail").addEventListener("click",async function(){
 
     var s=await sb.auth.getSession();
+
     var u=s.data&&s.data.session&&s.data.session.user;
 
     if(!u||!u.email){
@@ -784,9 +1250,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
     if(!data||typeof data!=="object")return;
 
     var processed=
-  data.processed ??
-  data.processed_count ??
-  data.selected;
+      data.processed ??
+      data.processed_count ??
+      data.selected;
 
     var ready=
       data.image_ready ??
@@ -857,14 +1323,13 @@ button:disabled{opacity:.6;cursor:not-allowed}
         item.reason||
         "";
 
-      var safeImage=
-        typeof image==="string"&&
-        /^https:\/\//i.test(image);
+      var safeImage=safeHttps(image);
 
       return '<div class="prep-result">'+
 
         (safeImage
-          ?'<img src="'+esc(image)+'" alt="Opportunity image" loading="lazy">'
+          ?'<img src="'+esc(safeImage)+
+            '" alt="Opportunity image" loading="lazy">'
           :'')+
 
         '<div>'+
@@ -896,21 +1361,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 
     try{
 
-      var sessionResult=await sb.auth.getSession();
-
-      var session=
-        sessionResult.data&&
-        sessionResult.data.session;
-
-      if(
-        sessionResult.error||
-        !session||
-        !session.access_token
-      ){
-        throw new Error(
-          "Your admin session has expired. Sign in again."
-        );
-      }
+      var session=await getSession();
 
       var result=await sb.functions.invoke(
         "noh-prepare-discovery-images",
@@ -938,7 +1389,6 @@ button:disabled{opacity:.6;cursor:not-allowed}
       var data=result.data||{};
 
       if(data.success===false){
-
         throw new Error(
           data.error||
           "The image preparation function reported an error."
@@ -969,8 +1419,30 @@ button:disabled{opacity:.6;cursor:not-allowed}
     }
   });
 
+  // Authentication changes
+  sb.auth.onAuthStateChange(function(event,session){
+
+    if(event==="SIGNED_OUT"||!session){
+
+      $("app").classList.add("hide");
+
+      gate(
+        'Your session has ended. Please <a href="/auth.html?mode=login&redirect='+
+        encodeURIComponent("/admin-opportunities.html")+
+        '"><strong>sign in again</strong></a>.'
+      );
+    }
+  });
+
   // Start dashboard
-  init();
+  init().catch(function(error){
+
+    gate(
+      "Unable to initialise the admin dashboard: "+
+      esc(error.message||"Unexpected error.")
+    );
+
+  });
 
 })();
 </script>
