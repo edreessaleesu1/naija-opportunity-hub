@@ -5,12 +5,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#FAF8F1">
-  <meta name="description" content="Build a professional CV with 13 templates, create tailored cover letters and get AI support with job and scholarship applications. Made for Nigerian students and graduates.">
+  <meta name="description" content="Build a professional CV with 20 templates, create tailored cover letters and get AI support with job and scholarship applications. Made for Nigerian students and graduates.">
   <title>Career Kit | CV Builder and Cover Letters | Naija Opportunity Hub</title>
 
   <link rel="canonical" href="https://naijaopportunityhub.com.ng/career-kit">
   <meta property="og:title" content="Career Kit | Naija Opportunity Hub">
-  <meta property="og:description" content="13 professional CV templates, cover letters and an AI career assistant for Nigerian students and graduates.">
+  <meta property="og:description" content="20 professional CV templates, cover letters and an AI career assistant for Nigerian students and graduates.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://naijaopportunityhub.com.ng/career-kit">
 
@@ -100,6 +100,56 @@
       color:#65736D;
       font-size:10px;
       line-height:1.35;
+    }
+
+
+    .ck-tpl img {
+      display:block;
+      width:100%;
+      height:auto;
+      aspect-ratio:5/6;
+      object-fit:cover;
+      object-position:top;
+      border:1px solid #EFE6CC;
+      border-radius:7px;
+      background:#fff;
+    }
+
+    .ck-filter {
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+      margin:0 0 12px;
+    }
+
+    .ck-filter button {
+      min-height:34px;
+      padding:0 13px;
+      border:1px solid #E8DDBF;
+      border-radius:999px;
+      background:#fff;
+      color:#052E2B;
+      font:700 12px "Manrope",sans-serif;
+      cursor:pointer;
+    }
+
+    .ck-filter button.on {
+      border-color:#052E2B;
+      background:#052E2B;
+      color:#fff;
+    }
+
+    .ck-tpl[hidden] { display:none; }
+
+    .ck-tpl:focus-visible,
+    .ck-filter button:focus-visible {
+      outline:3px solid #D6B46A;
+      outline-offset:2px;
+    }
+
+    @media(max-width:600px) {
+      .ck-filter { flex-wrap:nowrap; overflow-x:auto; padding-bottom:3px; }
+      .ck-filter button { flex:0 0 auto; min-height:36px; font-size:11px; }
     }
 
     .tp {
@@ -343,7 +393,7 @@
 
 <body>
   <header class="topbar">
-    <a class="brand" href="index.html" aria-label="Naija Opportunity Hub homepage">
+    <a class="brand" href="/" aria-label="Naija Opportunity Hub homepage">
       <span class="brand-icon">N</span>
       <span class="brand-copy">
         <strong>Naija Opportunity Hub</strong>
@@ -353,11 +403,11 @@
 
     <nav class="main-navigation" aria-label="Main navigation">
       <a href="career-kit" class="nav-link active" aria-current="page">Dashboard</a>
-      <a href="career-workspace.html?tool=cv" class="nav-link">My Workspace</a>
-      <a href="application-assistance.html" class="nav-link">Career Services</a>
+      <a href="/career-workspace?tool=cv" class="nav-link">My Workspace</a>
+      <a href="/application-assistance" class="nav-link">Career Services</a>
     </nav>
 
-    <a class="back-link" href="index.html">
+    <a class="back-link" href="/">
       <span aria-hidden="true">←</span> Back to Hub
     </a>
   </header>
@@ -384,11 +434,11 @@
           </p>
 
           <div class="welcome-actions">
-            <a href="career-workspace.html?tool=cv" class="button button-primary">
+            <a href="/career-workspace?tool=cv" class="button button-primary">
               Start Building <span aria-hidden="true">→</span>
             </a>
 
-            <a href="index.html#opportunities" class="button button-secondary">
+            <a href="/#opportunities" class="button button-secondary">
               Explore Opportunities
             </a>
           </div>
@@ -435,7 +485,7 @@
 
       <div class="tool-cards">
 
-        <a class="tool-card featured-tool" href="career-workspace.html?tool=cv">
+        <a class="tool-card featured-tool" href="/career-workspace?tool=cv">
           <div class="tool-card-top">
             <span class="tool-icon">▤</span>
             <span class="tool-card-arrow">↗</span>
@@ -446,7 +496,7 @@
           <span class="tool-card-action">Create your CV →</span>
         </a>
 
-        <a class="tool-card" href="career-workspace.html?tool=cover-letter">
+        <a class="tool-card" href="/career-workspace?tool=cover-letter">
           <div class="tool-card-top">
             <span class="tool-icon">✉</span>
             <span class="tool-card-arrow">↗</span>
@@ -457,7 +507,7 @@
           <span class="tool-card-action">Write a cover letter →</span>
         </a>
 
-        <a class="tool-card" href="career-workspace.html?tool=bundle">
+        <a class="tool-card" href="/career-workspace?tool=bundle">
           <div class="tool-card-top">
             <span class="tool-icon">▣</span>
             <span class="tool-card-arrow">↗</span>
@@ -468,7 +518,7 @@
           <span class="tool-card-action">Build your bundle →</span>
         </a>
 
-        <a class="tool-card" href="application-assistance.html">
+        <a class="tool-card" href="/application-assistance">
           <div class="tool-card-top">
             <span class="tool-icon">✧</span>
             <span class="tool-card-arrow">↗</span>
@@ -483,91 +533,139 @@
 
       <section class="ck-section" aria-labelledby="ck-tpl-title">
         <div class="ck-head">
-          <span class="kicker">13 professional designs</span>
+          <span class="kicker">20 professional designs</span>
           <h2 id="ck-tpl-title">Explore our CV templates</h2>
           <p>Choose a design to open the workspace with that template selected. Customise the colour and spacing to suit your application.</p>
         </div>
 
+        
+        <div class="ck-filter" role="group" aria-label="Filter CV templates">
+          <button type="button" class="on" data-f="all">All 20</button>
+          <button type="button" data-f="everyday">Everyday</button>
+          <button type="button" data-f="professional">Professional</button>
+          <button type="button" data-f="study">Study and research</button>
+        </div>
+
         <div class="ck-tpl-grid">
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=classic">
-            <div class="tp tp-classic" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
+          <a class="ck-tpl" data-group="everyday" href="/career-workspace?tool=cv&amp;template=classic">
+            <img src="/images/cv-classic.webp" width="480" height="576" loading="lazy" decoding="async" alt="British Professional CV template preview">
             <strong>British Professional</strong>
             <small>The classic UK standard</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=modern">
-            <div class="tp tp-modern" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
-            <strong>Modern UK</strong>
-            <small>Contemporary and clean</small>
-          </a>
-
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=executive">
-            <div class="tp tp-exec" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
-            <strong>Executive UK</strong>
-            <small>For leadership roles</small>
-          </a>
-
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=graduate">
-            <div class="tp tp-grad" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
+          <a class="ck-tpl" data-group="everyday" href="/career-workspace?tool=cv&amp;template=graduate">
+            <img src="/images/cv-graduate.webp" width="480" height="576" loading="lazy" decoding="async" alt="Graduate UK CV template preview">
             <strong>Graduate UK</strong>
             <small>Ideal for early careers</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=sidebar">
-            <div class="tp tp-side" aria-hidden="true">
-              <div class="in"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
-            </div>
-            <strong>Sidebar Two-Column</strong>
-            <small>Modern with a side panel</small>
+          <a class="ck-tpl" data-group="everyday" href="/career-workspace?tool=cv&amp;template=nigerian">
+            <img src="/images/cv-nigerian.webp" width="480" height="576" loading="lazy" decoding="async" alt="Nigerian Graduate CV template preview">
+            <strong>Nigerian Graduate</strong>
+            <small>Photo-ready, NYSC friendly</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=ats">
-            <div class="tp tp-ats" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
+          <a class="ck-tpl" data-group="everyday" href="/career-workspace?tool=cv&amp;template=ats">
+            <img src="/images/cv-ats.webp" width="480" height="576" loading="lazy" decoding="async" alt="ATS-Friendly CV template preview">
             <strong>ATS-Friendly</strong>
             <small>Plain and safe for screening software</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=academic">
-            <div class="tp tp-acad" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s><s></s></div>
-            <strong>Academic</strong>
-            <small>For scholarships and research</small>
-          </a>
-
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=scholarship">
-            <div class="tp tp-scholarship" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
-            <strong>Scholarship CV</strong>
-            <small>For academic and funded applications</small>
-          </a>
-
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=nigerian">
-            <div class="tp tp-nigerian" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
-            <strong>Nigerian Graduate</strong>
-            <small>Designed for Nigerian graduates</small>
-          </a>
-
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=europass">
-            <div class="tp tp-europass" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
-            <strong>Europass-Style</strong>
-            <small>For international applications</small>
-          </a>
-
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=onepage">
-            <div class="tp tp-onepage" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
+          <a class="ck-tpl" data-group="everyday" href="/career-workspace?tool=cv&amp;template=onepage">
+            <img src="/images/cv-onepage.webp" width="480" height="576" loading="lazy" decoding="async" alt="One-Page Resume CV template preview">
             <strong>One-Page Resume</strong>
             <small>Concise and focused</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=creative">
-            <div class="tp tp-creative" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=modern">
+            <img src="/images/cv-modern.webp" width="480" height="576" loading="lazy" decoding="async" alt="Modern UK CV template preview">
+            <strong>Modern UK</strong>
+            <small>Contemporary and clean</small>
+          </a>
+
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=wordbanner">
+            <img src="/images/cv-wordbanner.webp" width="480" height="576" loading="lazy" decoding="async" alt="Word Modern Banner CV template preview">
+            <strong>Word Modern Banner</strong>
+            <small>Corporate colour banner</small>
+          </a>
+
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=premiumphoto">
+            <img src="/images/cv-premiumphoto.webp" width="480" height="576" loading="lazy" decoding="async" alt="Premium Photo Panel CV template preview">
+            <strong>Premium Photo Panel</strong>
+            <small>Polished side panel with photo</small>
+          </a>
+
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=timeline">
+            <img src="/images/cv-timeline.webp" width="480" height="576" loading="lazy" decoding="async" alt="Timeline Professional CV template preview">
+            <strong>Timeline Professional</strong>
+            <small>Your career path at a glance</small>
+          </a>
+
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=elegant">
+            <img src="/images/cv-elegant.webp" width="480" height="576" loading="lazy" decoding="async" alt="Elegant Serif CV template preview">
+            <strong>Elegant Serif</strong>
+            <small>Refined, for senior roles</small>
+          </a>
+
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=corporate">
+            <img src="/images/cv-corporate.webp" width="480" height="576" loading="lazy" decoding="async" alt="Corporate Block CV template preview">
+            <strong>Corporate Block</strong>
+            <small>Bold photo header</small>
+          </a>
+
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=twocol">
+            <img src="/images/cv-twocol.webp" width="480" height="576" loading="lazy" decoding="async" alt="Two-Column Pro CV template preview">
+            <strong>Two-Column Pro</strong>
+            <small>Skills strip, two columns</small>
+          </a>
+
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=cardspro">
+            <img src="/images/cv-cardspro.webp" width="480" height="576" loading="lazy" decoding="async" alt="Modern Cards CV template preview">
+            <strong>Modern Cards</strong>
+            <small>Fresh, card-style sections</small>
+          </a>
+
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=sidebar">
+            <img src="/images/cv-sidebar.webp" width="480" height="576" loading="lazy" decoding="async" alt="Sidebar Two-Column CV template preview">
+            <strong>Sidebar Two-Column</strong>
+            <small>Modern with a side panel</small>
+          </a>
+
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=executive">
+            <img src="/images/cv-executive.webp" width="480" height="576" loading="lazy" decoding="async" alt="Executive UK CV template preview">
+            <strong>Executive UK</strong>
+            <small>For leadership roles</small>
+          </a>
+
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=signature">
+            <img src="/images/cv-signature.webp" width="480" height="576" loading="lazy" decoding="async" alt="Gold and Emerald Signature CV template preview">
+            <strong>Gold and Emerald Signature</strong>
+            <small>A distinctive premium layout</small>
+          </a>
+
+          <a class="ck-tpl" data-group="professional" href="/career-workspace?tool=cv&amp;template=creative">
+            <img src="/images/cv-creative.webp" width="480" height="576" loading="lazy" decoding="async" alt="Tech and Creative CV template preview">
             <strong>Tech and Creative</strong>
             <small>For digital and creative roles</small>
           </a>
 
-          <a class="ck-tpl" href="career-workspace.html?tool=cv&amp;template=signature">
-            <div class="tp tp-signature" aria-hidden="true"><b></b><u></u><s></s><s class="sh"></s><u></u><s></s></div>
-            <strong>Gold and Emerald Signature</strong>
-            <small>A distinctive premium layout</small>
+          <a class="ck-tpl" data-group="study" href="/career-workspace?tool=cv&amp;template=scholarship">
+            <img src="/images/cv-scholarship.webp" width="480" height="576" loading="lazy" decoding="async" alt="Scholarship CV CV template preview">
+            <strong>Scholarship CV</strong>
+            <small>For academic and funded applications</small>
+          </a>
+
+          <a class="ck-tpl" data-group="study" href="/career-workspace?tool=cv&amp;template=academic">
+            <img src="/images/cv-academic.webp" width="480" height="576" loading="lazy" decoding="async" alt="Academic CV template preview">
+            <strong>Academic</strong>
+            <small>For scholarships and research</small>
+          </a>
+
+          <a class="ck-tpl" data-group="study" href="/career-workspace?tool=cv&amp;template=europass">
+            <img src="/images/cv-europass.webp" width="480" height="576" loading="lazy" decoding="async" alt="Europass-Style CV template preview">
+            <strong>Europass-Style</strong>
+            <small>For international applications</small>
           </a>
 
         </div>
@@ -603,7 +701,7 @@
             Improve your professional summary, strengthen your CV and
             prepare more relevant job applications with AI assistance.
           </p>
-          <a href="career-workspace.html?tool=cv#ai-assistant" class="button button-gold">
+          <a href="/career-workspace?tool=cv#ai-assistant" class="button button-gold">
             Explore AI Tools →
           </a>
         </div>
@@ -619,7 +717,7 @@
             cover letter and the right opportunity.
           </p>
         </div>
-        <a href="index.html#opportunities">Discover Opportunities →</a>
+        <a href="/#opportunities">Discover Opportunities →</a>
       </section>
 
     </section>
@@ -628,11 +726,11 @@
   <footer class="footer">
     <p>© <span id="current-year"></span> Naija Opportunity Hub. All rights reserved.</p>
     <div class="footer-links">
-      <a href="index.html">Home</a>
-      <a href="application-assistance.html">Career Services</a>
-      <a href="/category.html">Opportunities</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="terms.html">Terms</a>
+      <a href="/">Home</a>
+      <a href="/application-assistance">Career Services</a>
+      <a href="/category">Opportunities</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
       <a href="#" data-noh-cookie-settings>Cookie settings</a>
     </div>
   </footer>
@@ -640,6 +738,22 @@
   <script>
     document.getElementById("current-year").textContent =
       new Date().getFullYear();
+  </script>
+
+  <script>
+    (function () {
+      var btns = document.querySelectorAll(".ck-filter button");
+      var cards = document.querySelectorAll(".ck-tpl[data-group]");
+      btns.forEach(function (b) {
+        b.addEventListener("click", function () {
+          var f = b.getAttribute("data-f");
+          btns.forEach(function (x) { x.classList.toggle("on", x === b); });
+          cards.forEach(function (c) {
+            c.hidden = !(f === "all" || c.getAttribute("data-group") === f);
+          });
+        });
+      });
+    })();
   </script>
 
   <script defer src="/consent.js"></script>
