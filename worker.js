@@ -45,6 +45,11 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // Any other address (for example the *.workers.dev test address or www) -> the real site, so Google only ever sees one copy.
+    if (url.hostname !== "naijaopportunityhub.com.ng" && url.hostname !== "localhost" && !url.hostname.startsWith("127.")) {
+      return Response.redirect(SITE + url.pathname + url.search, 301);
+    }
+
     // Old ".html" addresses -> clean address (permanent 301), so Google keeps one version of each page.
     if (url.pathname.endsWith(".html")) {
       if (url.pathname === "/google907913ab728befca.html") return env.ASSETS.fetch(request); // Google ownership file
@@ -54,7 +59,13 @@ export default {
 
     const page = await getPage(env, url);
     const id = (url.searchParams.get("id") || "").toLowerCase();
-    if (!page.ok || !UUID.test(id)) return page;
+    if (!page.ok) return page;
+    if (!UUID.test(id)) {
+      // "/opportunity-details" with no valid id is an empty shell: keep it out of Google.
+      return new HTMLRewriter()
+        .on("head", { element(el) { el.append('<meta name="robots" content="noindex, follow">', { html: true }); } })
+        .transform(page);
+    }
 
     let o = null;
     try { o = await getOpportunity(id); } catch (e) { return page; }

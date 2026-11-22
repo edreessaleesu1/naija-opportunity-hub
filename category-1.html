@@ -1,0 +1,1064 @@
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f8eec9">
+<title>Opportunities by Category | Naija Opportunity Hub</title>
+<meta name="description" content="Browse scholarships, jobs, internships, fellowships, grants, training and volunteering opportunities for Nigerians.">
+<link rel="canonical" href="https://naijaopportunityhub.com.ng/category">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/naija-opportunity-hub-logo.png">
+
+<style>
+:root{
+  --bg:#f8eec9;
+  --card:#fffdf6;
+  --green:#075b3b;
+  --green-d:#033c29;
+  --gold:#c6a24a;
+  --gold-d:#a9822d;
+  --gold-l:#f6edcf;
+  --gold-b:#e6d7a3;
+  --text:#1c3026;
+  --muted:#5d6b61;
+}
+
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:16px/1.6 "DM Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+
+a{color:var(--green)}
+
+.wrap{
+  width:min(1120px,100% - 32px);
+  margin:0 auto;
+}
+
+header.site{
+  position:sticky;
+  top:0;
+  z-index:30;
+  background:rgba(255,253,246,.96);
+  border-bottom:1px solid var(--gold-b);
+  backdrop-filter:blur(8px);
+}
+
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:64px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+  color:var(--green-d);
+  font-weight:800;
+}
+
+.brand img{
+  width:40px;
+  height:40px;
+  object-fit:contain;
+}
+
+.nav a.home{
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+  padding:0 14px;
+  border:1px solid var(--gold-b);
+  border-radius:999px;
+  background:#fff;
+  text-decoration:none;
+  font-weight:700;
+  font-size:.9rem;
+}
+
+.head{padding:30px 0 10px}
+
+.head h1{
+  margin:0 0 4px;
+  font-size:clamp(1.7rem,5vw,2.4rem);
+  line-height:1.15;
+  color:var(--green-d);
+}
+
+.head p{
+  margin:0;
+  color:var(--muted);
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:14px 0 6px;
+  scrollbar-width:none;
+}
+
+.tabs::-webkit-scrollbar{display:none}
+
+.tabs a{
+  flex:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height:44px;
+  padding:0 16px;
+  border:1px solid var(--gold-b);
+  border-radius:999px;
+  background:#fff;
+  color:var(--text);
+  text-decoration:none;
+  font-weight:700;
+  font-size:.9rem;
+}
+
+.tabs a[aria-current]{
+  background:var(--gold);
+  border-color:var(--gold);
+  color:#1d2a20;
+}
+
+.tools{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:12px 0 18px;
+}
+
+.tools input,
+.tools select{
+  flex:1 1 220px;
+  min-width:0;
+  min-height:46px;
+  padding:0 14px;
+  border:1.5px solid #d9d4bd;
+  border-radius:12px;
+  background:#fffefb;
+  font:inherit;
+  color:var(--text);
+}
+
+.tools select{flex:0 1 180px}
+
+.count{
+  margin:0 0 12px;
+  color:var(--muted);
+  font-size:.9rem;
+}
+
+.more{
+  display:block;
+  margin:26px auto 0;
+  min-height:48px;
+  padding:0 28px;
+  border:1.5px solid var(--gold);
+  border-radius:12px;
+  background:var(--gold);
+  color:#1d2a20;
+  font:inherit;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.empty{
+  padding:30px;
+  text-align:center;
+  background:var(--card);
+  border:1px solid var(--gold-b);
+  border-radius:16px;
+}
+
+footer{
+  margin-top:50px;
+  padding:24px 0 34px;
+  border-top:1px solid var(--gold-b);
+  text-align:center;
+  font-size:.9rem;
+}
+
+footer a{
+  display:inline-flex;
+  align-items:center;
+  min-height:40px;
+  padding:0 8px;
+  font-weight:700;
+}
+
+.hide{display:none!important}
+
+/* Opportunity list */
+.nlist{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:12px;
+  margin:0;
+  padding:0;
+  width:100%;
+}
+
+@media(min-width:760px){
+  .nlist{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+  }
+}
+
+/* Individual opportunity card */
+.nrow{
+  position:relative;
+  display:grid;
+  grid-template-columns:104px minmax(0,1fr);
+  align-items:stretch;
+  gap:12px;
+  width:100%;
+  min-width:0;
+  min-height:124px;
+  padding:10px;
+  overflow:hidden;
+  background:#fffdf6;
+  border:1px solid #e6d7a3;
+  border-radius:16px;
+  box-shadow:0 3px 12px rgba(28,48,38,.06);
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+
+@media(hover:hover){
+  .nrow:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(28,48,38,.12);
+    border-color:#c6a24a;
+  }
+}
+
+/*
+  Firefox layout correction:
+  Use CSS Grid instead of relying on flex sizing.
+  The image column cannot shrink and the text column
+  always receives the remaining available width.
+*/
+#grid .nrow{
+  display:grid!important;
+  grid-template-columns:104px minmax(0,1fr)!important;
+  align-items:stretch!important;
+  min-width:0!important;
+  width:100%!important;
+}
+
+/* Full image section */
+#grid .nthumb{
+  position:relative!important;
+  display:block!important;
+  grid-column:1!important;
+  grid-row:1!important;
+  width:100%!important;
+  min-width:0!important;
+  height:104px!important;
+  min-height:104px!important;
+  max-height:104px!important;
+  align-self:stretch!important;
+  overflow:hidden!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:12px!important;
+  text-decoration:none;
+  background:#e9d69b;
+}
+
+/* Every opportunity image fills the image section */
+#grid .nthumb img,
+#grid .nthumb img.mn{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  border:0!important;
+  border-radius:0!important;
+}
+
+/* Do not let a blurred background image cover the main image */
+#grid .nthumb img.bd{
+  z-index:0!important;
+  filter:blur(12px);
+  opacity:.55;
+}
+
+#grid .nthumb img.mn{
+  z-index:1!important;
+}
+
+#grid .nthumb .nicon{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  display:grid;
+  place-items:center;
+  font-size:2rem;
+  line-height:1;
+  font-style:normal;
+}
+
+#grid .nthumb:has(img.mn) .nicon{
+  visibility:hidden;
+}
+
+#grid .nthumb.is-broken .nicon{
+  visibility:visible;
+}
+
+/* Opportunity text column */
+#grid .nbody{
+  grid-column:2!important;
+  grid-row:1!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  gap:4px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  padding:2px 30px 2px 0!important;
+  margin:0!important;
+  overflow:hidden!important;
+}
+
+#grid .nbody.has-save{
+  padding-right:30px!important;
+}
+
+/* Opportunity title */
+#grid .ntitle{
+  display:-webkit-box!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:3!important;
+  line-clamp:3;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+  word-break:normal!important;
+  font-size:.98rem!important;
+  line-height:1.35!important;
+  font-weight:800!important;
+  color:#033c29!important;
+}
+
+#grid .ntitle a,
+#grid .ntitle a:hover,
+#grid .ntitle a:visited{
+  display:inline!important;
+  max-width:100%!important;
+  color:#033c29!important;
+  text-decoration:none!important;
+  border:0!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+  word-break:normal!important;
+}
+
+#grid .ntitle a::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:16px;
+}
+
+/* Organisation name */
+#grid .norg{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  color:#5d6b61!important;
+  font-size:.82rem!important;
+  line-height:1.35!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+}
+
+/* Deadline and metadata */
+#grid .nmeta{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:6px!important;
+  width:100%!important;
+  min-width:0!important;
+  margin-top:auto!important;
+  padding-top:5px!important;
+}
+
+#grid .nchip{
+  display:inline-block;
+  max-width:100%;
+  padding:2px 9px;
+  border-radius:99px;
+  background:#f6edcf;
+  border:1px solid #e6d7a3;
+  color:#7a5a12;
+  font-size:.72rem;
+  font-weight:800;
+  line-height:1.5;
+}
+
+#grid .nchip.is-soon{
+  background:#fdeceb;
+  border-color:#f1c9c6;
+  color:#9b2c2c;
+}
+
+#grid .nchip.is-closed{
+  background:#eceae2;
+  border-color:#d8d4c2;
+  color:#6b6b60;
+}
+
+/* Save button */
+#grid .nsave{
+  position:absolute!important;
+  z-index:3!important;
+  top:6px!important;
+  right:6px!important;
+  display:grid!important;
+  place-items:center!important;
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:rgba(255,253,246,.94)!important;
+  color:#a9822d!important;
+  font-size:1.35rem!important;
+  line-height:1!important;
+  cursor:pointer;
+}
+
+#grid .nsave:hover{
+  background:#f6edcf!important;
+}
+
+#grid .nsave.is-saved{
+  color:#075b3b!important;
+}
+
+#grid .nsave:focus-visible{
+  outline:2px solid #075b3b;
+  outline-offset:2px;
+}
+
+/* Category image backgrounds */
+.nt-scholarship{
+  background:linear-gradient(135deg,#f6e3a1,#c6a24a);
+}
+
+.nt-job{
+  background:linear-gradient(135deg,#0a6a45,#033c29);
+}
+
+.nt-internship{
+  background:linear-gradient(135deg,#e0c068,#a9822d);
+}
+
+.nt-fellowship{
+  background:linear-gradient(135deg,#2f8a63,#075b3b);
+}
+
+.nt-grant{
+  background:linear-gradient(135deg,#f2d98b,#b8892d);
+}
+
+.nt-training{
+  background:linear-gradient(135deg,#1f7a56,#0a4a33);
+}
+
+.nt-volunteering{
+  background:linear-gradient(135deg,#f3d27a,#d09a3c);
+}
+
+.nt-other{
+  background:linear-gradient(135deg,#e8dfc0,#bfae78);
+}
+
+/* Show more button */
+.nmore{display:block;margin:16px auto 0}
+
+.section-kicker,
+.kicker,
+.eyebrow-dark{
+  color:#7a5a12;
+}
+
+.section-head p,
+.category-section-head p,
+.disclaimer,
+.disclaimer a,
+.results-badge{
+  color:#46564c;
+}
+
+.disclaimer a{text-decoration:underline}
+.category-section-head p{font-size:.9rem}
+
+/* Smaller screens */
+@media(max-width:380px){
+  #grid .nrow{
+    grid-template-columns:88px minmax(0,1fr)!important;
+    gap:9px!important;
+    min-height:108px;
+    padding:8px!important;
+  }
+
+  #grid .nthumb{
+    height:88px!important;
+    min-height:88px!important;
+    max-height:88px!important;
+  }
+
+  #grid .nbody{
+    padding-right:26px!important;
+  }
+
+  #grid .ntitle{
+    font-size:.9rem!important;
+    line-height:1.3!important;
+  }
+
+  #grid .norg{font-size:.76rem!important}
+}
+
+/* Accessibility */
+@media(prefers-reduced-motion:reduce){
+  .nrow{transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+<link rel="stylesheet" href="/noh-fixes.css?v=4">
+</head>
+
+<body>
+
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="/">
+      <img src="/naija-opportunity-hub-logo.png" alt="" width="40" height="40">
+      <span>Naija Opportunity Hub</span>
+    </a>
+    <a class="home" href="/">&larr; Home</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="head">
+    <h1 id="title">Opportunities</h1>
+    <p id="sub">Loading…</p>
+  </div>
+
+  <nav class="tabs" id="tabs" aria-label="Categories"></nav>
+
+  <div class="tools">
+    <input
+      id="q"
+      type="search"
+      placeholder="Search this category"
+      aria-label="Search this category"
+    >
+
+    <select id="sort" aria-label="Sort">
+      <option value="new">Newest first</option>
+      <option value="deadline">Closing soonest</option>
+    </select>
+  </div>
+
+  <p class="count" id="count" aria-live="polite"></p>
+
+  <div class="nlist" id="grid"></div>
+
+  <button class="more hide" id="more" type="button">
+    Show more
+  </button>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="/">Home</a>
+    <a href="/how-we-verify">How we check</a>
+    <a href="/contact">Contact</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="#" data-noh-cookie-settings>Cookie settings</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var URL_="https://djxornmwvkauhkcuhgxc.supabase.co";
+  var KEY="sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
+
+  var CATS=[
+    ["Scholarship","🎓","Scholarships"],
+    ["Job","💼","Jobs"],
+    ["Internship","💻","Internships"],
+    ["Fellowship","👥","Fellowships"],
+    ["Grant","💰","Grants"],
+    ["Training","🧑‍🏫","Training"],
+    ["Volunteering","💖","Volunteering"]
+  ];
+
+  var $=function(i){
+    return document.getElementById(i);
+  };
+
+  var all=[];
+  var list=[];
+  var shown=0;
+  var PAGE=12;
+  var generic=new Set();
+  var searchTimer=null;
+
+  function key(v){
+    return String(v||"")
+      .toLowerCase()
+      .trim()
+      .replace(/s$/,"");
+  }
+
+  function esc(s){
+    return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+      return {
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[c];
+    });
+  }
+
+  function safe(u){
+    try{
+      var x=new URL(u);
+      return /^https?:$/.test(x.protocol)?x.href:"";
+    }catch(e){
+      return "";
+    }
+  }
+
+  var want=new URLSearchParams(location.search).get("c")||"";
+
+  var cur=CATS.find(function(c){
+    return key(c[0])===key(want)||key(c[2])===key(want);
+  })||null;
+
+  function tabs(){
+    $("tabs").innerHTML=
+      '<a href="/category"'+
+      (cur?'':' aria-current="page"')+
+      '>All</a>'+
+      CATS.map(function(c){
+        return '<a href="/category?c='+
+          encodeURIComponent(c[0])+'"'+
+          (cur&&cur[0]===c[0]?' aria-current="page"':'')+
+          '><span aria-hidden="true">'+
+          c[1]+'</span>'+esc(c[2])+'</a>';
+      }).join("");
+
+    var active=$("tabs").querySelector("[aria-current]");
+
+    if(active&&active.scrollIntoView){
+      active.scrollIntoView({
+        inline:"center",
+        block:"nearest"
+      });
+    }
+  }
+
+  function title(){
+    var t=cur?cur[2]:"All opportunities";
+
+    $("title").textContent=t;
+    document.title=t+" | Naija Opportunity Hub";
+
+    $("sub").textContent=cur
+      ?"Latest "+cur[2].toLowerCase()+
+        " for Nigerians, with links to the official source."
+      :"Every published opportunity, newest first.";
+  }
+
+  /* Opportunity card helpers */
+
+  const NR_ICON={
+    scholarship:"🎓",
+    job:"💼",
+    internship:"💻",
+    fellowship:"👥",
+    grant:"💰",
+    training:"🧑‍🏫",
+    volunteering:"💖",
+    other:"📋"
+  };
+
+  function nrKey(c){
+    const k=String(c||"")
+      .toLowerCase()
+      .trim()
+      .replace(/s$/,"");
+
+    return NR_ICON[k]?k:"other";
+  }
+
+  function nrEsc(s){
+    return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+      return {
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[c];
+    });
+  }
+
+  function nrDeadline(d){
+    if(!d){
+      return {text:"Ongoing",cls:""};
+    }
+
+    const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(d));
+
+    const x=m
+      ?new Date(+m[1],+m[2]-1,+m[3])
+      :new Date(d);
+
+    if(isNaN(x)){
+      return {text:"Ongoing",cls:""};
+    }
+
+    const today=new Date();
+    today.setHours(0,0,0,0);
+
+    const n=Math.round((x-today)/864e5);
+
+    if(n<0){
+      return {text:"Closed",cls:"is-closed"};
+    }
+
+    if(n===0){
+      return {text:"Closes today",cls:"is-soon"};
+    }
+
+    if(n===1){
+      return {text:"Closes tomorrow",cls:"is-soon"};
+    }
+
+    if(n<=7){
+      return {
+        text:"Closes in "+n+" days",
+        cls:"is-soon"
+      };
+    }
+
+    return {
+      text:"Closes "+x.toLocaleDateString("en-GB",{
+        day:"numeric",
+        month:"short",
+        year:"numeric"
+      }),
+      cls:""
+    };
+  }
+
+  /*
+    An image used by more than two listings is treated as
+    a generic source photo and is not displayed.
+  */
+  function nrGeneric(items){
+    const counts={};
+
+    items.forEach(function(item){
+      if(item.image_url){
+        counts[item.image_url]=
+          (counts[item.image_url]||0)+1;
+      }
+    });
+
+    const result=new Set();
+
+    Object.keys(counts).forEach(function(url){
+      if(counts[url]>2){
+        result.add(url);
+      }
+    });
+
+    return result;
+  }
+
+  /*
+    Lazy loading with a fallback for browsers that do not
+    support IntersectionObserver.
+  */
+  var nrIO=("IntersectionObserver" in window)
+    ?new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            var img=entry.target;
+
+            nrIO.unobserve(img);
+
+            if(img.dataset.src){
+              img.src=img.dataset.src;
+              img.removeAttribute("data-src");
+            }
+          }
+        });
+      },{
+        rootMargin:"200px 0px"
+      })
+    :null;
+
+  function nrLazy(root){
+    (root||document)
+      .querySelectorAll("img[data-src]:not([src])")
+      .forEach(function(img){
+        if(nrIO){
+          nrIO.observe(img);
+        }else{
+          img.src=img.dataset.src;
+          img.removeAttribute("data-src");
+        }
+      });
+  }
+
+  function nrRow(o,opt){
+    opt=opt||{};
+
+    const k=nrKey(o.category);
+    const url=nrEsc(opt.href||"#");
+    const id=nrEsc(o.id);
+
+    const imageUrl=
+      o.image_url&&
+      !(opt.generic&&opt.generic.has(o.image_url))
+        ?safe(o.image_url)
+        :"";
+
+    const imgs=imageUrl
+      ?'<img class="mn" data-src="'+
+        nrEsc(imageUrl)+
+        '" alt="" width="104" height="104" '+
+        'decoding="async" loading="lazy" '+
+        'onerror="this.parentNode.classList.add(\'is-broken\');this.remove()">'
+      :"";
+
+    const dl=nrDeadline(o.deadline);
+
+    const save=opt.save
+      ?'<button type="button" class="nsave'+
+        (opt.saved?" is-saved":"")+
+        '" data-action="save" data-id="'+id+
+        '" aria-pressed="'+!!opt.saved+
+        '" aria-label="'+
+        (opt.saved?"Remove from saved":"Save opportunity")+
+        '">'+(opt.saved?"♥":"♡")+'</button>'
+      :"";
+
+    return ''+
+      '<article class="nrow" data-id="'+id+'">'+
+        '<a class="nthumb nt-'+k+'" href="'+url+
+          '" tabindex="-1" aria-hidden="true">'+
+          imgs+
+          '<i class="nicon">'+NR_ICON[k]+'</i>'+
+        '</a>'+
+        '<div class="nbody">'+
+          '<h3 class="ntitle">'+
+            '<a href="'+url+'">'+
+              nrEsc(o.title||"Untitled opportunity")+
+            '</a>'+
+          '</h3>'+
+          '<div class="norg">'+
+            nrEsc(o.organization||"")+
+          '</div>'+
+          '<div class="nmeta">'+
+            '<span class="nchip '+dl.cls+'">'+
+              nrEsc(dl.text)+
+            '</span>'+
+          '</div>'+
+        '</div>'+
+        save+
+      '</article>';
+  }
+
+  function card(o){
+    return nrRow(o,{
+      href:"/opportunity-details?id="+
+        encodeURIComponent(o.id),
+      generic:generic
+    });
+  }
+
+  function apply(){
+    var q=$("q").value.toLowerCase().trim();
+
+    list=all.filter(function(o){
+      var categoryMatches=
+        !cur||key(o.category)===key(cur[0]);
+
+      var searchText=
+        (o.title||"")+" "+(o.organization||"");
+
+      var searchMatches=
+        !q||searchText.toLowerCase().indexOf(q)>-1;
+
+      return categoryMatches&&searchMatches;
+    });
+
+    if($("sort").value==="deadline"){
+      list.sort(function(a,b){
+        var x=a.deadline||"9999";
+        var y=b.deadline||"9999";
+
+        return x<y?-1:x>y?1:0;
+      });
+    }
+
+    shown=0;
+    $("grid").innerHTML="";
+
+    more();
+
+    $("count").textContent=
+      list.length+" "+
+      (list.length===1?"opportunity":"opportunities");
+
+    if(!list.length){
+      $("grid").innerHTML=
+        '<div class="empty" style="grid-column:1/-1">'+
+        'Nothing here yet. Try another category or clear your search.'+
+        '</div>';
+    }
+  }
+
+  function more(){
+    var next=list.slice(shown,shown+PAGE);
+
+    shown+=next.length;
+
+    if(next.length){
+      $("grid").insertAdjacentHTML(
+        "beforeend",
+        next.map(card).join("")
+      );
+
+      nrLazy($("grid"));
+    }
+
+    $("more").classList.toggle(
+      "hide",
+      shown>=list.length
+    );
+  }
+
+  /* Search, sorting and pagination */
+
+  $("more").addEventListener("click",more);
+
+  $("q").addEventListener("input",function(){
+    clearTimeout(searchTimer);
+
+    searchTimer=setTimeout(apply,200);
+  });
+
+  $("sort").addEventListener("change",apply);
+
+  /* Initial page setup */
+
+  tabs();
+  title();
+
+  /* Load published opportunities from Supabase */
+
+  fetch(
+    URL_+
+    "/rest/v1/opportunities?select="+
+    "id,title,organization,category,location,deadline,"+
+    "image_url,verified_at,created_at"+
+    "&status=eq.published"+
+    "&order=created_at.desc"+
+    "&limit=1000",
+    {
+      method:"GET",
+      headers:{
+        apikey:KEY,
+        Authorization:"Bearer "+KEY
+      }
+    }
+  )
+  .then(function(response){
+    if(!response.ok){
+      throw new Error("Could not load opportunities.");
+    }
+
+    return response.json();
+  })
+  .then(function(data){
+    all=Array.isArray(data)?data:[];
+
+    generic=nrGeneric(all);
+
+    apply();
+  })
+  .catch(function(error){
+    console.error("NOH category loading error:",error);
+
+    $("sub").textContent=
+      "We could not load opportunities. "+
+      "Please check your connection and try again.";
+
+    $("grid").innerHTML=
+      '<div class="empty">'+
+      'Unable to load opportunities at the moment. '+
+      'Please refresh the page shortly.'+
+      '</div>';
+  });
+
+})();
+</script>
+
+<script defer src="/noh-extras.js?v=1"></script>
+<script defer src="/consent.js"></script>
+<script defer src="/noh-scroll.js?v=2"></script>
+<script src="/noh-canonical.js"></script>
+
+</body>
+</html>

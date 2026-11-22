@@ -10,10 +10,8 @@
     var id = params.get("id") || "";
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return;
     query = "?id=" + id.toLowerCase();
-  } else if (path === "/category") {
-    var c = params.get("c") || "";
-    if (CATS.indexOf(c) > -1) query = "?c=" + c;
   }
+  // /category and its ?c= filters all share one canonical: /category
   var href = SITE + path + query;
   var link = document.querySelector('link[rel="canonical"]');
   if (!link) { link = document.createElement("link"); link.rel = "canonical"; document.head.appendChild(link); }
