@@ -1,4 +1,3 @@
-
 /*
  * Naija Opportunity Hub — Admin Discovery Dashboard
  *
@@ -734,7 +733,9 @@
     const canPick = selectable(row);
     const imageFlagClass = ownImage(row) ? "ok" : "failed";
 
-    const approveDisabled = !reviewReady(row);
+    // Allow the review form to open when the unique image is ready.
+    // Other missing fields can be completed in the review form.
+    const approveDisabled = !pending || !ownImage(row);
 
     return `
       <article
@@ -875,8 +876,8 @@
                   ${approveDisabled ? "disabled" : ""}
                   title="${
                     approveDisabled
-                      ? "Complete the required details and image validation first."
-                      : "Review and approve this opportunity."
+                      ? "A unique, validated image is required before review."
+                      : "Open the review form and complete the official-source checks."
                   }"
                 >
                   Review &amp; approve
@@ -1571,14 +1572,22 @@
 
     if (!row) return;
 
-    if (!reviewReady(row)) {
+    // The form must be accessible for pending records with a validated
+    // image, even if eligibility, description or application details
+    // still need to be completed.
+    if (row.status !== "pending") {
       notice(
-        "This opportunity is not ready for approval. " +
-        (
-          !ownImage(row)
-            ? imageValidationMessage(row)
-            : "Complete all required details and checks first."
-        ),
+        "Only pending discoveries can be reviewed.",
+        true
+      );
+
+      return;
+    }
+
+    if (!ownImage(row)) {
+      notice(
+        "This opportunity's individual image must pass validation before review. " +
+        imageValidationMessage(row),
         true
       );
 
@@ -2145,7 +2154,7 @@
       if (button.dataset.action === "approve") {
         if (button.disabled) {
           notice(
-            "Complete the required details and image validation first.",
+            "A unique, validated image is required before review.",
             true
           );
 
