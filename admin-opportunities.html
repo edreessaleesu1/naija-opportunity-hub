@@ -29,9 +29,15 @@ body{
 .wrap{width:min(1000px,100% - 32px);margin:0 auto;padding:20px 0 60px}
 h1{margin:0;font-size:1.5rem;color:var(--green)}
 h2{color:var(--green)}
-.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.top{
+  display:flex;flex-wrap:wrap;gap:10px;
+  align-items:center;justify-content:space-between;margin-bottom:16px
+}
 .top a{color:var(--green);font-weight:700}
-.card{background:var(--card);border:1px solid var(--gold-b);border-radius:16px;padding:18px;margin-bottom:16px}
+.card{
+  background:var(--card);border:1px solid var(--gold-b);
+  border-radius:16px;padding:18px;margin-bottom:16px
+}
 input,select,textarea{
   width:100%;padding:11px 12px;margin:0 0 12px;
   border:1.5px solid #d9d4bd;border-radius:10px;
@@ -49,51 +55,90 @@ button,.btn{
 button.alt{background:#fff;color:var(--green)}
 button.del{background:#fff;color:var(--danger);border-color:#d9a5a5}
 button:disabled{opacity:.6;cursor:not-allowed}
-.item{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:14px 0;border-top:1px solid var(--gold-b)}
+.item{
+  display:flex;gap:12px;align-items:flex-start;
+  justify-content:space-between;padding:14px 0;
+  border-top:1px solid var(--gold-b)
+}
 .item:first-child{border-top:0}
 .item h3{margin:0 0 5px;font-size:1rem}
 .item small{color:var(--muted)}
-.item-main{display:flex;gap:12px;align-items:flex-start;min-width:0;flex:1}
+.item-main{
+  display:flex;gap:12px;align-items:flex-start;
+  min-width:0;flex:1
+}
 .item-info{min-width:0;overflow-wrap:anywhere}
 .item-thumb{
-  width:112px;height:78px;object-fit:cover;border-radius:9px;
-  border:1px solid var(--gold-b);flex:none;background:#f3e7bd
+  width:112px;height:78px;object-fit:cover;
+  border-radius:9px;border:1px solid var(--gold-b);
+  flex:none;background:#f3e7bd
 }
 .image-empty{
   width:112px;height:78px;display:grid;place-items:center;
-  text-align:center;border:1px dashed var(--gold);border-radius:9px;
-  color:var(--muted);font-size:.75rem;flex:none;padding:6px
+  text-align:center;border:1px dashed var(--gold);
+  border-radius:9px;color:var(--muted);font-size:.75rem;
+  flex:none;padding:6px
 }
 .image-upload-hint{font-size:.78rem;color:var(--muted);margin-top:5px}
 .acts{display:flex;gap:8px;flex:none;flex-wrap:wrap}
-.tag{display:inline-block;padding:1px 9px;border-radius:99px;background:#f3e7bd;font-size:.75rem;font-weight:700;margin-right:6px}
-.msg{padding:10px 14px;border-radius:10px;margin:0 0 12px;font-weight:600;overflow-wrap:anywhere}
+.tag{
+  display:inline-block;padding:1px 9px;border-radius:99px;
+  background:#f3e7bd;font-size:.75rem;font-weight:700;margin-right:6px
+}
+.msg{
+  padding:10px 14px;border-radius:10px;
+  margin:0 0 12px;font-weight:600;overflow-wrap:anywhere
+}
 .msg.ok{background:#e4f1e8;color:var(--green)}
 .msg.err{background:#f6e3e3;color:var(--danger)}
 .hide{display:none!important}
-.prev{max-width:220px;max-height:130px;border-radius:8px;margin:0 0 12px;display:block;object-fit:cover}
-.image-preview-link{display:inline-block;margin-bottom:10px;color:var(--green);font-size:.82rem;font-weight:700}
-.upload-progress{margin:10px 0;padding:12px;border:1px solid var(--gold-b);background:#fffaf0;border-radius:10px}
-.upload-progress strong{color:var(--green)}
+.prev{
+  max-width:220px;max-height:130px;border-radius:8px;
+  margin:0 0 12px;display:block;object-fit:cover
+}
+.image-preview-link{
+  display:inline-block;margin-bottom:10px;
+  color:var(--green);font-size:.82rem;font-weight:700
+}
 .upload-help{color:var(--muted);font-size:.82rem;margin:5px 0 12px}
 .prep-results{margin-top:14px}
-.prep-result{padding:12px 0;border-top:1px solid var(--gold-b);display:flex;gap:12px;align-items:flex-start}
+.prep-result{
+  padding:12px 0;border-top:1px solid var(--gold-b);
+  display:flex;gap:12px;align-items:flex-start
+}
 .prep-result img{width:90px;height:65px;object-fit:cover;border-radius:8px}
 .prep-result small{display:block;color:var(--muted)}
-.prep-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
-.prep-stat{background:#f3e7bd;padding:10px;border-radius:10px;text-align:center}
+.prep-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:8px;margin:14px 0
+}
+.prep-stat{
+  background:#f3e7bd;padding:10px;border-radius:10px;text-align:center
+}
 .prep-stat strong{display:block;font-size:1.3rem;color:var(--green)}
 .empty-state{padding:18px;text-align:center;color:var(--muted)}
-.review-card{border:1px solid var(--gold-b);border-radius:12px;padding:14px;margin:14px 0;background:#fffefa}
+.review-card{
+  border:1px solid var(--gold-b);border-radius:12px;
+  padding:14px;margin:14px 0;background:#fffefa
+}
 .review-card .item-main{margin-bottom:12px}
-.review-warning{background:#fff0e7;border-left:4px solid #bd702e;padding:10px;margin:10px 0;border-radius:5px}
+.review-warning{
+  background:#fff0e7;border-left:4px solid #bd702e;
+  padding:10px;margin:10px 0;border-radius:5px
+}
 .review-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.review-actions button{flex:1}
+.review-actions button{flex:1;min-height:46px}
 .review-meta{font-size:.8rem;color:var(--muted)}
 .review-confirm{display:flex;gap:9px;align-items:flex-start;margin:12px 0}
 .review-confirm input{margin-top:5px}
 .review-confirm label{font-weight:600}
-.review-links a{color:var(--green);font-weight:700;margin-right:12px}
+.review-links a{
+  color:var(--green);font-weight:700;margin-right:12px
+}
+button:focus-visible,input:focus-visible,select:focus-visible,
+textarea:focus-visible,a:focus-visible{
+  outline:3px solid #087568;outline-offset:2px
+}
 @media(max-width:640px){.row{grid-template-columns:1fr}}
 @media(max-width:650px){
   .item{flex-direction:column}
@@ -127,20 +172,24 @@ button:disabled{opacity:.6;cursor:not-allowed}
 
   <div id="app" class="hide">
 
-    <!-- Account and password -->
+    <!-- ACCOUNT AND PASSWORD -->
     <details class="card" id="pwCard">
       <summary style="cursor:pointer;font-weight:800;color:var(--green)">
         Account &amp; password
       </summary>
       <div style="margin-top:14px">
-        <div id="pwMsg"></div>
+        <div id="pwMsg" aria-live="polite"></div>
         <form id="pwForm" autocomplete="off">
           <label for="pw1">New password (at least 8 characters)</label>
-          <input id="pw1" type="password" minlength="8" autocomplete="new-password" required>
+          <input id="pw1" type="password" minlength="8"
+                 autocomplete="new-password" required>
           <label for="pw2">Confirm new password</label>
-          <input id="pw2" type="password" minlength="8" autocomplete="new-password" required>
+          <input id="pw2" type="password" minlength="8"
+                 autocomplete="new-password" required>
           <button id="pwSave" type="submit">Change password</button>
-          <button id="pwMail" type="button" class="alt">Email me a reset link instead</button>
+          <button id="pwMail" type="button" class="alt">
+            Email me a reset link instead
+          </button>
         </form>
       </div>
     </details>
@@ -148,7 +197,11 @@ button:disabled{opacity:.6;cursor:not-allowed}
     <!-- IMAGE PREPARATION -->
     <div class="card" id="imagePrepCard">
       <h2 style="margin:0;font-size:1.15rem">Opportunity image preparation</h2>
-      <p>Prepare unique images for pending opportunity discoveries. Each batch processes up to six records. This does not approve or publish opportunities.</p>
+      <p>
+        Prepare unique images for pending opportunity discoveries.
+        Each batch processes up to six records. This does not approve
+        or publish opportunities.
+      </p>
 
       <div class="prep-stats">
         <div class="prep-stat"><strong id="prepProcessed">0</strong><small>Processed</small></div>
@@ -157,17 +210,17 @@ button:disabled{opacity:.6;cursor:not-allowed}
         <div class="prep-stat"><strong id="prepRemaining">—</strong><small>Pending remaining</small></div>
       </div>
 
-      <div id="prepMsg"></div>
+      <div id="prepMsg" aria-live="polite"></div>
       <button type="button" id="prepareImages">Prepare next batch (6)</button>
       <div id="prepResults" class="prep-results"></div>
     </div>
 
-    <!-- NEW: DISCOVERY REVIEW QUEUE -->
+    <!-- DISCOVERY REVIEW QUEUE -->
     <section class="card" id="discoveryReviewCard">
       <h2 style="margin:0;font-size:1.15rem">Opportunity discovery review</h2>
       <p class="upload-help">
-        Inspect every discovery before approval. Approval moves an opportunity
-        into the approved queue; it does not publish it.
+        Inspect every discovery before approval. Approval moves an
+        opportunity into the approved queue; it does not publish it.
       </p>
 
       <div class="prep-stats">
@@ -178,7 +231,8 @@ button:disabled{opacity:.6;cursor:not-allowed}
       </div>
 
       <div class="row">
-        <input id="discoverySearch" type="search" placeholder="Search title or organisation">
+        <input id="discoverySearch" type="search"
+               placeholder="Search title or organisation">
         <select id="discoveryStatus">
           <option value="pending">Awaiting review</option>
           <option value="approved">Approved</option>
@@ -189,8 +243,12 @@ button:disabled{opacity:.6;cursor:not-allowed}
 
       <div id="discoveryReviewMessage" aria-live="polite"></div>
 
-      <button type="button" class="alt" id="refreshDiscoveries">Refresh discoveries</button>
-      <div id="discoveryReviewList">Loading discoveries…</div>
+      <button type="button" class="alt" id="refreshDiscoveries">
+        Refresh discoveries
+      </button>
+      <div id="discoveryReviewList" aria-live="polite">
+        Loading discoveries…
+      </div>
     </section>
 
     <!-- ADD OR EDIT OPPORTUNITY -->
@@ -200,7 +258,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
         <button class="alt hide" id="cancel" type="button">Cancel edit</button>
       </div>
 
-      <div id="fmsg"></div>
+      <div id="fmsg" aria-live="polite"></div>
 
       <form id="form" autocomplete="off">
         <label for="title">Title *</label>
@@ -249,7 +307,8 @@ button:disabled{opacity:.6;cursor:not-allowed}
         <label for="image_url">Image link</label>
         <input id="image_url" type="url" placeholder="https://">
         <img id="prev" class="prev hide" alt="Opportunity image preview">
-        <a id="previewLink" class="image-preview-link hide" target="_blank" rel="noopener noreferrer">Open current image</a>
+        <a id="previewLink" class="image-preview-link hide"
+           target="_blank" rel="noopener noreferrer">Open current image</a>
 
         <label for="status">Status *</label>
         <input id="status" list="stats" required maxlength="40">
@@ -269,8 +328,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
     <div class="card">
       <h2 style="margin-top:0;font-size:1.15rem">Existing opportunities</h2>
       <p class="upload-help">
-        Upload a unique image to any opportunity that does not already have
-        an image URL. Images are saved through the protected Supabase function.
+        Upload a unique image to any opportunity that does not already
+        have an image URL. Images are saved through the protected
+        Supabase function.
       </p>
 
       <div class="row">
@@ -289,8 +349,18 @@ button:disabled{opacity:.6;cursor:not-allowed}
 (function(){
 "use strict";
 
+/* =====================================================
+   CONFIGURATION
+   ===================================================== */
+
 var URL_="https://djxornmwvkauhkcuhgxc.supabase.co";
 var KEY="sb_publishable_EDReCY3JcN4vMuypVfqcMQ_GcTEVuBq";
+
+if(!window.supabase){
+  document.getElementById("gate").textContent=
+    "Supabase could not load. Check your internet connection and refresh.";
+  return;
+}
 
 var sb=window.NOH_SUPABASE_CLIENT||
   window.supabase.createClient(URL_,KEY);
@@ -301,6 +371,7 @@ var rows=[];
 var discoveryRows=[];
 var editId=null;
 var uploadInProgress=false;
+var reviewInProgress=false;
 
 var F=[
   "title","organization","category","location","deadline",
@@ -317,7 +388,10 @@ var MIN_IMAGE_BYTES=4096;
 
 function esc(s){
   return String(s==null?"":s).replace(/[&<>"']/g,function(c){
-    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    return {
+      "&":"&amp;","<":"&lt;",">":"&gt;",
+      '"':"&quot;","'":"&#39;"
+    }[c];
   });
 }
 
@@ -325,11 +399,15 @@ function safeHttps(value){
   try{
     var u=new URL(value);
     return u.protocol==="https:"?u.href:null;
-  }catch(e){return null}
+  }catch(e){
+    return null;
+  }
 }
 
 function note(t,k){
-  $("fmsg").innerHTML=t?'<p class="msg '+k+'">'+esc(t)+'</p>':"";
+  $("fmsg").innerHTML=t
+    ?'<p class="msg '+k+'">'+esc(t)+'</p>'
+    :"";
 }
 
 function gate(h){
@@ -338,33 +416,53 @@ function gate(h){
   $("app").classList.add("hide");
 }
 
+function discoveryNote(message,type){
+  $("discoveryReviewMessage").innerHTML=message
+    ?'<p class="msg '+(type==="err"?"err":"ok")+'">'+esc(message)+'</p>'
+    :"";
+}
+
 async function getSession(){
   var r=await sb.auth.getSession();
   var session=r.data&&r.data.session;
+
   if(r.error||!session||!session.access_token){
     throw new Error("Your admin session has expired. Please sign in again.");
   }
+
   return session;
 }
 
-/* ADMIN AUTHENTICATION */
+/* =====================================================
+   ADMIN AUTHENTICATION
+   ===================================================== */
+
 async function init(){
   var s=await sb.auth.getSession();
+
+  if(s.error)throw s.error;
+
   var u=s.data&&s.data.session&&s.data.session.user;
 
   if(!u){
-    gate('Please <a href="/auth.html?mode=login&redirect='+
+    gate(
+      'Please <a href="/auth.html?mode=login&redirect='+
       encodeURIComponent("/admin-opportunities.html")+
-      '"><strong>sign in</strong></a> with your admin account.');
+      '"><strong>sign in</strong></a> with your admin account.'
+    );
     return;
   }
 
   $("out").classList.remove("hide");
 
   var a=await sb.from("admins")
-    .select("user_id").eq("user_id",u.id).maybeSingle();
+    .select("user_id")
+    .eq("user_id",u.id)
+    .maybeSingle();
 
-  if(a.error||!a.data){
+  if(a.error)throw a.error;
+
+  if(!a.data){
     gate("This account ("+esc(u.email)+") is not an admin.");
     return;
   }
@@ -378,12 +476,17 @@ async function init(){
   ]);
 }
 
-/* EXISTING OPPORTUNITIES */
+/* =====================================================
+   EXISTING OPPORTUNITIES
+   ===================================================== */
+
 async function load(){
   $("list").textContent="Loading opportunities…";
 
   var r=await sb.from("opportunities")
-    .select("*").order("created_at",{ascending:false}).limit(500);
+    .select("*")
+    .order("created_at",{ascending:false})
+    .limit(500);
 
   if(r.error){
     $("list").innerHTML='<p class="msg err">'+esc(r.error.message)+'</p>';
@@ -393,6 +496,7 @@ async function load(){
   rows=r.data||[];
 
   var cats={},stats={};
+
   rows.forEach(function(o){
     if(o.category)cats[o.category]=1;
     if(o.status)stats[o.status]=1;
@@ -407,6 +511,7 @@ async function load(){
   }).join("");
 
   var cur=$("fstat").value;
+
   $("fstat").innerHTML='<option value="">All statuses</option>'+
     Object.keys(stats).map(function(c){
       return '<option value="'+esc(c)+'">'+esc(c)+'</option>';
@@ -427,8 +532,10 @@ function render(){
 
   $("list").innerHTML=list.length?list.map(function(o){
     var image=safeHttps(o.image_url);
+
     var markup=image
-      ?'<a href="'+esc(image)+'" target="_blank" rel="noopener noreferrer"><img class="item-thumb" src="'+esc(image)+'" alt="Opportunity image"></a>'
+      ?'<a href="'+esc(image)+'" target="_blank" rel="noopener noreferrer">'+
+        '<img class="item-thumb" src="'+esc(image)+'" alt="Opportunity image"></a>'
       :'<div class="image-empty">No image uploaded</div>';
 
     return '<div class="item"><div class="item-main">'+markup+
@@ -437,9 +544,13 @@ function render(){
       esc(o.organization)+' · '+esc(o.category)+
       (o.deadline?' · closes '+esc(o.deadline):'')+'</small>'+
       '<div class="image-upload-hint">'+
-      (image?"Image URL attached · "+esc(o.image_quality_status||"Quality unchecked"):"An individual image is required.")+
+      (image
+        ?"Image URL attached · "+esc(o.image_quality_status||"Quality unchecked")
+        :"An individual image is required.")+
       '</div></div></div><div class="acts">'+
-      (!image?'<button class="alt" data-upload="'+esc(o.id)+'" type="button">Upload image</button>':'')+
+      (!image
+        ?'<button class="alt" data-upload="'+esc(o.id)+'" type="button">Upload image</button>'
+        :'')+
       '<button class="alt" data-e="'+esc(o.id)+'" type="button">Edit</button>'+
       '<button class="del" data-d="'+esc(o.id)+'" type="button">Delete</button>'+
       '</div></div>';
@@ -459,10 +570,15 @@ function reset(){
 function edit(id){
   var o=rows.find(function(x){return x.id===id});
   if(!o)return;
+
   editId=id;
+
   F.forEach(function(f){
-    $(f).value=f==="deadline"&&o[f]?String(o[f]).slice(0,10):(o[f]||"");
+    $(f).value=f==="deadline"&&o[f]
+      ?String(o[f]).slice(0,10)
+      :(o[f]||"");
   });
+
   $("formTitle").textContent="Edit opportunity";
   $("cancel").classList.remove("hide");
   preview();
@@ -472,8 +588,10 @@ function edit(id){
 
 function preview(){
   var v=safeHttps($("image_url").value.trim());
+
   $("prev").classList.toggle("hide",!v);
   $("previewLink").classList.toggle("hide",!v);
+
   if(v){
     $("prev").src=v;
     $("previewLink").href=v;
@@ -484,32 +602,47 @@ function preview(){
 }
 
 $("image_url").addEventListener("input",preview);
-$("prev").addEventListener("error",function(){this.classList.add("hide")});
+$("prev").addEventListener("error",function(){
+  this.classList.add("hide");
+});
 $("q").addEventListener("input",render);
 $("fstat").addEventListener("change",render);
 $("cancel").addEventListener("click",reset);
 
-/* INDIVIDUAL IMAGE UPLOAD */
+/* =====================================================
+   INDIVIDUAL IMAGE UPLOAD
+   ===================================================== */
+
 function validateImage(file){
   if(!file)throw new Error("Please select an image.");
-  if(!ALLOWED_IMAGE_TYPES.includes(file.type))
+
+  if(!ALLOWED_IMAGE_TYPES.includes(file.type)){
     throw new Error("Supported formats are JPG, PNG, WebP, GIF and AVIF.");
-  if(file.size<MIN_IMAGE_BYTES)
+  }
+
+  if(file.size<MIN_IMAGE_BYTES){
     throw new Error("Image is too small. Minimum size is 4 KB.");
-  if(file.size>MAX_IMAGE_BYTES)
+  }
+
+  if(file.size>MAX_IMAGE_BYTES){
     throw new Error("Image exceeds the 6 MB upload limit.");
+  }
 }
 
 async function uploadOpportunityImage(id,file){
   validateImage(file);
 
   var opportunity=rows.find(function(o){return o.id===id});
+
   if(!opportunity)throw new Error("Opportunity record not found.");
-  if(opportunity.image_url)
+
+  if(opportunity.image_url){
     throw new Error("This opportunity already has an image URL.");
+  }
 
   var session=await getSession();
   var fd=new FormData();
+
   fd.append("id",id);
   fd.append("record_type","opportunity");
   fd.append("source_page_url",opportunity.source_url||"");
@@ -520,11 +653,15 @@ async function uploadOpportunityImage(id,file){
     headers:{Authorization:"Bearer "+session.access_token}
   });
 
-  if(result.error)throw new Error(result.error.message||"Image upload failed.");
+  if(result.error){
+    throw new Error(result.error.message||"Image upload failed.");
+  }
+
   var data=result.data||{};
 
-  if(!data.success||!data.image_url)
+  if(!data.success||!data.image_url){
     throw new Error(data.error||"No valid image URL returned.");
+  }
 
   return data;
 }
@@ -547,6 +684,7 @@ function chooseOpportunityImage(id,button){
   picker.addEventListener("change",async function(){
     var file=picker.files&&picker.files[0];
     picker.remove();
+
     if(!file||uploadInProgress)return;
 
     uploadInProgress=true;
@@ -574,32 +712,53 @@ $("list").addEventListener("click",async function(e){
   var b=e.target.closest("button");
   if(!b)return;
 
-  if(b.dataset.upload)return chooseOpportunityImage(b.dataset.upload,b);
-  if(b.dataset.e)return edit(b.dataset.e);
+  if(b.dataset.upload){
+    chooseOpportunityImage(b.dataset.upload,b);
+    return;
+  }
+
+  if(b.dataset.e){
+    edit(b.dataset.e);
+    return;
+  }
 
   if(b.dataset.d){
     var o=rows.find(function(x){return x.id===b.dataset.d});
+
     if(!confirm('Delete "'+(o&&o.title)+'" permanently?'))return;
 
-    var r=await sb.from("opportunities").delete().eq("id",b.dataset.d);
-    if(r.error)alert(r.error.message);
-    else{
+    var r=await sb.from("opportunities")
+      .delete()
+      .eq("id",b.dataset.d);
+
+    if(r.error){
+      alert(r.error.message);
+    }else{
       if(editId===b.dataset.d)reset();
       await load();
     }
   }
 });
 
-/* CREATE AND EDIT */
+/* =====================================================
+   CREATE AND EDIT OPPORTUNITY
+   ===================================================== */
+
 $("form").addEventListener("submit",async function(e){
   e.preventDefault();
+
   var p={};
+
   F.forEach(function(f){
     var v=$(f).value.trim();
     p[f]=v===""?null:v;
   });
+
   p.title=p.title||"";
-  if($("verified").checked)p.verified_at=new Date().toISOString();
+
+  if($("verified").checked){
+    p.verified_at=new Date().toISOString();
+  }
 
   $("save").disabled=true;
   note("");
@@ -609,7 +768,11 @@ $("form").addEventListener("submit",async function(e){
       ?await sb.from("opportunities").update(p).eq("id",editId).select()
       :await sb.from("opportunities").insert(p).select();
 
-    if(r.error){note(r.error.message,"err");return}
+    if(r.error){
+      note(r.error.message,"err");
+      return;
+    }
+
     if(!r.data||!r.data.length){
       note("Nothing was saved. Check administrator permissions.","err");
       return;
@@ -619,6 +782,7 @@ $("form").addEventListener("submit",async function(e){
     reset();
     note(wasEdit?"Changes saved.":"Opportunity added.","ok");
     await load();
+
   }catch(error){
     note(error.message||"Unable to save opportunity.","err");
   }finally{
@@ -626,41 +790,76 @@ $("form").addEventListener("submit",async function(e){
   }
 });
 
-/* PASSWORD MANAGEMENT */
+/* =====================================================
+   PASSWORD MANAGEMENT
+   ===================================================== */
+
 function pwNote(t,k){
-  $("pwMsg").innerHTML=t?'<p class="msg '+k+'">'+esc(t)+'</p>':"";
+  $("pwMsg").innerHTML=t
+    ?'<p class="msg '+k+'">'+esc(t)+'</p>'
+    :"";
 }
 
 $("pwForm").addEventListener("submit",async function(e){
   e.preventDefault();
-  var a=$("pw1").value,b=$("pw2").value;
 
-  if(a.length<8)return pwNote("Use at least 8 characters.","err");
-  if(a!==b)return pwNote("The passwords do not match.","err");
+  var a=$("pw1").value;
+  var b=$("pw2").value;
+
+  if(a.length<8){
+    return pwNote("Use at least 8 characters.","err");
+  }
+
+  if(a!==b){
+    return pwNote("The passwords do not match.","err");
+  }
 
   $("pwSave").disabled=true;
+
   try{
     var r=await sb.auth.updateUser({password:a});
-    if(r.error)return pwNote(r.error.message,"err");
+
+    if(r.error){
+      return pwNote(r.error.message,"err");
+    }
+
     $("pwForm").reset();
     pwNote("Password changed successfully.","ok");
+
+  }catch(error){
+    pwNote(error.message||"Unable to change password.","err");
   }finally{
     $("pwSave").disabled=false;
   }
 });
 
 $("pwMail").addEventListener("click",async function(){
-  var s=await sb.auth.getSession();
-  var u=s.data&&s.data.session&&s.data.session.user;
-  if(!u||!u.email)return pwNote("Please sign in again.","err");
+  try{
+    var s=await sb.auth.getSession();
+    var u=s.data&&s.data.session&&s.data.session.user;
 
-  var r=await sb.auth.resetPasswordForEmail(
-    u.email,{redirectTo:location.origin+"/auth.html"}
-  );
-  pwNote(r.error?r.error.message:"Reset link sent to "+u.email+".",r.error?"err":"ok");
+    if(!u||!u.email){
+      return pwNote("Please sign in again.","err");
+    }
+
+    var r=await sb.auth.resetPasswordForEmail(
+      u.email,
+      {redirectTo:location.origin+"/auth.html"}
+    );
+
+    pwNote(
+      r.error?r.error.message:"Reset link sent to "+u.email+".",
+      r.error?"err":"ok"
+    );
+  }catch(error){
+    pwNote(error.message||"Unable to send reset link.","err");
+  }
 });
 
-/* IMAGE PREPARATION */
+/* =====================================================
+   IMAGE PREPARATION
+   ===================================================== */
+
 function prepMessage(message,type){
   $("prepMsg").innerHTML=message
     ?'<p class="msg '+(type==="err"?"err":"ok")+'">'+esc(message)+'</p>'
@@ -679,17 +878,28 @@ function renderPrepResults(data){
   var ready=data.image_ready??data.images_ready??data.ready;
   var failed=data.needs_attention??data.failed??data.failures;
 
-  if(processed!=null)$("prepProcessed").textContent=prepNumber(processed);
-  if(ready!=null)$("prepReady").textContent=prepNumber(ready);
-  if(failed!=null)$("prepFailed").textContent=prepNumber(failed);
-  if(data.remaining_pending!=null)
+  if(processed!=null){
+    $("prepProcessed").textContent=prepNumber(processed);
+  }
+
+  if(ready!=null){
+    $("prepReady").textContent=prepNumber(ready);
+  }
+
+  if(failed!=null){
+    $("prepFailed").textContent=prepNumber(failed);
+  }
+
+  if(data.remaining_pending!=null){
     $("prepRemaining").textContent=prepNumber(data.remaining_pending);
+  }
 
   var results=Array.isArray(data.results)?data.results:[];
 
   $("prepResults").innerHTML=results.length?results.map(function(item){
     item=item||{};
     var image=safeHttps(item.image_url||item.imageUrl||"");
+
     return '<div class="prep-result">'+
       (image?'<img src="'+esc(image)+'" alt="Opportunity image">':'')+
       '<div><strong>'+esc(item.title||item.opportunity_title||"Opportunity")+'</strong>'+
@@ -700,23 +910,36 @@ function renderPrepResults(data){
 
 $("prepareImages").addEventListener("click",async function(){
   var button=$("prepareImages");
+
   button.disabled=true;
   button.textContent="Preparing images…";
   prepMessage("Connecting to image preparation function…");
 
   try{
     var session=await getSession();
+
     var result=await sb.functions.invoke("noh-prepare-discovery-images",{
       body:{limit:6},
       headers:{Authorization:"Bearer "+session.access_token}
     });
+
     if(result.error)throw new Error(result.error.message);
+
     var data=result.data||{};
-    if(data.success===false)throw new Error(data.error||"Preparation failed.");
+
+    if(data.success===false){
+      throw new Error(data.error||"Preparation failed.");
+    }
 
     renderPrepResults(data);
-    prepMessage("Image preparation completed. No opportunities were approved or published.","ok");
+
+    prepMessage(
+      "Image preparation completed. No opportunities were approved or published.",
+      "ok"
+    );
+
     await loadDiscoveryReview();
+
   }catch(error){
     prepMessage(error.message||"Unable to prepare images.","err");
   }finally{
@@ -725,45 +948,62 @@ $("prepareImages").addEventListener("click",async function(){
   }
 });
 
-/* =================================================
+/* =====================================================
    DISCOVERY REVIEW QUEUE
-   Approval is separate from publication.
-   ================================================= */
-
-function discoveryNote(message,type){
-  $("discoveryReviewMessage").innerHTML=message
-    ?'<p class="msg '+(type==="err"?"err":"ok")+'">'+esc(message)+'</p>'
-    :"";
-}
+   ===================================================== */
 
 async function loadDiscoveryReview(){
-  $("discoveryReviewList").textContent="Loading discoveries…";
+  var list=$("discoveryReviewList");
 
-  var result=await sb.from("noh_discovered_opportunities")
-    .select("id,title,summary,organization,category,description,eligibility,location,deadline,application_url,source_url,image_url,image_status,image_quality_status,validation_status,validation_notes,status,review_note,discovered_at")
-    .order("discovered_at",{ascending:false})
-    .limit(300);
+  list.textContent="Loading discoveries…";
+  discoveryNote("","");
 
-  if(result.error){
-    $("discoveryReviewList").innerHTML=
-      '<p class="msg err">'+esc(result.error.message)+'</p>';
-    discoveryNote(result.error.message,"err");
-    return;
+  try{
+    var result=await sb.from("noh_discovered_opportunities")
+      .select(
+        "id,title,summary,organization,category,description,eligibility,"+
+        "location,deadline,application_url,source_url,image_url,"+
+        "image_status,image_quality_status,validation_status,"+
+        "validation_notes,status,review_note,discovered_at"
+      )
+      .order("discovered_at",{ascending:false})
+      .limit(1000);
+
+    if(result.error)throw result.error;
+
+    discoveryRows=result.data||[];
+
+    updateReviewCounts();
+    renderDiscoveryReview();
+
+  }catch(error){
+    list.innerHTML=
+      '<p class="msg err">'+esc(error.message||"Unable to load discoveries.")+'</p>';
+
+    discoveryNote(
+      error.message||"Unable to load discoveries.",
+      "err"
+    );
   }
-
-  discoveryRows=result.data||[];
-  updateReviewCounts();
-  renderDiscoveryReview();
 }
 
 function updateReviewCounts(){
   $("reviewTotalCount").textContent=discoveryRows.length;
+
   $("reviewPendingCount").textContent=
-    discoveryRows.filter(function(x){return x.status==="pending"}).length;
+    discoveryRows.filter(function(x){
+      return x.status==="pending";
+    }).length;
+
   $("reviewApprovedCount").textContent=
-    discoveryRows.filter(function(x){return x.status==="approved"}).length;
+    discoveryRows.filter(function(x){
+      return x.status==="approved";
+    }).length;
+
   $("reviewRejectedCount").textContent=
-    discoveryRows.filter(function(x){return x.status==="rejected"}).length;
+    discoveryRows.filter(function(x){
+      return x.status==="rejected";
+    }).length;
 }
 
 function renderDiscoveryReview(){
@@ -772,8 +1012,11 @@ function renderDiscoveryReview(){
 
   var visible=discoveryRows.filter(function(item){
     var text=[
-      item.title,item.organization,item.category,
-      item.eligibility,item.location
+      item.title,
+      item.organization,
+      item.category,
+      item.eligibility,
+      item.location
     ].join(" ").toLowerCase();
 
     return (!query||text.includes(query))&&
@@ -788,8 +1031,9 @@ function renderDiscoveryReview(){
 
   $("discoveryReviewList").innerHTML=visible.map(function(item){
     var image=safeHttps(item.image_url);
-    var expired=item.deadline&&
-      item.deadline<new Date().toISOString().slice(0,10);
+
+    var today=new Date().toISOString().slice(0,10);
+    var expired=item.deadline&&item.deadline<today;
 
     var eligibilityText=item.eligibility||"Not provided";
 
@@ -806,11 +1050,15 @@ function renderDiscoveryReview(){
     var warnings="";
 
     if(expired){
-      warnings+='<div class="review-warning">Application deadline has passed. This opportunity cannot be approved as currently open.</div>';
+      warnings+='<div class="review-warning">'+
+        'Application deadline has passed. This opportunity cannot be approved as currently open.'+
+        '</div>';
     }
 
     if(nigeriaWarning){
-      warnings+='<div class="review-warning">Eligibility warning: Nigeria is excluded. Do not present this as a Nigerian-eligible opportunity.</div>';
+      warnings+='<div class="review-warning">'+
+        'Eligibility warning: Nigeria is excluded. Do not present this as a Nigerian-eligible opportunity.'+
+        '</div>';
     }
 
     var actions="";
@@ -819,20 +1067,26 @@ function renderDiscoveryReview(){
       actions=
         '<div class="review-confirm">'+
           '<input type="checkbox" id="image-confirm-'+esc(item.id)+'">'+
-          '<label for="image-confirm-'+esc(item.id)+'">I have opened and inspected this image and confirm it genuinely represents this opportunity.</label>'+
+          '<label for="image-confirm-'+esc(item.id)+'">'+
+          'I have opened and inspected this image and confirm it genuinely represents this opportunity.'+
+          '</label>'+
         '</div>'+
         '<label for="review-note-'+esc(item.id)+'">Admin review note</label>'+
         '<textarea id="review-note-'+esc(item.id)+'" placeholder="Optional review note"></textarea>'+
         '<div class="review-actions">'+
-          '<button type="button" data-approve="'+esc(item.id)+'">Approve for review queue</button>'+
-          '<button type="button" class="del" data-reject="'+esc(item.id)+'">Reject</button>'+
+          '<button type="button" data-review-approve="'+esc(item.id)+'">'+
+          'Approve for review queue</button>'+
+          '<button type="button" class="del" data-review-reject="'+esc(item.id)+'">'+
+          'Reject</button>'+
         '</div>';
     }else{
-      actions='<p class="review-meta"><strong>Review note:</strong> '+
-        esc(item.review_note||"No review note recorded.")+'</p>';
+      actions=
+        '<p class="review-meta"><strong>Review note:</strong> '+
+        esc(item.review_note||"No review note recorded.")+
+        '</p>';
     }
 
-    return '<article class="review-card">'+
+    return '<article class="review-card" data-discovery-id="'+esc(item.id)+'">'+
       '<div class="item-main">'+imageMarkup+
         '<div class="item-info">'+
           '<h3>'+esc(item.title)+'</h3>'+
@@ -849,13 +1103,21 @@ function renderDiscoveryReview(){
       '</div>'+
       warnings+
       '<div class="review-links">'+
-        (safeHttps(item.source_url)?'<a href="'+esc(safeHttps(item.source_url))+'" target="_blank" rel="noopener noreferrer">Official source</a>':"")+
-        (safeHttps(item.application_url)?'<a href="'+esc(safeHttps(item.application_url))+'" target="_blank" rel="noopener noreferrer">Application page</a>':"")+
-        (image?'<a href="'+esc(image)+'" target="_blank" rel="noopener noreferrer">Open image</a>':"")+
+        (safeHttps(item.source_url)
+          ?'<a href="'+esc(safeHttps(item.source_url))+'" target="_blank" rel="noopener noreferrer">Official source</a>'
+          :"")+
+        (safeHttps(item.application_url)
+          ?'<a href="'+esc(safeHttps(item.application_url))+'" target="_blank" rel="noopener noreferrer">Application page</a>'
+          :"")+
+        (image
+          ?'<a href="'+esc(image)+'" target="_blank" rel="noopener noreferrer">Open image</a>'
+          :"")+
       '</div>'+
       '<p class="review-meta">Image status: '+esc(item.image_status||"none")+
       ' · Quality: '+esc(item.image_quality_status||"unchecked")+'</p>'+
-      (item.validation_notes?'<p class="review-meta">'+esc(item.validation_notes)+'</p>':"")+
+      (item.validation_notes
+        ?'<p class="review-meta">'+esc(item.validation_notes)+'</p>'
+        :"")+
       actions+
     '</article>';
   }).join("");
@@ -865,57 +1127,110 @@ $("discoverySearch").addEventListener("input",renderDiscoveryReview);
 $("discoveryStatus").addEventListener("change",renderDiscoveryReview);
 
 $("refreshDiscoveries").addEventListener("click",async function(){
-  $("refreshDiscoveries").disabled=true;
+  var button=$("refreshDiscoveries");
+
+  button.disabled=true;
+  button.textContent="Refreshing…";
+
   await loadDiscoveryReview();
-  $("refreshDiscoveries").disabled=false;
+
+  button.disabled=false;
+  button.textContent="Refresh discoveries";
 });
 
-/* APPROVE OR REJECT */
-$("discoveryReviewList").addEventListener("click",async function(event){
-  var button=event.target.closest("button");
-  if(!button)return;
+/* =====================================================
+   APPROVE / REJECT
+   Document-level capture handler:
+   handles dynamically generated review buttons.
+   ===================================================== */
 
-  var approveId=button.dataset.approve;
-  var rejectId=button.dataset.reject;
+async function handleDiscoveryReview(button){
+  if(reviewInProgress)return;
+
+  var approveId=button.getAttribute("data-review-approve");
+  var rejectId=button.getAttribute("data-review-reject");
 
   if(!approveId&&!rejectId)return;
 
   var id=approveId||rejectId;
   var decision=approveId?"approve":"reject";
 
-  var imageCheckbox=$("image-confirm-"+id);
-  var imageConfirmed=!!(imageCheckbox&&imageCheckbox.checked);
+  var record=discoveryRows.find(function(x){
+    return String(x.id)===String(id);
+  });
 
-  if(decision==="approve"&&!imageConfirmed){
-    discoveryNote("Please inspect the image and confirm it before approving.","err");
+  if(!record){
+    discoveryNote("This discovery is no longer in the loaded review list. Refresh and try again.","err");
     return;
   }
 
-  var record=discoveryRows.find(function(x){return x.id===id});
-  if(!record)return;
+  if(record.status!=="pending"){
+    discoveryNote("This record is no longer pending review. Refresh the list.","err");
+    return;
+  }
+
+  var imageCheckbox=$("image-confirm-"+id);
+  var imageConfirmed=!!(imageCheckbox&&imageCheckbox.checked);
 
   if(decision==="approve"){
-    if(record.deadline&&record.deadline<new Date().toISOString().slice(0,10)){
-      discoveryNote("This opportunity has expired. It cannot be approved as an open opportunity.","err");
+    if(!imageConfirmed){
+      discoveryNote(
+        "Please open and inspect the image, then tick the image confirmation box.",
+        "err"
+      );
+      return;
+    }
+
+    if(!safeHttps(record.image_url)){
+      discoveryNote("This opportunity has no valid HTTPS image URL. It cannot be approved.","err");
+      return;
+    }
+
+    var today=new Date().toISOString().slice(0,10);
+
+    if(record.deadline&&record.deadline<today){
+      discoveryNote(
+        "This opportunity has expired. It cannot be approved as an open opportunity.",
+        "err"
+      );
       return;
     }
 
     if(/Nigeria is excluded|Nigeria is not|not eligible.*Nigeria|Nigeria.*not eligible/i.test(record.eligibility||"")){
-      discoveryNote("This opportunity excludes Nigeria. Do not approve it for the Nigeria-eligible publishing queue.","err");
+      discoveryNote(
+        "This opportunity excludes Nigeria. Do not approve it for the Nigeria-eligible publishing queue.",
+        "err"
+      );
       return;
     }
 
-    if(!window.confirm("Approve this opportunity for the publishing queue? It will NOT be published yet."))return;
+    if(!window.confirm(
+      "Approve this opportunity for the publishing queue? It will NOT be published yet."
+    )){
+      return;
+    }
+
   }else{
-    if(!window.confirm("Reject this discovery record?"))return;
+    if(!window.confirm("Reject this discovery record?")){
+      return;
+    }
   }
 
   var noteField=$("review-note-"+id);
   var reviewNote=noteField?noteField.value.trim():"";
 
+  reviewInProgress=true;
   button.disabled=true;
+  button.textContent=decision==="approve"?"Approving…":"Rejecting…";
+
+  discoveryNote(
+    decision==="approve"?"Submitting approval…":"Submitting rejection…",
+    "ok"
+  );
 
   try{
+    var session=await getSession();
+
     var response=await sb.rpc("noh_admin_review_discovery",{
       p_discovery_id:id,
       p_decision:decision,
@@ -923,7 +1238,9 @@ $("discoveryReviewList").addEventListener("click",async function(event){
       p_image_confirmed:imageConfirmed
     });
 
-    if(response.error)throw response.error;
+    if(response.error){
+      throw response.error;
+    }
 
     discoveryNote(
       decision==="approve"
@@ -935,32 +1252,89 @@ $("discoveryReviewList").addEventListener("click",async function(event){
     await loadDiscoveryReview();
 
   }catch(error){
-    discoveryNote(error.message||"Unable to save review decision.","err");
-    button.disabled=false;
-  }
-});
+    console.error("NOH discovery review error:",error);
 
-/* SIGN OUT */
+    discoveryNote(
+      error.message||"Unable to save review decision. Please refresh and try again.",
+      "err"
+    );
+
+    button.disabled=false;
+    button.textContent=decision==="approve"
+      ?"Approve for review queue"
+      :"Reject";
+
+  }finally{
+    reviewInProgress=false;
+  }
+}
+
+/*
+  Capture clicks at document level. This avoids depending on
+  event bubbling through the dynamically replaced review list.
+*/
+document.addEventListener("click",function(event){
+  var target=event.target;
+
+  if(!target||typeof target.closest!=="function")return;
+
+  var button=target.closest(
+    "button[data-review-approve],button[data-review-reject]"
+  );
+
+  if(!button)return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  handleDiscoveryReview(button).catch(function(error){
+    console.error("NOH review button error:",error);
+    discoveryNote(
+      error.message||"The review action could not be completed.",
+      "err"
+    );
+    reviewInProgress=false;
+  });
+},true);
+
+/* =====================================================
+   SIGN OUT
+   ===================================================== */
+
 $("out").addEventListener("click",async function(e){
   e.preventDefault();
+
   await sb.auth.signOut();
   location.reload();
 });
 
-/* AUTHENTICATION CHANGES */
+/* =====================================================
+   AUTHENTICATION CHANGES
+   ===================================================== */
+
 sb.auth.onAuthStateChange(function(event,session){
   if(event==="SIGNED_OUT"||!session){
     $("app").classList.add("hide");
-    gate('Your session has ended. Please <a href="/auth.html?mode=login&redirect='+
+
+    gate(
+      'Your session has ended. Please <a href="/auth.html?mode=login&redirect='+
       encodeURIComponent("/admin-opportunities.html")+
-      '"><strong>sign in again</strong></a>.');
+      '"><strong>sign in again</strong></a>.'
+    );
   }
 });
 
-/* START */
+/* =====================================================
+   START
+   ===================================================== */
+
 init().catch(function(error){
-  gate("Unable to initialise the admin dashboard: "+
-    esc(error.message||"Unexpected error."));
+  console.error("NOH admin initialisation error:",error);
+
+  gate(
+    "Unable to initialise the admin dashboard: "+
+    esc(error.message||"Unexpected error.")
+  );
 });
 
 })();
