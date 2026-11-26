@@ -82,6 +82,7 @@
       backdrop-filter: blur(10px);
     }
 
+    /* Consistent, organised navigation */
     .site-nav {
       width: min(100% - 36px, 1200px);
       min-height: 72px;
@@ -89,14 +90,15 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 24px;
+      gap: 18px;
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      min-width: 230px;
+      min-width: 0;
+      flex: 0 0 auto;
       color: var(--green-dark);
       text-decoration: none;
       font-weight: 800;
@@ -124,14 +126,18 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 5px;
-      flex-wrap: wrap;
+      gap: 4px;
+      flex-wrap: nowrap;
+      min-width: 0;
     }
 
     .nav-links a {
-      padding: 8px 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 10px;
       color: var(--text);
-      border-radius: 4px;
+      border-radius: 6px;
       text-decoration: none;
       font-size: .88rem;
       font-weight: 700;
@@ -142,6 +148,12 @@
     .nav-links a[aria-current="page"] {
       color: var(--green);
       background: #f2eddf;
+    }
+
+    /* Hide the injected language switch on this page only.
+       WhatsApp and the other extras remain enabled. */
+    .noh-lang {
+      display: none !important;
     }
 
     main {
@@ -307,19 +319,25 @@
         scrollbar-width: thin;
       }
 
-      .nav-links a { padding: 7px 10px; }
+      .nav-links a {
+        flex: 0 0 auto;
+        padding: 7px 10px;
+      }
 
       main {
         width: min(100% - 32px, var(--content));
         padding-top: 40px;
       }
 
-      .contents ol { grid-template-columns: 1fr; }
+      .contents ol {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 420px) {
       .brand small { font-size: .58rem; }
       h1 { font-size: 2.2rem; }
+      .nav-links a { font-size: .83rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -353,6 +371,7 @@
 
   <header class="site-header">
     <nav class="site-nav" aria-label="Main navigation">
+
       <a class="brand" href="/" aria-label="Naija Opportunity Hub home">
         <img src="/naija-opportunity-hub-logo.png" alt="" width="43" height="43">
         <span>
@@ -368,6 +387,7 @@
         <a href="/guides">Guides</a>
         <a href="/contact">Contact</a>
       </div>
+
     </nav>
   </header>
 
@@ -805,6 +825,7 @@
       &copy; <span id="year"></span> Naija Opportunity Hub.
       All rights reserved.
     </p>
+
     <nav class="footer-links" aria-label="Footer navigation">
       <a href="/about">About</a>
       <a href="/how-we-verify">How We Verify</a>
