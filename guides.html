@@ -13,97 +13,531 @@
   <meta property="og:title" content="Guides for Nigerian Students and Job Seekers">
   <meta property="og:description" content="Free, practical guides on scholarships, CVs, cover letters, interviews, references and avoiding scams, written for Nigerian students and job seekers.">
   <meta property="og:url" content="https://naijaopportunityhub.com.ng/guides">
+
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/png" href="/naija-opportunity-hub-logo.png">
   <link rel="apple-touch-icon" href="/naija-opportunity-hub-logo.png">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    :root{--green:#075b3b;--green-dark:#033c29;--gold:#c6a24a;--gold-dark:#a9822d;--gold-light:#f8f0dc;--gold-border:#e8d7aa;--bg:#f8eec9;--text:#1c3026;--muted:#5f6f65;--border:#e5e1cf;--danger:#9a1c1c}
+    :root{
+      --green:#075b3b;
+      --green-dark:#033c29;
+      --gold:#c6a24a;
+      --gold-dark:#a9822d;
+      --gold-light:#f8f0dc;
+      --gold-border:#e8d7aa;
+      --bg:#f8eec9;
+      --text:#1c3026;
+      --muted:#5f6f65;
+      --border:#e5e1cf;
+      --danger:#9a1c1c;
+    }
+
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth;background:var(--bg)}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans","Segoe UI",system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.7;-webkit-text-size-adjust:100%}
+
+    html{
+      scroll-behaviour:smooth;
+      background:var(--bg);
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:"DM Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+      font-size:16px;
+      line-height:1.7;
+      -webkit-text-size-adjust:100%;
+    }
+
     a{color:var(--green)}
-    :focus-visible{outline:3px solid var(--gold-dark);outline-offset:2px}
-    .skip{position:absolute;left:-999px;top:8px;background:var(--green);color:#fff;padding:10px 14px;border-radius:8px;z-index:100}.skip:focus{left:8px}
-    .wrap{width:100%;max-width:1040px;margin:0 auto;padding:0 16px}
-    .site-header{position:sticky;top:0;z-index:50;background:rgba(255,253,246,.96);border-bottom:1px solid var(--gold-border);backdrop-filter:blur(8px)}
-    .nav{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px}
-    .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);min-width:0}
-    .brand img{width:42px;height:42px;border-radius:10px;flex:none}
-    .brand-name{display:block;font-weight:800;font-size:.98rem;line-height:1.15}
-    .brand-sub{display:block;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dark);font-weight:700}
-    .nav-links{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
-    .nav-links a{text-decoration:none;font-weight:600;font-size:.9rem;padding:8px 10px;border-radius:10px;color:var(--text)}
-    .nav-links a:hover,.nav-links a[aria-current]{background:var(--gold-light)}
-    @media(max-width:560px){.brand-sub{display:none}.nav-links a.hide-s{display:none}}
+
+    :focus-visible{
+      outline:3px solid var(--gold-dark);
+      outline-offset:2px;
+    }
+
+    .skip{
+      position:absolute;
+      left:-999px;
+      top:8px;
+      background:var(--green);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:8px;
+      z-index:100;
+    }
+
+    .skip:focus{left:8px}
+
+    .wrap{
+      width:100%;
+      max-width:1040px;
+      margin:0 auto;
+      padding:0 16px;
+    }
+
+    .site-header{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(255,253,246,.97);
+      border-bottom:1px solid var(--gold-border);
+      backdrop-filter:blur(8px);
+    }
+
+    /* Organised site navigation */
+    .nav{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      min-height:68px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:var(--text);
+      min-width:0;
+      flex:0 0 auto;
+    }
+
+    .brand img{
+      width:42px;
+      height:42px;
+      border-radius:10px;
+      flex:none;
+    }
+
+    .brand-name{
+      display:block;
+      font-weight:800;
+      font-size:.98rem;
+      line-height:1.15;
+    }
+
+    .brand-sub{
+      display:block;
+      font-size:.66rem;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+      color:var(--gold-dark);
+      font-weight:700;
+    }
+
+    .nav-links{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:4px;
+      flex-wrap:nowrap;
+      min-width:0;
+    }
+
+    .nav-links a{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      font-weight:700;
+      font-size:.88rem;
+      padding:8px 10px;
+      border-radius:8px;
+      color:var(--text);
+      white-space:nowrap;
+    }
+
+    .nav-links a:hover,
+    .nav-links a[aria-current="page"]{
+      background:var(--gold-light);
+      color:var(--green-dark);
+    }
+
+    /* The language switch is injected by noh-extras.js.
+       Hide it on this page only; retain WhatsApp features. */
+    .noh-lang{
+      display:none!important;
+    }
+
     main{padding-bottom:56px}
+
     .page-head{margin:26px 0 16px}
-    .page-head h1{margin:0 0 6px;font-size:clamp(1.6rem,4.6vw,2.2rem);line-height:1.2;color:var(--green-dark)}
-    .page-head p{margin:0;max-width:640px;color:var(--muted)}
-    .card{background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 6px 22px rgba(28,48,38,.08);padding:26px 24px}
-    .doc h2{margin:28px 0 8px;padding-bottom:6px;font-size:1.2rem;color:var(--green);border-bottom:2px solid var(--gold-border)}
+
+    .page-head h1{
+      margin:0 0 6px;
+      font-size:clamp(1.6rem,4.6vw,2.2rem);
+      line-height:1.2;
+      color:var(--green-dark);
+    }
+
+    .page-head p{
+      margin:0;
+      max-width:640px;
+      color:var(--muted);
+    }
+
+    .card{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:0 6px 22px rgba(28,48,38,.08);
+      padding:26px 24px;
+    }
+
+    .doc h2{
+      margin:28px 0 8px;
+      padding-bottom:6px;
+      font-size:1.2rem;
+      color:var(--green);
+      border-bottom:2px solid var(--gold-border);
+    }
+
     .doc h2:first-child{margin-top:0}
-    .doc h3{margin:18px 0 4px;font-size:1.02rem;color:var(--green-dark)}
+
+    .doc h3{
+      margin:18px 0 4px;
+      font-size:1.02rem;
+      color:var(--green-dark);
+    }
+
     .doc p{margin:0 0 12px}
-    .doc ul{margin:0 0 12px;padding-left:22px}.doc li{margin:0 0 6px}
-    .meta{margin:0 0 18px;color:var(--muted);font-size:.9rem}
-    .notice{margin:0 0 16px;padding:14px 16px;border:1px solid var(--gold-border);border-left:4px solid var(--gold);border-radius:12px;background:#fffaf0}
-    .toc{margin:0 0 20px;padding:14px 18px;background:#fffaf0;border:1px solid var(--gold-border);border-radius:12px}
-    .toc strong{display:block;margin-bottom:6px}.toc ol{margin:0;padding-left:20px;columns:2;column-gap:28px}.toc li{margin:0 0 3px;break-inside:avoid}
-    @media(max-width:620px){.toc ol{columns:1}.banner{padding:26px 20px}.card{padding:20px 16px}}
-    footer{padding:22px 0 30px;border-top:1px solid var(--gold-border);font-size:.88rem;color:var(--muted);text-align:center}
-    footer .links{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin:0}
+
+    .doc ul{
+      margin:0 0 12px;
+      padding-left:22px;
+    }
+
+    .doc li{margin:0 0 6px}
+
+    .meta{
+      margin:0 0 18px;
+      color:var(--muted);
+      font-size:.9rem;
+    }
+
+    .notice{
+      margin:0 0 16px;
+      padding:14px 16px;
+      border:1px solid var(--gold-border);
+      border-left:4px solid var(--gold);
+      border-radius:12px;
+      background:#fffaf0;
+    }
+
+    .toc{
+      margin:0 0 20px;
+      padding:14px 18px;
+      background:#fffaf0;
+      border:1px solid var(--gold-border);
+      border-radius:12px;
+    }
+
+    .toc strong{
+      display:block;
+      margin-bottom:6px;
+    }
+
+    .toc ol{
+      margin:0;
+      padding-left:20px;
+      columns:2;
+      column-gap:28px;
+    }
+
+    .toc li{
+      margin:0 0 3px;
+      break-inside:avoid;
+    }
+
+    footer{
+      padding:22px 0 30px;
+      border-top:1px solid var(--gold-border);
+      font-size:.88rem;
+      color:var(--muted);
+      text-align:center;
+    }
+
+    footer .links{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:6px 16px;
+      margin:0;
+    }
+
     footer a{font-weight:700}
-.doc ol{margin:0 0 12px;padding-left:22px}.doc ol li{margin:0 0 6px}
-    .crumbs{margin:22px 0 0;font-size:.88rem;color:var(--muted)}.crumbs a{color:var(--green);font-weight:600}
-    .related{margin-top:22px}.related h2{margin:0 0 10px;font-size:1.1rem;color:var(--green-dark)}.related ul{margin:0;padding-left:20px}.related li{margin:0 0 6px}
-    .faq{margin-top:26px}.faq h3{margin:14px 0 4px}
-    .glist{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));margin:0;padding:0;list-style:none}
-    .gcard{display:block;height:100%;padding:18px 18px 16px;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 6px 22px rgba(28,48,38,.08);text-decoration:none;color:var(--text)}
-    .gcard:hover{border-color:var(--gold)}.gcard strong{display:block;margin-bottom:6px;color:var(--green-dark);line-height:1.3}.gcard span{display:block;font-size:.92rem;color:var(--muted);line-height:1.5}
-</style>
+
+    .doc ol{
+      margin:0 0 12px;
+      padding-left:22px;
+    }
+
+    .doc ol li{margin:0 0 6px}
+
+    .crumbs{
+      margin:22px 0 0;
+      font-size:.88rem;
+      color:var(--muted);
+    }
+
+    .crumbs a{
+      color:var(--green);
+      font-weight:600;
+    }
+
+    .related{margin-top:22px}
+
+    .related h2{
+      margin:0 0 10px;
+      font-size:1.1rem;
+      color:var(--green-dark);
+    }
+
+    .related ul{
+      margin:0;
+      padding-left:20px;
+    }
+
+    .related li{margin:0 0 6px}
+
+    .faq{margin-top:26px}
+
+    .faq h3{margin:14px 0 4px}
+
+    .glist{
+      display:grid;
+      gap:14px;
+      grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+
+    .gcard{
+      display:block;
+      height:100%;
+      padding:18px 18px 16px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:0 6px 22px rgba(28,48,38,.08);
+      text-decoration:none;
+      color:var(--text);
+    }
+
+    .gcard:hover{border-color:var(--gold)}
+
+    .gcard strong{
+      display:block;
+      margin-bottom:6px;
+      color:var(--green-dark);
+      line-height:1.3;
+    }
+
+    .gcard span{
+      display:block;
+      font-size:.92rem;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    @media(max-width:760px){
+      .nav{
+        align-items:flex-start;
+        flex-direction:column;
+        gap:7px;
+        padding-top:10px;
+        padding-bottom:8px;
+      }
+
+      .nav-links{
+        width:100%;
+        justify-content:flex-start;
+        overflow-x:auto;
+        padding:2px 0 6px;
+        scrollbar-width:thin;
+      }
+
+      .nav-links a{
+        flex:0 0 auto;
+        padding:7px 11px;
+      }
+    }
+
+    @media(max-width:620px){
+      .toc ol{columns:1}
+      .card{padding:20px 16px}
+    }
+
+    @media(max-width:420px){
+      .brand-sub{display:none}
+      .nav-links a{font-size:.83rem;padding:7px 9px}
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      html{scroll-behaviour:auto}
+    }
+  </style>
+
   <script defer src="/pwa.js"></script>
   <script defer src="/noh-extras.js?v=1"></script>
   <script defer src="/consent.js"></script>
 </head>
+
 <body>
   <a class="skip" href="#content">Skip to content</a>
 
   <header class="site-header">
     <div class="wrap nav">
+
       <a class="brand" href="/#home" aria-label="Naija Opportunity Hub homepage">
         <img src="/naija-opportunity-hub-logo.png" alt="" width="42" height="42">
-        <span><span class="brand-name">Naija Opportunity Hub</span><span class="brand-sub">Discover opportunities</span></span>
+        <span>
+          <span class="brand-name">Naija Opportunity Hub</span>
+          <span class="brand-sub">Discover opportunities</span>
+        </span>
       </a>
+
       <nav class="nav-links" aria-label="Main navigation">
-        <a class="hide-s" href="/#home">Home</a>
+        <a href="/#home">Home</a>
         <a href="/category">Opportunities</a>
-        <a class="hide-s" href="/career-kit">Career Kit</a>
+        <a href="/career-kit">Career Kit</a>
+        <a href="/guides" aria-current="page">Guides</a>
         <a href="/contact">Contact</a>
       </nav>
+
     </div>
   </header>
 
-  
   <main id="content" class="wrap" tabindex="-1">
-    <p class="crumbs"><a href="/">Home</a> &rsaquo; Guides</p>
+
+    <p class="crumbs">
+      <a href="/">Home</a> &rsaquo; Guides
+    </p>
+
     <header class="page-head">
       <h1>Guides for students and job seekers</h1>
-      <p>Practical, plain-language advice on applying for scholarships, jobs and internships, written by the Naija Opportunity Hub team. Use these with our verified opportunities and the free Career Kit.</p>
+      <p>
+        Practical, plain-language advice on applying for scholarships,
+        jobs and internships, written by the Naija Opportunity Hub team.
+        Use these with our verified opportunities and the free Career Kit.
+      </p>
     </header>
-    <ul class="glist"><li><a class="gcard" href="/guide-spot-fake-offers"><strong>How to Spot a Fake Job or Scholarship Offer in Nigeria</strong><span>Learn the warning signs of fake job and scholarship offers in Nigeria, the common scams to avoid, and what to do if you have already been targeted.</span></a></li><li><a class="gcard" href="/guide-scholarship-personal-statement"><strong>How to Write a Scholarship Personal Statement That Stands Out</strong><span>A practical guide to writing a scholarship personal statement: how to plan it, what to include, a simple structure, and the mistakes that cost applicants their place.</span></a></li><li><a class="gcard" href="/guide-nigerian-cv-format"><strong>How to Write a CV for Nigerian Employers: Format, Length and What to Include</strong><span>A clear guide to writing a CV for Nigerian employers: the right length, sections, how to handle NYSC, photos and personal details, and the mistakes recruiters see most.</span></a></li><li><a class="gcard" href="/guide-cover-letter-guide"><strong>How to Write a Cover Letter That Gets Read</strong><span>Learn how to write a clear, convincing cover letter: the structure to follow, what to say in each paragraph, an example opening, and the mistakes to avoid.</span></a></li><li><a class="gcard" href="/guide-choose-referees"><strong>How to Choose Referees and Ask for a Strong Reference Letter</strong><span>How to choose the right referees, ask politely, brief them properly and follow up, so your reference letters strengthen your job or scholarship application.</span></a></li><li><a class="gcard" href="/guide-interview-preparation"><strong>Job Interview Preparation: Common Questions, the STAR Method and What to Do on the Day</strong><span>Prepare for a job interview in Nigeria: research steps, common questions with sample answers, the STAR method, what to wear and bring, and how to follow up.</span></a></li><li><a class="gcard" href="/guide-scholarship-application-timeline"><strong>International Scholarship Applications: A 6-Month Preparation Timeline</strong><span>A month-by-month plan for preparing an international scholarship application, from choosing programmes and English tests to references, essays and final checks.</span></a></li><li><a class="gcard" href="/guide-scholarship-eligibility"><strong>Understanding Scholarship Eligibility: Degree Class, Work Experience, Age Limits and English Tests</strong><span>A plain-language guide to the common scholarship eligibility rules for Nigerians: degree class, work experience, age limits, English tests, return-home conditions and documents.</span></a></li><li><a class="gcard" href="/guide-internships-graduate-trainee"><strong>How to Apply for Internships and Graduate Trainee Programmes in Nigeria</strong><span>How Nigerian students and graduates can find and win internships and graduate trainee programmes: where to look, how to prepare, SIWES, aptitude tests and interviews.</span></a></li><li><a class="gcard" href="/guide-verify-before-you-apply"><strong>How to Verify an Opportunity Before You Apply: A 10-Point Checklist</strong><span>A 10-point checklist for confirming that a job, scholarship, grant or internship is genuine before you apply, with simple steps anyone can follow.</span></a></li><li><a class="gcard" href="/guide-build-cv-career-kit"><strong>How to Build a Professional CV Online with the Career Kit</strong><span>A step-by-step walkthrough of building a professional CV with the free Naija Opportunity Hub Career Kit: choosing a template, adding a photo, changing colours and downloading a PDF.</span></a></li></ul>
-    <section class="card doc" style="margin-top:22px"><h2>Ready to apply?</h2><p>Browse <a href="/category">verified opportunities</a>, build your CV and cover letter in the <a href="/career-kit">Career Kit</a>, and read <a href="/how-we-verify">how we check listings</a>.</p></section>
+
+    <ul class="glist">
+      <li>
+        <a class="gcard" href="/guide-spot-fake-offers">
+          <strong>How to Spot a Fake Job or Scholarship Offer in Nigeria</strong>
+          <span>Learn the warning signs of fake job and scholarship offers in Nigeria, the common scams to avoid, and what to do if you have already been targeted.</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="gcard" href="/guide-scholarship-personal-statement">
+          <strong>How to Write a Scholarship Personal Statement That Stands Out</strong>
+          <span>A practical guide to writing a scholarship personal statement: how to plan it, what to include, a simple structure, and the mistakes that cost applicants their place.</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="gcard" href="/guide-nigerian-cv-format">
+          <strong>How to Write a CV for Nigerian Employers: Format, Length and What to Include</strong>
+          <span>A clear guide to writing a CV for Nigerian employers: the right length, sections, how to handle NYSC, photos and personal details, and the mistakes recruiters see most.</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="gcard" href="/guide-cover-letter-guide">
+          <strong>How to Write a Cover Letter That Gets Read</strong>
+          <span>Learn how to write a clear, convincing cover letter: the structure to follow, what to say in each paragraph, an example opening, and the mistakes to avoid.</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="gcard" href="/guide-choose-referees">
+          <strong>How to Choose Referees and Ask for a Strong Reference Letter</strong>
+          <span>How to choose the right referees, ask politely, brief them properly and follow up, so your reference letters strengthen your job or scholarship application.</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="gcard" href="/guide-interview-preparation">
+          <strong>Job Interview Preparation: Common Questions, the STAR Method and What to Do on the Day</strong>
+          <span>Prepare for a job interview in Nigeria: research steps, common questions with sample answers, the STAR method, what to wear and bring, and how to follow up.</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="gcard" href="/guide-scholarship-application-timeline">
+          <strong>International Scholarship Applications: A 6-Month Preparation Timeline</strong>
+          <span>A month-by-month plan for preparing an international scholarship application, from choosing programmes and English tests to references, essays and final checks.</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="gcard" href="/guide-scholarship-eligibility">
+          <strong>Understanding Scholarship Eligibility: Degree Class, Work Experience, Age Limits and English Tests</strong>
+          <span>A plain-language guide to the common scholarship eligibility rules for Nigerians: degree class, work experience, age limits, English tests, return-home conditions and documents.</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="gcard" href="/guide-internships-graduate-trainee">
+          <strong>How to Apply for Internships and Graduate Trainee Programmes in Nigeria</strong>
+          <span>How Nigerian students and graduates can find and win internships and graduate trainee programmes: where to look, how to prepare, SIWES, aptitude tests and interviews.</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="gcard" href="/guide-verify-before-you-apply">
+          <strong>How to Verify an Opportunity Before You Apply: A 10-Point Checklist</strong>
+          <span>A 10-point checklist for confirming that a job, scholarship, grant or internship is genuine before you apply, with simple steps anyone can follow.</span>
+        </a>
+      </li>
+
+      <li>
+        <a class="gcard" href="/guide-build-cv-career-kit">
+          <strong>How to Build a Professional CV Online with the Career Kit</strong>
+          <span>A step-by-step walkthrough of building a professional CV with the free Naija Opportunity Hub Career Kit: choosing a template, adding a photo, changing colours and downloading a PDF.</span>
+        </a>
+      </li>
+    </ul>
+
+    <section class="card doc" style="margin-top:22px">
+      <h2>Ready to apply?</h2>
+      <p>
+        Browse <a href="/category">verified opportunities</a>, build your
+        CV and cover letter in the <a href="/career-kit">Career Kit</a>,
+        and read <a href="/how-we-verify">how we check listings</a>.
+      </p>
+    </section>
+
   </main>
 
   <footer>
     <div class="wrap">
       <p>&copy; <span id="year"></span> Naija Opportunity Hub. All rights reserved.</p>
-      <p class="links"><a href="/contact">Contact</a><a href="/guides">Guides</a><a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Use</a><a href="#" data-noh-cookie-settings>Cookie settings</a><a href="/category">Opportunities</a></p>
+
+      <p class="links">
+        <a href="/contact">Contact</a>
+        <a href="/guides">Guides</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Use</a>
+        <a href="#" data-noh-cookie-settings>Cookie settings</a>
+        <a href="/category">Opportunities</a>
+      </p>
     </div>
   </footer>
-  <script>document.getElementById("year").textContent=new Date().getFullYear();</script>
 
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
