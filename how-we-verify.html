@@ -4,17 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#f8eec9">
+  <meta name="theme-color" content="#fffdf6">
 
   <title>How We Verify Opportunities | Naija Opportunity Hub</title>
-  <meta name="description" content="Learn how Naija Opportunity Hub sources and checks scholarships, jobs, internships, grants and other opportunities, and how to report inaccurate listings.">
+  <meta name="description" content="Discover how Naija Opportunity Hub finds, checks and updates scholarships, jobs, internships, grants and other opportunities. Learn how to report inaccurate listings.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://naijaopportunityhub.com.ng/how-we-verify">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Naija Opportunity Hub">
   <meta property="og:title" content="How We Verify Opportunities | Naija Opportunity Hub">
-  <meta property="og:description" content="Our opportunity sourcing, verification, correction and safety standards.">
+  <meta property="og:description" content="Our standards for sourcing, checking and updating opportunity information.">
   <meta property="og:url" content="https://naijaopportunityhub.com.ng/how-we-verify">
 
   <link rel="manifest" href="/manifest.webmanifest">
@@ -29,37 +29,44 @@
     :root {
       --green: #075b3b;
       --green-dark: #033c29;
-      --gold: #c6a24a;
-      --gold-dark: #a9822d;
-      --gold-light: #f8f0dc;
-      --gold-border: #e8d7aa;
-      --bg: #f8eec9;
-      --text: #1c3026;
-      --muted: #5f6f65;
-      --border: #e5e1cf;
+      --gold: #c49a43;
+      --gold-dark: #987326;
+      --background: #fffdf6;
+      --text: #26352d;
+      --muted: #66736b;
+      --border: #e9e5d9;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     html {
       scroll-behavior: smooth;
-      background: var(--bg);
+      background: var(--background);
     }
 
     body {
       margin: 0;
-      background: var(--bg);
+      background: var(--background);
       color: var(--text);
       font-family: "DM Sans", "Segoe UI", system-ui, sans-serif;
       font-size: 16px;
-      line-height: 1.7;
+      line-height: 1.75;
       -webkit-text-size-adjust: 100%;
     }
 
-    a { color: var(--green); }
+    a {
+      color: var(--green);
+      text-underline-offset: 3px;
+    }
+
+    a:hover {
+      color: var(--gold-dark);
+    }
 
     :focus-visible {
-      outline: 3px solid var(--gold-dark);
+      outline: 3px solid var(--gold);
       outline-offset: 3px;
     }
 
@@ -69,26 +76,27 @@
       top: 8px;
       z-index: 100;
       padding: 10px 14px;
-      border-radius: 8px;
       background: var(--green);
       color: #fff;
     }
 
-    .skip:focus { left: 8px; }
+    .skip:focus {
+      left: 8px;
+    }
 
     .wrap {
       width: 100%;
       max-width: 1040px;
       margin: 0 auto;
-      padding: 0 16px;
+      padding: 0 20px;
     }
 
     .site-header {
       position: sticky;
       top: 0;
       z-index: 50;
-      background: rgba(255,253,246,.96);
-      border-bottom: 1px solid var(--gold-border);
+      background: rgba(255, 253, 246, .97);
+      border-bottom: 1px solid var(--border);
       backdrop-filter: blur(8px);
     }
 
@@ -96,8 +104,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      min-height: 64px;
+      gap: 16px;
+      min-height: 68px;
     }
 
     .brand {
@@ -112,7 +120,6 @@
     .brand img {
       width: 42px;
       height: 42px;
-      border-radius: 10px;
       flex: none;
       object-fit: contain;
     }
@@ -121,15 +128,15 @@
       display: block;
       font-size: .98rem;
       font-weight: 800;
-      line-height: 1.15;
+      line-height: 1.2;
     }
 
     .brand-sub {
       display: block;
       color: var(--gold-dark);
-      font-size: .66rem;
+      font-size: .65rem;
       font-weight: 700;
-      letter-spacing: .1em;
+      letter-spacing: .09em;
       text-transform: uppercase;
     }
 
@@ -137,164 +144,210 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
-      gap: 4px;
+      gap: 5px 14px;
     }
 
     .nav-links a {
-      padding: 8px 10px;
-      border-radius: 10px;
+      padding: 7px 2px;
       color: var(--text);
-      font-size: .9rem;
+      font-size: .88rem;
       font-weight: 600;
       text-decoration: none;
     }
 
     .nav-links a:hover,
     .nav-links a[aria-current="page"] {
-      background: var(--gold-light);
+      color: var(--green);
+      text-decoration: underline;
+      text-decoration-color: var(--gold);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 6px;
     }
 
-    main { padding-bottom: 56px; }
-
-    .page-head { margin: 30px 0 20px; }
+    main {
+      max-width: 820px;
+      padding-top: 38px;
+      padding-bottom: 64px;
+    }
 
     .eyebrow {
       margin: 0 0 8px;
       color: var(--gold-dark);
-      font-size: .75rem;
+      font-size: .76rem;
       font-weight: 800;
-      letter-spacing: .13em;
+      letter-spacing: .12em;
       text-transform: uppercase;
     }
 
-    .page-head h1 {
-      margin: 0 0 8px;
+    h1 {
+      margin: 0 0 12px;
       color: var(--green-dark);
-      font-size: clamp(1.8rem, 4.6vw, 2.5rem);
+      font-size: clamp(2rem, 5vw, 2.8rem);
       line-height: 1.2;
-    }
-
-    .page-head p {
-      max-width: 700px;
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .updated {
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: .84rem;
+      letter-spacing: -.035em;
     }
 
     .intro {
-      margin-bottom: 18px;
-      padding: 18px 20px;
-      border: 1px solid var(--gold-border);
-      border-left: 4px solid var(--gold);
-      border-radius: 12px;
-      background: #fffaf0;
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.06rem;
     }
 
-    .intro p { margin: 0; }
-
-    .card {
-      margin-bottom: 16px;
-      padding: 25px 24px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: #fff;
-      box-shadow: 0 6px 22px rgba(28,48,38,.06);
+    .updated {
+      margin: 14px 0 28px;
+      color: var(--muted);
+      font-size: .85rem;
     }
 
-    .card h2 {
-      margin: 0 0 10px;
-      padding-bottom: 7px;
-      border-bottom: 2px solid var(--gold-border);
-      color: var(--green);
-      font-size: 1.2rem;
-      line-height: 1.4;
+    .contents {
+      margin: 30px 0 38px;
+      padding: 18px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
 
-    .card h3 {
-      margin: 19px 0 5px;
+    .contents h2 {
+      margin: 0 0 12px;
       color: var(--green-dark);
       font-size: 1rem;
     }
 
-    .card p { margin: 0 0 12px; }
-    .card p:last-child { margin-bottom: 0; }
-
-    .card ul {
-      margin: 8px 0 0;
-      padding-left: 22px;
-    }
-
-    .card li { margin-bottom: 8px; }
-    .card li:last-child { margin-bottom: 0; }
-
-    .steps {
+    .contents ul {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .step {
-      padding: 16px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: #fffdf7;
-    }
-
-    .step strong {
-      display: block;
-      margin-bottom: 5px;
-      color: var(--green-dark);
-    }
-
-    .step p {
+      gap: 7px 28px;
       margin: 0;
-      color: var(--muted);
-      font-size: .93rem;
+      padding-left: 20px;
     }
 
-    .callout {
-      margin-top: 14px;
-      padding: 15px 17px;
-      border: 1px solid var(--gold-border);
-      border-radius: 12px;
-      background: #fffaf0;
+    .contents li {
+      padding-left: 2px;
+      font-size: .92rem;
     }
 
-    .callout strong { color: var(--green-dark); }
+    .contents a {
+      text-decoration: none;
+    }
+
+    .contents a:hover {
+      text-decoration: underline;
+    }
+
+    .content-section {
+      margin: 0 0 34px;
+      scroll-margin-top: 90px;
+    }
+
+    .content-section h2 {
+      margin: 0 0 12px;
+      color: var(--green);
+      font-size: 1.35rem;
+      line-height: 1.4;
+    }
+
+    .content-section h3 {
+      margin: 20px 0 7px;
+      color: var(--green-dark);
+      font-size: 1.05rem;
+    }
+
+    .content-section p {
+      margin: 0 0 13px;
+    }
+
+    .content-section ul,
+    .content-section ol {
+      margin: 10px 0 16px;
+      padding-left: 24px;
+    }
+
+    .content-section li {
+      margin-bottom: 8px;
+      padding-left: 3px;
+    }
+
+    .content-section li:last-child {
+      margin-bottom: 0;
+    }
+
+    .important-note {
+      margin: 16px 0;
+      padding-left: 16px;
+      border-left: 3px solid var(--gold);
+    }
+
+    .closing {
+      margin-top: 42px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
 
     footer {
-      padding: 22px 0 30px;
-      border-top: 1px solid var(--gold-border);
+      padding: 24px 0 32px;
+      border-top: 1px solid var(--border);
       color: var(--muted);
       font-size: .88rem;
       text-align: center;
+    }
+
+    footer p {
+      margin: 5px 0;
     }
 
     footer .links {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 7px 16px;
-      margin: 8px 0 0;
+      gap: 8px 18px;
+      margin-top: 12px;
     }
 
-    footer a { font-weight: 700; }
+    footer a {
+      font-weight: 600;
+    }
 
-    @media (max-width: 620px) {
-      .brand-sub { display: none; }
-      .nav-links a { padding: 7px; font-size: .82rem; }
-      .steps { grid-template-columns: 1fr; }
-      .card { padding: 20px 17px; }
+    @media (max-width: 650px) {
+      .wrap {
+        padding-right: 16px;
+        padding-left: 16px;
+      }
+
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+
+      .brand-sub {
+        display: none;
+      }
+
+      .nav-links {
+        justify-content: flex-start;
+        width: 100%;
+        gap: 4px 15px;
+      }
+
+      .nav-links a {
+        font-size: .82rem;
+      }
+
+      main {
+        padding-top: 28px;
+      }
+
+      .contents ul {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
+      html {
+        scroll-behavior: auto;
+      }
     }
   </style>
 
@@ -308,7 +361,7 @@
     "@type": "WebPage",
     "name": "How We Verify Opportunities",
     "url": "https://naijaopportunityhub.com.ng/how-we-verify",
-    "description": "Naija Opportunity Hub's opportunity sourcing, verification, correction and safety standards.",
+    "description": "Naija Opportunity Hub's standards for sourcing, checking, updating and correcting opportunity information.",
     "inLanguage": "en-GB",
     "isPartOf": {
       "@type": "WebSite",
@@ -353,236 +406,332 @@
   </header>
 
   <main id="content" class="wrap" tabindex="-1">
-    <header class="page-head">
+    <header>
       <p class="eyebrow">Our editorial standards</p>
       <h1>How we check opportunities</h1>
-      <p>
-        We want visitors to understand where opportunity information comes
-        from, what our checks cover and what a verification label does — and
-        does not — mean.
+
+      <p class="intro">
+        We want every visitor to understand where opportunity information
+        comes from, what we check before publication and what our
+        verification label does — and does not — mean.
       </p>
+
       <p class="updated">Last reviewed: 26 November 2026</p>
     </header>
 
-    <div class="intro">
-      <p>
-        <strong>Our promise:</strong> We aim to make opportunity information
-        clearer and easier to check. We use official sources wherever possible,
-        identify information that has not been verified and encourage every
-        applicant to confirm the latest details with the organisation offering
-        the opportunity.
-      </p>
-    </div>
+    <nav class="contents" aria-label="Page contents">
+      <h2>On this page</h2>
+      <ul>
+        <li><a href="#verified">What our Verified label means</a></li>
+        <li><a href="#sources">Where we find opportunities</a></li>
+        <li><a href="#checks">What we check</a></li>
+        <li><a href="#limitations">What verification cannot guarantee</a></li>
+        <li><a href="#safety">Application fees and safety</a></li>
+        <li><a href="#updates">Corrections and expired listings</a></li>
+        <li><a href="#editorial">Editorial independence</a></li>
+        <li><a href="#images">Images and supporting materials</a></li>
+        <li><a href="#report">Report an issue</a></li>
+      </ul>
+    </nav>
 
-    <section class="card" aria-labelledby="meaning">
-      <h2 id="meaning">1. What our Verified label means</h2>
+    <section class="content-section" id="verified">
+      <h2>1. What our Verified label means</h2>
+
       <p>
-        A <strong>Verified</strong> label means that, on the date displayed
-        on the listing, we checked the opportunity against an official source
-        and confirmed that the opportunity appeared to exist, its key
-        published details were consistent with that source, and the
-        application link was working when we checked it.
+        A <strong>Verified</strong> label means that we checked an
+        opportunity against an official source on the verification date
+        displayed on its listing. We confirmed that the opportunity appeared
+        to exist, that its key published details were consistent with the
+        source and that its application link worked when we checked it.
       </p>
+
       <p>
-        The verification date tells you when we last carried out those checks.
-        It is not a promise that the organisation has made no changes since
+        The verification date tells you when we last carried out those
+        checks. It does not mean that the information has been monitored
+        continuously or that the organisation has made no changes since
         that date.
       </p>
+
       <p>
-        If a listing says <strong>Not verified yet</strong>, our verification
-        checks have not been completed. Treat the information as unverified
-        and consult the organisation's official website before taking action.
+        If a listing is marked <strong>Not verified yet</strong>, our
+        verification checks have not been completed. Treat the information
+        as unverified and consult the organisation's official website
+        before taking action.
       </p>
     </section>
 
-    <section class="card" aria-labelledby="sources">
-      <h2 id="sources">2. Where we find opportunities</h2>
+    <section class="content-section" id="sources">
+      <h2>2. Where we find opportunities</h2>
+
       <p>
-        We look for opportunities through sources such as:
+        We look for opportunities through sources that can be traced to
+        the organisations responsible for offering them. These may include:
       </p>
+
       <ul>
         <li>Official employer and organisation websites.</li>
         <li>Government ministry, agency and public institution websites.</li>
-        <li>University and education institution announcements.</li>
+        <li>University and other recognised education institution websites.</li>
         <li>Official scholarship, fellowship and grant programme websites.</li>
-        <li>Official programme announcements and application portals.</li>
+        <li>Official training, internship and recruitment announcements.</li>
+        <li>Application portals identified by the organisation offering the opportunity.</li>
       </ul>
+
       <p>
-        News reports, opportunity directories, social media posts and other
-        third-party sources may help us discover an announcement. Where
-        possible, we use the original organisation's announcement to confirm
-        the information before marking a listing as verified.
+        News reports, opportunity directories, social media posts and
+        third-party websites may help us discover an announcement.
+        However, where possible, we use the original organisation's
+        announcement or official application channel to confirm the
+        information before marking a listing as verified.
       </p>
     </section>
 
-    <section class="card" aria-labelledby="checks">
-      <h2 id="checks">3. What we check before verification</h2>
+    <section class="content-section" id="checks">
+      <h2>3. What we check before verification</h2>
 
-      <div class="steps">
-        <div class="step">
-          <strong>Organisation and programme</strong>
-          <p>
-            We check whether the named organisation and opportunity can be
-            identified through an official source.
-          </p>
-        </div>
+      <p>
+        Our checks depend on the type of opportunity and the information
+        published by its organiser. We aim to review the following details:
+      </p>
 
-        <div class="step">
-          <strong>Eligibility and audience</strong>
-          <p>
-            We compare the stated qualifications, location, applicant group
-            and other published eligibility conditions.
-          </p>
-        </div>
+      <h3>Organisation and programme</h3>
+      <p>
+        We check whether the named organisation and opportunity can be
+        identified through an official source. We look for a credible
+        connection between the opportunity and the organisation offering it.
+      </p>
 
-        <div class="step">
-          <strong>Deadline and benefits</strong>
-          <p>
-            We check the published deadline and any stated funding, salary,
-            support or programme benefits.
-          </p>
-        </div>
+      <h3>Eligibility and intended applicants</h3>
+      <p>
+        We compare the stated qualifications, applicant group, location,
+        age requirements where applicable and other published eligibility
+        conditions.
+      </p>
 
-        <div class="step">
-          <strong>Application route</strong>
-          <p>
-            We check whether the application link leads to the official
-            organisation or a clearly identified application platform.
-          </p>
-        </div>
+      <h3>Deadline and benefits</h3>
+      <p>
+        We check the published application deadline and the benefits
+        described by the organiser, such as funding, salary, training,
+        accommodation or other programme support. We avoid presenting
+        benefits as guaranteed where the official announcement makes
+        them conditional.
+      </p>
 
-        <div class="step">
-          <strong>Accuracy and duplication</strong>
-          <p>
-            We look for expired, duplicated, incomplete or inconsistent
-            information before publication.
-          </p>
-        </div>
+      <h3>Application route</h3>
+      <p>
+        We check whether the application link leads to the official
+        organisation or a clearly identified application platform.
+        Where possible, we avoid directing applicants to unrelated
+        intermediaries.
+      </p>
 
-        <div class="step">
-          <strong>Safety concerns</strong>
-          <p>
-            We look for suspicious instructions, misleading claims and
-            requests for payment to unofficial parties.
-          </p>
-        </div>
-      </div>
+      <h3>Accuracy and duplication</h3>
+      <p>
+        We look for expired, duplicated, incomplete or inconsistent
+        information. We also check whether an announcement has been
+        withdrawn or replaced by a newer version.
+      </p>
 
-      <div class="callout">
-        <strong>Important:</strong> We do not claim that every listing is
-        continuously monitored. Our checks take place at a particular time,
-        and information may change afterwards.
-      </div>
+      <h3>Safety concerns</h3>
+      <p>
+        We look for suspicious instructions, misleading promises,
+        impersonation and requests for payment to unofficial parties.
+        A listing that raises unresolved concerns may be withheld
+        from publication or marked for further review.
+      </p>
+
+      <p class="important-note">
+        Our checks take place at a particular time. We cannot guarantee
+        that every organiser will keep its website, deadline, eligibility
+        rules or application process unchanged afterwards.
+      </p>
     </section>
 
-    <section class="card" aria-labelledby="not-guarantee">
-      <h2 id="not-guarantee">4. What verification does not guarantee</h2>
-      <p>A Verified label does not mean that:</p>
+    <section class="content-section" id="limitations">
+      <h2>4. What verification cannot guarantee</h2>
+
+      <p>
+        A Verified label is an indication of the checks we carried out.
+        It is not a guarantee of the organisation's future actions or
+        the outcome of an application.
+      </p>
+
+      <p>Verification does not mean that:</p>
+
       <ul>
         <li>You will be selected, employed, admitted or awarded funding.</li>
         <li>The organisation will keep the opportunity open until its stated deadline.</li>
         <li>Eligibility rules, benefits or application instructions cannot change.</li>
         <li>Naija Opportunity Hub is the employer, funder, university, sponsor or programme organiser.</li>
-        <li>We have independently audited the organisation or guaranteed the outcome of its programme.</li>
+        <li>We have independently audited the organisation or guaranteed its services.</li>
+        <li>Every detail has been independently confirmed beyond the checks described on the listing.</li>
       </ul>
+
       <p>
         Always read the latest official announcement and follow the
         organisation's own instructions before submitting an application.
+        If information on our website differs from the current official
+        announcement, rely on the official announcement and
+        <a href="/contact?subject=report">tell us about the difference</a>.
       </p>
     </section>
 
-    <section class="card" aria-labelledby="fees">
-      <h2 id="fees">5. Application fees and staying safe</h2>
+    <section class="content-section" id="safety">
+      <h2>5. Application fees and staying safe</h2>
+
       <p>
         Some legitimate institutions or programmes may charge official
-        application, examination or processing fees. A fee should never be
-        assumed to be genuine simply because it appears in a message or
-        on a website.
+        application, examination or processing fees. A fee should not
+        be assumed to be genuine simply because it appears in a message,
+        advertisement or website.
       </p>
+
+      <p>Before making a payment or sharing personal information:</p>
+
       <ul>
-        <li>
-          Confirm any required fee directly through the organisation's
-          official website or verified contact channel.
-        </li>
-        <li>
-          Do not pay an unofficial agent or intermediary who promises
-          guaranteed admission, employment, a scholarship or selection.
-        </li>
-        <li>
-          Check website addresses carefully for misspellings and
-          look-alike domains.
-        </li>
-        <li>
-          Never disclose your account password, one-time verification code
-          or bank card PIN to someone claiming to help with an application.
-        </li>
-        <li>
-          Be cautious about requests for sensitive personal or financial
-          information that are not clearly required by the official process.
-        </li>
-        <li>
-          Keep copies of official announcements and payment receipts where
-          a legitimate fee applies.
-        </li>
+        <li>Confirm any required fee directly through the organisation's official website or verified contact channel.</li>
+        <li>Check that the payment recipient and payment instructions match information published by the organisation.</li>
+        <li>Do not pay an unofficial agent or intermediary who promises guaranteed admission, employment, a scholarship or selection.</li>
+        <li>Check website addresses carefully for misspellings and look-alike domains.</li>
+        <li>Never disclose your account password, one-time verification code or bank card PIN to someone claiming to help with an application.</li>
+        <li>Be cautious about requests for sensitive personal or financial information that are not clearly required by the official process.</li>
+        <li>Keep copies of official announcements and payment receipts where a legitimate fee applies.</li>
       </ul>
+
+      <p>
+        Naija Opportunity Hub does not collect application fees on behalf
+        of the organisations featured in its opportunity listings.
+        If someone claims to represent us and requests money in exchange
+        for access to an opportunity or a guaranteed outcome, contact us
+        through our official
+        <a href="/contact">contact page</a>.
+      </p>
     </section>
 
-    <section class="card" aria-labelledby="corrections">
-      <h2 id="corrections">6. Corrections, updates and expired listings</h2>
+    <section class="content-section" id="updates">
+      <h2>6. Corrections, updates and expired listings</h2>
+
       <p>
         Opportunity information can change. A deadline may be extended,
         an application portal may close, eligibility may be revised or
         an organisation may withdraw a programme.
       </p>
+
       <p>
-        If we receive a credible report or identify a problem, we may
-        investigate, correct the listing, add an update, mark it as
-        expired, temporarily remove it or withdraw it.
+        When we receive a credible report or identify a problem ourselves,
+        we may investigate and take appropriate action. This may include:
       </p>
+
+      <ul>
+        <li>Correcting inaccurate information.</li>
+        <li>Updating a deadline or application link after checking the new source.</li>
+        <li>Adding a clarification or update to the listing.</li>
+        <li>Marking an opportunity as expired or closed.</li>
+        <li>Temporarily removing a listing while a concern is investigated.</li>
+        <li>Withdrawing a listing where its accuracy or legitimacy cannot be established.</li>
+      </ul>
+
       <p>
         We aim to review correction reports as soon as reasonably possible.
-        Sending a report does not mean a change has already been made.
-      </p>
-      <p>
-        To report an issue, use the
-        <a href="/contact?subject=report">contact form</a>.
-        Include the opportunity link, describe the problem and, where
-        possible, provide the official source that supports the correction.
+        Sending a report does not mean that a change has already been made.
+        We may need additional information or time to check the issue.
       </p>
     </section>
 
-    <section class="card" aria-labelledby="independence">
-      <h2 id="independence">7. Editorial independence</h2>
+    <section class="content-section" id="editorial">
+      <h2>7. Editorial independence</h2>
+
       <p>
         Naija Opportunity Hub is an independent information platform.
         We are not an employer, scholarship provider, government agency
-        or application decision-maker unless a specific relationship is
-        clearly disclosed.
+        or application decision-maker unless a specific relationship
+        is clearly disclosed.
       </p>
+
       <p>
         Opportunity listings are published to inform visitors. A listing
-        does not mean that we endorse the organisation or guarantee its
-        services or decisions.
+        does not mean that we endorse every service, decision or activity
+        of the organisation offering it.
       </p>
+
       <p>
         Advertising, where displayed, is separate from our editorial
-        decisions. Advertisements are not verified opportunity listings.
+        decisions. Advertisements are not the same as verified opportunity
+        listings. Payment for advertising does not, by itself, establish
+        that an opportunity has passed our verification checks.
+      </p>
+
+      <p>
+        We aim to present opportunity information accurately and make
+        corrections when credible new information becomes available.
       </p>
     </section>
 
-    <section class="card" aria-labelledby="contact">
-      <h2 id="contact">8. Help us improve the information</h2>
+    <section class="content-section" id="images">
+      <h2>8. Images and supporting materials</h2>
+
       <p>
-        If you find an inaccurate deadline, broken link, outdated
-        announcement or suspicious listing, please let us know.
-        Reports from visitors help us identify information that may
-        need another check.
+        Images may be used to help visitors recognise an organisation,
+        programme or opportunity. Where suitable materials are available,
+        we prefer images and logos from official organisational sources
+        or other sources that can be appropriately identified.
       </p>
+
       <p>
-        <a href="/contact?subject=report">Report an opportunity problem</a>
-        or return to
-        <a href="/category">browse opportunities</a>.
+        A photograph, logo or illustration is not proof that an
+        opportunity is genuine. The presence of an organisation's logo
+        on an image does not mean that the organisation has endorsed
+        Naija Opportunity Hub or approved the specific listing.
       </p>
+
+      <p>
+        We may use illustrative images where an official image is not
+        available. Such images should not be interpreted as official
+        programme materials or as photographs of actual participants
+        unless that is clearly established.
+      </p>
+    </section>
+
+    <section class="content-section" id="report">
+      <h2>9. Report an inaccurate or suspicious listing</h2>
+
+      <p>
+        If you find an inaccurate deadline, broken application link,
+        outdated announcement, duplicate listing or suspicious request,
+        please let us know.
+      </p>
+
+      <p>
+        To help us investigate, include:
+      </p>
+
+      <ul>
+        <li>The title or link of the opportunity.</li>
+        <li>A clear description of the issue.</li>
+        <li>The official source or announcement, if available.</li>
+        <li>A screenshot or other supporting information, where useful.</li>
+      </ul>
+
+      <p>
+        You can submit a report through our
+        <a href="/contact?subject=report">contact page</a>.
+        Please do not send passwords, bank card PINs or one-time
+        verification codes.
+      </p>
+
+      <div class="closing">
+        <h3>Help us keep opportunity information useful</h3>
+        <p>
+          We believe reliable information is an important starting point
+          for finding opportunities. Your feedback helps us identify
+          outdated details and improve the information we publish.
+        </p>
+        <p>
+          <a href="/contact?subject=report">Report an opportunity problem</a>
+          or
+          <a href="/category">browse available opportunities</a>.
+        </p>
+      </div>
     </section>
   </main>
 
@@ -592,20 +741,23 @@
         &copy; <span id="year"></span> Naija Opportunity Hub.
         All rights reserved.
       </p>
-      <p class="links">
+
+      <div class="links">
         <a href="/about">About</a>
+        <a href="/how-we-verify" aria-current="page">How We Verify</a>
         <a href="/contact">Contact</a>
         <a href="/guides">Guides</a>
         <a href="/privacy">Privacy Policy</a>
         <a href="/terms">Terms of Use</a>
         <a href="#" data-noh-cookie-settings>Cookie settings</a>
         <a href="/category">Opportunities</a>
-      </p>
+      </div>
     </div>
   </footer>
 
   <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
   </script>
 </body>
 </html>
