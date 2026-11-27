@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -9,7 +8,7 @@
 <title>Admin – Opportunities | Naija Opportunity Hub</title>
 
 <style>
-:root{
+:root {
   --bg:#f8eec9;
   --card:#fffdf6;
   --green:#075b3b;
@@ -18,7 +17,6 @@
   --text:#1c3026;
   --muted:#5d6b61;
   --danger:#a32d2d;
-  --success:#17633a;
 }
 *{box-sizing:border-box}
 html{background:var(--bg)}
@@ -26,7 +24,7 @@ body{
   margin:0;background:var(--bg);color:var(--text);
   font:16px/1.6 "DM Sans","Segoe UI",system-ui,sans-serif
 }
-.wrap{width:min(1000px,100% - 32px);margin:0 auto;padding:20px 0 60px}
+.wrap{width:min(1000px,100% - 32px);margin:auto;padding:20px 0 60px}
 h1{margin:0;font-size:1.5rem;color:var(--green)}
 h2{color:var(--green)}
 .top{
@@ -44,10 +42,11 @@ input,select,textarea{
   background:#fff;font:inherit;color:var(--text)
 }
 input[type="checkbox"]{width:auto}
+input[type="file"]{padding:9px}
 textarea{min-height:90px;resize:vertical}
 label{display:block;font-size:.85rem;font-weight:700;margin-bottom:4px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-button,.btn{
+button{
   font:inherit;font-weight:800;border-radius:10px;
   border:1.5px solid var(--gold);background:var(--gold);
   color:#1d2a20;padding:10px 16px;cursor:pointer
@@ -63,21 +62,16 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .item:first-child{border-top:0}
 .item h3{margin:0 0 5px;font-size:1rem}
 .item small{color:var(--muted)}
-.item-main{
-  display:flex;gap:12px;align-items:flex-start;
-  min-width:0;flex:1
-}
+.item-main{display:flex;gap:12px;align-items:flex-start;min-width:0;flex:1}
 .item-info{min-width:0;overflow-wrap:anywhere}
 .item-thumb{
-  width:112px;height:78px;object-fit:cover;
-  border-radius:9px;border:1px solid var(--gold-b);
-  flex:none;background:#f3e7bd
+  width:112px;height:78px;object-fit:cover;border-radius:9px;
+  border:1px solid var(--gold-b);flex:none;background:#f3e7bd
 }
 .image-empty{
   width:112px;height:78px;display:grid;place-items:center;
   text-align:center;border:1px dashed var(--gold);
-  border-radius:9px;color:var(--muted);font-size:.75rem;
-  flex:none;padding:6px
+  border-radius:9px;color:var(--muted);font-size:.75rem;flex:none;padding:6px
 }
 .image-upload-hint{font-size:.78rem;color:var(--muted);margin-top:5px}
 .acts{display:flex;gap:8px;flex:none;flex-wrap:wrap}
@@ -85,58 +79,32 @@ button:disabled{opacity:.6;cursor:not-allowed}
   display:inline-block;padding:1px 9px;border-radius:99px;
   background:#f3e7bd;font-size:.75rem;font-weight:700;margin-right:6px
 }
-.msg{
-  padding:10px 14px;border-radius:10px;
-  margin:0 0 12px;font-weight:600;overflow-wrap:anywhere
-}
+.msg{padding:10px 14px;border-radius:10px;margin:0 0 12px;font-weight:600;overflow-wrap:anywhere}
 .msg.ok{background:#e4f1e8;color:var(--green)}
 .msg.err{background:#f6e3e3;color:var(--danger)}
 .hide{display:none!important}
-.prev{
-  max-width:220px;max-height:130px;border-radius:8px;
-  margin:0 0 12px;display:block;object-fit:cover
-}
-.image-preview-link{
-  display:inline-block;margin-bottom:10px;
-  color:var(--green);font-size:.82rem;font-weight:700
-}
+.prev{max-width:220px;max-height:130px;border-radius:8px;margin:0 0 12px;display:block;object-fit:cover}
+.image-preview-link{display:inline-block;margin-bottom:10px;color:var(--green);font-size:.82rem;font-weight:700}
 .upload-help{color:var(--muted);font-size:.82rem;margin:5px 0 12px}
 .prep-results{margin-top:14px}
-.prep-result{
-  padding:12px 0;border-top:1px solid var(--gold-b);
-  display:flex;gap:12px;align-items:flex-start
-}
+.prep-result{padding:12px 0;border-top:1px solid var(--gold-b);display:flex;gap:12px;align-items:flex-start}
 .prep-result img{width:90px;height:65px;object-fit:cover;border-radius:8px}
 .prep-result small{display:block;color:var(--muted)}
-.prep-stats{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  gap:8px;margin:14px 0
-}
-.prep-stat{
-  background:#f3e7bd;padding:10px;border-radius:10px;text-align:center
-}
+.prep-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.prep-stat{background:#f3e7bd;padding:10px;border-radius:10px;text-align:center}
 .prep-stat strong{display:block;font-size:1.3rem;color:var(--green)}
 .empty-state{padding:18px;text-align:center;color:var(--muted)}
-.review-card{
-  border:1px solid var(--gold-b);border-radius:12px;
-  padding:14px;margin:14px 0;background:#fffefa
-}
+.review-card{border:1px solid var(--gold-b);border-radius:12px;padding:14px;margin:14px 0;background:#fffefa}
 .review-card .item-main{margin-bottom:12px}
-.review-warning{
-  background:#fff0e7;border-left:4px solid #bd702e;
-  padding:10px;margin:10px 0;border-radius:5px
-}
+.review-warning{background:#fff0e7;border-left:4px solid #bd702e;padding:10px;margin:10px 0;border-radius:5px}
 .review-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .review-actions button{flex:1;min-height:46px}
 .review-meta{font-size:.8rem;color:var(--muted)}
 .review-confirm{display:flex;gap:9px;align-items:flex-start;margin:12px 0}
 .review-confirm input{margin-top:5px}
 .review-confirm label{font-weight:600}
-.review-links a{
-  color:var(--green);font-weight:700;margin-right:12px
-}
-button:focus-visible,input:focus-visible,select:focus-visible,
-textarea:focus-visible,a:focus-visible{
+.review-links a{color:var(--green);font-weight:700;margin-right:12px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{
   outline:3px solid #087568;outline-offset:2px
 }
 @media(max-width:640px){.row{grid-template-columns:1fr}}
@@ -181,15 +149,11 @@ textarea:focus-visible,a:focus-visible{
         <div id="pwMsg" aria-live="polite"></div>
         <form id="pwForm" autocomplete="off">
           <label for="pw1">New password (at least 8 characters)</label>
-          <input id="pw1" type="password" minlength="8"
-                 autocomplete="new-password" required>
+          <input id="pw1" type="password" minlength="8" autocomplete="new-password" required>
           <label for="pw2">Confirm new password</label>
-          <input id="pw2" type="password" minlength="8"
-                 autocomplete="new-password" required>
+          <input id="pw2" type="password" minlength="8" autocomplete="new-password" required>
           <button id="pwSave" type="submit">Change password</button>
-          <button id="pwMail" type="button" class="alt">
-            Email me a reset link instead
-          </button>
+          <button id="pwMail" type="button" class="alt">Email me a reset link instead</button>
         </form>
       </div>
     </details>
@@ -199,17 +163,14 @@ textarea:focus-visible,a:focus-visible{
       <h2 style="margin:0;font-size:1.15rem">Opportunity image preparation</h2>
       <p>
         Prepare unique images for pending opportunity discoveries.
-        Each batch processes up to six records. This does not approve
-        or publish opportunities.
+        Each batch processes up to six records. This does not approve or publish opportunities.
       </p>
-
       <div class="prep-stats">
         <div class="prep-stat"><strong id="prepProcessed">0</strong><small>Processed</small></div>
         <div class="prep-stat"><strong id="prepReady">0</strong><small>Images ready</small></div>
         <div class="prep-stat"><strong id="prepFailed">0</strong><small>Needs attention</small></div>
         <div class="prep-stat"><strong id="prepRemaining">—</strong><small>Pending remaining</small></div>
       </div>
-
       <div id="prepMsg" aria-live="polite"></div>
       <button type="button" id="prepareImages">Prepare next batch (6)</button>
       <div id="prepResults" class="prep-results"></div>
@@ -219,20 +180,17 @@ textarea:focus-visible,a:focus-visible{
     <section class="card" id="discoveryReviewCard">
       <h2 style="margin:0;font-size:1.15rem">Opportunity discovery review</h2>
       <p class="upload-help">
-        Inspect every discovery before approval. Approval moves an
-        opportunity into the approved queue; it does not publish it.
+        Inspect every discovery before approval. Approval moves an opportunity into
+        the approved queue; it does not publish it.
       </p>
-
       <div class="prep-stats">
         <div class="prep-stat"><strong id="reviewPendingCount">0</strong><small>Awaiting review</small></div>
         <div class="prep-stat"><strong id="reviewApprovedCount">0</strong><small>Approved</small></div>
         <div class="prep-stat"><strong id="reviewRejectedCount">0</strong><small>Rejected</small></div>
         <div class="prep-stat"><strong id="reviewTotalCount">0</strong><small>Total loaded</small></div>
       </div>
-
       <div class="row">
-        <input id="discoverySearch" type="search"
-               placeholder="Search title or organisation">
+        <input id="discoverySearch" type="search" placeholder="Search title or organisation">
         <select id="discoveryStatus">
           <option value="pending">Awaiting review</option>
           <option value="approved">Approved</option>
@@ -240,15 +198,9 @@ textarea:focus-visible,a:focus-visible{
           <option value="all">All records</option>
         </select>
       </div>
-
       <div id="discoveryReviewMessage" aria-live="polite"></div>
-
-      <button type="button" class="alt" id="refreshDiscoveries">
-        Refresh discoveries
-      </button>
-      <div id="discoveryReviewList" aria-live="polite">
-        Loading discoveries…
-      </div>
+      <button type="button" class="alt" id="refreshDiscoveries">Refresh discoveries</button>
+      <div id="discoveryReviewList" aria-live="polite">Loading discoveries…</div>
     </section>
 
     <!-- ADD OR EDIT OPPORTUNITY -->
@@ -306,9 +258,24 @@ textarea:focus-visible,a:focus-visible{
 
         <label for="image_url">Image link</label>
         <input id="image_url" type="url" placeholder="https://">
+
         <img id="prev" class="prev hide" alt="Opportunity image preview">
         <a id="previewLink" class="image-preview-link hide"
            target="_blank" rel="noopener noreferrer">Open current image</a>
+
+        <div id="editImagePanel" class="hide">
+          <label for="editImageFile">Upload or replace image directly</label>
+          <input id="editImageFile" type="file"
+                 accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
+          <p class="upload-help">
+            JPG, PNG, WebP, GIF or AVIF. Maximum 6 MB. The image is uploaded
+            to this opportunity's own Storage object.
+          </p>
+          <button id="editImageUpload" type="button" class="alt">
+            Upload / replace image
+          </button>
+          <div id="editImageMsg" aria-live="polite"></div>
+        </div>
 
         <label for="status">Status *</label>
         <input id="status" list="stats" required maxlength="40">
@@ -328,11 +295,9 @@ textarea:focus-visible,a:focus-visible{
     <div class="card">
       <h2 style="margin-top:0;font-size:1.15rem">Existing opportunities</h2>
       <p class="upload-help">
-        Upload a unique image to any opportunity that does not already
-        have an image URL. Images are saved through the protected
-        Supabase function.
+        Edit opportunity details, upload an image or replace an existing image.
+        Image uploads use the protected Supabase function.
       </p>
-
       <div class="row">
         <input id="q" placeholder="Search title or organisation">
         <select id="fstat"><option value="">All statuses</option></select>
@@ -410,6 +375,12 @@ function note(t,k){
     :"";
 }
 
+function editImageNote(t,k){
+  $("editImageMsg").innerHTML=t
+    ?'<p class="msg '+k+'">'+esc(t)+'</p>'
+    :"";
+}
+
 function gate(h){
   $("gate").innerHTML=h;
   $("gate").classList.remove("hide");
@@ -470,10 +441,7 @@ async function init(){
   $("gate").classList.add("hide");
   $("app").classList.remove("hide");
 
-  await Promise.all([
-    load(),
-    loadDiscoveryReview()
-  ]);
+  await Promise.all([load(),loadDiscoveryReview()]);
 }
 
 /* =====================================================
@@ -545,12 +513,11 @@ function render(){
       (o.deadline?' · closes '+esc(o.deadline):'')+'</small>'+
       '<div class="image-upload-hint">'+
       (image
-        ?"Image URL attached · "+esc(o.image_quality_status||"Quality unchecked")
-        :"An individual image is required.")+
+        ?"Image attached · "+esc(o.image_quality_status||"Quality unchecked")
+        :"No image uploaded yet.")+
       '</div></div></div><div class="acts">'+
-      (!image
-        ?'<button class="alt" data-upload="'+esc(o.id)+'" type="button">Upload image</button>'
-        :'')+
+      '<button class="alt" data-upload="'+esc(o.id)+'" type="button">'+
+      (image?"Replace image":"Upload image")+'</button>'+
       '<button class="alt" data-e="'+esc(o.id)+'" type="button">Edit</button>'+
       '<button class="del" data-d="'+esc(o.id)+'" type="button">Delete</button>'+
       '</div></div>';
@@ -564,6 +531,9 @@ function reset(){
   $("cancel").classList.add("hide");
   $("prev").classList.add("hide");
   $("previewLink").classList.add("hide");
+  $("editImagePanel").classList.add("hide");
+  $("editImageFile").value="";
+  editImageNote("","");
   note("");
 }
 
@@ -581,6 +551,9 @@ function edit(id){
 
   $("formTitle").textContent="Edit opportunity";
   $("cancel").classList.remove("hide");
+  $("editImagePanel").classList.remove("hide");
+  $("editImageFile").value="";
+  editImageNote("","");
   preview();
   note("");
   window.scrollTo({top:0,behavior:"smooth"});
@@ -610,7 +583,7 @@ $("fstat").addEventListener("change",render);
 $("cancel").addEventListener("click",reset);
 
 /* =====================================================
-   INDIVIDUAL IMAGE UPLOAD
+   DIRECT IMAGE UPLOAD AND REPLACEMENT
    ===================================================== */
 
 function validateImage(file){
@@ -629,23 +602,28 @@ function validateImage(file){
   }
 }
 
+/*
+  Uses the existing protected Supabase function.
+  For published opportunities, the published row's own UUID is sent.
+  replace_existing=true allows the function to overwrite its own object.
+*/
+
 async function uploadOpportunityImage(id,file){
   validateImage(file);
 
-  var opportunity=rows.find(function(o){return o.id===id});
+  var opportunity=rows.find(function(o){return String(o.id)===String(id)});
 
-  if(!opportunity)throw new Error("Opportunity record not found.");
-
-  if(opportunity.image_url){
-    throw new Error("This opportunity already has an image URL.");
+  if(!opportunity){
+    throw new Error("Published opportunity record not found.");
   }
 
   var session=await getSession();
   var fd=new FormData();
 
-  fd.append("id",id);
+  fd.append("id",String(id));
   fd.append("record_type","opportunity");
   fd.append("source_page_url",opportunity.source_url||"");
+  fd.append("replace_existing","true");
   fd.append("file",file,file.name);
 
   var result=await sb.functions.invoke("noh-upload-opportunity-image",{
@@ -660,18 +638,18 @@ async function uploadOpportunityImage(id,file){
   var data=result.data||{};
 
   if(!data.success||!data.image_url){
-    throw new Error(data.error||"No valid image URL returned.");
+    throw new Error(data.error||"The upload function did not return a valid image URL.");
   }
 
   return data;
 }
 
-function chooseOpportunityImage(id,button){
-  var opportunity=rows.find(function(o){return o.id===id});
-  if(!opportunity)return;
+async function chooseOpportunityImage(id,button){
+  if(uploadInProgress)return;
 
-  if(opportunity.image_url){
-    alert("This opportunity already has an image URL.");
+  var opportunity=rows.find(function(o){return String(o.id)===String(id)});
+  if(!opportunity){
+    alert("Opportunity record not found. Refresh the list.");
     return;
   }
 
@@ -685,21 +663,22 @@ function chooseOpportunityImage(id,button){
     var file=picker.files&&picker.files[0];
     picker.remove();
 
-    if(!file||uploadInProgress)return;
+    if(!file)return;
 
     uploadInProgress=true;
     button.disabled=true;
+    var oldText=button.textContent;
     button.textContent="Uploading…";
     note("Uploading and validating image…","ok");
 
     try{
       await uploadOpportunityImage(id,file);
-      note("Image uploaded successfully.","ok");
+      note("Image uploaded and opportunity image record updated.","ok");
       await load();
     }catch(error){
       note(error.message||"Image upload failed.","err");
       button.disabled=false;
-      button.textContent="Upload image";
+      button.textContent=oldText;
     }finally{
       uploadInProgress=false;
     }
@@ -707,6 +686,47 @@ function chooseOpportunityImage(id,button){
 
   picker.click();
 }
+
+$("editImageUpload").addEventListener("click",async function(){
+  if(!editId){
+    editImageNote("Open an existing opportunity using Edit first.","err");
+    return;
+  }
+
+  if(uploadInProgress)return;
+
+  var file=$("editImageFile").files&&$("editImageFile").files[0];
+
+  if(!file){
+    editImageNote("Choose an image file first.","err");
+    return;
+  }
+
+  var button=$("editImageUpload");
+  uploadInProgress=true;
+  button.disabled=true;
+  button.textContent="Uploading…";
+  editImageNote("Uploading image to the published opportunity…","ok");
+
+  try{
+    await uploadOpportunityImage(editId,file);
+    $("editImageFile").value="";
+    editImageNote("Image uploaded and replaced successfully.","ok");
+    await load();
+
+    var updated=rows.find(function(o){return String(o.id)===String(editId)});
+    if(updated){
+      $("image_url").value=updated.image_url||"";
+      preview();
+    }
+  }catch(error){
+    editImageNote(error.message||"Image upload failed.","err");
+  }finally{
+    uploadInProgress=false;
+    button.disabled=false;
+    button.textContent="Upload / replace image";
+  }
+});
 
 $("list").addEventListener("click",async function(e){
   var b=e.target.closest("button");
@@ -779,9 +799,25 @@ $("form").addEventListener("submit",async function(e){
     }
 
     var wasEdit=!!editId;
-    reset();
+    var savedId=editId;
+
+    if(wasEdit){
+      editId=savedId;
+      $("editImagePanel").classList.remove("hide");
+    }else{
+      reset();
+    }
+
     note(wasEdit?"Changes saved.":"Opportunity added.","ok");
     await load();
+
+    if(wasEdit){
+      var updated=rows.find(function(o){return String(o.id)===String(savedId)});
+      if(updated){
+        $("image_url").value=updated.image_url||"";
+        preview();
+      }
+    }
 
   }catch(error){
     note(error.message||"Unable to save opportunity.","err");
@@ -806,26 +842,18 @@ $("pwForm").addEventListener("submit",async function(e){
   var a=$("pw1").value;
   var b=$("pw2").value;
 
-  if(a.length<8){
-    return pwNote("Use at least 8 characters.","err");
-  }
-
-  if(a!==b){
-    return pwNote("The passwords do not match.","err");
-  }
+  if(a.length<8)return pwNote("Use at least 8 characters.","err");
+  if(a!==b)return pwNote("The passwords do not match.","err");
 
   $("pwSave").disabled=true;
 
   try{
     var r=await sb.auth.updateUser({password:a});
 
-    if(r.error){
-      return pwNote(r.error.message,"err");
-    }
+    if(r.error)return pwNote(r.error.message,"err");
 
     $("pwForm").reset();
     pwNote("Password changed successfully.","ok");
-
   }catch(error){
     pwNote(error.message||"Unable to change password.","err");
   }finally{
@@ -838,9 +866,7 @@ $("pwMail").addEventListener("click",async function(){
     var s=await sb.auth.getSession();
     var u=s.data&&s.data.session&&s.data.session.user;
 
-    if(!u||!u.email){
-      return pwNote("Please sign in again.","err");
-    }
+    if(!u||!u.email)return pwNote("Please sign in again.","err");
 
     var r=await sb.auth.resetPasswordForEmail(
       u.email,
@@ -878,17 +904,9 @@ function renderPrepResults(data){
   var ready=data.image_ready??data.images_ready??data.ready;
   var failed=data.needs_attention??data.failed??data.failures;
 
-  if(processed!=null){
-    $("prepProcessed").textContent=prepNumber(processed);
-  }
-
-  if(ready!=null){
-    $("prepReady").textContent=prepNumber(ready);
-  }
-
-  if(failed!=null){
-    $("prepFailed").textContent=prepNumber(failed);
-  }
+  if(processed!=null)$("prepProcessed").textContent=prepNumber(processed);
+  if(ready!=null)$("prepReady").textContent=prepNumber(ready);
+  if(failed!=null)$("prepFailed").textContent=prepNumber(failed);
 
   if(data.remaining_pending!=null){
     $("prepRemaining").textContent=prepNumber(data.remaining_pending);
@@ -954,7 +972,6 @@ $("prepareImages").addEventListener("click",async function(){
 
 async function loadDiscoveryReview(){
   var list=$("discoveryReviewList");
-
   list.textContent="Loading discoveries…";
   discoveryNote("","");
 
@@ -972,7 +989,6 @@ async function loadDiscoveryReview(){
     if(result.error)throw result.error;
 
     discoveryRows=result.data||[];
-
     updateReviewCounts();
     renderDiscoveryReview();
 
@@ -980,10 +996,7 @@ async function loadDiscoveryReview(){
     list.innerHTML=
       '<p class="msg err">'+esc(error.message||"Unable to load discoveries.")+'</p>';
 
-    discoveryNote(
-      error.message||"Unable to load discoveries.",
-      "err"
-    );
+    discoveryNote(error.message||"Unable to load discoveries.","err");
   }
 }
 
@@ -991,19 +1004,13 @@ function updateReviewCounts(){
   $("reviewTotalCount").textContent=discoveryRows.length;
 
   $("reviewPendingCount").textContent=
-    discoveryRows.filter(function(x){
-      return x.status==="pending";
-    }).length;
+    discoveryRows.filter(function(x){return x.status==="pending"}).length;
 
   $("reviewApprovedCount").textContent=
-    discoveryRows.filter(function(x){
-      return x.status==="approved";
-    }).length;
+    discoveryRows.filter(function(x){return x.status==="approved"}).length;
 
   $("reviewRejectedCount").textContent=
-    discoveryRows.filter(function(x){
-      return x.status==="rejected";
-    }).length;
+    discoveryRows.filter(function(x){return x.status==="rejected"}).length;
 }
 
 function renderDiscoveryReview(){
@@ -1012,11 +1019,8 @@ function renderDiscoveryReview(){
 
   var visible=discoveryRows.filter(function(item){
     var text=[
-      item.title,
-      item.organization,
-      item.category,
-      item.eligibility,
-      item.location
+      item.title,item.organization,item.category,
+      item.eligibility,item.location
     ].join(" ").toLowerCase();
 
     return (!query||text.includes(query))&&
@@ -1031,10 +1035,8 @@ function renderDiscoveryReview(){
 
   $("discoveryReviewList").innerHTML=visible.map(function(item){
     var image=safeHttps(item.image_url);
-
     var today=new Date().toISOString().slice(0,10);
     var expired=item.deadline&&item.deadline<today;
-
     var eligibilityText=item.eligibility||"Not provided";
 
     var nigeriaWarning=
@@ -1076,14 +1078,12 @@ function renderDiscoveryReview(){
         '<div class="review-actions">'+
           '<button type="button" data-review-approve="'+esc(item.id)+'">'+
           'Approve for review queue</button>'+
-          '<button type="button" class="del" data-review-reject="'+esc(item.id)+'">'+
-          'Reject</button>'+
+          '<button type="button" class="del" data-review-reject="'+esc(item.id)+'">Reject</button>'+
         '</div>';
     }else{
       actions=
         '<p class="review-meta"><strong>Review note:</strong> '+
-        esc(item.review_note||"No review note recorded.")+
-        '</p>';
+        esc(item.review_note||"No review note recorded.")+'</p>';
     }
 
     return '<article class="review-card" data-discovery-id="'+esc(item.id)+'">'+
@@ -1128,20 +1128,15 @@ $("discoveryStatus").addEventListener("change",renderDiscoveryReview);
 
 $("refreshDiscoveries").addEventListener("click",async function(){
   var button=$("refreshDiscoveries");
-
   button.disabled=true;
   button.textContent="Refreshing…";
-
   await loadDiscoveryReview();
-
   button.disabled=false;
   button.textContent="Refresh discoveries";
 });
 
 /* =====================================================
    APPROVE / REJECT
-   Document-level capture handler:
-   handles dynamically generated review buttons.
    ===================================================== */
 
 async function handleDiscoveryReview(button){
@@ -1206,14 +1201,10 @@ async function handleDiscoveryReview(button){
 
     if(!window.confirm(
       "Approve this opportunity for the publishing queue? It will NOT be published yet."
-    )){
-      return;
-    }
+    ))return;
 
   }else{
-    if(!window.confirm("Reject this discovery record?")){
-      return;
-    }
+    if(!window.confirm("Reject this discovery record?"))return;
   }
 
   var noteField=$("review-note-"+id);
@@ -1229,7 +1220,7 @@ async function handleDiscoveryReview(button){
   );
 
   try{
-    var session=await getSession();
+    await getSession();
 
     var response=await sb.rpc("noh_admin_review_discovery",{
       p_discovery_id:id,
@@ -1238,9 +1229,7 @@ async function handleDiscoveryReview(button){
       p_image_confirmed:imageConfirmed
     });
 
-    if(response.error){
-      throw response.error;
-    }
+    if(response.error)throw response.error;
 
     discoveryNote(
       decision==="approve"
@@ -1269,10 +1258,6 @@ async function handleDiscoveryReview(button){
   }
 }
 
-/*
-  Capture clicks at document level. This avoids depending on
-  event bubbling through the dynamically replaced review list.
-*/
 document.addEventListener("click",function(event){
   var target=event.target;
 
@@ -1303,7 +1288,6 @@ document.addEventListener("click",function(event){
 
 $("out").addEventListener("click",async function(e){
   e.preventDefault();
-
   await sb.auth.signOut();
   location.reload();
 });
